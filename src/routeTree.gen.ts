@@ -9,38 +9,141 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as ProfileRouteImport } from './routes/profile'
+import { Route as OnboardingRouteImport } from './routes/onboarding'
+import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as LessonNodeIdRouteImport } from './routes/lesson.$nodeId'
+import { Route as LearnReadingWritingRouteImport } from './routes/learn.reading-writing'
+import { Route as LearnMathRouteImport } from './routes/learn.math'
 
+const ProfileRoute = ProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OnboardingRoute = OnboardingRouteImport.update({
+  id: '/onboarding',
+  path: '/onboarding',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardRoute = DashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LessonNodeIdRoute = LessonNodeIdRouteImport.update({
+  id: '/lesson/$nodeId',
+  path: '/lesson/$nodeId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LearnReadingWritingRoute = LearnReadingWritingRouteImport.update({
+  id: '/learn/reading-writing',
+  path: '/learn/reading-writing',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LearnMathRoute = LearnMathRouteImport.update({
+  id: '/learn/math',
+  path: '/learn/math',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/dashboard': typeof DashboardRoute
+  '/onboarding': typeof OnboardingRoute
+  '/profile': typeof ProfileRoute
+  '/learn/math': typeof LearnMathRoute
+  '/learn/reading-writing': typeof LearnReadingWritingRoute
+  '/lesson/$nodeId': typeof LessonNodeIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/dashboard': typeof DashboardRoute
+  '/onboarding': typeof OnboardingRoute
+  '/profile': typeof ProfileRoute
+  '/learn/math': typeof LearnMathRoute
+  '/learn/reading-writing': typeof LearnReadingWritingRoute
+  '/lesson/$nodeId': typeof LessonNodeIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/dashboard': typeof DashboardRoute
+  '/onboarding': typeof OnboardingRoute
+  '/profile': typeof ProfileRoute
+  '/learn/math': typeof LearnMathRoute
+  '/learn/reading-writing': typeof LearnReadingWritingRoute
+  '/lesson/$nodeId': typeof LessonNodeIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/dashboard'
+    | '/onboarding'
+    | '/profile'
+    | '/learn/math'
+    | '/learn/reading-writing'
+    | '/lesson/$nodeId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/dashboard'
+    | '/onboarding'
+    | '/profile'
+    | '/learn/math'
+    | '/learn/reading-writing'
+    | '/lesson/$nodeId'
+  id:
+    | '__root__'
+    | '/'
+    | '/dashboard'
+    | '/onboarding'
+    | '/profile'
+    | '/learn/math'
+    | '/learn/reading-writing'
+    | '/lesson/$nodeId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  DashboardRoute: typeof DashboardRoute
+  OnboardingRoute: typeof OnboardingRoute
+  ProfileRoute: typeof ProfileRoute
+  LearnMathRoute: typeof LearnMathRoute
+  LearnReadingWritingRoute: typeof LearnReadingWritingRoute
+  LessonNodeIdRoute: typeof LessonNodeIdRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/profile': {
+      id: '/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof ProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/onboarding': {
+      id: '/onboarding'
+      path: '/onboarding'
+      fullPath: '/onboarding'
+      preLoaderRoute: typeof OnboardingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,11 +151,38 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/lesson/$nodeId': {
+      id: '/lesson/$nodeId'
+      path: '/lesson/$nodeId'
+      fullPath: '/lesson/$nodeId'
+      preLoaderRoute: typeof LessonNodeIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/learn/reading-writing': {
+      id: '/learn/reading-writing'
+      path: '/learn/reading-writing'
+      fullPath: '/learn/reading-writing'
+      preLoaderRoute: typeof LearnReadingWritingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/learn/math': {
+      id: '/learn/math'
+      path: '/learn/math'
+      fullPath: '/learn/math'
+      preLoaderRoute: typeof LearnMathRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  DashboardRoute: DashboardRoute,
+  OnboardingRoute: OnboardingRoute,
+  ProfileRoute: ProfileRoute,
+  LearnMathRoute: LearnMathRoute,
+  LearnReadingWritingRoute: LearnReadingWritingRoute,
+  LessonNodeIdRoute: LessonNodeIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
