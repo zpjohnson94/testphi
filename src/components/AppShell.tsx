@@ -27,7 +27,7 @@ function BottomNav() {
           return (
             <Link
               key={to}
-              to={to}
+              to={to as any}
               className="flex flex-col items-center gap-1 py-3 text-xs font-semibold transition-colors"
               style={{ color: active ? "var(--primary)" : "var(--muted-foreground)" }}
             >
