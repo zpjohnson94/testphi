@@ -230,8 +230,6 @@ function LessonRunner({ ctx }: { ctx: LessonContext }) {
   const total = ctx.questions.length;
   const perfect = correctCount === total;
   const xpEarned = correctCount * (ctx.isBoss ? 10 : 5) + (perfect ? 5 : 0);
-  const eloAfter = useStore.getState ? eloBefore : eloBefore; // placeholder
-  // We need post-update elo:
   return <ResultsScreen
     correctCount={correctCount}
     total={total}
