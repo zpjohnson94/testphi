@@ -44,24 +44,25 @@ function DiagQuestion() {
 
   const isLast = idx === TOTAL_QUESTIONS;
 
-  const submit = () => {
-    if (selected === null || submitted) return;
+  const submit = (choiceIdx: number) => {
+    if (submitted) return;
+    setSelected(choiceIdx);
     setSubmitted(true);
+    sfx.tap();
     const elapsedSeconds = (Date.now() - startRef.current) / 1000;
-    const correct = selected === question.correctIndex;
-    const record: AnswerRecord = { n: question.n, choice: selected, correct, elapsedSeconds };
+    const correct = choiceIdx === question.correctIndex;
+    const record: AnswerRecord = { n: question.n, choice: choiceIdx, correct, elapsedSeconds };
     const next = { ...diag, answers: [...diag.answers.filter(a => a.n !== question.n), record].sort((a, b) => a.n - b.n) };
     saveDiag(next);
     setDiag(next);
 
-    // Auto-advance after 1000ms
     setTimeout(() => {
       if (isLast) {
         navigate({ to: "/diagnostic/results" as any });
       } else {
         navigate({ to: "/diagnostic/question/$n" as any, params: { n: String(idx + 1) } as any });
       }
-    }, 1000);
+    }, 550);
   };
 
   const overTime = elapsed > question.expectedSeconds;
