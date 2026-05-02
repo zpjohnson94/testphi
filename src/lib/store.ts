@@ -4,8 +4,9 @@
 import { useEffect, useSyncExternalStore } from "react";
 import { WORLDS, SKILLS, type Section } from "./content";
 import { updateElo } from "./elo";
+import { defaultAvatar, type AvatarConfig, type AccessoryId } from "@/components/Avatar";
 
-const STORAGE_KEY = "satquest:v1";
+const STORAGE_KEY = "satquest:v2";
 
 export interface NodeProgress {
   best: number;        // 0..3 best correct count
@@ -16,7 +17,8 @@ export interface NodeProgress {
 export interface State {
   hasOnboarded: boolean;
   name: string;
-  avatar: string;
+  avatar: AvatarConfig;
+  unlockedAccessories: AccessoryId[];
   dailyGoalXp: number;
   xpToday: number;
   xpDate: string;       // ISO date for xpToday
@@ -44,7 +46,8 @@ function defaultState(): State {
   return {
     hasOnboarded: false,
     name: "Player",
-    avatar: "🦊",
+    avatar: defaultAvatar(),
+    unlockedAccessories: ["none"],
     dailyGoalXp: 20,
     xpToday: 0,
     xpDate: today(),
@@ -116,7 +119,7 @@ export function useHydration() {
 
 export function completeOnboarding(opts: {
   name: string;
-  avatar: string;
+  avatar: AvatarConfig;
   dailyGoalXp: number;
   rwElo: number;
   mathElo: number;
@@ -182,6 +185,17 @@ export function finishLesson(opts: { nodeId: string; correctCount: number; xp: n
     } else {
       history.push({ date: td, rw: s.rwElo, math: s.mathElo });
     }
+    // Unlock accessories
+    const unlocks = new Set(s.unlockedAccessories);
+    const completedCount = Object.values({ ...s.progress, [opts.nodeId]: progress }).filter((p) => p.best >= 3).length;
+    if (streak >= 3) unlocks.add("party");
+    if (streak >= 7) unlocks.add("headphones");
+    if (completedCount >= 5) unlocks.add("tophat");
+    if (completedCount >= 10) unlocks.add("flower");
+    const projected = Math.round(((s.rwElo - 600) / 1200) * 600 + 200) + Math.round(((s.mathElo - 600) / 1200) * 600 + 200);
+    if (projected >= 1400) unlocks.add("grad");
+    if (projected >= 1450) unlocks.add("wizard");
+
     return {
       ...s,
       xpToday,
@@ -192,12 +206,21 @@ export function finishLesson(opts: { nodeId: string; correctCount: number; xp: n
       lastNodeId: opts.nodeId,
       progress: { ...s.progress, [opts.nodeId]: progress },
       eloHistory: history,
+      unlockedAccessories: Array.from(unlocks),
     };
   });
 }
 
 export function resetAll() {
   setState(() => defaultState());
+}
+
+export function updateAvatar(avatar: AvatarConfig) {
+  setState((s) => ({ ...s, avatar }));
+}
+
+export function unlockAccessory(id: AccessoryId) {
+  setState((s) => s.unlockedAccessories.includes(id) ? s : { ...s, unlockedAccessories: [...s.unlockedAccessories, id] });
 }
 
 // --- Helpers ---

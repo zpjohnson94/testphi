@@ -31,7 +31,7 @@ export const Route = createRootRoute({
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "SAT Quest" },
       { name: "description", content: "Adaptive SAT prep that feels like a game." },
-      { name: "theme-color", content: "#7c5cff" },
+      { name: "theme-color", content: "#1D2900" },
     ],
     links: [
       {

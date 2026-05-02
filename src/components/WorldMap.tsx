@@ -3,6 +3,7 @@ import { ArrowLeft, Lock, Check, Star, Crown } from "lucide-react";
 import { type World } from "@/lib/content";
 import { useStore } from "@/lib/store";
 import { sectionEloToSAT } from "@/lib/elo";
+import { Avatar } from "@/components/Avatar";
 
 export function WorldMap({ world }: { world: World }) {
   const navigate = useNavigate();
@@ -10,40 +11,30 @@ export function WorldMap({ world }: { world: World }) {
   const elo = useStore((s) => (world.section === "rw" ? s.rwElo : s.mathElo));
   const avatar = useStore((s) => s.avatar);
 
-  const gradient = world.section === "rw" ? "var(--gradient-rw)" : "var(--gradient-math)";
-  const softBg = world.section === "rw" ? "var(--world-rw-soft)" : "var(--world-math-soft)";
+  const accent = world.section === "rw" ? "var(--volt)" : "var(--neon)";
 
-  // Compute first incomplete index (where character sits / where unlock is)
   let firstIncomplete = world.nodes.findIndex((n) => (progress[n.id]?.best ?? 0) < 3);
-  if (firstIncomplete === -1) firstIncomplete = world.nodes.length; // boss
+  if (firstIncomplete === -1) firstIncomplete = world.nodes.length;
 
   return (
-    <div className="min-h-screen pb-24" style={{ background: softBg }}>
-      {/* Header */}
-      <header className="sticky top-0 z-20 backdrop-blur" style={{ background: "color-mix(in oklab, var(--background) 80%, transparent)" }}>
+    <div className="topo-bg topo-dim min-h-screen pb-24">
+      <header className="sticky top-0 z-20 backdrop-blur" style={{ background: "rgba(29,41,0,0.85)", borderBottom: "1px solid rgba(246,240,250,0.1)" }}>
         <div className="mx-auto max-w-2xl flex items-center gap-3 px-5 py-4">
-          <Link to={"/dashboard" as any} className="size-10 rounded-xl border border-border bg-card flex items-center justify-center hover:bg-muted">
+          <Link to={"/dashboard" as any} className="size-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(246,240,250,0.08)", color: "var(--lavender)" }}>
             <ArrowLeft className="size-5" />
           </Link>
           <div className="flex-1">
-            <div className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
+            <div className="text-[10px] font-bold uppercase tracking-[0.2em]" style={{ color: accent }}>
               {world.section === "rw" ? "Reading & Writing" : "Math"}
             </div>
-            <div className="text-lg font-extrabold leading-tight">{world.emoji} {world.name}</div>
+            <div className="display text-lg text-[var(--lavender)]">{world.name}</div>
           </div>
-          <div className="rounded-2xl px-3 py-1.5 text-primary-foreground text-center" style={{ background: gradient }}>
-            <div className="text-[10px] font-bold uppercase opacity-90">SAT</div>
-            <div className="font-extrabold tabular-nums leading-none">{sectionEloToSAT(elo)}</div>
-          </div>
+          <div className="score-pill text-base">{sectionEloToSAT(elo)}</div>
         </div>
       </header>
 
-      {/* Path */}
       <div className="mx-auto max-w-md px-5 pt-8 pb-6 relative">
-        {/* Decorative path line */}
-        <PathBackground gradient={gradient} count={world.nodes.length + 1} />
-
-        <div className="relative space-y-10">
+        <div className="relative space-y-12">
           {world.nodes.map((n, i) => {
             const p = progress[n.id];
             const completed = (p?.best ?? 0) >= 3;
@@ -53,34 +44,35 @@ export function WorldMap({ world }: { world: World }) {
             const offset = pathOffset(i);
 
             return (
-              <div key={n.id} className="flex items-center" style={{ justifyContent: offset.justify }}>
-                <div className="relative" style={{ transform: `translateX(${offset.x}px)` }}>
+              <div key={n.id} className="flex justify-center">
+                <div className="relative" style={{ transform: `translateX(${offset}px)` }}>
                   {isCurrent && (
-                    <div className="absolute -top-14 left-1/2 -translate-x-1/2 text-3xl animate-bounce-soft">
-                      {avatar}
+                    <div className="absolute -top-20 left-1/2 -translate-x-1/2">
+                      <Avatar config={avatar} size={64} animate />
                     </div>
                   )}
                   <button
                     disabled={locked}
                     onClick={() => navigate({ to: "/lesson/$nodeId" as any, params: { nodeId: n.id } as any })}
-                    className="relative size-20 rounded-full font-extrabold text-primary-foreground transition-all hover:scale-110 disabled:cursor-not-allowed disabled:hover:scale-100"
+                    className="relative size-20 rounded-full font-extrabold transition-all hover:scale-110 disabled:cursor-not-allowed disabled:hover:scale-100"
                     style={{
-                      background: locked ? "var(--muted)" : completed ? "var(--gradient-xp)" : gradient,
-                      color: locked ? "var(--muted-foreground)" : "white",
-                      boxShadow: locked ? "none" : "var(--shadow-node)",
+                      background: locked ? "rgba(246,240,250,0.08)" : completed ? "var(--volt)" : "var(--lavender)",
+                      color: locked ? "rgba(246,240,250,0.4)" : "var(--ink)",
+                      border: `3px solid ${locked ? "rgba(246,240,250,0.15)" : accent}`,
+                      boxShadow: locked ? "none" : "0 6px 0 0 rgba(0,0,0,0.5)",
                     }}
                   >
                     {locked ? <Lock className="size-7 mx-auto" /> :
                       completed ? <Check className="size-8 mx-auto" /> :
-                      <span className="text-2xl">{i + 1}</span>}
+                      <span className="display text-3xl">{i + 1}</span>}
                     {isCurrent && (
                       <span className="absolute inset-0 rounded-full animate-pulse-ring pointer-events-none" />
                     )}
                     {partial && !completed && (
-                      <Star className="absolute -top-1 -right-1 size-5 fill-current" style={{ color: "var(--xp)" }} />
+                      <Star className="absolute -top-1 -right-1 size-5 fill-current" style={{ color: "var(--spark)" }} />
                     )}
                   </button>
-                  <div className="mt-2 text-center text-xs font-bold max-w-[120px]">
+                  <div className="mt-2 text-center text-xs font-bold max-w-[140px] mx-auto" style={{ color: "var(--lavender)" }}>
                     {n.title}
                   </div>
                 </div>
@@ -88,19 +80,20 @@ export function WorldMap({ world }: { world: World }) {
             );
           })}
 
-          {/* Boss node */}
-          <div className="flex justify-center pt-4">
+          <div className="flex justify-center pt-6">
             <button
               disabled={firstIncomplete < world.nodes.length}
               onClick={() => navigate({ to: "/lesson/$nodeId" as any, params: { nodeId: world.bossId } as any })}
-              className="relative size-28 rounded-3xl font-extrabold text-primary-foreground transition-all hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="relative size-28 rounded-3xl transition-all hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
               style={{
-                background: firstIncomplete < world.nodes.length ? "var(--muted)" : "var(--gradient-primary)",
-                boxShadow: firstIncomplete < world.nodes.length ? "none" : "var(--shadow-node)",
+                background: firstIncomplete < world.nodes.length ? "rgba(246,240,250,0.08)" : "var(--gradient-spark)",
+                color: "var(--ink)",
+                border: `3px solid ${firstIncomplete < world.nodes.length ? "rgba(246,240,250,0.15)" : "var(--spark)"}`,
+                boxShadow: firstIncomplete < world.nodes.length ? "none" : "0 8px 0 0 rgba(0,0,0,0.5)",
               }}
             >
               <Crown className="size-10 mx-auto" />
-              <div className="text-xs mt-1">{world.bossTitle}</div>
+              <div className="display text-xs mt-1">{world.bossTitle}</div>
             </button>
           </div>
         </div>
@@ -109,19 +102,7 @@ export function WorldMap({ world }: { world: World }) {
   );
 }
 
-function pathOffset(i: number): { justify: string; x: number } {
-  // Snake left/center/right pattern
-  const pattern = [0, 70, 0, -70, 0, 60, -60][i % 7];
-  return { justify: "center", x: pattern };
-}
-
-function PathBackground({ gradient, count }: { gradient: string; count: number }) {
-  // Simple decorative dots between nodes
-  return (
-    <div aria-hidden className="absolute inset-x-0 top-0 bottom-0 flex flex-col items-center pointer-events-none">
-      {Array.from({ length: count - 1 }).map((_, i) => (
-        <div key={i} className="flex-1 w-1.5 my-2 rounded-full opacity-30" style={{ background: gradient }} />
-      ))}
-    </div>
-  );
+function pathOffset(i: number): number {
+  const pattern = [0, 70, 30, -50, -80, 0, 60, -60];
+  return pattern[i % pattern.length];
 }
