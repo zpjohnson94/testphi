@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Sparkles, BookOpen, Calculator, Trophy, Zap, Brain } from "lucide-react";
 import { Avatar, defaultAvatar } from "@/components/Avatar";
+import { Logo } from "@/components/Logo";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -21,9 +22,7 @@ function Landing() {
       <header className="sticky top-0 z-30 backdrop-blur" style={{ background: "rgba(29,41,0,0.85)", borderBottom: "1px solid rgba(246,240,250,0.08)" }}>
         <div className="mx-auto max-w-6xl flex items-center justify-between px-5 py-3">
           <Link to="/" className="flex items-center gap-2">
-            <span className="size-9 rounded-xl flex items-center justify-center display" style={{ background: "var(--volt)", color: "var(--ink)" }}>
-              SQ
-            </span>
+            <Logo size={36} />
             <span className="display text-lg text-[var(--lavender)]">ZenTest</span>
           </Link>
           <Link to={"/onboarding" as any} className="btn-volt px-4 py-2 text-sm">Start free</Link>
