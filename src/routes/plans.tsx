@@ -90,16 +90,11 @@ function Plans() {
             </div>
             <ul className="mt-5 space-y-2.5">
               <Feat pro>Everything in Free</Feat>
-              <Feat pro>Unlimited diagnostic tests</Feat>
               <Feat pro>Adaptive training targeting weak spots</Feat>
               <Feat pro>Unlimited practice questions</Feat>
               <Feat pro>Section-specific training (Math or R&W)</Feat>
               <Feat pro>Detailed answer explanations</Feat>
               <Feat pro>Full-length timed practice tests</Feat>
-              <Feat pro>Score improvement guarantee (+100 or refund)</Feat>
-              <Feat pro>Leaderboard & peer ranking</Feat>
-              <Feat pro>Streak tracking & XP rewards</Feat>
-              <Feat pro>Priority support</Feat>
             </ul>
             <Link to={"/dashboard" as any}
               className="btn-volt block text-center mt-6 py-3.5 text-base rounded-2xl">
