@@ -1,6 +1,6 @@
 // ZenTest logo — a chunky "Z" whose diagonal doubles as an upward arrow.
-// The top bar feeds into a thick diagonal that pierces up & right into an
-// arrowhead, then the bottom bar grounds it. Reads as both "Z" and "↗".
+// The Z's diagonal runs from bottom-left to top-right; an arrowhead caps
+// the top-right corner so the mark reads as both "Z" and "↗".
 
 interface LogoProps {
   size?: number;
@@ -16,10 +16,8 @@ export function Logo({ size = 36, className = "" }: LogoProps) {
       className={className}
       aria-label="ZenTest logo"
     >
-      {/* Rounded square background tile */}
       <rect x="0" y="0" width="40" height="40" rx="10" fill="var(--volt)" />
 
-      {/* The Z / up-arrow mark — single continuous stroke */}
       <g
         fill="none"
         stroke="var(--ink)"
@@ -27,10 +25,12 @@ export function Logo({ size = 36, className = "" }: LogoProps) {
         strokeLinecap="round"
         strokeLinejoin="round"
       >
-        {/* top bar → diagonal up-right → arrowhead, then bottom bar */}
-        <path d="M10 11 L26 11 L11 30 L30 30" />
-        {/* arrowhead at the top of the diagonal (tip up & right) */}
-        <path d="M20 6 L29 6 L29 15" />
+        {/* Bottom bar → diagonal up to top-right → top bar back to left.
+            Drawing the Z "in reverse" so the diagonal arrives at the top-right,
+            where the arrowhead lives. */}
+        <path d="M10 30 L29 30 L11 11 L28 11" />
+        {/* Arrowhead at the top of the diagonal — tip points up & right */}
+        <path d="M21 7 L29 7 L29 15" />
       </g>
     </svg>
   );
