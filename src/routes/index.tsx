@@ -5,9 +5,9 @@ import { Avatar, defaultAvatar } from "@/components/Avatar";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "SAT Quest — Adaptive SAT prep that feels like a game" },
+      { title: "ZenTest — Adaptive SAT prep that feels like a game" },
       { name: "description", content: "Level up to your target SAT score with bite-sized lessons, an ELO rating like chess, and adaptive practice that hunts your weak spots." },
-      { property: "og:title", content: "SAT Quest — Adaptive SAT prep that feels like a game" },
+      { property: "og:title", content: "ZenTest — Adaptive SAT prep that feels like a game" },
       { property: "og:description", content: "Bite-sized lessons. An ELO rating like chess. An adaptive map that targets your weak spots." },
     ],
   }),
@@ -24,7 +24,7 @@ function Landing() {
             <span className="size-9 rounded-xl flex items-center justify-center display" style={{ background: "var(--volt)", color: "var(--ink)" }}>
               SQ
             </span>
-            <span className="display text-lg text-[var(--lavender)]">SAT Quest</span>
+            <span className="display text-lg text-[var(--lavender)]">ZenTest</span>
           </Link>
           <Link to={"/onboarding" as any} className="btn-volt px-4 py-2 text-sm">Start free</Link>
         </div>

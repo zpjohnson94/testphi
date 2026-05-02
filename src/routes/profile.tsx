@@ -10,7 +10,7 @@ import { Lock } from "lucide-react";
 import { sfx } from "@/lib/sfx";
 
 export const Route = createFileRoute("/profile")({
-  head: () => ({ meta: [{ title: "Profile — SAT Quest" }] }),
+  head: () => ({ meta: [{ title: "Profile — ZenTest" }] }),
   component: Profile,
 });
 

@@ -146,7 +146,9 @@
   }
 }
 
-/* Topographic contour background */
+/* Topographic contour background — seamless tile.
+   Each path uses cubic bezier with start.y === end.y so the contour
+   loops perfectly when the 600x600 tile repeats horizontally and vertically. */
 .topo-bg {
   position: relative;
   isolation: isolate;
@@ -158,14 +160,16 @@
   z-index: -1;
   background-color: var(--ink);
   background-image:
-    radial-gradient(ellipse 1200px 800px at 20% 10%, rgba(168, 85, 247, 0.18), transparent 60%),
-    radial-gradient(ellipse 900px 700px at 90% 90%, rgba(184, 255, 0, 0.10), transparent 60%),
-    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 800'><g fill='none' stroke-width='1.2'><g stroke='%23B8FF00' stroke-opacity='0.22'><path d='M-50 200 Q 200 120 400 200 T 850 220'/><path d='M-50 260 Q 220 180 420 260 T 850 280'/><path d='M-50 320 Q 240 250 440 320 T 850 340'/><path d='M-50 380 Q 220 320 420 380 T 850 400'/><path d='M-50 440 Q 200 380 400 440 T 850 460'/></g><g stroke='%23A855F7' stroke-opacity='0.22'><path d='M-50 520 Q 240 460 440 520 T 850 540'/><path d='M-50 580 Q 260 520 460 580 T 850 600'/><path d='M-50 640 Q 240 590 440 640 T 850 660'/><path d='M-50 700 Q 220 660 420 700 T 850 720'/></g></g></svg>");
-  background-size: cover, cover, 800px 800px;
-  background-repeat: no-repeat, no-repeat, repeat;
+    radial-gradient(ellipse 1400px 900px at 15% 0%, rgba(168, 85, 247, 0.28), transparent 65%),
+    radial-gradient(ellipse 1100px 800px at 100% 100%, rgba(184, 255, 0, 0.16), transparent 65%),
+    radial-gradient(circle 600px at 80% 20%, rgba(74, 6, 136, 0.55), transparent 70%),
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='600' height='600' viewBox='0 0 600 600'><g fill='none' stroke-width='1.4' stroke-linecap='round'><g stroke='%23B8FF00' stroke-opacity='0.30'><path d='M0 80 C 100 40, 200 130, 300 80 S 500 30, 600 80'/><path d='M0 140 C 120 110, 220 190, 300 150 S 480 100, 600 140'/><path d='M0 210 C 80 170, 240 250, 320 220 S 520 180, 600 210'/><path d='M0 290 C 140 240, 240 340, 340 300 S 500 260, 600 290'/></g><g stroke='%23A855F7' stroke-opacity='0.32'><path d='M0 360 C 110 320, 230 410, 320 370 S 510 330, 600 360'/><path d='M0 430 C 130 390, 240 480, 340 440 S 500 400, 600 430'/><path d='M0 500 C 90 460, 230 550, 330 510 S 510 470, 600 500'/><path d='M0 570 C 130 530, 240 610, 340 580 S 500 550, 600 570'/></g></g></svg>");
+  background-size: cover, cover, cover, 600px 600px;
+  background-repeat: no-repeat, no-repeat, no-repeat, repeat;
+  background-position: center, center, center, 0 0;
 }
 .topo-bg.topo-dim::before {
-  opacity: 0.45;
+  opacity: 0.55;
 }
 .topo-bg.topo-violet::before {
   background-color: var(--violet-deep);

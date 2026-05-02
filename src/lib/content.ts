@@ -1,4 +1,4 @@
-// Seed lesson + question content for SAT Quest v1.
+// Seed lesson + question content for ZenTest v1.
 // Two sections, each with one themed world of 5 lesson nodes + 1 boss checkpoint.
 
 export type Section = "rw" | "math";
