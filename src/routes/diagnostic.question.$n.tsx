@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { QUESTIONS, TOTAL_QUESTIONS, formatTime, loadDiag, saveDiag, type AnswerRecord } from "@/lib/diagnostic";
 import { Logo } from "@/components/Logo";
+import { sfx } from "@/lib/sfx";
 
 export const Route = createFileRoute("/diagnostic/question/$n")({
   head: () => ({ meta: [{ title: "Diagnostic — TestPhi" }] }),
@@ -43,24 +44,25 @@ function DiagQuestion() {
 
   const isLast = idx === TOTAL_QUESTIONS;
 
-  const submit = () => {
-    if (selected === null || submitted) return;
+  const submit = (choiceIdx: number) => {
+    if (submitted) return;
+    setSelected(choiceIdx);
     setSubmitted(true);
+    sfx.tap();
     const elapsedSeconds = (Date.now() - startRef.current) / 1000;
-    const correct = selected === question.correctIndex;
-    const record: AnswerRecord = { n: question.n, choice: selected, correct, elapsedSeconds };
+    const correct = choiceIdx === question.correctIndex;
+    const record: AnswerRecord = { n: question.n, choice: choiceIdx, correct, elapsedSeconds };
     const next = { ...diag, answers: [...diag.answers.filter(a => a.n !== question.n), record].sort((a, b) => a.n - b.n) };
     saveDiag(next);
     setDiag(next);
 
-    // Auto-advance after 1000ms
     setTimeout(() => {
       if (isLast) {
         navigate({ to: "/diagnostic/results" as any });
       } else {
         navigate({ to: "/diagnostic/question/$n" as any, params: { n: String(idx + 1) } as any });
       }
-    }, 1000);
+    }, 550);
   };
 
   const overTime = elapsed > question.expectedSeconds;
@@ -122,28 +124,20 @@ function DiagQuestion() {
           <div className="mt-5 grid gap-2.5">
             {question.choices.map((choice, i) => {
               const isSelected = selected === i;
-              const isCorrect = i === question.correctIndex;
-              const showCorrect = submitted && isCorrect;
-              const showWrong = submitted && isSelected && !isCorrect;
-
               let bg = "#fff";
               let border = "1.5px solid rgba(29,41,0,0.12)";
-              let textColor = "var(--ink)";
-              if (showCorrect) {
-                bg = "rgba(184,255,0,0.35)"; border = "2px solid var(--volt)";
-              } else if (showWrong) {
-                bg = "rgba(255,77,109,0.2)"; border = "2px solid #ff4d6d";
-              } else if (isSelected) {
-                bg = "rgba(74,6,136,0.12)"; border = "2px solid var(--neon)";
+              if (isSelected) {
+                bg = "rgba(168,85,247,0.18)";
+                border = "2px solid var(--neon)";
               }
 
               return (
                 <button
                   key={i}
                   disabled={submitted}
-                  onClick={() => setSelected(i)}
+                  onClick={() => submit(i)}
                   className="text-left px-4 py-3 rounded-xl transition-all flex items-start gap-3"
-                  style={{ background: bg, border, color: textColor }}
+                  style={{ background: bg, border, color: "var(--ink)" }}
                 >
                   <span className="font-bold mt-0.5 shrink-0" style={{ color: "#5a4a72" }}>
                     {String.fromCharCode(65 + i)}
@@ -154,15 +148,6 @@ function DiagQuestion() {
             })}
           </div>
         </div>
-
-        <button
-          onClick={submit}
-          disabled={selected === null || submitted}
-          className="btn-volt w-full mt-6 py-4 text-base rounded-2xl"
-          style={{ opacity: selected === null || submitted ? 0.4 : 1, cursor: selected === null ? "not-allowed" : "pointer" }}
-        >
-          {isLast ? "See my results →" : "Next →"}
-        </button>
 
         <div className="mt-6 text-center">
           <Link to="/" className="text-xs" style={{ color: "rgba(246,240,250,0.4)" }}>

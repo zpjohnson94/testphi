@@ -90,37 +90,31 @@ function DiagResults() {
       {/* Below the fold — breakdown (blurred + locked) */}
       <section className="relative z-10 mx-auto max-w-2xl px-5 pb-24">
         <div className="relative rounded-3xl p-6 sm:p-8" style={{ background: "rgba(246,240,250,0.04)", border: "1px solid rgba(246,240,250,0.08)" }}>
-          <div className={unlocked ? "" : "select-none"}
-            style={unlocked ? {} : { filter: "blur(4px)", pointerEvents: "none" }}>
-            <Group label="Needs Work" color="#ff4d6d" items={breakdown.needsWork.length ? breakdown.needsWork : ["Geometry: Area & Angles", "Punctuation"]} />
-            <Group label="Developing" color="var(--spark)" items={breakdown.developing.length ? breakdown.developing : ["Quadratic Equations", "Words in Context", "Data Interpretation"]} />
-            <Group label="Strong" color="var(--volt)" items={breakdown.strong.length ? breakdown.strong : ["Linear Equations", "Main Idea"]} />
-          </div>
+          <Group label="Needs Work" color="#ff4d6d" items={breakdown.needsWork.length ? breakdown.needsWork : ["Geometry: Area & Angles", "Punctuation"]} locked={!unlocked} />
+          <Group label="Developing" color="var(--spark)" items={breakdown.developing.length ? breakdown.developing : ["Quadratic Equations", "Words in Context", "Data Interpretation"]} locked={!unlocked} />
+          <Group label="Strong" color="var(--volt)" items={breakdown.strong.length ? breakdown.strong : ["Linear Equations", "Main Idea"]} locked={!unlocked} />
 
           {!unlocked && (
-            <>
-              <div className="absolute inset-0 rounded-3xl" style={{ background: "rgba(29,41,0,0.55)" }} />
-              <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6">
-                <div className="size-14 rounded-full flex items-center justify-center"
-                  style={{ background: "rgba(255,230,0,0.18)", border: "2px solid var(--spark)" }}>
-                  <Lock className="size-6" style={{ color: "var(--spark)" }} />
-                </div>
-                <h2 className="mt-4 display text-2xl sm:text-3xl text-[var(--lavender)]">Your results are ready</h2>
-                <p className="mt-2 max-w-sm text-sm font-medium" style={{ color: "rgba(246,240,250,0.75)" }}>
-                  Sign up free to unlock your weak spots, strengths, and a personalized plan to boost your score.
-                </p>
-                <Link
-                  to={"/signup" as any}
-                  className="btn-volt mt-6 px-8 py-4 text-base rounded-2xl"
-                  style={{ boxShadow: "0 8px 0 0 #6e9c00, 0 0 50px -8px rgba(184,255,0,0.55)" }}
-                >
-                  Sign up free to unlock →
-                </Link>
-                <p className="mt-3 text-xs font-medium" style={{ color: "rgba(246,240,250,0.5)" }}>
-                  Free forever · No credit card needed
-                </p>
+            <div className="mt-8 flex flex-col items-center justify-center text-center px-2">
+              <div className="size-14 rounded-full flex items-center justify-center"
+                style={{ background: "rgba(255,230,0,0.18)", border: "2px solid var(--spark)" }}>
+                <Lock className="size-6" style={{ color: "var(--spark)" }} />
               </div>
-            </>
+              <h2 className="mt-4 display text-2xl sm:text-3xl text-[var(--lavender)]">Unlock your full breakdown</h2>
+              <p className="mt-2 max-w-sm text-sm font-medium" style={{ color: "rgba(246,240,250,0.75)" }}>
+                Sign up free to see exactly which skills to work on and get a personalized plan to boost your score.
+              </p>
+              <Link
+                to={"/signup" as any}
+                className="btn-volt mt-6 px-8 py-4 text-base rounded-2xl"
+                style={{ boxShadow: "0 8px 0 0 #6e9c00, 0 0 50px -8px rgba(184,255,0,0.55)" }}
+              >
+                Sign up free to unlock →
+              </Link>
+              <p className="mt-3 text-xs font-medium" style={{ color: "rgba(246,240,250,0.5)" }}>
+                Free forever · No credit card needed
+              </p>
+            </div>
           )}
         </div>
       </section>
@@ -137,16 +131,16 @@ function Sub({ label, value, accent }: { label: string; value: number; accent: s
   );
 }
 
-function Group({ label, color, items }: { label: string; color: string; items: string[] }) {
+function Group({ label, color, items, locked }: { label: string; color: string; items: string[]; locked?: boolean }) {
   if (!items.length) return null;
   return (
     <div className="mb-5 last:mb-0">
       <div className="text-[11px] font-bold uppercase tracking-[0.18em]" style={{ color }}>{label}</div>
-      <div className="mt-2 grid gap-2">
+      <div className="mt-2 grid gap-2" style={locked ? { filter: "blur(5px)", pointerEvents: "none", userSelect: "none" } : undefined}>
         {items.map((it) => (
           <div key={it} className="rounded-xl px-4 py-3 text-sm font-bold text-[var(--lavender)]"
             style={{ background: "rgba(246,240,250,0.05)", border: `1px solid ${color}` }}>
-            {it}
+            {locked ? "••••••••••••" : it}
           </div>
         ))}
       </div>
