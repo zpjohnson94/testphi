@@ -132,9 +132,9 @@ export function PuzzleMapDecor({ className = "" }: PuzzleMapDecorProps) {
   // Path of tiles winding diagonally — completed at bottom, current mid-trail,
   // future tiles fade upward into the distance.
   const tiles = [
-    { x: 60, y: 560, label: "✓", done: true },
-    { x: 150, y: 540, label: "✓", done: true },
-    { x: 240, y: 520, label: "✓", done: true },
+    { x: 60, y: 560, done: true },
+    { x: 150, y: 540, done: true },
+    { x: 240, y: 520, done: true },
     { x: 330, y: 500, label: "9", current: true },
     { x: 420, y: 470, label: "10" },
     { x: 510, y: 430, label: "11" },
