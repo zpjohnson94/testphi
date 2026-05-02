@@ -19,13 +19,22 @@ export const Route = createFileRoute("/")({
 function Landing() {
   return (
     <div className="topo-bg min-h-screen relative overflow-hidden">
-      {/* Decorative learning-journey map behind the hero */}
+      {/* Decorative learning-journey map — sits above the topo contour lines
+          but kept low-contrast so it never competes with the CTA. */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 top-16 z-0 opacity-60 mix-blend-screen"
-        style={{ height: "min(900px, 90vh)" }}
+        className="pointer-events-none absolute inset-x-0 top-16 z-0"
+        style={{ height: "min(900px, 90vh)", opacity: 0.32 }}
       >
         <PuzzleMapDecor className="w-full h-full" />
+        {/* Soft vignette to push the decor away from the central CTA */}
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              "radial-gradient(ellipse 55% 45% at 50% 35%, rgba(29,41,0,0.92), rgba(29,41,0,0.55) 55%, transparent 80%)",
+          }}
+        />
       </div>
       {/* Nav */}
       <header className="sticky top-0 z-30 backdrop-blur" style={{ background: "rgba(29,41,0,0.85)", borderBottom: "1px solid rgba(246,240,250,0.08)" }}>
