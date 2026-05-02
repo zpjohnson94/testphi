@@ -1,4 +1,4 @@
-// ZenTest logo — volt tile with a dark arc cradling a stylized chunky "Z".
+// TestPhi logo — volt tile with a dark arc cradling a stylized chunky "Z".
 // The Z is italicized forward and its diagonal flares wider toward the top,
 // giving the mark an upward-momentum / arrow feel.
 
@@ -14,7 +14,7 @@ export function Logo({ size = 36, className = "" }: LogoProps) {
       width={size}
       height={size}
       className={className}
-      aria-label="ZenTest logo"
+      aria-label="TestPhi logo"
     >
       {/* Rounded volt tile background */}
       <rect x="0" y="0" width="48" height="48" rx="11" fill="var(--volt)" />

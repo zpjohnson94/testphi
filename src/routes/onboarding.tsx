@@ -7,7 +7,7 @@ import { Avatar, ANIMALS, COLOR_SWATCHES, defaultAvatar, type AvatarConfig, type
 import { Sparkles } from "lucide-react";
 
 export const Route = createFileRoute("/onboarding")({
-  head: () => ({ meta: [{ title: "Get started — ZenTest" }] }),
+  head: () => ({ meta: [{ title: "Get started — TestPhi" }] }),
   component: Onboarding,
 });
 
@@ -55,7 +55,7 @@ function Onboarding() {
         {step === "intro" && (
           <Card>
             <div className="flex justify-center"><Avatar config={defaultAvatar()} size={120} animate /></div>
-            <h1 className="mt-4 display text-4xl text-center" style={{ color: "var(--ink)" }}>Welcome to <span style={{ color: "var(--neon)" }}>ZenTest</span></h1>
+            <h1 className="mt-4 display text-4xl text-center" style={{ color: "var(--ink)" }}>Welcome to <span style={{ color: "var(--neon)" }}>TestPhi</span></h1>
             <p className="mt-2 text-center text-sm" style={{ color: "#5a4a72" }}>A 60-second diagnostic and you're in. We'll set your starting rating.</p>
             <button onClick={() => setStep("avatar")} className="btn-volt w-full mt-6 py-4 text-base">Let's go →</button>
           </Card>

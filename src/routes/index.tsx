@@ -6,9 +6,9 @@ import { Logo } from "@/components/Logo";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "ZenTest — Adaptive SAT prep that feels like a game" },
+      { title: "TestPhi — Adaptive SAT prep that feels like a game" },
       { name: "description", content: "Level up to your target SAT score with bite-sized lessons, an ELO rating like chess, and adaptive practice that hunts your weak spots." },
-      { property: "og:title", content: "ZenTest — Adaptive SAT prep that feels like a game" },
+      { property: "og:title", content: "TestPhi — Adaptive SAT prep that feels like a game" },
       { property: "og:description", content: "Bite-sized lessons. An ELO rating like chess. An adaptive map that targets your weak spots." },
     ],
   }),
@@ -23,7 +23,7 @@ function Landing() {
         <div className="mx-auto max-w-6xl flex items-center justify-between px-5 py-3">
           <Link to="/" className="flex items-center gap-2">
             <Logo size={36} />
-            <span className="display text-lg text-[var(--lavender)]">ZenTest</span>
+            <span className="display text-lg text-[var(--lavender)]">TestPhi</span>
           </Link>
           <Link to={"/onboarding" as any} className="btn-volt px-4 py-2 text-sm">Predict my score</Link>
         </div>
