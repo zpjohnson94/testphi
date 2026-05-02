@@ -8,7 +8,7 @@ import { WORLDS, getNode } from "@/lib/content";
 import { Flame, Target, BookOpen, Calculator, ChevronRight, Brain, Zap } from "lucide-react";
 
 export const Route = createFileRoute("/dashboard")({
-  head: () => ({ meta: [{ title: "Home — SAT Quest" }] }),
+  head: () => ({ meta: [{ title: "Home — ZenTest" }] }),
   component: Dashboard,
 });
 

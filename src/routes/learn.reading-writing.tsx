@@ -4,7 +4,7 @@ import { getWorldBySection } from "@/lib/content";
 import { useHydration } from "@/lib/store";
 
 export const Route = createFileRoute("/learn/reading-writing")({
-  head: () => ({ meta: [{ title: "Reading & Writing — SAT Quest" }] }),
+  head: () => ({ meta: [{ title: "Reading & Writing — ZenTest" }] }),
   component: RWMap,
 });
 

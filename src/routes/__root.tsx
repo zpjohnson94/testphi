@@ -29,7 +29,7 @@ export const Route = createRootRoute({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "SAT Quest" },
+      { title: "ZenTest" },
       { name: "description", content: "Adaptive SAT prep that feels like a game." },
       { name: "theme-color", content: "#1D2900" },
     ],
