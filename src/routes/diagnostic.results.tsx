@@ -117,32 +117,6 @@ function DiagResults() {
             </div>
           )}
         </div>
-          {!unlocked && (
-            <>
-              <div className="absolute inset-0 rounded-3xl" style={{ background: "rgba(29,41,0,0.55)" }} />
-              <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6">
-                <div className="size-14 rounded-full flex items-center justify-center"
-                  style={{ background: "rgba(255,230,0,0.18)", border: "2px solid var(--spark)" }}>
-                  <Lock className="size-6" style={{ color: "var(--spark)" }} />
-                </div>
-                <h2 className="mt-4 display text-2xl sm:text-3xl text-[var(--lavender)]">Your results are ready</h2>
-                <p className="mt-2 max-w-sm text-sm font-medium" style={{ color: "rgba(246,240,250,0.75)" }}>
-                  Sign up free to unlock your weak spots, strengths, and a personalized plan to boost your score.
-                </p>
-                <Link
-                  to={"/signup" as any}
-                  className="btn-volt mt-6 px-8 py-4 text-base rounded-2xl"
-                  style={{ boxShadow: "0 8px 0 0 #6e9c00, 0 0 50px -8px rgba(184,255,0,0.55)" }}
-                >
-                  Sign up free to unlock →
-                </Link>
-                <p className="mt-3 text-xs font-medium" style={{ color: "rgba(246,240,250,0.5)" }}>
-                  Free forever · No credit card needed
-                </p>
-              </div>
-            </>
-          )}
-        </div>
       </section>
     </div>
   );
