@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Sparkles, BookOpen, Calculator, Trophy, Zap, Brain } from "lucide-react";
 import { Avatar, defaultAvatar } from "@/components/Avatar";
+import { Logo } from "@/components/Logo";
 
 export const Route = createFileRoute("/")({
   head: () => ({
