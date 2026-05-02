@@ -60,10 +60,24 @@ function Landing() {
         <p className="mt-5 mx-auto max-w-2xl text-lg font-medium" style={{ color: "rgba(246,240,250,0.7)" }}>
           Bite-sized lessons that adapt to fix your weak spots. Predict your score and track your progress as you practice.
         </p>
-        <div className="mt-8 flex items-center justify-center gap-3 flex-wrap">
-          <Link to={"/onboarding" as any} className="btn-volt px-7 py-4 text-base">Predict my score →</Link>
-          <Link to={"/dashboard" as any} className="rounded-2xl px-6 py-4 text-base font-bold" style={{ background: "rgba(246,240,250,0.06)", color: "var(--lavender)", border: "1px solid rgba(246,240,250,0.15)" }}>
-            Sign up
+        <div className="mt-10 flex flex-col items-center gap-4">
+          <Link
+            to={"/onboarding" as any}
+            className="btn-volt px-12 py-6 text-xl sm:text-2xl tracking-tight inline-flex items-center gap-2 rounded-2xl"
+            style={{
+              boxShadow:
+                "0 10px 0 0 #6e9c00, 0 0 60px -8px rgba(184,255,0,0.65), 0 0 120px -20px rgba(184,255,0,0.5)",
+            }}
+          >
+            Predict my score
+            <span aria-hidden="true" className="text-2xl sm:text-3xl">→</span>
+          </Link>
+          <Link
+            to={"/dashboard" as any}
+            className="text-sm font-bold underline-offset-4 hover:underline"
+            style={{ color: "rgba(246,240,250,0.7)" }}
+          >
+            or sign up
           </Link>
         </div>
 
