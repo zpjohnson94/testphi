@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Lock } from "lucide-react";
 import { breakdownFor, loadDiag, scoreFor, TOTAL_QUESTIONS } from "@/lib/diagnostic";
 import { Logo } from "@/components/Logo";
+import { DiagAvatar, AVATAR_IMAGES, type AvatarId } from "@/components/DiagAvatar";
 
 export const Route = createFileRoute("/diagnostic/results")({
   head: () => ({ meta: [{ title: "Your predicted SAT score — TestPhi" }] }),
