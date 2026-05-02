@@ -18,7 +18,15 @@ export const Route = createFileRoute("/")({
 
 function Landing() {
   return (
-    <div className="topo-bg min-h-screen">
+    <div className="topo-bg min-h-screen relative overflow-hidden">
+      {/* Decorative learning-journey map behind the hero */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-x-0 top-16 z-0 opacity-60 mix-blend-screen"
+        style={{ height: "min(900px, 90vh)" }}
+      >
+        <PuzzleMapDecor className="w-full h-full" />
+      </div>
       {/* Nav */}
       <header className="sticky top-0 z-30 backdrop-blur" style={{ background: "rgba(29,41,0,0.85)", borderBottom: "1px solid rgba(246,240,250,0.08)" }}>
         <div className="mx-auto max-w-6xl flex items-center justify-between px-5 py-3">
