@@ -1,0 +1,116 @@
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+import { Eye, EyeOff } from "lucide-react";
+import { loadDiag } from "@/lib/diagnostic";
+import { Logo } from "@/components/Logo";
+
+export const Route = createFileRoute("/signup")({
+  head: () => ({
+    meta: [
+      { title: "Create your free account — TestPhi" },
+      { name: "description", content: "Unlock your results and start improving your score." },
+    ],
+  }),
+  component: Signup,
+});
+
+function Signup() {
+  const navigate = useNavigate();
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPw, setShowPw] = useState(false);
+
+  useEffect(() => {
+    const s = loadDiag();
+    if (s.name) setName(s.name);
+  }, []);
+
+  const submit = (e: React.FormEvent) => {
+    e.preventDefault();
+    // MVP: no real auth — go to plans then results
+    navigate({ to: "/plans" as any });
+  };
+
+  return (
+    <div className="topo-bg topo-dim min-h-screen flex items-center justify-center px-5 py-12">
+      <div className="w-full max-w-[400px]">
+        <div className="text-center mb-8">
+          <Link to="/" className="inline-flex items-center gap-2">
+            <Logo size={36} />
+            <span className="display text-lg text-[var(--lavender)]">TestPhi</span>
+          </Link>
+        </div>
+
+        <div className="rounded-3xl p-6 sm:p-8" style={{ background: "rgba(246,240,250,0.05)", border: "1px solid rgba(246,240,250,0.1)" }}>
+          <h1 className="display text-2xl text-[var(--lavender)] text-center">Create your free account</h1>
+          <p className="mt-2 text-sm text-center" style={{ color: "rgba(246,240,250,0.7)" }}>
+            Unlock your results and start improving your score.
+          </p>
+
+          <button className="btn-volt w-full mt-6 py-3.5 text-base rounded-2xl">
+            Continue with Google
+          </button>
+
+          <div className="my-5 flex items-center gap-3">
+            <div className="flex-1 h-px" style={{ background: "rgba(246,240,250,0.12)" }} />
+            <span className="text-xs font-bold uppercase tracking-widest" style={{ color: "rgba(246,240,250,0.5)" }}>or</span>
+            <div className="flex-1 h-px" style={{ background: "rgba(246,240,250,0.12)" }} />
+          </div>
+
+          <form onSubmit={submit} className="space-y-3">
+            <Field label="Name" value={name} onChange={setName} placeholder="Your first name" />
+            <Field label="Email" type="email" value={email} onChange={setEmail} placeholder="you@example.com" required />
+            <div>
+              <label className="text-[11px] font-bold uppercase tracking-widest" style={{ color: "rgba(246,240,250,0.6)" }}>
+                Password
+              </label>
+              <div className="mt-1 flex items-center rounded-2xl px-3"
+                style={{ background: "rgba(0,0,0,0.25)", border: "1.5px solid rgba(246,240,250,0.12)" }}>
+                <input
+                  type={showPw ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  minLength={6}
+                  placeholder="At least 6 characters"
+                  className="flex-1 bg-transparent outline-none py-3 text-[var(--lavender)] placeholder:text-[rgba(246,240,250,0.35)] font-semibold"
+                />
+                <button type="button" onClick={() => setShowPw((s) => !s)} className="text-[var(--lavender)] opacity-60 hover:opacity-100">
+                  {showPw ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                </button>
+              </div>
+            </div>
+
+            <button type="submit" className="btn-volt w-full mt-4 py-3.5 text-base rounded-2xl">
+              Create account →
+            </button>
+          </form>
+        </div>
+
+        <p className="mt-6 text-center text-xs" style={{ color: "rgba(246,240,250,0.5)" }}>
+          Already have an account? <Link to="/" className="font-bold" style={{ color: "var(--volt)" }}>Sign in</Link>
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function Field({ label, value, onChange, type = "text", placeholder, required }: {
+  label: string; value: string; onChange: (v: string) => void; type?: string; placeholder?: string; required?: boolean;
+}) {
+  return (
+    <div>
+      <label className="text-[11px] font-bold uppercase tracking-widest" style={{ color: "rgba(246,240,250,0.6)" }}>{label}</label>
+      <input
+        type={type}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        required={required}
+        className="mt-1 w-full rounded-2xl px-4 py-3 bg-transparent text-[var(--lavender)] placeholder:text-[rgba(246,240,250,0.35)] font-semibold outline-none"
+        style={{ background: "rgba(0,0,0,0.25)", border: "1.5px solid rgba(246,240,250,0.12)" }}
+      />
+    </div>
+  );
+}

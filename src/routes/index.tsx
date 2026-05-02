@@ -43,7 +43,7 @@ function Landing() {
             <Logo size={36} />
             <span className="display text-lg text-[var(--lavender)]">TestPhi</span>
           </Link>
-          <Link to={"/onboarding" as any} className="btn-volt px-4 py-2 text-sm">Predict my score</Link>
+          <Link to={"/diagnostic" as any} className="btn-volt px-4 py-2 text-sm">Predict my score</Link>
         </div>
       </header>
 
@@ -62,7 +62,7 @@ function Landing() {
         </p>
         <div className="mt-10 flex flex-col items-center gap-4">
           <Link
-            to={"/onboarding" as any}
+            to={"/diagnostic" as any}
             className="btn-volt px-12 py-6 text-xl sm:text-2xl tracking-tight inline-flex items-center gap-2 rounded-2xl"
             style={{
               boxShadow:
