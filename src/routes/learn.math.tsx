@@ -4,7 +4,7 @@ import { getWorldBySection } from "@/lib/content";
 import { useHydration } from "@/lib/store";
 
 export const Route = createFileRoute("/learn/math")({
-  head: () => ({ meta: [{ title: "Math — ZenTest" }] }),
+  head: () => ({ meta: [{ title: "Math — TestPhi" }] }),
   component: MathMap,
 });
 

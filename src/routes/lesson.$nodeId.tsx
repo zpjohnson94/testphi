@@ -6,7 +6,7 @@ import { finishLesson, recordAttempt, useHydration, useStore, unlockAccessory } 
 import { sfx } from "@/lib/sfx";
 
 export const Route = createFileRoute("/lesson/$nodeId")({
-  head: () => ({ meta: [{ title: "Lesson — ZenTest" }] }),
+  head: () => ({ meta: [{ title: "Lesson — TestPhi" }] }),
   component: LessonPage,
 });
 
