@@ -131,16 +131,16 @@ function Sub({ label, value, accent }: { label: string; value: number; accent: s
   );
 }
 
-function Group({ label, color, items }: { label: string; color: string; items: string[] }) {
+function Group({ label, color, items, locked }: { label: string; color: string; items: string[]; locked?: boolean }) {
   if (!items.length) return null;
   return (
     <div className="mb-5 last:mb-0">
       <div className="text-[11px] font-bold uppercase tracking-[0.18em]" style={{ color }}>{label}</div>
-      <div className="mt-2 grid gap-2">
+      <div className="mt-2 grid gap-2" style={locked ? { filter: "blur(5px)", pointerEvents: "none", userSelect: "none" } : undefined}>
         {items.map((it) => (
           <div key={it} className="rounded-xl px-4 py-3 text-sm font-bold text-[var(--lavender)]"
             style={{ background: "rgba(246,240,250,0.05)", border: `1px solid ${color}` }}>
-            {it}
+            {locked ? "••••••••••••" : it}
           </div>
         ))}
       </div>
