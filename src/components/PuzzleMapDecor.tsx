@@ -49,29 +49,31 @@ function Tile({
         stroke={current ? VOLT : "rgba(0,0,0,0.25)"}
         strokeWidth={current ? 2 : 1}
       />
-      {label && (
-        <text
-          x={w / 2}
-          y={2}
-          textAnchor="middle"
-          dominantBaseline="middle"
-          fontFamily="Exo 2, sans-serif"
-          fontWeight={900}
-          fontSize={size * 0.32}
-          fill={INK}
-        >
-          {label}
-        </text>
-      )}
-      {done && (
+      {done ? (
+        // Clean centered checkmark on completed tiles (no doubled label).
         <path
-          d={`M ${w * 0.32} ${-2} l ${w * 0.12} ${w * 0.1} l ${w * 0.26} -${w * 0.18}`}
+          d={`M ${w * 0.30} ${-h * 0.05} l ${w * 0.14} ${w * 0.12} l ${w * 0.30} -${w * 0.22}`}
           fill="none"
           stroke={INK}
-          strokeWidth={3}
+          strokeWidth={3.5}
           strokeLinecap="round"
           strokeLinejoin="round"
         />
+      ) : (
+        label && (
+          <text
+            x={w / 2}
+            y={2}
+            textAnchor="middle"
+            dominantBaseline="middle"
+            fontFamily="Exo 2, sans-serif"
+            fontWeight={900}
+            fontSize={size * 0.32}
+            fill={INK}
+          >
+            {label}
+          </text>
+        )
       )}
     </g>
   );
