@@ -4,8 +4,9 @@
 import { useEffect, useSyncExternalStore } from "react";
 import { WORLDS, SKILLS, type Section } from "./content";
 import { updateElo } from "./elo";
+import { defaultAvatar, type AvatarConfig, type AccessoryId } from "@/components/Avatar";
 
-const STORAGE_KEY = "satquest:v1";
+const STORAGE_KEY = "satquest:v2";
 
 export interface NodeProgress {
   best: number;        // 0..3 best correct count
@@ -16,7 +17,8 @@ export interface NodeProgress {
 export interface State {
   hasOnboarded: boolean;
   name: string;
-  avatar: string;
+  avatar: AvatarConfig;
+  unlockedAccessories: AccessoryId[];
   dailyGoalXp: number;
   xpToday: number;
   xpDate: string;       // ISO date for xpToday
@@ -44,7 +46,8 @@ function defaultState(): State {
   return {
     hasOnboarded: false,
     name: "Player",
-    avatar: "🦊",
+    avatar: defaultAvatar(),
+    unlockedAccessories: ["none"],
     dailyGoalXp: 20,
     xpToday: 0,
     xpDate: today(),
@@ -116,7 +119,7 @@ export function useHydration() {
 
 export function completeOnboarding(opts: {
   name: string;
-  avatar: string;
+  avatar: AvatarConfig;
   dailyGoalXp: number;
   rwElo: number;
   mathElo: number;
