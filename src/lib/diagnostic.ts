@@ -141,8 +141,9 @@ export interface AnswerRecord {
 
 export interface DiagState {
   name: string;
-  emoji: string;           // animal emoji
-  color: string;           // hex
+  emoji: string;           // legacy emoji (kept for back-compat)
+  avatarId: string;        // illustrated avatar id (see AVATAR_OPTIONS)
+  color: string;           // hex — ring color
   startedAt: number | null;
   answers: AnswerRecord[]; // length 0..15
 }
@@ -166,7 +167,7 @@ export function saveDiag(s: DiagState) {
 }
 
 export function defaultDiag(): DiagState {
-  return { name: "", emoji: "🐸", color: "#B8FF00", startedAt: null, answers: [] };
+  return { name: "", emoji: "🦊", avatarId: "fox", color: "#B8FF00", startedAt: null, answers: [] };
 }
 
 export function clearDiag() {
