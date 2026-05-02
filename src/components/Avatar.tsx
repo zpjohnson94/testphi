@@ -1,5 +1,6 @@
-// Blob avatar system — SVG, color-customizable, with accessory unlocks.
-// Each animal is a chubby round shape with big eyes; species-specific accents only.
+// Chibi avatar system — Boomerang Fu inspired.
+// Chunky heads with thick outlines, gradient shading, glossy eyes, rim light,
+// and species-specific silhouettes (not blobs with ears glued on).
 
 import type { CSSProperties } from "react";
 
@@ -13,7 +14,7 @@ export type AccessoryId =
 
 export interface AvatarConfig {
   animal: AnimalId;
-  color: string;       // hex
+  color: string;
   accessory: AccessoryId;
 }
 
@@ -33,16 +34,8 @@ export const ANIMALS: { id: AnimalId; name: string; emoji: string }[] = [
 ];
 
 export const COLOR_SWATCHES = [
-  "#B8FF00", // Volt
-  "#A855F7", // Neon
-  "#FFE600", // Spark
-  "#FF6FB5", // Pink
-  "#5BE1FF", // Cyan
-  "#FF8A3D", // Orange
-  "#7CF6B0", // Mint
-  "#F6F0FA", // Lavender
-  "#FF4D6D", // Coral
-  "#9DAEFF", // Periwinkle
+  "#B8FF00", "#A855F7", "#FFE600", "#FF6FB5", "#5BE1FF",
+  "#FF8A3D", "#7CF6B0", "#F6F0FA", "#FF4D6D", "#9DAEFF",
 ];
 
 export const ACCESSORIES: { id: AccessoryId; name: string; unlock: string }[] = [
@@ -59,7 +52,6 @@ export const ACCESSORIES: { id: AccessoryId; name: string; unlock: string }[] = 
   { id: "cowboy", name: "Cowboy hat", unlock: "Hidden" },
 ];
 
-// Lightens / darkens a hex by amt (-100..100)
 function shade(hex: string, amt: number) {
   const c = hex.replace("#", "");
   const r = parseInt(c.substring(0, 2), 16);
@@ -79,50 +71,64 @@ interface AvatarProps {
 
 export function Avatar({ config, size = 96, className = "", style, animate = false }: AvatarProps) {
   const c = config.color;
-  const dark = shade(c, -28);
-  const belly = shade(c, 30);
-  const stroke = "#1D2900";
+  const light = shade(c, 22);
+  const dark = shade(c, -22);
+  const deep = shade(c, -38);
+  const stroke = "#1a1a2e";
+  // unique per-render gradient ids so multiple avatars don't collide
+  const uid = `${config.animal}-${c.replace("#", "")}`;
 
   return (
     <svg
-      viewBox="0 0 120 120"
+      viewBox="0 0 140 140"
       width={size}
       height={size}
       className={className}
       style={style}
       aria-label={`${config.animal} avatar`}
     >
-      {/* shadow */}
-      <ellipse cx="60" cy="108" rx="28" ry="5" fill="rgba(0,0,0,0.25)" />
+      <defs>
+        <radialGradient id={`body-${uid}`} cx="38%" cy="32%" r="75%">
+          <stop offset="0%" stopColor={light} />
+          <stop offset="55%" stopColor={c} />
+          <stop offset="100%" stopColor={deep} />
+        </radialGradient>
+        <radialGradient id={`belly-${uid}`} cx="50%" cy="40%" r="65%">
+          <stop offset="0%" stopColor="#fff" stopOpacity="0.95" />
+          <stop offset="100%" stopColor={light} stopOpacity="0.4" />
+        </radialGradient>
+        <linearGradient id={`rim-${uid}`} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#fff" stopOpacity="0.55" />
+          <stop offset="40%" stopColor="#fff" stopOpacity="0" />
+        </linearGradient>
+      </defs>
 
-      <g style={animate ? { transformOrigin: "60px 70px", animation: "blob-idle 3.2s ease-in-out infinite" } : undefined}>
-        {/* body */}
-        <ellipse cx="60" cy="68" rx="40" ry="38" fill={c} stroke={stroke} strokeWidth="3" />
-        {/* belly */}
-        <ellipse cx="60" cy="78" rx="22" ry="20" fill={belly} opacity="0.55" />
-        {/* arms */}
-        <ellipse cx="22" cy="74" rx="7" ry="10" fill={c} stroke={stroke} strokeWidth="2.5" />
-        <ellipse cx="98" cy="74" rx="7" ry="10" fill={c} stroke={stroke} strokeWidth="2.5" />
-        {/* feet */}
-        <ellipse cx="46" cy="104" rx="9" ry="5" fill={dark} stroke={stroke} strokeWidth="2.5" />
-        <ellipse cx="74" cy="104" rx="9" ry="5" fill={dark} stroke={stroke} strokeWidth="2.5" />
+      {/* ground shadow */}
+      <ellipse cx="70" cy="128" rx="34" ry="5" fill="rgba(0,0,0,0.35)" />
 
-        <SpeciesFeatures animal={config.animal} color={c} dark={dark} stroke={stroke} />
+      <g style={animate ? { transformOrigin: "70px 80px", animation: "blob-idle 3.2s ease-in-out infinite" } : undefined}>
+        <SpeciesBack animal={config.animal} c={c} dark={dark} stroke={stroke} uid={uid} />
 
-        {/* eyes */}
-        <ellipse cx="48" cy="58" rx="6.5" ry="7.5" fill="#fff" stroke={stroke} strokeWidth="2.5" />
-        <ellipse cx="72" cy="58" rx="6.5" ry="7.5" fill="#fff" stroke={stroke} strokeWidth="2.5" />
-        <circle cx="49" cy="60" r="3" fill={stroke} />
-        <circle cx="73" cy="60" r="3" fill={stroke} />
-        <circle cx="50.2" cy="58.8" r="1" fill="#fff" />
-        <circle cx="74.2" cy="58.8" r="1" fill="#fff" />
+        {/* main head/body shape */}
+        <HeadShape animal={config.animal} uid={uid} stroke={stroke} />
+
+        {/* belly patch */}
+        <BellyShape animal={config.animal} uid={uid} />
+
+        {/* rim light highlight */}
+        <HeadHighlight animal={config.animal} uid={uid} />
+
+        <SpeciesFront animal={config.animal} c={c} light={light} dark={dark} stroke={stroke} />
+
+        {/* eyes — chunky with bright catchlights */}
+        <Eyes animal={config.animal} stroke={stroke} />
 
         {/* mouth */}
-        <path d="M55 70 Q60 73 65 70" fill="none" stroke={stroke} strokeWidth="2.2" strokeLinecap="round" />
+        <Mouth animal={config.animal} stroke={stroke} />
 
         {/* cheeks */}
-        <ellipse cx="42" cy="68" rx="3.5" ry="2" fill="#FF6FB5" opacity="0.55" />
-        <ellipse cx="78" cy="68" rx="3.5" ry="2" fill="#FF6FB5" opacity="0.55" />
+        <ellipse cx="44" cy="84" rx="5" ry="3" fill="#FF6FB5" opacity="0.55" />
+        <ellipse cx="96" cy="84" rx="5" ry="3" fill="#FF6FB5" opacity="0.55" />
 
         <Accessory id={config.accessory} stroke={stroke} />
       </g>
@@ -130,197 +136,300 @@ export function Avatar({ config, size = 96, className = "", style, animate = fal
   );
 }
 
-function SpeciesFeatures({ animal, color, dark, stroke }: { animal: AnimalId; color: string; dark: string; stroke: string }) {
+function HeadShape({ animal, uid, stroke }: { animal: AnimalId; uid: string; stroke: string }) {
+  const fill = `url(#body-${uid})`;
+  // Different silhouette per species — head + small body suggestion
   switch (animal) {
+    case "frog":
+      return <path d="M28 78 C 28 50, 52 32, 70 32 C 88 32, 112 50, 112 78 C 112 104, 92 118, 70 118 C 48 118, 28 104, 28 78 Z" fill={fill} stroke={stroke} strokeWidth="3.5" strokeLinejoin="round" />;
+    case "owl":
+      return <path d="M30 70 C 30 44, 48 30, 70 30 C 92 30, 110 44, 110 70 C 110 100, 92 120, 70 120 C 48 120, 30 100, 30 70 Z" fill={fill} stroke={stroke} strokeWidth="3.5" />;
+    case "bunny":
+      return <path d="M34 82 C 34 58, 50 42, 70 42 C 90 42, 106 58, 106 82 C 106 106, 90 120, 70 120 C 50 120, 34 106, 34 82 Z" fill={fill} stroke={stroke} strokeWidth="3.5" />;
+    case "giraffe":
+      return <path d="M36 80 C 36 58, 52 44, 70 44 C 88 44, 104 58, 104 80 C 104 104, 88 120, 70 120 C 52 120, 36 104, 36 80 Z" fill={fill} stroke={stroke} strokeWidth="3.5" />;
+    case "penguin":
+      return <path d="M34 76 C 34 50, 50 34, 70 34 C 90 34, 106 50, 106 76 C 106 106, 92 120, 70 120 C 48 120, 34 106, 34 76 Z" fill={fill} stroke={stroke} strokeWidth="3.5" />;
+    default:
+      return <path d="M30 78 C 30 52, 48 36, 70 36 C 92 36, 110 52, 110 78 C 110 106, 92 120, 70 120 C 48 120, 30 106, 30 78 Z" fill={fill} stroke={stroke} strokeWidth="3.5" />;
+  }
+}
+
+function BellyShape({ animal, uid }: { animal: AnimalId; uid: string }) {
+  const fill = `url(#belly-${uid})`;
+  if (animal === "penguin") {
+    return <ellipse cx="70" cy="92" rx="26" ry="24" fill="#fff" />;
+  }
+  return <ellipse cx="70" cy="96" rx="22" ry="18" fill={fill} />;
+}
+
+function HeadHighlight({ animal, uid }: { animal: AnimalId; uid: string }) {
+  return (
+    <path
+      d="M42 54 C 50 42, 64 36, 80 38 C 72 40, 60 46, 52 56 Z"
+      fill={`url(#rim-${uid})`}
+      opacity="0.9"
+    />
+  );
+}
+
+function SpeciesBack({ animal, c, dark, stroke, uid }: { animal: AnimalId; c: string; dark: string; stroke: string; uid: string }) {
+  // Things drawn BEHIND the head (ears on sides, etc.)
+  switch (animal) {
+    case "bunny":
+      return (
+        <g>
+          <path d="M48 16 C 44 30, 46 50, 54 56 C 58 50, 58 30, 54 16 Z" fill={`url(#body-${uid})`} stroke={stroke} strokeWidth="3" strokeLinejoin="round" />
+          <path d="M92 16 C 96 30, 94 50, 86 56 C 82 50, 82 30, 86 16 Z" fill={`url(#body-${uid})`} stroke={stroke} strokeWidth="3" strokeLinejoin="round" />
+          <path d="M50 26 C 49 36, 50 48, 54 52" stroke="#FF6FB5" strokeWidth="3" fill="none" opacity="0.7" />
+          <path d="M90 26 C 91 36, 90 48, 86 52" stroke="#FF6FB5" strokeWidth="3" fill="none" opacity="0.7" />
+        </g>
+      );
     case "fox":
       return (
         <g>
-          <polygon points="28,38 38,30 42,46" fill={color} stroke={stroke} strokeWidth="2.5" />
-          <polygon points="92,38 82,30 78,46" fill={color} stroke={stroke} strokeWidth="2.5" />
-          <polygon points="32,40 38,36 40,44" fill={dark} />
-          <polygon points="88,40 82,36 80,44" fill={dark} />
+          <path d="M28 38 L 44 30 L 48 56 Z" fill={`url(#body-${uid})`} stroke={stroke} strokeWidth="3" strokeLinejoin="round" />
+          <path d="M112 38 L 96 30 L 92 56 Z" fill={`url(#body-${uid})`} stroke={stroke} strokeWidth="3" strokeLinejoin="round" />
+          <path d="M34 40 L 43 36 L 46 50 Z" fill={dark} />
+          <path d="M106 40 L 97 36 L 94 50 Z" fill={dark} />
         </g>
       );
     case "cat":
       return (
         <g>
-          <polygon points="30,42 40,32 44,48" fill={color} stroke={stroke} strokeWidth="2.5" />
-          <polygon points="90,42 80,32 76,48" fill={color} stroke={stroke} strokeWidth="2.5" />
-          <polygon points="33,43 40,38 41,46" fill="#FF6FB5" opacity="0.7" />
-          <polygon points="87,43 80,38 79,46" fill="#FF6FB5" opacity="0.7" />
+          <path d="M30 44 L 46 30 L 50 56 Z" fill={`url(#body-${uid})`} stroke={stroke} strokeWidth="3" strokeLinejoin="round" />
+          <path d="M110 44 L 94 30 L 90 56 Z" fill={`url(#body-${uid})`} stroke={stroke} strokeWidth="3" strokeLinejoin="round" />
+          <path d="M36 44 L 46 36 L 48 52 Z" fill="#FF6FB5" opacity="0.65" />
+          <path d="M104 44 L 94 36 L 92 52 Z" fill="#FF6FB5" opacity="0.65" />
         </g>
       );
     case "bear":
       return (
         <g>
-          <circle cx="30" cy="40" r="9" fill={color} stroke={stroke} strokeWidth="2.5" />
-          <circle cx="90" cy="40" r="9" fill={color} stroke={stroke} strokeWidth="2.5" />
-          <circle cx="30" cy="40" r="4" fill={dark} />
-          <circle cx="90" cy="40" r="4" fill={dark} />
-        </g>
-      );
-    case "bunny":
-      return (
-        <g>
-          <ellipse cx="46" cy="22" rx="6" ry="16" fill={color} stroke={stroke} strokeWidth="2.5" />
-          <ellipse cx="74" cy="22" rx="6" ry="16" fill={color} stroke={stroke} strokeWidth="2.5" />
-          <ellipse cx="46" cy="24" rx="2.5" ry="10" fill="#FF6FB5" opacity="0.7" />
-          <ellipse cx="74" cy="24" rx="2.5" ry="10" fill="#FF6FB5" opacity="0.7" />
-        </g>
-      );
-    case "frog":
-      return (
-        <g>
-          <circle cx="44" cy="42" r="11" fill={color} stroke={stroke} strokeWidth="2.5" />
-          <circle cx="76" cy="42" r="11" fill={color} stroke={stroke} strokeWidth="2.5" />
-        </g>
-      );
-    case "penguin":
-      return (
-        <g>
-          <ellipse cx="60" cy="68" rx="26" ry="32" fill="#fff" />
-          <polygon points="54,72 66,72 60,82" fill="#FFB800" stroke={stroke} strokeWidth="2" />
+          <circle cx="34" cy="44" r="11" fill={`url(#body-${uid})`} stroke={stroke} strokeWidth="3" />
+          <circle cx="106" cy="44" r="11" fill={`url(#body-${uid})`} stroke={stroke} strokeWidth="3" />
+          <circle cx="34" cy="44" r="5" fill={dark} />
+          <circle cx="106" cy="44" r="5" fill={dark} />
         </g>
       );
     case "owl":
       return (
         <g>
-          <circle cx="48" cy="58" r="11" fill="#fff" stroke={stroke} strokeWidth="2.5" />
-          <circle cx="72" cy="58" r="11" fill="#fff" stroke={stroke} strokeWidth="2.5" />
-          <polygon points="36,30 44,42 28,40" fill={color} stroke={stroke} strokeWidth="2" />
-          <polygon points="84,30 76,42 92,40" fill={color} stroke={stroke} strokeWidth="2" />
-        </g>
-      );
-    case "duck":
-      return (
-        <g>
-          <ellipse cx="60" cy="74" rx="11" ry="6" fill="#FFB800" stroke={stroke} strokeWidth="2.5" />
-        </g>
-      );
-    case "hippo":
-      return (
-        <g>
-          <ellipse cx="60" cy="76" rx="20" ry="12" fill={belly_(color)} stroke={stroke} strokeWidth="2.5" />
-          <circle cx="54" cy="74" r="2" fill={stroke} />
-          <circle cx="66" cy="74" r="2" fill={stroke} />
+          <path d="M28 30 L 44 50 L 32 52 Z" fill={`url(#body-${uid})`} stroke={stroke} strokeWidth="3" strokeLinejoin="round" />
+          <path d="M112 30 L 96 50 L 108 52 Z" fill={`url(#body-${uid})`} stroke={stroke} strokeWidth="3" strokeLinejoin="round" />
         </g>
       );
     case "giraffe":
       return (
         <g>
-          <circle cx="44" cy="46" r="4" fill={dark} />
-          <circle cx="76" cy="46" r="4" fill={dark} />
-          <circle cx="36" cy="62" r="3" fill={dark} />
-          <circle cx="84" cy="62" r="3" fill={dark} />
-          <line x1="46" y1="32" x2="46" y2="42" stroke={stroke} strokeWidth="3" strokeLinecap="round" />
-          <line x1="74" y1="32" x2="74" y2="42" stroke={stroke} strokeWidth="3" strokeLinecap="round" />
-          <circle cx="46" cy="30" r="3" fill={dark} />
-          <circle cx="74" cy="30" r="3" fill={dark} />
-        </g>
-      );
-    case "axolotl":
-      return (
-        <g>
-          <path d="M22 56 q-8 4 -10 14 q12 -2 14 -8" fill={color} stroke={stroke} strokeWidth="2" />
-          <path d="M98 56 q8 4 10 14 q-12 -2 -14 -8" fill={color} stroke={stroke} strokeWidth="2" />
+          {/* horns */}
+          <line x1="54" y1="30" x2="52" y2="44" stroke={stroke} strokeWidth="4" strokeLinecap="round" />
+          <line x1="86" y1="30" x2="88" y2="44" stroke={stroke} strokeWidth="4" strokeLinecap="round" />
+          <circle cx="52" cy="28" r="4" fill={dark} stroke={stroke} strokeWidth="2.5" />
+          <circle cx="88" cy="28" r="4" fill={dark} stroke={stroke} strokeWidth="2.5" />
         </g>
       );
     case "capybara":
       return (
         <g>
-          <ellipse cx="32" cy="50" rx="5" ry="4" fill={dark} stroke={stroke} strokeWidth="2" />
-          <ellipse cx="88" cy="50" rx="5" ry="4" fill={dark} stroke={stroke} strokeWidth="2" />
+          <ellipse cx="40" cy="58" rx="6" ry="5" fill={dark} stroke={stroke} strokeWidth="2.5" />
+          <ellipse cx="100" cy="58" rx="6" ry="5" fill={dark} stroke={stroke} strokeWidth="2.5" />
+        </g>
+      );
+    case "hippo":
+      return (
+        <g>
+          <ellipse cx="40" cy="58" rx="7" ry="5" fill={`url(#body-${uid})`} stroke={stroke} strokeWidth="2.5" />
+          <ellipse cx="100" cy="58" rx="7" ry="5" fill={`url(#body-${uid})`} stroke={stroke} strokeWidth="2.5" />
+        </g>
+      );
+    case "frog":
+      return (
+        <g>
+          <circle cx="48" cy="46" r="13" fill={`url(#body-${uid})`} stroke={stroke} strokeWidth="3" />
+          <circle cx="92" cy="46" r="13" fill={`url(#body-${uid})`} stroke={stroke} strokeWidth="3" />
+        </g>
+      );
+    case "axolotl":
+      return (
+        <g>
+          <path d="M22 60 C 12 64, 8 76, 14 86 C 22 84, 28 76, 30 68 Z" fill={c} stroke={stroke} strokeWidth="2.5" strokeLinejoin="round" opacity="0.95" />
+          <path d="M118 60 C 128 64, 132 76, 126 86 C 118 84, 112 76, 110 68 Z" fill={c} stroke={stroke} strokeWidth="2.5" strokeLinejoin="round" opacity="0.95" />
+          <path d="M14 64 C 12 70, 14 78, 18 82" stroke="#FF6FB5" strokeWidth="2" fill="none" opacity="0.7" />
+          <path d="M126 64 C 128 70, 126 78, 122 82" stroke="#FF6FB5" strokeWidth="2" fill="none" opacity="0.7" />
         </g>
       );
     default:
       return null;
   }
 }
-function belly_(color: string) { return shade(color, 18); }
+
+function SpeciesFront({ animal, light, dark, stroke }: { animal: AnimalId; c: string; light: string; dark: string; stroke: string }) {
+  // Beaks, snouts, etc. drawn over the head
+  switch (animal) {
+    case "duck":
+      return <path d="M58 88 Q 70 96, 82 88 Q 80 98, 70 100 Q 60 98, 58 88 Z" fill="#FFB800" stroke={stroke} strokeWidth="2.5" strokeLinejoin="round" />;
+    case "penguin":
+      return <path d="M62 88 L 78 88 L 70 100 Z" fill="#FFB800" stroke={stroke} strokeWidth="2.5" strokeLinejoin="round" />;
+    case "owl":
+      return <path d="M64 78 L 76 78 L 70 88 Z" fill="#FFB800" stroke={stroke} strokeWidth="2.5" strokeLinejoin="round" />;
+    case "hippo":
+      return (
+        <g>
+          <ellipse cx="70" cy="92" rx="22" ry="13" fill={light} stroke={stroke} strokeWidth="2.5" />
+          <circle cx="62" cy="88" r="2" fill={stroke} />
+          <circle cx="78" cy="88" r="2" fill={stroke} />
+        </g>
+      );
+    case "bear":
+    case "capybara":
+      return (
+        <g>
+          <ellipse cx="70" cy="92" rx="14" ry="9" fill={light} stroke={stroke} strokeWidth="2.5" />
+          <ellipse cx="70" cy="86" rx="3" ry="2.2" fill={stroke} />
+        </g>
+      );
+    case "fox":
+    case "cat":
+      return <ellipse cx="70" cy="86" rx="3" ry="2.2" fill={stroke} />;
+    case "bunny":
+      return (
+        <g>
+          <ellipse cx="70" cy="86" rx="3" ry="2.2" fill={stroke} />
+          {/* front teeth */}
+          <rect x="67" y="93" width="3" height="5" fill="#fff" stroke={stroke} strokeWidth="1.2" />
+          <rect x="70" y="93" width="3" height="5" fill="#fff" stroke={stroke} strokeWidth="1.2" />
+        </g>
+      );
+    case "giraffe":
+      return (
+        <g>
+          <ellipse cx="70" cy="92" rx="14" ry="9" fill={light} stroke={stroke} strokeWidth="2.5" />
+          {/* spots on head */}
+          <circle cx="50" cy="64" r="4" fill={dark} opacity="0.7" />
+          <circle cx="92" cy="62" r="3.5" fill={dark} opacity="0.7" />
+          <circle cx="58" cy="50" r="3" fill={dark} opacity="0.7" />
+        </g>
+      );
+    default:
+      return null;
+  }
+}
+
+function Eyes({ animal, stroke }: { animal: AnimalId; stroke: string }) {
+  // Larger, glossier eyes — the Boomerang Fu hallmark
+  const big = animal === "frog" || animal === "owl";
+  const ry = big ? 10 : 8;
+  const rx = big ? 9 : 7;
+  return (
+    <g>
+      {/* eye whites */}
+      <ellipse cx="56" cy="70" rx={rx} ry={ry} fill="#fff" stroke={stroke} strokeWidth="3" />
+      <ellipse cx="84" cy="70" rx={rx} ry={ry} fill="#fff" stroke={stroke} strokeWidth="3" />
+      {/* pupils */}
+      <ellipse cx="58" cy="72" rx="3.6" ry="4.4" fill={stroke} />
+      <ellipse cx="86" cy="72" rx="3.6" ry="4.4" fill={stroke} />
+      {/* big catchlight */}
+      <circle cx="60" cy="69" r="1.8" fill="#fff" />
+      <circle cx="88" cy="69" r="1.8" fill="#fff" />
+      {/* small secondary catchlight */}
+      <circle cx="56.5" cy="73.5" r="0.9" fill="#fff" opacity="0.85" />
+      <circle cx="84.5" cy="73.5" r="0.9" fill="#fff" opacity="0.85" />
+    </g>
+  );
+}
+
+function Mouth({ animal, stroke }: { animal: AnimalId; stroke: string }) {
+  if (animal === "duck" || animal === "penguin" || animal === "owl") return null;
+  if (animal === "frog") {
+    return <path d="M50 92 Q 70 104, 90 92" fill="none" stroke={stroke} strokeWidth="3" strokeLinecap="round" />;
+  }
+  return <path d="M62 90 Q 70 96, 78 90" fill="none" stroke={stroke} strokeWidth="2.6" strokeLinecap="round" />;
+}
 
 function Accessory({ id, stroke }: { id: AccessoryId; stroke: string }) {
   switch (id) {
     case "party":
       return (
         <g>
-          <polygon points="60,8 50,32 70,32" fill="#FFE600" stroke={stroke} strokeWidth="2.5" />
-          <polygon points="60,8 53,22 60,22" fill="#FF6FB5" />
-          <circle cx="60" cy="8" r="3" fill="#FF6FB5" stroke={stroke} strokeWidth="2" />
+          <polygon points="70,8 58,38 82,38" fill="#FFE600" stroke={stroke} strokeWidth="3" strokeLinejoin="round" />
+          <polygon points="70,8 62,28 70,28" fill="#FF6FB5" />
+          <circle cx="70" cy="8" r="3.5" fill="#FF6FB5" stroke={stroke} strokeWidth="2" />
         </g>
       );
     case "crown":
       return (
         <g>
-          <polygon points="36,28 44,12 52,24 60,8 68,24 76,12 84,28" fill="#FFE600" stroke={stroke} strokeWidth="2.5" strokeLinejoin="round" />
-          <rect x="36" y="28" width="48" height="6" fill="#FFE600" stroke={stroke} strokeWidth="2.5" />
-          <circle cx="44" cy="14" r="2.5" fill="#FF6FB5" />
-          <circle cx="60" cy="10" r="2.5" fill="#A855F7" />
-          <circle cx="76" cy="14" r="2.5" fill="#B8FF00" />
+          <polygon points="42,34 52,14 62,28 70,8 78,28 88,14 98,34" fill="#FFE600" stroke={stroke} strokeWidth="3" strokeLinejoin="round" />
+          <rect x="42" y="33" width="56" height="7" fill="#FFE600" stroke={stroke} strokeWidth="3" />
+          <circle cx="52" cy="16" r="3" fill="#FF6FB5" />
+          <circle cx="70" cy="11" r="3" fill="#A855F7" />
+          <circle cx="88" cy="16" r="3" fill="#B8FF00" />
         </g>
       );
     case "tophat":
       return (
         <g>
-          <rect x="42" y="6" width="36" height="26" fill={stroke} stroke={stroke} strokeWidth="2" rx="2" />
-          <rect x="34" y="30" width="52" height="5" fill={stroke} stroke={stroke} strokeWidth="2" rx="2" />
-          <rect x="42" y="20" width="36" height="4" fill="#A855F7" />
+          <rect x="50" y="4" width="40" height="30" fill={stroke} stroke={stroke} strokeWidth="2" rx="2" />
+          <rect x="40" y="32" width="60" height="6" fill={stroke} stroke={stroke} strokeWidth="2" rx="2" />
+          <rect x="50" y="22" width="40" height="5" fill="#A855F7" />
         </g>
       );
     case "grad":
       return (
         <g>
-          <polygon points="20,28 60,12 100,28 60,40" fill={stroke} />
-          <rect x="50" y="28" width="20" height="8" fill={stroke} />
-          <line x1="84" y1="22" x2="92" y2="36" stroke="#FFE600" strokeWidth="2.5" />
-          <circle cx="92" cy="38" r="3" fill="#FFE600" />
+          <polygon points="22,32 70,12 118,32 70,42" fill={stroke} />
+          <rect x="58" y="32" width="24" height="10" fill={stroke} />
+          <line x1="100" y1="24" x2="108" y2="40" stroke="#FFE600" strokeWidth="3" />
+          <circle cx="108" cy="42" r="3.5" fill="#FFE600" />
         </g>
       );
     case "halo":
       return (
         <g>
-          <ellipse cx="60" cy="14" rx="22" ry="6" fill="none" stroke="#FFE600" strokeWidth="3.5" />
-          <ellipse cx="60" cy="14" rx="22" ry="6" fill="none" stroke="#fff" strokeWidth="1" opacity="0.7" />
+          <ellipse cx="70" cy="14" rx="26" ry="6" fill="none" stroke="#FFE600" strokeWidth="4" />
+          <ellipse cx="70" cy="14" rx="26" ry="6" fill="none" stroke="#fff" strokeWidth="1.2" opacity="0.7" />
         </g>
       );
     case "headphones":
       return (
         <g>
-          <path d="M22 48 Q22 14 60 14 Q98 14 98 48" fill="none" stroke={stroke} strokeWidth="4" />
-          <rect x="14" y="44" width="14" height="20" rx="4" fill="#A855F7" stroke={stroke} strokeWidth="2.5" />
-          <rect x="92" y="44" width="14" height="20" rx="4" fill="#A855F7" stroke={stroke} strokeWidth="2.5" />
+          <path d="M28 56 Q 28 14, 70 14 Q 112 14, 112 56" fill="none" stroke={stroke} strokeWidth="5" />
+          <rect x="18" y="50" width="16" height="22" rx="5" fill="#A855F7" stroke={stroke} strokeWidth="3" />
+          <rect x="106" y="50" width="16" height="22" rx="5" fill="#A855F7" stroke={stroke} strokeWidth="3" />
         </g>
       );
     case "flower":
       return (
         <g>
           {[0, 1, 2, 3, 4].map((i) => {
-            const x = 30 + i * 15;
-            return <circle key={i} cx={x} cy={20} r="6" fill={["#FF6FB5", "#FFE600", "#B8FF00", "#A855F7", "#5BE1FF"][i]} stroke={stroke} strokeWidth="2" />;
+            const x = 36 + i * 17;
+            return <circle key={i} cx={x} cy={22} r="7" fill={["#FF6FB5", "#FFE600", "#B8FF00", "#A855F7", "#5BE1FF"][i]} stroke={stroke} strokeWidth="2.5" />;
           })}
         </g>
       );
     case "wizard":
       return (
         <g>
-          <polygon points="60,2 36,40 84,40" fill="#A855F7" stroke={stroke} strokeWidth="2.5" strokeLinejoin="round" />
-          <circle cx="50" cy="22" r="2" fill="#FFE600" />
-          <circle cx="66" cy="14" r="1.5" fill="#FFE600" />
-          <circle cx="70" cy="28" r="1.5" fill="#FFE600" />
+          <polygon points="70,2 42,46 98,46" fill="#A855F7" stroke={stroke} strokeWidth="3" strokeLinejoin="round" />
+          <circle cx="58" cy="26" r="2.2" fill="#FFE600" />
+          <circle cx="78" cy="16" r="1.8" fill="#FFE600" />
+          <circle cx="82" cy="32" r="1.8" fill="#FFE600" />
         </g>
       );
     case "chef":
       return (
         <g>
-          <ellipse cx="60" cy="14" rx="22" ry="14" fill="#fff" stroke={stroke} strokeWidth="2.5" />
-          <rect x="42" y="26" width="36" height="10" fill="#fff" stroke={stroke} strokeWidth="2.5" />
+          <ellipse cx="70" cy="16" rx="26" ry="16" fill="#fff" stroke={stroke} strokeWidth="3" />
+          <rect x="50" y="30" width="40" height="12" fill="#fff" stroke={stroke} strokeWidth="3" />
         </g>
       );
     case "cowboy":
       return (
         <g>
-          <ellipse cx="60" cy="32" rx="44" ry="6" fill="#8B5A2B" stroke={stroke} strokeWidth="2.5" />
-          <path d="M40 32 Q40 10 60 10 Q80 10 80 32" fill="#8B5A2B" stroke={stroke} strokeWidth="2.5" />
-          <rect x="40" y="26" width="40" height="3" fill={stroke} opacity="0.5" />
+          <ellipse cx="70" cy="38" rx="50" ry="7" fill="#8B5A2B" stroke={stroke} strokeWidth="3" />
+          <path d="M46 38 Q 46 12, 70 12 Q 94 12, 94 38" fill="#8B5A2B" stroke={stroke} strokeWidth="3" />
+          <rect x="46" y="32" width="48" height="3.5" fill={stroke} opacity="0.5" />
         </g>
       );
     default:
