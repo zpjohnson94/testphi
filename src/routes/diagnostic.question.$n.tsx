@@ -3,6 +3,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { QUESTIONS, TOTAL_QUESTIONS, formatTime, loadDiag, saveDiag, type AnswerRecord } from "@/lib/diagnostic";
 import { Logo } from "@/components/Logo";
 import { sfx } from "@/lib/sfx";
+import { DiagAvatar, AVATAR_IMAGES, type AvatarId } from "@/components/DiagAvatar";
 
 export const Route = createFileRoute("/diagnostic/question/$n")({
   head: () => ({ meta: [{ title: "Diagnostic — TestPhi" }] }),
