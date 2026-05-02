@@ -56,8 +56,12 @@ function DiagResults() {
           </Link>
           {diag.name && (
             <div className="flex items-center gap-2">
-              <div className="size-8 rounded-full flex items-center justify-center text-lg"
-                style={{ background: diag.color }}>{diag.emoji}</div>
+              <DiagAvatar
+                id={(diag.avatarId in AVATAR_IMAGES ? diag.avatarId : "fox") as AvatarId}
+                color={diag.color}
+                size={32}
+                ringWidth={2}
+              />
               <span className="text-sm font-bold text-[var(--lavender)]">{diag.name}</span>
             </div>
           )}
