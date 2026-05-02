@@ -25,7 +25,7 @@ function Landing() {
             <Logo size={36} />
             <span className="display text-lg text-[var(--lavender)]">ZenTest</span>
           </Link>
-          <Link to={"/onboarding" as any} className="btn-volt px-4 py-2 text-sm">Start free</Link>
+          <Link to={"/onboarding" as any} className="btn-volt px-4 py-2 text-sm">Predict my score</Link>
         </div>
       </header>
 
@@ -40,13 +40,12 @@ function Landing() {
           <span style={{ color: "var(--volt)" }}>Have fun doing it.</span>
         </h1>
         <p className="mt-5 mx-auto max-w-2xl text-lg font-medium" style={{ color: "rgba(246,240,250,0.7)" }}>
-          Bite-sized lessons. A rating that tells you exactly what you'd score today.
-          A map that adapts to your weak spots — like Duolingo had a baby with chess.com.
+          Bite-sized lessons that adapt to fix your weak spots. Predict your score and track your progress as you practice.
         </p>
         <div className="mt-8 flex items-center justify-center gap-3 flex-wrap">
-          <Link to={"/onboarding" as any} className="btn-volt px-7 py-4 text-base">Take the diagnostic →</Link>
+          <Link to={"/onboarding" as any} className="btn-volt px-7 py-4 text-base">Predict my score →</Link>
           <Link to={"/dashboard" as any} className="rounded-2xl px-6 py-4 text-base font-bold" style={{ background: "rgba(246,240,250,0.06)", color: "var(--lavender)", border: "1px solid rgba(246,240,250,0.15)" }}>
-            Skip & explore
+            Sign up
           </Link>
         </div>
 
