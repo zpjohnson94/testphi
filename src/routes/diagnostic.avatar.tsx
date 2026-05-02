@@ -27,7 +27,7 @@ function DiagAvatar() {
     if (!canStart) return;
     const s = { ...defaultDiag(), name: name.trim(), emoji, color, startedAt: Date.now(), answers: [] };
     saveDiag(s);
-    navigate({ to: "/diagnostic/question/$n" as any, params: { n: "1" } });
+    navigate({ to: "/diagnostic/question/$n" as any, params: { n: "1" } as any });
   };
 
   return (

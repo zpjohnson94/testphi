@@ -20,7 +20,7 @@ function DiagResults() {
     setDiag(s);
     if (s.answers.length < TOTAL_QUESTIONS) {
       const nextN = Math.min(TOTAL_QUESTIONS, s.answers.length + 1);
-      navigate({ to: "/diagnostic/question/$n" as any, params: { n: String(nextN) } });
+      navigate({ to: "/diagnostic/question/$n" as any, params: { n: String(nextN) } as any });
     }
   }, [navigate]);
 

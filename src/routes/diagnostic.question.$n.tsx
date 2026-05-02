@@ -58,7 +58,7 @@ function DiagQuestion() {
       if (isLast) {
         navigate({ to: "/diagnostic/results" as any });
       } else {
-        navigate({ to: "/diagnostic/question/$n" as any, params: { n: String(idx + 1) } });
+        navigate({ to: "/diagnostic/question/$n" as any, params: { n: String(idx + 1) } as any });
       }
     }, 1000);
   };
