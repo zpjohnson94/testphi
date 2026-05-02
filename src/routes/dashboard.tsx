@@ -19,7 +19,7 @@ function Dashboard() {
 
   useEffect(() => {
     if (typeof window !== "undefined" && !state.hasOnboarded) {
-      const t = setTimeout(() => { if (!state.hasOnboarded) navigate({ to: "/onboarding" as any }); }, 50);
+      const t = setTimeout(() => { if (!state.hasOnboarded) navigate({ to: "/diagnostic" as any }); }, 50);
       return () => clearTimeout(t);
     }
   }, [state.hasOnboarded, navigate]);
