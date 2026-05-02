@@ -185,6 +185,17 @@ export function finishLesson(opts: { nodeId: string; correctCount: number; xp: n
     } else {
       history.push({ date: td, rw: s.rwElo, math: s.mathElo });
     }
+    // Unlock accessories
+    const unlocks = new Set(s.unlockedAccessories);
+    const completedCount = Object.values({ ...s.progress, [opts.nodeId]: progress }).filter((p) => p.best >= 3).length;
+    if (streak >= 3) unlocks.add("party");
+    if (streak >= 7) unlocks.add("headphones");
+    if (completedCount >= 5) unlocks.add("tophat");
+    if (completedCount >= 10) unlocks.add("flower");
+    const projected = Math.round(((s.rwElo - 600) / 1200) * 600 + 200) + Math.round(((s.mathElo - 600) / 1200) * 600 + 200);
+    if (projected >= 1400) unlocks.add("grad");
+    if (projected >= 1450) unlocks.add("wizard");
+
     return {
       ...s,
       xpToday,
@@ -195,6 +206,7 @@ export function finishLesson(opts: { nodeId: string; correctCount: number; xp: n
       lastNodeId: opts.nodeId,
       progress: { ...s.progress, [opts.nodeId]: progress },
       eloHistory: history,
+      unlockedAccessories: Array.from(unlocks),
     };
   });
 }
