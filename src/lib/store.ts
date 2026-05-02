@@ -203,6 +203,14 @@ export function resetAll() {
   setState(() => defaultState());
 }
 
+export function updateAvatar(avatar: AvatarConfig) {
+  setState((s) => ({ ...s, avatar }));
+}
+
+export function unlockAccessory(id: AccessoryId) {
+  setState((s) => s.unlockedAccessories.includes(id) ? s : { ...s, unlockedAccessories: [...s.unlockedAccessories, id] });
+}
+
 // --- Helpers ---
 
 export function weakestSkill(state: State): { id: string; name: string; mastery: number } | null {
