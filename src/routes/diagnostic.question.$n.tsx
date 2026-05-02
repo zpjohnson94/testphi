@@ -76,10 +76,12 @@ function DiagQuestion() {
         <div className="mx-auto max-w-3xl px-5 py-3 flex items-center gap-3">
           {/* Avatar */}
           <div className="flex items-center gap-2 min-w-0">
-            <div className="size-9 rounded-full flex items-center justify-center text-xl shrink-0"
-              style={{ background: diag.color, border: "2px solid rgba(255,255,255,0.25)" }}>
-              {diag.emoji}
-            </div>
+            <DiagAvatar
+              id={(diag.avatarId in AVATAR_IMAGES ? diag.avatarId : "fox") as AvatarId}
+              color={diag.color}
+              size={36}
+              ringWidth={2}
+            />
             <span className="text-sm font-bold text-[var(--lavender)] truncate">{diag.name || "You"}</span>
           </div>
 
