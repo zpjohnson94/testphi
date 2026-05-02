@@ -9,17 +9,33 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SignupRouteImport } from './routes/signup'
 import { Route as ProfileRouteImport } from './routes/profile'
+import { Route as PlansRouteImport } from './routes/plans'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as DiagnosticIndexRouteImport } from './routes/diagnostic.index'
 import { Route as LessonNodeIdRouteImport } from './routes/lesson.$nodeId'
 import { Route as LearnReadingWritingRouteImport } from './routes/learn.reading-writing'
 import { Route as LearnMathRouteImport } from './routes/learn.math'
+import { Route as DiagnosticResultsRouteImport } from './routes/diagnostic.results'
+import { Route as DiagnosticAvatarRouteImport } from './routes/diagnostic.avatar'
+import { Route as DiagnosticQuestionNRouteImport } from './routes/diagnostic.question.$n'
 
+const SignupRoute = SignupRouteImport.update({
+  id: '/signup',
+  path: '/signup',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProfileRoute = ProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PlansRoute = PlansRouteImport.update({
+  id: '/plans',
+  path: '/plans',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OnboardingRoute = OnboardingRouteImport.update({
@@ -37,6 +53,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DiagnosticIndexRoute = DiagnosticIndexRouteImport.update({
+  id: '/diagnostic/',
+  path: '/diagnostic/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LessonNodeIdRoute = LessonNodeIdRouteImport.update({
   id: '/lesson/$nodeId',
   path: '/lesson/$nodeId',
@@ -52,34 +73,67 @@ const LearnMathRoute = LearnMathRouteImport.update({
   path: '/learn/math',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DiagnosticResultsRoute = DiagnosticResultsRouteImport.update({
+  id: '/diagnostic/results',
+  path: '/diagnostic/results',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DiagnosticAvatarRoute = DiagnosticAvatarRouteImport.update({
+  id: '/diagnostic/avatar',
+  path: '/diagnostic/avatar',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DiagnosticQuestionNRoute = DiagnosticQuestionNRouteImport.update({
+  id: '/diagnostic/question/$n',
+  path: '/diagnostic/question/$n',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
   '/onboarding': typeof OnboardingRoute
+  '/plans': typeof PlansRoute
   '/profile': typeof ProfileRoute
+  '/signup': typeof SignupRoute
+  '/diagnostic/avatar': typeof DiagnosticAvatarRoute
+  '/diagnostic/results': typeof DiagnosticResultsRoute
   '/learn/math': typeof LearnMathRoute
   '/learn/reading-writing': typeof LearnReadingWritingRoute
   '/lesson/$nodeId': typeof LessonNodeIdRoute
+  '/diagnostic/': typeof DiagnosticIndexRoute
+  '/diagnostic/question/$n': typeof DiagnosticQuestionNRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
   '/onboarding': typeof OnboardingRoute
+  '/plans': typeof PlansRoute
   '/profile': typeof ProfileRoute
+  '/signup': typeof SignupRoute
+  '/diagnostic/avatar': typeof DiagnosticAvatarRoute
+  '/diagnostic/results': typeof DiagnosticResultsRoute
   '/learn/math': typeof LearnMathRoute
   '/learn/reading-writing': typeof LearnReadingWritingRoute
   '/lesson/$nodeId': typeof LessonNodeIdRoute
+  '/diagnostic': typeof DiagnosticIndexRoute
+  '/diagnostic/question/$n': typeof DiagnosticQuestionNRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
   '/onboarding': typeof OnboardingRoute
+  '/plans': typeof PlansRoute
   '/profile': typeof ProfileRoute
+  '/signup': typeof SignupRoute
+  '/diagnostic/avatar': typeof DiagnosticAvatarRoute
+  '/diagnostic/results': typeof DiagnosticResultsRoute
   '/learn/math': typeof LearnMathRoute
   '/learn/reading-writing': typeof LearnReadingWritingRoute
   '/lesson/$nodeId': typeof LessonNodeIdRoute
+  '/diagnostic/': typeof DiagnosticIndexRoute
+  '/diagnostic/question/$n': typeof DiagnosticQuestionNRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -87,47 +141,85 @@ export interface FileRouteTypes {
     | '/'
     | '/dashboard'
     | '/onboarding'
+    | '/plans'
     | '/profile'
+    | '/signup'
+    | '/diagnostic/avatar'
+    | '/diagnostic/results'
     | '/learn/math'
     | '/learn/reading-writing'
     | '/lesson/$nodeId'
+    | '/diagnostic/'
+    | '/diagnostic/question/$n'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/dashboard'
     | '/onboarding'
+    | '/plans'
     | '/profile'
+    | '/signup'
+    | '/diagnostic/avatar'
+    | '/diagnostic/results'
     | '/learn/math'
     | '/learn/reading-writing'
     | '/lesson/$nodeId'
+    | '/diagnostic'
+    | '/diagnostic/question/$n'
   id:
     | '__root__'
     | '/'
     | '/dashboard'
     | '/onboarding'
+    | '/plans'
     | '/profile'
+    | '/signup'
+    | '/diagnostic/avatar'
+    | '/diagnostic/results'
     | '/learn/math'
     | '/learn/reading-writing'
     | '/lesson/$nodeId'
+    | '/diagnostic/'
+    | '/diagnostic/question/$n'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DashboardRoute: typeof DashboardRoute
   OnboardingRoute: typeof OnboardingRoute
+  PlansRoute: typeof PlansRoute
   ProfileRoute: typeof ProfileRoute
+  SignupRoute: typeof SignupRoute
+  DiagnosticAvatarRoute: typeof DiagnosticAvatarRoute
+  DiagnosticResultsRoute: typeof DiagnosticResultsRoute
   LearnMathRoute: typeof LearnMathRoute
   LearnReadingWritingRoute: typeof LearnReadingWritingRoute
   LessonNodeIdRoute: typeof LessonNodeIdRoute
+  DiagnosticIndexRoute: typeof DiagnosticIndexRoute
+  DiagnosticQuestionNRoute: typeof DiagnosticQuestionNRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/signup': {
+      id: '/signup'
+      path: '/signup'
+      fullPath: '/signup'
+      preLoaderRoute: typeof SignupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/profile': {
       id: '/profile'
       path: '/profile'
       fullPath: '/profile'
       preLoaderRoute: typeof ProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/plans': {
+      id: '/plans'
+      path: '/plans'
+      fullPath: '/plans'
+      preLoaderRoute: typeof PlansRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/onboarding': {
@@ -151,6 +243,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/diagnostic/': {
+      id: '/diagnostic/'
+      path: '/diagnostic'
+      fullPath: '/diagnostic/'
+      preLoaderRoute: typeof DiagnosticIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/lesson/$nodeId': {
       id: '/lesson/$nodeId'
       path: '/lesson/$nodeId'
@@ -172,6 +271,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LearnMathRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/diagnostic/results': {
+      id: '/diagnostic/results'
+      path: '/diagnostic/results'
+      fullPath: '/diagnostic/results'
+      preLoaderRoute: typeof DiagnosticResultsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/diagnostic/avatar': {
+      id: '/diagnostic/avatar'
+      path: '/diagnostic/avatar'
+      fullPath: '/diagnostic/avatar'
+      preLoaderRoute: typeof DiagnosticAvatarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/diagnostic/question/$n': {
+      id: '/diagnostic/question/$n'
+      path: '/diagnostic/question/$n'
+      fullPath: '/diagnostic/question/$n'
+      preLoaderRoute: typeof DiagnosticQuestionNRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -179,10 +299,16 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DashboardRoute: DashboardRoute,
   OnboardingRoute: OnboardingRoute,
+  PlansRoute: PlansRoute,
   ProfileRoute: ProfileRoute,
+  SignupRoute: SignupRoute,
+  DiagnosticAvatarRoute: DiagnosticAvatarRoute,
+  DiagnosticResultsRoute: DiagnosticResultsRoute,
   LearnMathRoute: LearnMathRoute,
   LearnReadingWritingRoute: LearnReadingWritingRoute,
   LessonNodeIdRoute: LessonNodeIdRoute,
+  DiagnosticIndexRoute: DiagnosticIndexRoute,
+  DiagnosticQuestionNRoute: DiagnosticQuestionNRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
