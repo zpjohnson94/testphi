@@ -1,31 +1,45 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { ANIMAL_OPTIONS, COLOR_OPTIONS, defaultDiag, loadDiag, saveDiag } from "@/lib/diagnostic";
+import { defaultDiag, loadDiag, saveDiag } from "@/lib/diagnostic";
 import { Logo } from "@/components/Logo";
 import { sfx } from "@/lib/sfx";
+import { AVATAR_OPTIONS, AVATAR_IMAGES, DiagAvatar, type AvatarId } from "@/components/DiagAvatar";
 
 export const Route = createFileRoute("/diagnostic/avatar")({
   head: () => ({ meta: [{ title: "Choose your character — TestPhi" }] }),
-  component: DiagAvatar,
+  component: DiagAvatarPage,
 });
 
-function DiagAvatar() {
+const COLORS = [
+  "#B8FF00", "#A855F7", "#FFE600", "#FF6FB5", "#5BE1FF",
+  "#FF8A3D", "#7CF6B0", "#FF4D6D", "#9DAEFF", "#F6F0FA",
+];
+
+function DiagAvatarPage() {
   const navigate = useNavigate();
   const [step, setStep] = useState<"avatar" | "name">("avatar");
-  const [emoji, setEmoji] = useState("🐸");
+  const [avatarId, setAvatarId] = useState<AvatarId>("fox");
   const [color, setColor] = useState("#B8FF00");
   const [name, setName] = useState("");
 
   useEffect(() => {
     const s = loadDiag();
-    if (s.emoji) setEmoji(s.emoji);
+    if (s.avatarId && s.avatarId in AVATAR_IMAGES) setAvatarId(s.avatarId as AvatarId);
     if (s.color) setColor(s.color);
     if (s.name) setName(s.name);
   }, []);
 
   const start = () => {
     if (!name.trim()) return;
-    const s = { ...defaultDiag(), name: name.trim(), emoji, color, startedAt: Date.now(), answers: [] };
+    const s = {
+      ...defaultDiag(),
+      name: name.trim(),
+      avatarId,
+      emoji: "",
+      color,
+      startedAt: Date.now(),
+      answers: [],
+    };
     saveDiag(s);
     navigate({ to: "/diagnostic/question/$n" as any, params: { n: "1" } as any });
   };
@@ -43,47 +57,50 @@ function DiagAvatar() {
 
       <main className="min-h-screen flex items-center justify-center p-5">
         <div className="w-full max-w-md">
-          <div className="rounded-3xl p-6 sm:p-8 animate-pop" style={{ background: "var(--lavender)", boxShadow: "0 20px 60px -10px rgba(0,0,0,0.5)" }}>
+          <div className="rounded-3xl p-6 sm:p-8 animate-pop"
+            style={{ background: "var(--lavender)", boxShadow: "0 20px 60px -10px rgba(0,0,0,0.5)" }}>
             {step === "avatar" && (
               <>
                 <h2 className="display text-2xl" style={{ color: "var(--ink)" }}>Pick your fighter</h2>
                 <p className="mt-1 text-sm" style={{ color: "#5a4a72" }}>You can change this later.</p>
 
-                <div className="mt-4 flex justify-center">
-                  <div
-                    className="size-24 rounded-full flex items-center justify-center text-5xl"
-                    style={{ background: color, border: "3px solid var(--ink)" }}
-                  >
-                    {emoji}
-                  </div>
+                <div className="mt-5 flex justify-center">
+                  <DiagAvatar id={avatarId} color={color} size={128} />
                 </div>
 
-                <div className="mt-5 text-xs font-bold uppercase tracking-widest" style={{ color: "#5a4a72" }}>Animal</div>
-                <div className="mt-2 grid grid-cols-6 gap-2">
-                  {ANIMAL_OPTIONS.map((a) => {
-                    const active = emoji === a.emoji;
+                <div className="mt-6 text-xs font-bold uppercase tracking-widest" style={{ color: "#5a4a72" }}>Avatar</div>
+                <div className="mt-2 grid grid-cols-4 gap-2.5">
+                  {AVATAR_OPTIONS.map((a) => {
+                    const active = avatarId === a.id;
                     return (
                       <button
                         key={a.id}
-                        onClick={() => { setEmoji(a.emoji); sfx.tap(); }}
-                        className="aspect-square rounded-2xl flex items-center justify-center text-2xl transition-transform hover:scale-110"
+                        onClick={() => { setAvatarId(a.id); sfx.tap(); }}
+                        className="aspect-square rounded-2xl flex items-center justify-center transition-transform hover:scale-105 p-1.5"
                         style={{
-                          background: active ? "var(--violet-deep)" : "rgba(74, 6, 136, 0.08)",
+                          background: active ? "var(--violet-deep)" : "rgba(74, 6, 136, 0.06)",
                           border: active ? "2px solid var(--neon)" : "2px solid transparent",
                         }}
+                        aria-label={a.name}
                       >
-                        {a.emoji}
+                        <img
+                          src={AVATAR_IMAGES[a.id]}
+                          alt={a.name}
+                          className="w-full h-full object-contain rounded-full"
+                          draggable={false}
+                        />
                       </button>
                     );
                   })}
                 </div>
 
-                <div className="mt-5 text-xs font-bold uppercase tracking-widest" style={{ color: "#5a4a72" }}>Color</div>
+                <div className="mt-6 text-xs font-bold uppercase tracking-widest" style={{ color: "#5a4a72" }}>Color</div>
                 <div className="mt-2 grid grid-cols-10 gap-2">
-                  {COLOR_OPTIONS.map((c) => (
+                  {COLORS.map((c) => (
                     <button
                       key={c}
                       onClick={() => { setColor(c); sfx.tap(); }}
+                      aria-label={`Color ${c}`}
                       className="aspect-square rounded-full transition-transform hover:scale-110"
                       style={{
                         background: c,
@@ -104,12 +121,7 @@ function DiagAvatar() {
                 <p className="mt-1 text-sm" style={{ color: "#5a4a72" }}>So we can personalize your results.</p>
 
                 <div className="mt-4 flex justify-center">
-                  <div
-                    className="size-20 rounded-full flex items-center justify-center text-4xl"
-                    style={{ background: color, border: "3px solid var(--ink)" }}
-                  >
-                    {emoji}
-                  </div>
+                  <DiagAvatar id={avatarId} color={color} size={104} />
                 </div>
 
                 <input
