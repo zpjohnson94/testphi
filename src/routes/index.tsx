@@ -19,13 +19,22 @@ export const Route = createFileRoute("/")({
 function Landing() {
   return (
     <div className="topo-bg min-h-screen relative overflow-hidden">
-      {/* Decorative learning-journey map behind the hero */}
+      {/* Decorative learning-journey map — sits above the topo contour lines
+          but kept low-contrast so it never competes with the CTA. */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 top-16 z-0 opacity-60 mix-blend-screen"
-        style={{ height: "min(900px, 90vh)" }}
+        className="pointer-events-none absolute inset-x-0 top-16 z-0"
+        style={{ height: "min(900px, 90vh)", opacity: 0.32 }}
       >
         <PuzzleMapDecor className="w-full h-full" />
+        {/* Soft vignette to push the decor away from the central CTA */}
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              "radial-gradient(ellipse 55% 45% at 50% 35%, rgba(29,41,0,0.92), rgba(29,41,0,0.55) 55%, transparent 80%)",
+          }}
+        />
       </div>
       {/* Nav */}
       <header className="sticky top-0 z-30 backdrop-blur" style={{ background: "rgba(29,41,0,0.85)", borderBottom: "1px solid rgba(246,240,250,0.08)" }}>
@@ -39,7 +48,7 @@ function Landing() {
       </header>
 
       {/* Hero */}
-      <section className="relative z-10 mx-auto max-w-6xl px-5 pt-14 pb-20 text-center">
+      <section className="relative z-10 mx-auto max-w-6xl px-5 pt-16 pb-40 sm:pb-56 text-center">
         <div className="inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-bold uppercase tracking-widest" style={{ background: "rgba(184,255,0,0.12)", color: "var(--volt)", border: "1px solid var(--volt)" }}>
           <Sparkles className="size-3.5" />
           TEST PREP THAT ADAPTS TO YOUR WEAK SPOTS
@@ -51,10 +60,24 @@ function Landing() {
         <p className="mt-5 mx-auto max-w-2xl text-lg font-medium" style={{ color: "rgba(246,240,250,0.7)" }}>
           Bite-sized lessons that adapt to fix your weak spots. Predict your score and track your progress as you practice.
         </p>
-        <div className="mt-8 flex items-center justify-center gap-3 flex-wrap">
-          <Link to={"/onboarding" as any} className="btn-volt px-7 py-4 text-base">Predict my score →</Link>
-          <Link to={"/dashboard" as any} className="rounded-2xl px-6 py-4 text-base font-bold" style={{ background: "rgba(246,240,250,0.06)", color: "var(--lavender)", border: "1px solid rgba(246,240,250,0.15)" }}>
-            Sign up
+        <div className="mt-10 flex flex-col items-center gap-4">
+          <Link
+            to={"/onboarding" as any}
+            className="btn-volt px-12 py-6 text-xl sm:text-2xl tracking-tight inline-flex items-center gap-2 rounded-2xl"
+            style={{
+              boxShadow:
+                "0 10px 0 0 #6e9c00, 0 0 60px -8px rgba(184,255,0,0.65), 0 0 120px -20px rgba(184,255,0,0.5)",
+            }}
+          >
+            Predict my score
+            <span aria-hidden="true" className="text-2xl sm:text-3xl">→</span>
+          </Link>
+          <Link
+            to={"/dashboard" as any}
+            className="text-sm font-bold underline-offset-4 hover:underline"
+            style={{ color: "rgba(246,240,250,0.7)" }}
+          >
+            or sign up
           </Link>
         </div>
 
@@ -86,7 +109,7 @@ function Landing() {
       </section>
 
       {/* How it works */}
-      <section className="mx-auto max-w-6xl px-5 pb-24">
+      <section className="relative z-10 mx-auto max-w-6xl px-5 pt-16 pb-24">
         <h2 className="display text-3xl sm:text-5xl text-center text-[var(--lavender)]">Three things make it click</h2>
         <div className="mt-10 grid gap-5 sm:grid-cols-3">
           <Feature Icon={Trophy} title="A real ELO rating" desc="Like chess. One number that maps to your projected SAT, with percentile context." accent="var(--volt)" />
