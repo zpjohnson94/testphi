@@ -109,7 +109,7 @@ function Landing() {
       </section>
 
       {/* How it works */}
-      <section className="mx-auto max-w-6xl px-5 pb-24">
+      <section className="relative z-10 mx-auto max-w-6xl px-5 pt-16 pb-24">
         <h2 className="display text-3xl sm:text-5xl text-center text-[var(--lavender)]">Three things make it click</h2>
         <div className="mt-10 grid gap-5 sm:grid-cols-3">
           <Feature Icon={Trophy} title="A real ELO rating" desc="Like chess. One number that maps to your projected SAT, with percentile context." accent="var(--volt)" />
