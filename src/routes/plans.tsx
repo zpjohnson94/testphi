@@ -1,7 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { Check } from "lucide-react";
-import { loadDiag, scoreFor } from "@/lib/diagnostic";
 import { Logo } from "@/components/Logo";
 
 export const Route = createFileRoute("/plans")({
@@ -16,10 +15,6 @@ export const Route = createFileRoute("/plans")({
 
 function Plans() {
   const [billing, setBilling] = useState<"monthly" | "annual">("annual");
-  const target = useMemo(() => {
-    const s = scoreFor(loadDiag());
-    return Math.min(1600, Math.round((s.total + 150) / 10) * 10);
-  }, []);
 
   return (
     <div className="topo-bg min-h-screen">
@@ -35,7 +30,7 @@ function Plans() {
       <main className="mx-auto max-w-5xl px-5 pt-12 pb-20">
         <div className="text-center">
           <div className="text-[11px] font-bold uppercase tracking-[0.18em]" style={{ color: "var(--volt)" }}>
-            You're on your way to {target}
+            Power up to master your weak spots
           </div>
           <h1 className="mt-3 display text-4xl sm:text-5xl text-[var(--lavender)]">Choose your plan</h1>
 
@@ -60,8 +55,6 @@ function Plans() {
               <Feat>1 diagnostic test per day</Feat>
               <Feat>Predicted score tracking</Feat>
               <Feat>Score improvement graph</Feat>
-              <Feat>Basic weak spot summary</Feat>
-              <Feat>Avatar customization</Feat>
             </ul>
             <Link to={"/dashboard" as any}
               className="block text-center mt-6 py-3.5 text-base font-bold rounded-2xl"
@@ -77,32 +70,29 @@ function Plans() {
               style={{ background: "var(--volt)", color: "var(--ink)" }}>
               Most Popular
             </div>
-            <h3 className="display text-2xl text-[var(--lavender)]">Pro</h3>
+            <h3 className="display text-2xl text-[var(--lavender)]">Power Up</h3>
             <div className="mt-2">
               {billing === "monthly" ? (
-                <div className="score-num text-3xl text-[var(--lavender)]">$14.99 <span className="text-base font-semibold opacity-70">/ mo</span></div>
+                <div className="score-num text-3xl text-[var(--lavender)]">$30 <span className="text-base font-semibold opacity-70">/ mo</span></div>
               ) : (
                 <>
-                  <div className="score-num text-3xl text-[var(--lavender)]">$8.99 <span className="text-base font-semibold opacity-70">/ mo</span></div>
+                  <div className="score-num text-3xl text-[var(--lavender)]">$12 <span className="text-base font-semibold opacity-70">/ mo</span></div>
                   <div className="text-xs font-medium mt-0.5" style={{ color: "rgba(246,240,250,0.6)" }}>billed annually</div>
                 </>
               )}
             </div>
             <ul className="mt-5 space-y-2.5">
               <Feat pro>Everything in Free</Feat>
+              <Feat pro>Weak spot detection</Feat>
               <Feat pro>Adaptive training targeting weak spots</Feat>
               <Feat pro>Unlimited practice questions</Feat>
               <Feat pro>Section-specific training (Math or R&W)</Feat>
               <Feat pro>Detailed answer explanations</Feat>
-              <Feat pro>Full-length timed practice tests</Feat>
             </ul>
             <Link to={"/dashboard" as any}
               className="btn-volt block text-center mt-6 py-3.5 text-base rounded-2xl">
-              Start Pro free for 7 days →
+              Get Power Up →
             </Link>
-            <p className="mt-3 text-center text-xs" style={{ color: "rgba(246,240,250,0.6)" }}>
-              7-day free trial. Cancel anytime. No charge until trial ends.
-            </p>
           </div>
         </div>
       </main>
