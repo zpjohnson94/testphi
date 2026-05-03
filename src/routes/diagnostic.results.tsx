@@ -371,7 +371,7 @@ function Group({
       <div className="text-[11px] font-bold uppercase tracking-[0.18em]" style={{ color }}>
         {label}
       </div>
-      <div className="mt-2 grid gap-2">
+      <div className="relative mt-2 grid gap-2">
         {display.map((it, i) => (
           <div
             key={i}
@@ -398,6 +398,7 @@ function Group({
             )}
           </div>
         ))}
+        {overlay}
       </div>
     </div>
   );
