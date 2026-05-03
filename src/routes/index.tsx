@@ -74,8 +74,9 @@ function Landing() {
       </div>
       {/* Hero contrast scrim — keeps headline & subheader readable over the illustration */}
       <div
+        ref={scrimRef}
         aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 top-0 z-[1]"
+        className="pointer-events-none absolute inset-x-0 top-0 z-[1] will-change-transform"
         style={{
           height: "780px",
           background:
@@ -94,7 +95,7 @@ function Landing() {
       </header>
 
       {/* Hero */}
-      <section className="relative z-10 mx-auto max-w-6xl px-5 pt-16 pb-40 sm:pb-56 text-center">
+      <section ref={heroRef} className="relative z-10 mx-auto max-w-6xl px-5 pt-16 pb-40 sm:pb-56 text-center will-change-transform">
         <h1 className="mt-6 display text-5xl sm:text-7xl text-[var(--lavender)]">
           Crush the SAT.<br />
           <span style={{ color: "var(--volt)" }}>Master your weak spots.</span>
@@ -124,7 +125,7 @@ function Landing() {
         </div>
 
         {/* Floating preview */}
-        <div className="mt-16 mx-auto max-w-lg">
+        <div ref={cardRef} className="mt-16 mx-auto max-w-lg will-change-transform">
           <div className="rounded-3xl p-6 sm:p-7 backdrop-blur-md" style={{ background: "color-mix(in oklab, var(--violet-deep) 45%, transparent)", border: "1.5px solid var(--neon)" }}>
             <div className="flex items-start justify-between gap-4">
               <div className="text-left min-w-0">
