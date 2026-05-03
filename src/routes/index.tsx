@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useEffect, useRef } from "react";
 import { Zap } from "lucide-react";
 import { Avatar, defaultAvatar } from "@/components/Avatar";
 import { Logo } from "@/components/Logo";
