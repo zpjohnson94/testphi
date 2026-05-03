@@ -140,24 +140,3 @@ function Landing() {
   );
 }
 
-function Feature({ Icon, title, desc, accent }: { Icon: any; title: string; desc: string; accent: string }) {
-  return (
-    <div className="rounded-3xl p-6 transition-transform hover:-translate-y-1" style={{ background: "rgba(246,240,250,0.04)", border: `1px solid ${accent}` }}>
-      <div className="size-11 rounded-xl flex items-center justify-center" style={{ background: accent, color: "var(--ink)" }}>
-        <Icon className="size-5" />
-      </div>
-      <h3 className="mt-4 display text-xl text-[var(--lavender)]">{title}</h3>
-      <p className="mt-1.5 text-sm font-medium" style={{ color: "rgba(246,240,250,0.7)" }}>{desc}</p>
-    </div>
-  );
-}
-
-function SectionCard({ title, tagline, accent, Icon }: { title: string; tagline: string; accent: string; Icon: any }) {
-  return (
-    <div className="rounded-3xl p-7" style={{ background: "rgba(246,240,250,0.04)", border: `1.5px solid ${accent}` }}>
-      <Icon className="size-7" style={{ color: accent }} />
-      <div className="mt-3 display text-2xl text-[var(--lavender)]">{title}</div>
-      <div className="mt-1 text-sm font-bold" style={{ color: "rgba(246,240,250,0.7)" }}>{tagline}</div>
-    </div>
-  );
-}
