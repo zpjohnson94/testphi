@@ -229,7 +229,15 @@ function DiagResults() {
           className="rounded-3xl p-6 sm:p-8"
           style={{ background: "rgba(246,240,250,0.04)", border: "1px solid rgba(246,240,250,0.08)" }}
         >
-          <Group label="Weak Spots" color="#ff4d6d" items={needsWork} fallback={["Geometry: Area & Angles", "Punctuation"]} fallbackPts={[52, 40]} showBadge />
+          <Group
+            label="Weak Spots"
+            color="#ff4d6d"
+            items={needsWork}
+            fallback={["Geometry: Area & Angles", "Punctuation"]}
+            fallbackPts={[52, 40]}
+            showBadge
+            overlay={!unlocked ? <UnlockOverlay totalUpside={totalUpside} /> : undefined}
+          />
           <Group label="Developing" color="var(--spark)" items={developing} fallback={["Quadratic Equations", "Words in Context", "Data Interpretation"]} fallbackPts={[26, 22, 26]} showBadge />
           <Group label="Strong" color="var(--volt)" items={strong} fallback={["Linear Equations", "Main Idea"]} fallbackPts={[]} showBadge={false} />
         </div>
