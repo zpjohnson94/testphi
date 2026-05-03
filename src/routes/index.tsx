@@ -99,15 +99,23 @@ function Landing() {
         </div>
 
         {/* Floating preview */}
-        <div className="mt-16 mx-auto max-w-md">
-          <div className="rounded-3xl p-6" style={{ background: "var(--violet-deep)", border: "1.5px solid var(--neon)" }}>
-            <div className="flex items-start justify-between">
-              <div className="text-left">
-                <div className="text-[10px] font-bold uppercase tracking-[0.2em]" style={{ color: "var(--volt)" }}>Projected SAT</div>
-                <div className="score-num text-7xl text-[var(--lavender)] mt-1">1340</div>
-                <div className="text-xs font-bold mt-1" style={{ color: "var(--volt)" }}>Top 13% · Gold tier</div>
+        <div className="mt-16 mx-auto max-w-lg">
+          <div className="rounded-3xl p-6 sm:p-7" style={{ background: "var(--violet-deep)", border: "1.5px solid var(--neon)" }}>
+            <div className="flex items-start justify-between gap-4">
+              <div className="text-left min-w-0">
+                <div className="text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.18em]" style={{ color: "var(--volt)" }}>
+                  Bianca, your predicted SAT score
+                </div>
+                <div className="mt-3 flex items-end gap-1.5">
+                  <div className="score-num text-[72px] sm:text-[96px] leading-none" style={{ color: "var(--volt)" }}>1340</div>
+                  <div className="score-num text-xl sm:text-2xl mb-2" style={{ color: "rgba(184,255,0,0.6)" }}>/1600</div>
+                </div>
+                <div className="mt-3 inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-extrabold" style={{ background: "rgba(184,255,0,0.15)", color: "var(--volt)", border: "1px solid var(--volt)" }}>
+                  <Zap className="size-3.5" />
+                  +40 pts this month
+                </div>
               </div>
-              <div className="size-20 rounded-2xl flex items-center justify-center" style={{ background: "rgba(184,255,0,0.15)", border: "2px solid var(--volt)" }}>
+              <div className="shrink-0 size-20 rounded-2xl flex items-center justify-center" style={{ background: "rgba(184,255,0,0.15)", border: "2px solid var(--volt)" }}>
                 <Avatar config={{ ...defaultAvatar(), accessory: "crown" }} size={70} animate />
               </div>
             </div>
@@ -123,22 +131,6 @@ function Landing() {
             </div>
           </div>
         </div>
-      </section>
-
-      {/* How it works */}
-      <section className="relative z-10 mx-auto max-w-6xl px-5 pt-16 pb-24">
-        <h2 className="display text-3xl sm:text-5xl text-center text-[var(--lavender)]">Three things make it click</h2>
-        <div className="mt-10 grid gap-5 sm:grid-cols-3">
-          <Feature Icon={Trophy} title="A real ELO rating" desc="Like chess. One number that maps to your projected SAT, with percentile context." accent="var(--volt)" />
-          <Feature Icon={Zap} title="A map you want to climb" desc="Worlds, levels, and your blob avatar hopping between nodes. Every step earns XP." accent="var(--neon)" />
-          <Feature Icon={Brain} title="Hunts your weaknesses" desc="More reps where you struggle. Bonus review nodes appear automatically." accent="var(--spark)" />
-        </div>
-      </section>
-
-      {/* Sections */}
-      <section className="mx-auto max-w-6xl px-5 pb-24 grid gap-5 sm:grid-cols-2">
-        <SectionCard title="Reading & Writing" tagline="Grammar, evidence, vocab in context." accent="var(--volt)" Icon={BookOpen} />
-        <SectionCard title="Math" tagline="Algebra, geometry, stats, advanced." accent="var(--neon)" Icon={Calculator} />
       </section>
 
       <footer className="py-8 text-center text-xs" style={{ color: "rgba(246,240,250,0.4)", borderTop: "1px solid rgba(246,240,250,0.08)" }}>
