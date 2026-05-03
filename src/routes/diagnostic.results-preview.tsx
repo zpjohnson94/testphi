@@ -310,7 +310,7 @@ function UnlockOverlay({ totalUpside }: { totalUpside: number }) {
       className="absolute left-0 right-0 rounded-2xl p-5 sm:p-6 text-center"
       style={{
         top: 120,
-        background: "rgba(74,6,136,0.78)",
+        background: "rgba(74,6,136,0.35)",
         backdropFilter: "blur(8px)",
         WebkitBackdropFilter: "blur(8px)",
         border: "1px solid rgba(246,240,250,0.08)",
