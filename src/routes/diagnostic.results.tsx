@@ -280,7 +280,7 @@ function UnlockOverlay({ totalUpside }: { totalUpside: number }) {
         +{totalUpside} points waiting to be unlocked
       </h3>
       <p className="max-w-xs text-xs sm:text-sm font-medium" style={{ color: "rgba(246,240,250,0.75)" }}>
-        Sign up free to see your weak spots and the colleges that come into range when you master them.
+        See your weak spots and the colleges that come into range when you master them.
       </p>
       <Link
         to={"/signup" as any}
