@@ -310,7 +310,6 @@ function UnlockOverlay({ totalUpside }: { totalUpside: number }) {
       className="absolute left-0 right-0 rounded-2xl p-5 sm:p-6 text-center"
       style={{
         top: 120,
-        bottom: 0,
         background: "var(--deep-violet, #1a0b2e)",
         border: "2px solid var(--volt)",
         boxShadow: "0 12px 40px -8px rgba(0,0,0,0.7), 0 0 0 1px rgba(184,255,0,0.15)",
