@@ -1,7 +1,7 @@
 // Avatar disc: animal PNGs with transparent backgrounds composited
 // over a circular disc whose fill color is user-customizable.
 import bear from "@/assets/avatars/bear.png";
-import fox from "@/assets/avatars/fox.png";
+import frog from "@/assets/avatars/frog.png";
 import lion from "@/assets/avatars/lion.png";
 import panda from "@/assets/avatars/panda.png";
 import owl from "@/assets/avatars/owl.png";
@@ -14,16 +14,16 @@ import shiba from "@/assets/avatars/shiba.png";
 import pig from "@/assets/avatars/pig.png";
 
 export type AvatarId =
-  | "bear" | "fox" | "lion" | "panda" | "owl" | "croc"
+  | "bear" | "frog" | "lion" | "panda" | "owl" | "croc"
   | "koala" | "bunny" | "tiger" | "penguin" | "shiba" | "pig";
 
 export const AVATAR_IMAGES: Record<AvatarId, string> = {
-  bear, fox, lion, panda, owl, croc, koala, bunny, tiger, penguin, shiba, pig,
+  bear, frog, lion, panda, owl, croc, koala, bunny, tiger, penguin, shiba, pig,
 };
 
 export const AVATAR_OPTIONS: { id: AvatarId; name: string }[] = [
   { id: "bear", name: "Bear" },
-  { id: "fox", name: "Fox" },
+  { id: "frog", name: "Frog" },
   { id: "lion", name: "Lion" },
   { id: "panda", name: "Panda" },
   { id: "owl", name: "Owl" },
@@ -44,7 +44,7 @@ interface Props {
 }
 
 export function DiagAvatar({ id, color, size = 96, ringWidth }: Props) {
-  const src = AVATAR_IMAGES[id] ?? AVATAR_IMAGES.fox;
+  const src = AVATAR_IMAGES[id] ?? AVATAR_IMAGES.frog;
   const pad = ringWidth ?? 0;
   return (
     <div
