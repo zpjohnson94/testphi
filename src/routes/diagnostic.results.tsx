@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { Lock } from "lucide-react";
 import { loadDiag, scoreFor, QUESTIONS, TOTAL_QUESTIONS } from "@/lib/diagnostic";
 import { Logo } from "@/components/Logo";
