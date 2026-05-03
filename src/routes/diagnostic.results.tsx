@@ -277,37 +277,57 @@ function DiagResults() {
           </div>
         </div>
 
-        {/* Lock overlay CTA */}
-        {!unlocked && (
-          <div className="flex flex-col items-center justify-center text-center px-2 pt-4">
-            <div
-              className="size-14 rounded-full flex items-center justify-center"
-              style={{ background: "rgba(255,230,0,0.18)", border: "2px solid var(--spark)" }}
-            >
-              <Lock className="size-6" style={{ color: "var(--spark)" }} />
-            </div>
-            <h2
-              className="mt-4 display text-2xl sm:text-3xl text-[var(--lavender)] font-bold"
-              style={{ fontFamily: "'Exo 2', sans-serif" }}
-            >
-              You have {totalUpside} points waiting to be unlocked
-            </h2>
-            <p className="mt-2 max-w-sm text-sm font-medium" style={{ color: "rgba(246,240,250,0.75)" }}>
-              Sign up to see the weak spots you can master, and which colleges come into range when you do.
-            </p>
-            <Link
-              to={"/signup" as any}
-              className="btn-volt mt-6 px-8 py-4 text-base rounded-2xl"
-              style={{ boxShadow: "0 8px 0 0 #6e9c00, 0 0 50px -8px rgba(184,255,0,0.55)" }}
-            >
-              Sign up free to unlock →
-            </Link>
-            <p className="mt-3 text-xs font-medium" style={{ color: "rgba(246,240,250,0.5)" }}>
-              Free forever · No credit card needed
-            </p>
-          </div>
-        )}
       </section>
+    </div>
+  );
+}
+
+function UnlockOverlay({ totalUpside }: { totalUpside: number }) {
+  return (
+    <div
+      className="absolute left-0 right-0 rounded-2xl p-5 sm:p-6 text-center"
+      style={{
+        top: 64,
+        bottom: 0,
+        background: "rgba(29,11,46,0.82)",
+        backdropFilter: "blur(2px)",
+        WebkitBackdropFilter: "blur(2px)",
+        border: "1px solid rgba(184,255,0,0.35)",
+        borderLeft: "4px solid var(--volt)",
+        boxShadow: "0 12px 40px -12px rgba(0,0,0,0.6)",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: 10,
+        zIndex: 20,
+      }}
+    >
+      <div
+        className="size-11 rounded-full flex items-center justify-center"
+        style={{ background: "rgba(255,230,0,0.18)", border: "2px solid var(--spark)" }}
+      >
+        <Lock className="size-5" style={{ color: "var(--spark)" }} />
+      </div>
+      <h3
+        className="display text-lg sm:text-xl text-[var(--lavender)] font-bold leading-tight"
+        style={{ fontFamily: "'Exo 2', sans-serif" }}
+      >
+        +{totalUpside} points waiting to be unlocked
+      </h3>
+      <p className="max-w-xs text-xs sm:text-sm font-medium" style={{ color: "rgba(246,240,250,0.75)" }}>
+        Sign up free to see your weak spots and the colleges that come into range.
+      </p>
+      <Link
+        to={"/signup" as any}
+        className="btn-volt mt-1 px-6 py-3 text-sm sm:text-base rounded-2xl w-full sm:w-auto"
+        style={{ boxShadow: "0 6px 0 0 #6e9c00, 0 0 40px -8px rgba(184,255,0,0.55)" }}
+      >
+        Sign up free to unlock →
+      </Link>
+      <p className="text-[11px] font-medium" style={{ color: "rgba(246,240,250,0.5)" }}>
+        Free forever · No credit card needed
+      </p>
     </div>
   );
 }
