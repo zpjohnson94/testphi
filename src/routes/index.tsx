@@ -54,7 +54,7 @@ function Landing() {
         }}
       />
       {/* Nav */}
-      <header className="sticky top-0 z-30 backdrop-blur" style={{ background: "rgba(29,41,0,0.85)", borderBottom: "1px solid rgba(246,240,250,0.08)" }}>
+      <header className="sticky top-0 z-30 backdrop-blur" style={{ background: "rgba(29,41,0,0.85)", borderBottom: "1px solid rgba(246,240,250,0.08)", fontFamily: "var(--font-display)" }}>
         <div className="mx-auto max-w-6xl flex items-center justify-between px-5 py-3">
           <Link to="/" className="flex items-center gap-2">
             <Logo size={36} />
