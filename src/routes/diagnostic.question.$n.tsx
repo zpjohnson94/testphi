@@ -172,6 +172,7 @@ function DiagQuestion() {
               return (
                 <button
                   key={i}
+                  ref={(el) => { choiceRefs.current[i] = el; }}
                   disabled={submitted}
                   onClick={() => submit(i)}
                   className="text-left px-4 py-3 rounded-xl transition-all flex items-start gap-3"
