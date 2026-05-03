@@ -68,7 +68,7 @@ function Plans() {
             style={{ background: "var(--violet-deep)", border: "2px solid var(--volt)", boxShadow: "0 0 60px -10px rgba(184,255,0,0.5)" }}>
             <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest"
               style={{ background: "var(--volt)", color: "var(--ink)" }}>
-              Most Popular
+              Recommended
             </div>
             <h3 className="display text-2xl text-[var(--lavender)]">Power Up</h3>
             <div className="mt-2">
