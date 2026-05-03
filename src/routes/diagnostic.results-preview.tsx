@@ -372,6 +372,7 @@ function Group({
   fallback,
   fallbackPts,
   showBadge,
+  overlay,
 }: {
   label: string;
   color: string;
@@ -379,6 +380,7 @@ function Group({
   fallback: string[];
   fallbackPts: number[];
   showBadge: boolean;
+  overlay?: ReactNode;
 }) {
   const display =
     items.length > 0
