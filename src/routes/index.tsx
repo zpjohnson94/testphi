@@ -76,7 +76,7 @@ function Landing() {
         <div className="mt-5 sm:mt-10 flex flex-col items-center gap-3 sm:gap-4">
           <Link
             to={"/diagnostic" as any}
-            className="btn-volt px-10 py-4 sm:px-12 sm:py-6 text-lg sm:text-2xl tracking-tight inline-flex items-center gap-2 rounded-2xl"
+            className="btn-volt px-12 py-6 text-2xl tracking-tight inline-flex items-center gap-2 rounded-2xl"
             style={{
               boxShadow:
                 "0 10px 0 0 #6e9c00, 0 0 60px -8px rgba(184,255,0,0.65), 0 0 120px -20px rgba(184,255,0,0.5)",
@@ -95,7 +95,7 @@ function Landing() {
         </div>
 
         {/* Floating preview */}
-        <div className="mt-12 sm:mt-16 mx-auto max-w-lg">
+        <div className="mt-20 sm:mt-16 mx-auto max-w-lg">
           <div className="rounded-3xl p-4 sm:p-7 backdrop-blur-md" style={{ background: "color-mix(in oklab, var(--violet-deep) 45%, transparent)", border: "1.5px solid var(--neon)" }}>
             <div className="flex items-start justify-between gap-3 sm:gap-4">
               <div className="text-left min-w-0">
