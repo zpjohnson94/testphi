@@ -40,7 +40,7 @@ function Plans() {
             <ToggleBtn active={billing === "annual"} onClick={() => setBilling("annual")}>
               Annual
               <span className="ml-2 inline-block px-2 py-0.5 rounded-full text-[10px] font-bold uppercase"
-                style={{ background: "var(--spark)", color: "var(--ink)" }}>Save 40%</span>
+                style={{ background: "var(--spark)", color: "var(--ink)" }}>Save 60%</span>
             </ToggleBtn>
           </div>
         </div>
