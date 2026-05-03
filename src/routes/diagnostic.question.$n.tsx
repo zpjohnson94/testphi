@@ -84,6 +84,7 @@ function DiagQuestion() {
     setSelected(choiceIdx);
     setSubmitted(true);
     sfx.tap();
+    fireBolts(choiceIdx);
     const elapsedSeconds = (Date.now() - startRef.current) / 1000;
     const correct = choiceIdx === question.correctIndex;
     const record: AnswerRecord = { n: question.n, choice: choiceIdx, correct, elapsedSeconds };
@@ -97,7 +98,7 @@ function DiagQuestion() {
       } else {
         navigate({ to: "/diagnostic/question/$n" as any, params: { n: String(idx + 1) } as any });
       }
-    }, 550);
+    }, 320);
   };
 
   const overTime = elapsed > question.expectedSeconds;
