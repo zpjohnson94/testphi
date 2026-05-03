@@ -287,14 +287,11 @@ function UnlockOverlay({ totalUpside }: { totalUpside: number }) {
     <div
       className="absolute left-0 right-0 rounded-2xl p-5 sm:p-6 text-center"
       style={{
-        top: 64,
+        top: 120,
         bottom: 0,
-        background: "rgba(29,11,46,0.82)",
-        backdropFilter: "blur(2px)",
-        WebkitBackdropFilter: "blur(2px)",
-        border: "1px solid rgba(184,255,0,0.35)",
-        borderLeft: "4px solid var(--volt)",
-        boxShadow: "0 12px 40px -12px rgba(0,0,0,0.6)",
+        background: "var(--deep-violet, #1a0b2e)",
+        border: "2px solid var(--volt)",
+        boxShadow: "0 12px 40px -8px rgba(0,0,0,0.7), 0 0 0 1px rgba(184,255,0,0.15)",
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
