@@ -130,7 +130,7 @@ function Landing() {
       </section>
 
       <footer className="py-8 text-center text-xs" style={{ color: "rgba(246,240,250,0.4)", borderTop: "1px solid rgba(246,240,250,0.08)" }}>
-        Built with Lovable
+        ​
       </footer>
     </div>
   );
