@@ -55,10 +55,10 @@ function Landing() {
         </div>
         <h1 className="mt-6 display text-5xl sm:text-7xl text-[var(--lavender)]">
           Crush the SAT.<br />
-          <span style={{ color: "var(--volt)" }}>Have fun doing it.</span>
+          <span style={{ color: "var(--volt)" }}>Master your weak spots.</span>
         </h1>
         <p className="mt-5 mx-auto max-w-2xl text-lg font-medium" style={{ color: "rgba(246,240,250,0.7)" }}>
-          Bite-sized lessons that adapt to fix your weak spots. Predict your score and track your progress as you practice.
+          Bite-sized lessons that adapt to fix your weak spots. Watch your predicted score rise as you practice.
         </p>
         <div className="mt-10 flex flex-col items-center gap-4">
           <Link
