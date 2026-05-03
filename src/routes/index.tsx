@@ -60,7 +60,7 @@ function Landing() {
             <Logo size={36} />
             <span className="display text-lg text-[var(--lavender)]">TestPhi</span>
           </Link>
-          <Link to={"/diagnostic" as any} className="btn-volt px-4 py-2 text-sm">Predict my score</Link>
+          <Link to={"/dashboard" as any} className="btn-volt px-4 py-2 text-sm">Sign in</Link>
         </div>
       </header>
 
@@ -94,7 +94,7 @@ function Landing() {
             className="text-sm font-bold underline-offset-4 hover:underline"
             style={{ color: "rgba(246,240,250,0.7)" }}
           >
-            or sign up
+            Already have an account? Sign in
           </Link>
         </div>
 
