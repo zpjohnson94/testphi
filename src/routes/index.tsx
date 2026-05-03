@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Sparkles, BookOpen, Calculator, Trophy, Zap, Brain } from "lucide-react";
+import { Sparkles, Zap } from "lucide-react";
 import { Avatar, defaultAvatar } from "@/components/Avatar";
 import { Logo } from "@/components/Logo";
 import journeyBg from "@/assets/journey-bg.png";
