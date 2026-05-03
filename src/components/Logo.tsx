@@ -1,6 +1,4 @@
-// TestPhi logo — volt tile with a chunky Greek capital Phi (Φ).
-// The Phi reads as a "test score" gauge: a vertical stem through an oval,
-// quietly nodding to the golden-ratio symbol.
+// TestPhi logo — neon violet disc with a chunky volt Phi (Φ).
 
 interface LogoProps {
   size?: number;
@@ -16,22 +14,18 @@ export function Logo({ size = 36, className = "" }: LogoProps) {
       className={className}
       aria-label="TestPhi logo"
     >
-      {/* Rounded volt tile background */}
-      <rect x="0" y="0" width="48" height="48" rx="11" fill="var(--volt)" />
-
-      {/* Phi oval — thick ring, slightly taller than wide */}
+      <circle cx="24" cy="24" r="23" fill="var(--neon)" />
       <ellipse
         cx="24"
         cy="24"
-        rx="10"
-        ry="8"
+        rx="9"
+        ry="10.5"
         fill="none"
-        stroke="var(--ink)"
-        strokeWidth="4"
+        stroke="var(--volt)"
+        strokeWidth="4.5"
+        strokeLinejoin="round"
       />
-
-      {/* Vertical stem extending above and below the oval */}
-      <rect x="22" y="7" width="4" height="34" rx="1.6" fill="var(--ink)" />
+      <rect x="21.75" y="6.5" width="4.5" height="35" rx="2" fill="var(--volt)" />
     </svg>
   );
 }
