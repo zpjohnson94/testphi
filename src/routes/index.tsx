@@ -95,7 +95,7 @@ function Landing() {
         </div>
 
         {/* Floating preview */}
-        <div className="mt-12 sm:mt-16 mx-auto max-w-lg">
+        <div className="mt-20 sm:mt-16 mx-auto max-w-lg">
           <div className="rounded-3xl p-4 sm:p-7 backdrop-blur-md" style={{ background: "color-mix(in oklab, var(--violet-deep) 45%, transparent)", border: "1.5px solid var(--neon)" }}>
             <div className="flex items-start justify-between gap-3 sm:gap-4">
               <div className="text-left min-w-0">
