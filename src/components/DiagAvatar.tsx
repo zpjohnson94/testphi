@@ -44,8 +44,8 @@ interface Props {
 }
 
 export function DiagAvatar({ id, color, size = 96, ringWidth }: Props) {
-  const rw = ringWidth ?? Math.max(3, Math.round(size * 0.06));
   const src = AVATAR_IMAGES[id] ?? AVATAR_IMAGES.fox;
+  const pad = ringWidth ?? Math.max(2, Math.round(size * 0.04));
   return (
     <div
       style={{
@@ -53,25 +53,22 @@ export function DiagAvatar({ id, color, size = 96, ringWidth }: Props) {
         height: size,
         borderRadius: "9999px",
         background: color,
-        padding: rw,
         boxShadow: "0 6px 18px -8px rgba(0,0,0,0.45)",
         display: "inline-flex",
         alignItems: "center",
         justifyContent: "center",
+        overflow: "hidden",
       }}
       aria-label="Avatar"
     >
       <img
         src={src}
         alt=""
-        width={size - rw * 2}
-        height={size - rw * 2}
         draggable={false}
         style={{
-          width: "100%",
-          height: "100%",
-          borderRadius: "9999px",
-          objectFit: "cover",
+          width: `calc(100% - ${pad * 2}px)`,
+          height: `calc(100% - ${pad * 2}px)`,
+          objectFit: "contain",
           display: "block",
           userSelect: "none",
           pointerEvents: "none",
