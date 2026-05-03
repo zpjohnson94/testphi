@@ -18,7 +18,7 @@ const COLORS = [
 function DiagAvatarPage() {
   const navigate = useNavigate();
   const [step, setStep] = useState<"avatar" | "name">("avatar");
-  const [avatarId, setAvatarId] = useState<AvatarId>("fox");
+  const [avatarId, setAvatarId] = useState<AvatarId>("frog");
   const [color, setColor] = useState("#B8FF00");
   const [name, setName] = useState("");
 
