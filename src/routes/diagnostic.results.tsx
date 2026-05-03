@@ -187,43 +187,10 @@ function DiagResults() {
           </div>
         </div>
         <div className="mt-3 inline-block score-pill text-sm">{score.percentile}</div>
-
-        <div className="mt-8 grid grid-cols-2 gap-3 max-w-md mx-auto">
-          <Sub label="Math" value={score.mathScaled} accent="var(--neon)" />
-          <Sub label="Reading & Writing" value={score.rwScaled} accent="var(--volt)" />
-        </div>
-
-        <div
-          className="mt-10 text-xs font-bold uppercase tracking-widest"
-          style={{ color: "rgba(246,240,250,0.55)" }}
-        >
-          See your breakdown ↓
-        </div>
       </section>
 
       {/* Below the fold */}
       <section className="relative z-10 mx-auto max-w-2xl px-5 pb-24 space-y-6">
-        {/* Mechanic 1 — Upside callout */}
-        <div
-          className="rounded-2xl p-5 sm:p-6"
-          style={{
-            background: "rgba(184,255,0,0.06)",
-            borderLeft: "4px solid var(--volt)",
-            border: "1px solid rgba(184,255,0,0.2)",
-            borderLeftWidth: "4px",
-          }}
-        >
-          <div className="text-[11px] font-bold uppercase tracking-[0.18em]" style={{ color: "var(--volt)" }}>
-            Potential score improvement
-          </div>
-          <div className="mt-2 score-num text-5xl sm:text-6xl" style={{ color: "var(--volt)" }}>
-            {totalUpside} <span className="text-2xl sm:text-3xl">points</span>
-          </div>
-          <div className="mt-2 text-sm font-medium" style={{ color: "rgba(246,240,250,0.75)" }}>
-            We know exactly where they're hiding.
-          </div>
-        </div>
-
         {/* Skill cards (blurred) */}
         <div
           className="rounded-3xl p-6 sm:p-8"
@@ -329,16 +296,6 @@ function UnlockOverlay({ totalUpside }: { totalUpside: number }) {
   );
 }
 
-function Sub({ label, value, accent }: { label: string; value: number; accent: string }) {
-  return (
-    <div className="rounded-2xl p-4" style={{ background: "rgba(0,0,0,0.25)", border: `1px solid ${accent}` }}>
-      <div className="score-num text-3xl text-[var(--lavender)]">{value}</div>
-      <div className="mt-1 text-[11px] font-bold uppercase tracking-widest" style={{ color: accent }}>
-        {label}
-      </div>
-    </div>
-  );
-}
 
 function Group({
   label,
