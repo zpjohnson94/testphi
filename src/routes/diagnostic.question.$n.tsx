@@ -126,8 +126,8 @@ function DiagQuestion() {
               style={{ color: "rgba(246,240,250,0.7)" }}>
               Question {idx} of {TOTAL_QUESTIONS}
             </div>
-            <div className="mt-1 h-1.5 rounded-full overflow-hidden" style={{ background: "rgba(246,240,250,0.1)" }}>
-              <div className="h-full transition-all duration-500" style={{ width: `${progressPct}%`, background: "var(--volt)" }} />
+            <div ref={progressRef} className="mt-1 h-1.5 rounded-full overflow-hidden relative" style={{ background: "rgba(246,240,250,0.1)" }}>
+              <div ref={progressFillRef} className="h-full transition-all duration-500 relative" style={{ width: `${progressPct}%`, background: "var(--volt)", boxShadow: bolts.length ? "0 0 14px #B8FF00, 0 0 28px rgba(184,255,0,0.6)" : undefined }} />
             </div>
           </div>
 
