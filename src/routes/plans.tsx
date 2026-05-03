@@ -86,7 +86,7 @@ function Plans() {
               <Feat pro>Weak spot detection</Feat>
               <Feat pro>Adaptive training targeting weak spots</Feat>
               <Feat pro>Unlimited practice questions</Feat>
-              <Feat pro>Section-specific training (Math or R&W)</Feat>
+              <Feat pro>Specific training across all 8 SAT domains</Feat>
               <Feat pro>Detailed answer explanations</Feat>
             </ul>
             <Link to={"/dashboard" as any}
