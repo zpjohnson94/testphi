@@ -2,7 +2,7 @@
 // Renders the same UI with a synthetic DiagState (mix of correct/incorrect/slow
 // answers) so the page can be iterated on without completing the diagnostic.
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { Lock } from "lucide-react";
 import { QUESTIONS, TOTAL_QUESTIONS, scoreFor, type DiagState, type AnswerRecord } from "@/lib/diagnostic";
 import { Logo } from "@/components/Logo";
