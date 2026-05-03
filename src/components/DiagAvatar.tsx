@@ -1,8 +1,5 @@
-// Avatar disc using one of 12 illustrated animal PNGs, framed by a
-// user-selectable colored ring. The PNG itself is a circular tile with a
-// fixed light-blue background — we render it inside a slightly larger
-// disc whose color is the user's chosen accent, so the ring acts as the
-// customization signal without needing to alter the artwork.
+// Avatar disc: animal PNGs with transparent backgrounds composited
+// over a circular disc whose fill color is user-customizable.
 import bear from "@/assets/avatars/bear.png";
 import fox from "@/assets/avatars/fox.png";
 import lion from "@/assets/avatars/lion.png";
