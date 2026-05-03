@@ -358,7 +358,7 @@ function Group({
   fallback: string[];
   fallbackPts: number[];
   showBadge: boolean;
-  overlay?: React.ReactNode;
+  overlay?: ReactNode;
 }) {
   const display =
     items.length > 0
