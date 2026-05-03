@@ -299,13 +299,6 @@ function UnlockOverlay({ totalUpside }: { totalUpside: number }) {
         gap: 10,
         zIndex: 20,
       }}
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        gap: 10,
-        zIndex: 20,
-      }}
     >
       <div
         className="size-11 rounded-full flex items-center justify-center"
