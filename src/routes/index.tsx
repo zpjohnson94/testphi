@@ -1,5 +1,4 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useRef } from "react";
 import { Zap } from "lucide-react";
 import { Avatar, defaultAvatar } from "@/components/Avatar";
 import { Logo } from "@/components/Logo";
@@ -18,45 +17,17 @@ export const Route = createFileRoute("/")({
 });
 
 function Landing() {
-  const bgRef = useRef<HTMLDivElement>(null);
-  const scrimRef = useRef<HTMLDivElement>(null);
-  const heroRef = useRef<HTMLElement>(null);
-  const cardRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    let raf = 0;
-    const onScroll = () => {
-      if (raf) return;
-      raf = requestAnimationFrame(() => {
-        const y = window.scrollY;
-        if (bgRef.current) bgRef.current.style.transform = `translate3d(-50%, ${y * 0.35}px, 0)`;
-        if (scrimRef.current) scrimRef.current.style.transform = `translate3d(0, ${y * 0.15}px, 0)`;
-        if (heroRef.current) heroRef.current.style.transform = `translate3d(0, ${y * -0.12}px, 0)`;
-        if (cardRef.current) cardRef.current.style.transform = `translate3d(0, ${y * -0.25}px, 0)`;
-        raf = 0;
-      });
-    };
-    window.addEventListener("scroll", onScroll, { passive: true });
-    onScroll();
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      if (raf) cancelAnimationFrame(raf);
-    };
-  }, []);
-
   return (
     <div className="topo-bg min-h-screen relative overflow-hidden">
       {/* Decorative learning-journey illustration — three islands behind the
           hero. Center island is anchored so it stays visible on mobile when
           the side islands crop off. */}
       <div
-        ref={bgRef}
         aria-hidden="true"
-        className="pointer-events-none absolute left-1/2 z-0 w-full max-w-[1800px] will-change-transform"
+        className="pointer-events-none absolute left-1/2 -translate-x-1/2 z-0 w-full max-w-[1800px]"
         style={{
           top: "420px",
           height: "min(720px, 80vh)",
-          transform: "translate3d(-50%, 0, 0)",
           WebkitMaskImage:
             "radial-gradient(ellipse 65% 60% at 50% 50%, black 35%, transparent 88%), linear-gradient(to bottom, transparent 0%, black 22%, black 78%, transparent 100%)",
           maskImage:
@@ -74,9 +45,8 @@ function Landing() {
       </div>
       {/* Hero contrast scrim — keeps headline & subheader readable over the illustration */}
       <div
-        ref={scrimRef}
         aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 top-0 z-[1] will-change-transform"
+        className="pointer-events-none absolute inset-x-0 top-0 z-[1]"
         style={{
           height: "780px",
           background:
@@ -95,7 +65,7 @@ function Landing() {
       </header>
 
       {/* Hero */}
-      <section ref={heroRef} className="relative z-10 mx-auto max-w-6xl px-5 pt-16 pb-40 sm:pb-56 text-center will-change-transform">
+      <section className="relative z-10 mx-auto max-w-6xl px-5 pt-16 pb-40 sm:pb-56 text-center">
         <h1 className="mt-6 display text-5xl sm:text-7xl text-[var(--lavender)]">
           Crush the SAT.<br />
           <span style={{ color: "var(--volt)" }}>Master your weak spots.</span>
@@ -125,7 +95,7 @@ function Landing() {
         </div>
 
         {/* Floating preview */}
-        <div ref={cardRef} className="mt-16 mx-auto max-w-lg will-change-transform">
+        <div className="mt-16 mx-auto max-w-lg">
           <div className="rounded-3xl p-6 sm:p-7 backdrop-blur-md" style={{ background: "color-mix(in oklab, var(--violet-deep) 45%, transparent)", border: "1.5px solid var(--neon)" }}>
             <div className="flex items-start justify-between gap-4">
               <div className="text-left min-w-0">
