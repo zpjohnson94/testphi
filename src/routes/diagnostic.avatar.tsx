@@ -91,23 +91,6 @@ function DiagAvatarPage() {
                   })}
                 </div>
 
-                <div className="mt-6 text-xs font-bold uppercase tracking-widest" style={{ color: "#5a4a72" }}>Color</div>
-                <div className="mt-2 grid grid-cols-10 gap-2">
-                  {COLORS.map((c) => (
-                    <button
-                      key={c}
-                      onClick={() => { setColor(c); sfx.tap(); }}
-                      aria-label={`Color ${c}`}
-                      className="aspect-square rounded-full transition-transform hover:scale-110"
-                      style={{
-                        background: c,
-                        border: color === c ? "3px solid var(--ink)" : "2px solid rgba(0,0,0,0.15)",
-                        boxShadow: color === c ? "0 0 0 2px var(--neon)" : "none",
-                      }}
-                    />
-                  ))}
-                </div>
-
                 <button onClick={() => setStep("name")} className="btn-volt w-full mt-6 py-4">Continue →</button>
               </>
             )}
