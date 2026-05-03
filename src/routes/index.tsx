@@ -24,25 +24,33 @@ function Landing() {
           the side islands crop off. */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute left-1/2 -translate-x-1/2 z-0 w-full max-w-[1600px]"
+        className="pointer-events-none absolute left-1/2 -translate-x-1/2 z-0 w-full max-w-[1800px]"
         style={{
-          top: "260px",
-          height: "min(640px, 70vh)",
+          top: "420px",
+          height: "min(720px, 80vh)",
+          WebkitMaskImage:
+            "radial-gradient(ellipse 60% 75% at 50% 55%, black 55%, transparent 100%)",
+          maskImage:
+            "radial-gradient(ellipse 60% 75% at 50% 55%, black 55%, transparent 100%)",
         }}
       >
         <img
           src={journeyBg}
           alt=""
           className="w-full h-full object-cover object-center"
-          style={{
-            opacity: 0.7,
-            WebkitMaskImage:
-              "linear-gradient(to bottom, transparent 0%, black 18%, black 78%, transparent 100%)",
-            maskImage:
-              "linear-gradient(to bottom, transparent 0%, black 18%, black 78%, transparent 100%)",
-          }}
+          style={{ opacity: 0.55 }}
         />
       </div>
+      {/* Hero contrast scrim — keeps headline & subheader readable over the illustration */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-x-0 top-0 z-[1]"
+        style={{
+          height: "780px",
+          background:
+            "radial-gradient(ellipse 70% 60% at 50% 30%, rgba(29,41,0,0.85) 0%, rgba(29,41,0,0.55) 45%, transparent 80%)",
+        }}
+      />
       {/* Nav */}
       <header className="sticky top-0 z-30 backdrop-blur" style={{ background: "rgba(29,41,0,0.85)", borderBottom: "1px solid rgba(246,240,250,0.08)" }}>
         <div className="mx-auto max-w-6xl flex items-center justify-between px-5 py-3">
