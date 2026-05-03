@@ -4,7 +4,7 @@ import bear from "@/assets/avatars/bear.png";
 import frog from "@/assets/avatars/frog.png";
 import lion from "@/assets/avatars/lion.png";
 import panda from "@/assets/avatars/panda.png";
-import owl from "@/assets/avatars/owl.png";
+import eagle from "@/assets/avatars/eagle.png";
 import croc from "@/assets/avatars/croc.png";
 import koala from "@/assets/avatars/koala.png";
 import bunny from "@/assets/avatars/bunny.png";
@@ -14,11 +14,11 @@ import shiba from "@/assets/avatars/shiba.png";
 import pig from "@/assets/avatars/pig.png";
 
 export type AvatarId =
-  | "bear" | "frog" | "lion" | "panda" | "owl" | "croc"
+  | "bear" | "frog" | "lion" | "panda" | "eagle" | "croc"
   | "koala" | "bunny" | "tiger" | "penguin" | "shiba" | "pig";
 
 export const AVATAR_IMAGES: Record<AvatarId, string> = {
-  bear, frog, lion, panda, owl, croc, koala, bunny, tiger, penguin, shiba, pig,
+  bear, frog, lion, panda, eagle, croc, koala, bunny, tiger, penguin, shiba, pig,
 };
 
 export const AVATAR_OPTIONS: { id: AvatarId; name: string }[] = [
@@ -26,7 +26,7 @@ export const AVATAR_OPTIONS: { id: AvatarId; name: string }[] = [
   { id: "frog", name: "Frog" },
   { id: "lion", name: "Lion" },
   { id: "panda", name: "Panda" },
-  { id: "owl", name: "Owl" },
+  { id: "eagle", name: "Eagle" },
   { id: "croc", name: "Croc" },
   { id: "koala", name: "Koala" },
   { id: "bunny", name: "Bunny" },
