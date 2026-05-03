@@ -18,6 +18,32 @@ export const Route = createFileRoute("/")({
 });
 
 function Landing() {
+  const bgRef = useRef<HTMLDivElement>(null);
+  const scrimRef = useRef<HTMLDivElement>(null);
+  const heroRef = useRef<HTMLElement>(null);
+  const cardRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    let raf = 0;
+    const onScroll = () => {
+      if (raf) return;
+      raf = requestAnimationFrame(() => {
+        const y = window.scrollY;
+        if (bgRef.current) bgRef.current.style.transform = `translate3d(-50%, ${y * 0.35}px, 0)`;
+        if (scrimRef.current) scrimRef.current.style.transform = `translate3d(0, ${y * 0.15}px, 0)`;
+        if (heroRef.current) heroRef.current.style.transform = `translate3d(0, ${y * -0.12}px, 0)`;
+        if (cardRef.current) cardRef.current.style.transform = `translate3d(0, ${y * -0.25}px, 0)`;
+        raf = 0;
+      });
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      if (raf) cancelAnimationFrame(raf);
+    };
+  }, []);
+
   return (
     <div className="topo-bg min-h-screen relative overflow-hidden">
       {/* Decorative learning-journey illustration — three islands behind the
