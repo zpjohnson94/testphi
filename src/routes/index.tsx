@@ -71,7 +71,7 @@ function Landing() {
           <span style={{ color: "var(--volt)" }}>Master your weak spots.</span>
         </h1>
         <p className="mt-3 sm:mt-5 mx-auto max-w-2xl text-base sm:text-lg font-medium" style={{ color: "rgba(246,240,250,0.7)" }}>
-          Bite-sized lessons that adapt to fix your weak spots. Watch your predicted score rise as you practice.
+          Boost your predicted score with lessons that adapt to your weak spots.
         </p>
         <div className="mt-5 sm:mt-10 flex flex-col items-center gap-3 sm:gap-4">
           <Link
