@@ -29,9 +29,11 @@ function Landing() {
           top: "420px",
           height: "min(720px, 80vh)",
           WebkitMaskImage:
-            "radial-gradient(ellipse 60% 75% at 50% 55%, black 55%, transparent 100%)",
+            "radial-gradient(ellipse 65% 60% at 50% 50%, black 35%, transparent 88%), linear-gradient(to bottom, transparent 0%, black 22%, black 78%, transparent 100%)",
           maskImage:
-            "radial-gradient(ellipse 60% 75% at 50% 55%, black 55%, transparent 100%)",
+            "radial-gradient(ellipse 65% 60% at 50% 50%, black 35%, transparent 88%), linear-gradient(to bottom, transparent 0%, black 22%, black 78%, transparent 100%)",
+          WebkitMaskComposite: "source-in",
+          maskComposite: "intersect",
         }}
       >
         <img
