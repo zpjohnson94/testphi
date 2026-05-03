@@ -53,11 +53,10 @@ function Landing() {
         ref={bgRef}
         aria-hidden="true"
         className="pointer-events-none absolute left-1/2 z-0 w-full max-w-[1800px] will-change-transform"
-        style={{ transform: "translate3d(-50%, 0, 0)" } as React.CSSProperties &amp; { top?: string }}
-      />
         style={{
           top: "420px",
           height: "min(720px, 80vh)",
+          transform: "translate3d(-50%, 0, 0)",
           WebkitMaskImage:
             "radial-gradient(ellipse 65% 60% at 50% 50%, black 35%, transparent 88%), linear-gradient(to bottom, transparent 0%, black 22%, black 78%, transparent 100%)",
           maskImage:
