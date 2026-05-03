@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Sparkles, BookOpen, Calculator, Trophy, Zap, Brain } from "lucide-react";
 import { Avatar, defaultAvatar } from "@/components/Avatar";
 import { Logo } from "@/components/Logo";
-import { PuzzleMapDecor } from "@/components/PuzzleMapDecor";
+import journeyBg from "@/assets/journey-bg.png";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -19,20 +19,27 @@ export const Route = createFileRoute("/")({
 function Landing() {
   return (
     <div className="topo-bg min-h-screen relative overflow-hidden">
-      {/* Decorative learning-journey map — sits above the topo contour lines
-          but kept low-contrast so it never competes with the CTA. */}
+      {/* Decorative learning-journey illustration — three islands behind the
+          hero. Center island is anchored so it stays visible on mobile when
+          the side islands crop off. */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 top-16 z-0"
-        style={{ height: "min(900px, 90vh)", opacity: 0.32 }}
+        className="pointer-events-none absolute left-1/2 -translate-x-1/2 z-0 w-full max-w-[1600px]"
+        style={{
+          top: "260px",
+          height: "min(640px, 70vh)",
+        }}
       >
-        <PuzzleMapDecor className="w-full h-full" />
-        {/* Soft vignette to push the decor away from the central CTA */}
-        <div
-          className="absolute inset-0"
+        <img
+          src={journeyBg}
+          alt=""
+          className="w-full h-full object-cover object-center"
           style={{
-            background:
-              "radial-gradient(ellipse 55% 45% at 50% 35%, rgba(29,41,0,0.92), rgba(29,41,0,0.55) 55%, transparent 80%)",
+            opacity: 0.7,
+            WebkitMaskImage:
+              "linear-gradient(to bottom, transparent 0%, black 18%, black 78%, transparent 100%)",
+            maskImage:
+              "linear-gradient(to bottom, transparent 0%, black 18%, black 78%, transparent 100%)",
           }}
         />
       </div>
