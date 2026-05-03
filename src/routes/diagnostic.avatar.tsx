@@ -76,19 +76,16 @@ function DiagAvatarPage() {
                       <button
                         key={a.id}
                         onClick={() => { setAvatarId(a.id); sfx.tap(); }}
-                        className="aspect-square rounded-2xl flex items-center justify-center transition-transform hover:scale-105 p-1.5"
+                        className="aspect-square rounded-full flex items-center justify-center transition-transform hover:scale-105"
                         style={{
-                          background: active ? "var(--violet-deep)" : "rgba(74, 6, 136, 0.06)",
-                          border: active ? "2px solid var(--neon)" : "2px solid transparent",
+                          background: "transparent",
+                          border: active ? "3px solid var(--ink)" : "3px solid transparent",
+                          boxShadow: active ? "0 0 0 2px var(--neon)" : "none",
+                          padding: 2,
                         }}
                         aria-label={a.name}
                       >
-                        <img
-                          src={AVATAR_IMAGES[a.id]}
-                          alt={a.name}
-                          className="w-full h-full object-contain rounded-full"
-                          draggable={false}
-                        />
+                        <DiagAvatar id={a.id} color={color} size={64} />
                       </button>
                     );
                   })}
