@@ -21,6 +21,40 @@ function DiagQuestion() {
   const [submitted, setSubmitted] = useState(false);
   const [elapsed, setElapsed] = useState(0);
   const startRef = useRef<number>(Date.now());
+  const choiceRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  const progressRef = useRef<HTMLDivElement | null>(null);
+  const progressFillRef = useRef<HTMLDivElement | null>(null);
+  const [bolts, setBolts] = useState<Array<{ id: number; sx: number; sy: number; ex: number; ey: number; angle: number; delay: number; rot: number }>>([]);
+  const boltSeq = useRef(0);
+
+  const fireBolts = (choiceIdx: number) => {
+    const btn = choiceRefs.current[choiceIdx];
+    const target = progressFillRef.current || progressRef.current;
+    if (!btn || !target) return;
+    const b = btn.getBoundingClientRect();
+    const t = target.getBoundingClientRect();
+    const sx = b.left + b.width / 2;
+    const sy = b.top + b.height / 2;
+    // aim for the leading edge of the next progress fill
+    const nextPct = ((idx) / TOTAL_QUESTIONS);
+    const ex = t.left + t.width * Math.min(1, nextPct);
+    const ey = t.top + t.height / 2;
+    const count = 14;
+    const newBolts = Array.from({ length: count }).map((_, i) => {
+      const angle = (Math.PI * 2 * i) / count + Math.random() * 0.5;
+      return {
+        id: ++boltSeq.current,
+        sx, sy, ex, ey, angle,
+        delay: Math.random() * 60,
+        rot: Math.random() * 360,
+      };
+    });
+    setBolts(prev => [...prev, ...newBolts]);
+    // cleanup
+    window.setTimeout(() => {
+      setBolts(prev => prev.filter(x => !newBolts.find(n => n.id === x.id)));
+    }, 900);
+  };
 
   // If user has no name set, send them back to setup.
   useEffect(() => {
@@ -50,6 +84,7 @@ function DiagQuestion() {
     setSelected(choiceIdx);
     setSubmitted(true);
     sfx.tap();
+    fireBolts(choiceIdx);
     const elapsedSeconds = (Date.now() - startRef.current) / 1000;
     const correct = choiceIdx === question.correctIndex;
     const record: AnswerRecord = { n: question.n, choice: choiceIdx, correct, elapsedSeconds };
@@ -63,7 +98,7 @@ function DiagQuestion() {
       } else {
         navigate({ to: "/diagnostic/question/$n" as any, params: { n: String(idx + 1) } as any });
       }
-    }, 550);
+    }, 320);
   };
 
   const overTime = elapsed > question.expectedSeconds;
@@ -91,8 +126,8 @@ function DiagQuestion() {
               style={{ color: "rgba(246,240,250,0.7)" }}>
               Question {idx} of {TOTAL_QUESTIONS}
             </div>
-            <div className="mt-1 h-1.5 rounded-full overflow-hidden" style={{ background: "rgba(246,240,250,0.1)" }}>
-              <div className="h-full transition-all duration-500" style={{ width: `${progressPct}%`, background: "var(--volt)" }} />
+            <div ref={progressRef} className="mt-1 h-1.5 rounded-full overflow-hidden relative" style={{ background: "rgba(246,240,250,0.1)" }}>
+              <div ref={progressFillRef} className="h-full transition-all duration-500 relative" style={{ width: `${progressPct}%`, background: "var(--volt)", boxShadow: bolts.length ? "0 0 14px #B8FF00, 0 0 28px rgba(184,255,0,0.6)" : undefined }} />
             </div>
           </div>
 
@@ -137,6 +172,7 @@ function DiagQuestion() {
               return (
                 <button
                   key={i}
+                  ref={(el) => { choiceRefs.current[i] = el; }}
                   disabled={submitted}
                   onClick={() => submit(i)}
                   className="text-left px-4 py-3 rounded-xl transition-all flex items-start gap-3"
@@ -158,6 +194,43 @@ function DiagQuestion() {
           </Link>
         </div>
       </main>
+
+      {/* Lightning bolt overlay */}
+      <div className="pointer-events-none fixed inset-0 z-50" aria-hidden>
+        {bolts.map((b) => {
+          const burstDist = 60 + Math.random() * 40;
+          const midX = b.sx + Math.cos(b.angle) * burstDist;
+          const midY = b.sy + Math.sin(b.angle) * burstDist;
+          const style: React.CSSProperties = {
+            position: "absolute",
+            left: 0,
+            top: 0,
+            willChange: "transform, opacity",
+            animation: `bolt-fly 600ms cubic-bezier(0.4, 0, 0.2, 1) ${b.delay}ms forwards`,
+            ["--sx" as any]: `${b.sx - 7}px`,
+            ["--sy" as any]: `${b.sy - 9}px`,
+            ["--mx" as any]: `${midX - 7}px`,
+            ["--my" as any]: `${midY - 9}px`,
+            ["--ex" as any]: `${b.ex - 7}px`,
+            ["--ey" as any]: `${b.ey - 9}px`,
+            ["--r0" as any]: `${b.rot}deg`,
+            ["--r1" as any]: `${b.rot + 180}deg`,
+          };
+          return (
+            <svg key={b.id} width="14" height="18" viewBox="0 0 14 18" style={style}>
+              <path d="M8 0 L0 10 L5 10 L4 18 L14 7 L8 7 Z" fill="#B8FF00" style={{ filter: "drop-shadow(0 0 4px #B8FF00) drop-shadow(0 0 8px rgba(184,255,0,0.7))" }} />
+            </svg>
+          );
+        })}
+      </div>
+
+      <style>{`
+        @keyframes bolt-fly {
+          0%   { transform: translate(var(--sx), var(--sy)) rotate(var(--r0)) scale(0.4); opacity: 0; }
+          15%  { transform: translate(var(--mx), var(--my)) rotate(var(--r0)) scale(1.15); opacity: 1; }
+          100% { transform: translate(var(--ex), var(--ey)) rotate(var(--r1)) scale(0.5); opacity: 0; }
+        }
+      `}</style>
     </div>
   );
 }
