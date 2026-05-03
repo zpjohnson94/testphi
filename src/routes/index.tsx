@@ -50,8 +50,11 @@ function Landing() {
           hero. Center island is anchored so it stays visible on mobile when
           the side islands crop off. */}
       <div
+        ref={bgRef}
         aria-hidden="true"
-        className="pointer-events-none absolute left-1/2 -translate-x-1/2 z-0 w-full max-w-[1800px]"
+        className="pointer-events-none absolute left-1/2 z-0 w-full max-w-[1800px] will-change-transform"
+        style={{ transform: "translate3d(-50%, 0, 0)" } as React.CSSProperties &amp; { top?: string }}
+      />
         style={{
           top: "420px",
           height: "min(720px, 80vh)",
