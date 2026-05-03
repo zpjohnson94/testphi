@@ -1,32 +1,16 @@
-# Replace homepage progression background
+## Fix: brand fonts not loading
 
-I generated a stylized 3-island illustration (Algebra Atoll, Grammar Grove, Advanced Math Moonscape) in the brand palette — deep violet, lavender, volt-green — with the center island deliberately the largest so it remains the focal point on mobile when the side islands crop off.
-
-Preview of generated asset: `journey-bg-v1.png` (already saved to `/mnt/documents/`).
+The Google Fonts `@import` in `src/styles.css` is placed after `@import "tailwindcss"` and `@source "../src"`. Per CSS spec, `@import` rules must come before any other rules, so the browser silently ignores the fonts import. Confirmed in the live preview: only Inter loads, and the h1 / wordmark / nav button all render in Inter, not Exo 2.
 
 ## Changes
 
-### 1. Add the asset
-- Copy `/mnt/documents/journey-bg-v1.png` → `src/assets/journey-bg.png`.
+1. **`src/styles.css`** — remove the broken `@import url("https://fonts.googleapis.com/...")` line (line 5).
 
-### 2. Swap the decor in `src/routes/index.tsx`
-- Remove the `PuzzleMapDecor` import and its container div.
-- Replace with an `<img src={journeyBg}>` block:
-  - Absolutely positioned behind the hero (`z-0`, `pointer-events-none`, `aria-hidden`).
-  - `object-cover object-center` so the center island stays anchored at all viewport widths.
-  - Width capped at ~`max-w-[1600px]`, centered with `left-1/2 -translate-x-1/2`.
-  - Top offset roughly `top-[260px] sm:top-[320px]` so it sits below the headline/CTA, not behind them.
-  - Height ~`h-[520px] sm:h-[640px]`.
-  - Opacity ~`0.55` plus a soft top→bottom mask (`maskImage: linear-gradient(to bottom, transparent, black 18%, black 78%, transparent)`) so it dissolves into the topo background instead of having a hard edge.
-- Keep a soft radial vignette layer behind the hero CTA so the headline area stays high contrast over the new image.
+2. **`src/routes/__root.tsx`** — add the Google Fonts stylesheet via `<link>` tags in the route's `head().links` array, alongside the existing `appCss` link. Include `preconnect` hints for faster font loading:
+   - `preconnect` to `https://fonts.googleapis.com`
+   - `preconnect` to `https://fonts.gstatic.com` (crossOrigin anonymous)
+   - `stylesheet` for `https://fonts.googleapis.com/css2?family=Exo+2:wght@700;800;900&family=Nunito:wght@400;600;700;800;900&display=swap`
 
-### 3. Cleanup
-- Delete `src/components/PuzzleMapDecor.tsx` (no other route imports it — verified).
+This loads the fonts at the document level (more reliable with Tailwind v4 + Vite than CSS `@import`) so that `--font-display: "Exo 2"` and `--font-sans: "Nunito"` resolve correctly across every page.
 
-## Why this layout works
-- The illustration is rendered with the Grammar Grove island centered. With `object-cover object-center` the side islands crop first on narrow viewports, leaving the center hero island intact on mobile (≤390px).
-- Placing the image *below* the hero CTA (rather than behind it) keeps the predict-my-score button readable while the islands act as a visual base/foundation for the page — exactly the role the numbered-tile map played, just more compelling.
-
-## Open questions (optional follow-ups, not blocking)
-- If you want the islands to peek up *behind* the CTA card instead of sitting under it, I can shift the `top` offset upward and lean harder on the radial vignette.
-- If the AI text on the signs ("Algebra Atoll", "Grammar Grove", "Advanced Math Moonscape") doesn't read crisply enough at final size, I can regenerate with larger sign typography or strip the sign text entirely.
+No changes to component code are needed — the existing `.display`, `h1–h4`, and body styles will pick up the fonts automatically once they load.
