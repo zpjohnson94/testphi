@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Sparkles, Zap } from "lucide-react";
+import { Zap } from "lucide-react";
 import { Avatar, defaultAvatar } from "@/components/Avatar";
 import { Logo } from "@/components/Logo";
 import journeyBg from "@/assets/journey-bg.png";
@@ -66,10 +66,6 @@ function Landing() {
 
       {/* Hero */}
       <section className="relative z-10 mx-auto max-w-6xl px-5 pt-16 pb-40 sm:pb-56 text-center">
-        <div className="inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-bold uppercase tracking-widest" style={{ background: "rgba(184,255,0,0.12)", color: "var(--volt)", border: "1px solid var(--volt)" }}>
-          <Sparkles className="size-3.5" />
-          TEST PREP THAT ADAPTS TO YOUR WEAK SPOTS
-        </div>
         <h1 className="mt-6 display text-5xl sm:text-7xl text-[var(--lavender)]">
           Crush the SAT.<br />
           <span style={{ color: "var(--volt)" }}>Master your weak spots.</span>
