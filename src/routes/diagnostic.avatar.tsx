@@ -61,7 +61,7 @@ function DiagAvatarPage() {
             style={{ background: "var(--lavender)", boxShadow: "0 20px 60px -10px rgba(0,0,0,0.5)" }}>
             {step === "avatar" && (
               <>
-                <h2 className="display text-2xl" style={{ color: "var(--ink)" }}>Pick your fighter</h2>
+                <h2 className="display text-2xl" style={{ color: "var(--ink)" }}>Pick your avatar</h2>
                 <p className="mt-1 text-sm" style={{ color: "#5a4a72" }}>You can change this later.</p>
 
                 <div className="mt-5 flex justify-center">
