@@ -76,7 +76,7 @@ function Landing() {
         <div className="mt-5 sm:mt-10 flex flex-col items-center gap-3 sm:gap-4">
           <Link
             to={"/diagnostic" as any}
-            className="btn-volt px-10 py-4 sm:px-12 sm:py-6 text-lg sm:text-2xl tracking-tight inline-flex items-center gap-2 rounded-2xl"
+            className="btn-volt px-12 py-6 text-2xl tracking-tight inline-flex items-center gap-2 rounded-2xl"
             style={{
               boxShadow:
                 "0 10px 0 0 #6e9c00, 0 0 60px -8px rgba(184,255,0,0.65), 0 0 120px -20px rgba(184,255,0,0.5)",
