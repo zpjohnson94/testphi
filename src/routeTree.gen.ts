@@ -18,6 +18,7 @@ import { Route as DiagnosticIndexRouteImport } from './routes/diagnostic.index'
 import { Route as LessonNodeIdRouteImport } from './routes/lesson.$nodeId'
 import { Route as LearnReadingWritingRouteImport } from './routes/learn.reading-writing'
 import { Route as LearnMathRouteImport } from './routes/learn.math'
+import { Route as DiagnosticResultsPreviewRouteImport } from './routes/diagnostic.results-preview'
 import { Route as DiagnosticResultsRouteImport } from './routes/diagnostic.results'
 import { Route as DiagnosticAvatarRouteImport } from './routes/diagnostic.avatar'
 import { Route as DiagnosticQuestionNRouteImport } from './routes/diagnostic.question.$n'
@@ -67,6 +68,12 @@ const LearnMathRoute = LearnMathRouteImport.update({
   path: '/learn/math',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DiagnosticResultsPreviewRoute =
+  DiagnosticResultsPreviewRouteImport.update({
+    id: '/diagnostic/results-preview',
+    path: '/diagnostic/results-preview',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const DiagnosticResultsRoute = DiagnosticResultsRouteImport.update({
   id: '/diagnostic/results',
   path: '/diagnostic/results',
@@ -91,6 +98,7 @@ export interface FileRoutesByFullPath {
   '/signup': typeof SignupRoute
   '/diagnostic/avatar': typeof DiagnosticAvatarRoute
   '/diagnostic/results': typeof DiagnosticResultsRoute
+  '/diagnostic/results-preview': typeof DiagnosticResultsPreviewRoute
   '/learn/math': typeof LearnMathRoute
   '/learn/reading-writing': typeof LearnReadingWritingRoute
   '/lesson/$nodeId': typeof LessonNodeIdRoute
@@ -105,6 +113,7 @@ export interface FileRoutesByTo {
   '/signup': typeof SignupRoute
   '/diagnostic/avatar': typeof DiagnosticAvatarRoute
   '/diagnostic/results': typeof DiagnosticResultsRoute
+  '/diagnostic/results-preview': typeof DiagnosticResultsPreviewRoute
   '/learn/math': typeof LearnMathRoute
   '/learn/reading-writing': typeof LearnReadingWritingRoute
   '/lesson/$nodeId': typeof LessonNodeIdRoute
@@ -120,6 +129,7 @@ export interface FileRoutesById {
   '/signup': typeof SignupRoute
   '/diagnostic/avatar': typeof DiagnosticAvatarRoute
   '/diagnostic/results': typeof DiagnosticResultsRoute
+  '/diagnostic/results-preview': typeof DiagnosticResultsPreviewRoute
   '/learn/math': typeof LearnMathRoute
   '/learn/reading-writing': typeof LearnReadingWritingRoute
   '/lesson/$nodeId': typeof LessonNodeIdRoute
@@ -136,6 +146,7 @@ export interface FileRouteTypes {
     | '/signup'
     | '/diagnostic/avatar'
     | '/diagnostic/results'
+    | '/diagnostic/results-preview'
     | '/learn/math'
     | '/learn/reading-writing'
     | '/lesson/$nodeId'
@@ -150,6 +161,7 @@ export interface FileRouteTypes {
     | '/signup'
     | '/diagnostic/avatar'
     | '/diagnostic/results'
+    | '/diagnostic/results-preview'
     | '/learn/math'
     | '/learn/reading-writing'
     | '/lesson/$nodeId'
@@ -164,6 +176,7 @@ export interface FileRouteTypes {
     | '/signup'
     | '/diagnostic/avatar'
     | '/diagnostic/results'
+    | '/diagnostic/results-preview'
     | '/learn/math'
     | '/learn/reading-writing'
     | '/lesson/$nodeId'
@@ -179,6 +192,7 @@ export interface RootRouteChildren {
   SignupRoute: typeof SignupRoute
   DiagnosticAvatarRoute: typeof DiagnosticAvatarRoute
   DiagnosticResultsRoute: typeof DiagnosticResultsRoute
+  DiagnosticResultsPreviewRoute: typeof DiagnosticResultsPreviewRoute
   LearnMathRoute: typeof LearnMathRoute
   LearnReadingWritingRoute: typeof LearnReadingWritingRoute
   LessonNodeIdRoute: typeof LessonNodeIdRoute
@@ -251,6 +265,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LearnMathRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/diagnostic/results-preview': {
+      id: '/diagnostic/results-preview'
+      path: '/diagnostic/results-preview'
+      fullPath: '/diagnostic/results-preview'
+      preLoaderRoute: typeof DiagnosticResultsPreviewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/diagnostic/results': {
       id: '/diagnostic/results'
       path: '/diagnostic/results'
@@ -283,6 +304,7 @@ const rootRouteChildren: RootRouteChildren = {
   SignupRoute: SignupRoute,
   DiagnosticAvatarRoute: DiagnosticAvatarRoute,
   DiagnosticResultsRoute: DiagnosticResultsRoute,
+  DiagnosticResultsPreviewRoute: DiagnosticResultsPreviewRoute,
   LearnMathRoute: LearnMathRoute,
   LearnReadingWritingRoute: LearnReadingWritingRoute,
   LessonNodeIdRoute: LessonNodeIdRoute,
