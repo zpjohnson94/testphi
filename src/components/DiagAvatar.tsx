@@ -45,7 +45,7 @@ interface Props {
 
 export function DiagAvatar({ id, color, size = 96, ringWidth }: Props) {
   const src = AVATAR_IMAGES[id] ?? AVATAR_IMAGES.fox;
-  const pad = ringWidth ?? Math.max(2, Math.round(size * 0.04));
+  const pad = ringWidth ?? 0;
   return (
     <div
       style={{
