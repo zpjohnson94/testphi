@@ -1,0 +1,395 @@
+// Dev-only preview clone of /diagnostic/results.
+// Renders the same UI with a synthetic DiagState (mix of correct/incorrect/slow
+// answers) so the page can be iterated on without completing the diagnostic.
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useEffect, useMemo, useState } from "react";
+import { Lock } from "lucide-react";
+import { QUESTIONS, TOTAL_QUESTIONS, scoreFor, type DiagState, type AnswerRecord } from "@/lib/diagnostic";
+import { Logo } from "@/components/Logo";
+import { DiagAvatar, AVATAR_IMAGES, type AvatarId } from "@/components/DiagAvatar";
+
+export const Route = createFileRoute("/diagnostic/results-preview")({
+  head: () => ({ meta: [{ title: "Preview · Results — TestPhi" }] }),
+  component: DiagResultsPreview,
+});
+
+interface DomainStat {
+  domain: string;
+  group: "needsWork" | "developing" | "strong";
+  missedWeight: number;
+}
+
+const COLLEGES: Record<string, { name: string; loc: string; avg: number }[]> = {
+  b1000: [
+    { name: "Howard University", loc: "Washington, DC", avg: 1090 },
+    { name: "University of New Mexico", loc: "Albuquerque, NM", avg: 1080 },
+    { name: "Texas State University", loc: "San Marcos, TX", avg: 1060 },
+    { name: "University of Montana", loc: "Missoula, MT", avg: 1030 },
+    { name: "Appalachian State University", loc: "Boone, NC", avg: 1100 },
+  ],
+  b1100: [
+    { name: "University of Arizona", loc: "Tucson, AZ", avg: 1160 },
+    { name: "University of Oregon", loc: "Eugene, OR", avg: 1145 },
+    { name: "University of Alabama", loc: "Tuscaloosa, AL", avg: 1180 },
+    { name: "Miami University", loc: "Oxford, OH", avg: 1195 },
+    { name: "University of Kentucky", loc: "Lexington, KY", avg: 1155 },
+  ],
+  b1200: [
+    { name: "University of Georgia", loc: "Athens, GA", avg: 1295 },
+    { name: "Penn State", loc: "University Park, PA", avg: 1255 },
+    { name: "University of Wisconsin", loc: "Madison, WI", avg: 1295 },
+    { name: "University of Washington", loc: "Seattle, WA", avg: 1260 },
+    { name: "Indiana University", loc: "Bloomington, IN", avg: 1230 },
+  ],
+  b1300: [
+    { name: "Boston University", loc: "Boston, MA", avg: 1390 },
+    { name: "University of Florida", loc: "Gainesville, FL", avg: 1335 },
+    { name: "NYU", loc: "New York, NY", avg: 1370 },
+    { name: "UC San Diego", loc: "San Diego, CA", avg: 1360 },
+    { name: "Wake Forest", loc: "Winston-Salem, NC", avg: 1345 },
+  ],
+  b1400: [
+    { name: "Georgetown", loc: "Washington, DC", avg: 1450 },
+    { name: "UC Berkeley", loc: "Berkeley, CA", avg: 1455 },
+    { name: "University of Michigan", loc: "Ann Arbor, MI", avg: 1435 },
+    { name: "Carnegie Mellon", loc: "Pittsburgh, PA", avg: 1500 },
+    { name: "Vanderbilt", loc: "Nashville, TN", avg: 1490 },
+  ],
+  b1500: [
+    { name: "MIT", loc: "Cambridge, MA", avg: 1570 },
+    { name: "Harvard", loc: "Cambridge, MA", avg: 1580 },
+    { name: "Princeton", loc: "Princeton, NJ", avg: 1570 },
+    { name: "Stanford", loc: "Stanford, CA", avg: 1560 },
+    { name: "Duke", loc: "Durham, NC", avg: 1510 },
+  ],
+};
+
+function bandFor(target: number) {
+  if (target >= 1500) return COLLEGES.b1500;
+  if (target >= 1400) return COLLEGES.b1400;
+  if (target >= 1300) return COLLEGES.b1300;
+  if (target >= 1200) return COLLEGES.b1200;
+  if (target >= 1100) return COLLEGES.b1100;
+  return COLLEGES.b1000;
+}
+
+// Build a deterministic synthetic DiagState answering all 15 questions with a
+// realistic mix: ~60% correct, a couple of slow-but-correct, and several misses
+// concentrated in specific domains so the breakdown groups all populate.
+function buildMockDiag(): DiagState {
+  // Indices (1-based n) we want to mark as wrong — chosen to leave at least one
+  // domain fully correct (Strong), some partially missed (Developing), and a
+  // couple fully missed (Weak Spots).
+  const wrongNs = new Set([5, 10, 13, 14]); // Quad, Punctuation, Geometry, SVA
+  const slowNs = new Set([6, 9]); // correct but over expected time
+  const answers: AnswerRecord[] = QUESTIONS.map((q) => {
+    const wrong = wrongNs.has(q.n);
+    const slow = slowNs.has(q.n);
+    const choice = wrong ? (q.correctIndex + 1) % 4 : q.correctIndex;
+    const elapsed = wrong
+      ? q.expectedSeconds + 10
+      : slow
+        ? q.expectedSeconds + 15
+        : Math.max(10, q.expectedSeconds - 15);
+    return { n: q.n, choice, correct: !wrong, elapsedSeconds: elapsed };
+  });
+  return {
+    name: "Preview",
+    emoji: "🦊",
+    avatarId: "fox",
+    color: "#B8FF00",
+    startedAt: Date.now() - 1000 * 60 * 18,
+    answers,
+  };
+}
+
+function DiagResultsPreview() {
+  const [diag] = useState<DiagState>(() => buildMockDiag());
+  const [animatedScore, setAnimatedScore] = useState(800);
+  const [unlocked] = useState(false);
+
+  const score = useMemo(() => scoreFor(diag), [diag]);
+
+  const domainStats = useMemo<DomainStat[]>(() => {
+    const map = new Map<string, { missed: number; total: number; missedWeight: number }>();
+    for (const a of diag.answers) {
+      const q = QUESTIONS.find((qq) => qq.n === a.n);
+      if (!q) continue;
+      const cur = map.get(q.domainLabel) ?? { missed: 0, total: 0, missedWeight: 0 };
+      cur.total += 1;
+      const isMissed = !a.correct || a.elapsedSeconds > q.expectedSeconds;
+      if (isMissed) {
+        cur.missed += 1;
+        cur.missedWeight += q.correctWeight;
+      }
+      map.set(q.domainLabel, cur);
+    }
+    const out: DomainStat[] = [];
+    for (const [domain, v] of map.entries()) {
+      const ratio = v.missed / v.total;
+      let group: DomainStat["group"];
+      if (v.missed === 0) group = "strong";
+      else if (ratio >= 0.99) group = "needsWork";
+      else group = "developing";
+      out.push({ domain, group, missedWeight: v.missedWeight });
+    }
+    return out;
+  }, [diag]);
+
+  const totalUpside = useMemo(
+    () => domainStats.reduce((s, d) => s + d.missedWeight, 0),
+    [domainStats],
+  );
+
+  const targetScore = useMemo(() => {
+    const t = Math.min(1580, Math.round((score.total + totalUpside) / 10) * 10);
+    return Math.max(score.total, t);
+  }, [score.total, totalUpside]);
+
+  const colleges = useMemo(() => bandFor(targetScore), [targetScore]);
+
+  const needsWork = domainStats.filter((d) => d.group === "needsWork");
+  const developing = domainStats.filter((d) => d.group === "developing");
+  const strong = domainStats.filter((d) => d.group === "strong");
+
+  useEffect(() => {
+    if (!score.total) return;
+    const target = score.total;
+    const start = 800;
+    const duration = 2000;
+    const startTime = performance.now();
+    let raf = 0;
+    const tick = (now: number) => {
+      const t = Math.min(1, (now - startTime) / duration);
+      const eased = 1 - Math.pow(1 - t, 3);
+      setAnimatedScore(Math.round(start + (target - start) * eased));
+      if (t < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [score.total]);
+
+  return (
+    <div className="topo-bg min-h-screen">
+      {/* Tiny preview-mode banner so this page is never confused with the real one */}
+      <div
+        className="text-center text-[11px] font-bold uppercase tracking-[0.18em] py-1.5"
+        style={{ background: "rgba(255,230,0,0.15)", color: "var(--spark)" }}
+      >
+        Preview mode · synthetic data ({TOTAL_QUESTIONS} mock answers)
+      </div>
+
+      <header
+        className="sticky top-0 z-30 backdrop-blur"
+        style={{ background: "rgba(29,41,0,0.85)", borderBottom: "1px solid rgba(246,240,250,0.08)" }}
+      >
+        <div className="mx-auto max-w-3xl px-5 py-3 flex items-center justify-between">
+          <Link to="/" className="flex items-center gap-2">
+            <Logo size={32} />
+            <span className="display text-base text-[var(--lavender)]">TestPhi</span>
+          </Link>
+          <div className="flex items-center gap-2">
+            <DiagAvatar
+              id={(diag.avatarId in AVATAR_IMAGES ? diag.avatarId : "fox") as AvatarId}
+              color={diag.color}
+              size={32}
+              ringWidth={2}
+            />
+            <span className="text-sm font-bold text-[var(--lavender)]">{diag.name}</span>
+          </div>
+        </div>
+      </header>
+
+      <section className="relative z-10 mx-auto max-w-2xl px-5 pt-12 pb-12 text-center">
+        <div className="text-[11px] font-bold uppercase tracking-[0.18em]" style={{ color: "var(--volt)" }}>
+          Your predicted SAT score
+        </div>
+        <div className="mt-4 flex items-end justify-center gap-2">
+          <div className="score-num text-[88px] sm:text-[110px] leading-none" style={{ color: "var(--volt)" }}>
+            {animatedScore}
+          </div>
+          <div className="score-num text-2xl mb-3" style={{ color: "rgba(184,255,0,0.6)" }}>
+            /1600
+          </div>
+        </div>
+        <div className="mt-3 inline-block score-pill text-sm">{score.percentile}</div>
+
+        <div className="mt-8 grid grid-cols-2 gap-3 max-w-md mx-auto">
+          <Sub label="Math" value={score.mathScaled} accent="var(--neon)" />
+          <Sub label="Reading & Writing" value={score.rwScaled} accent="var(--volt)" />
+        </div>
+
+        <div
+          className="mt-10 text-xs font-bold uppercase tracking-widest"
+          style={{ color: "rgba(246,240,250,0.55)" }}
+        >
+          See your breakdown ↓
+        </div>
+      </section>
+
+      <section className="relative z-10 mx-auto max-w-2xl px-5 pb-24 space-y-6">
+        <div
+          className="rounded-2xl p-5 sm:p-6"
+          style={{
+            background: "rgba(184,255,0,0.06)",
+            borderLeft: "4px solid var(--volt)",
+            border: "1px solid rgba(184,255,0,0.2)",
+            borderLeftWidth: "4px",
+          }}
+        >
+          <div className="text-[11px] font-bold uppercase tracking-[0.18em]" style={{ color: "var(--volt)" }}>
+            Potential score improvement
+          </div>
+          <div className="mt-2 score-num text-5xl sm:text-6xl" style={{ color: "var(--volt)" }}>
+            {totalUpside} <span className="text-2xl sm:text-3xl">points</span>
+          </div>
+          <div className="mt-2 text-sm font-medium" style={{ color: "rgba(246,240,250,0.75)" }}>
+            We know exactly where they're hiding.
+          </div>
+        </div>
+
+        <div
+          className="rounded-3xl p-6 sm:p-8"
+          style={{ background: "rgba(246,240,250,0.04)", border: "1px solid rgba(246,240,250,0.08)" }}
+        >
+          <Group label="Weak Spots" color="#ff4d6d" items={needsWork} fallback={["Geometry: Area & Angles", "Punctuation"]} fallbackPts={[52, 40]} showBadge />
+          <Group label="Developing" color="var(--spark)" items={developing} fallback={["Quadratic Equations", "Words in Context", "Data Interpretation"]} fallbackPts={[26, 22, 26]} showBadge />
+          <Group label="Strong" color="var(--volt)" items={strong} fallback={["Linear Equations", "Main Idea"]} fallbackPts={[]} showBadge={false} />
+        </div>
+
+        <div>
+          <h2
+            className="display text-[18px] font-bold text-[var(--lavender)] px-1"
+            style={{ fontFamily: "'Exo 2', sans-serif" }}
+          >
+            At {targetScore}, you're on target for these schools
+          </h2>
+          <div className="mt-4 grid gap-3">
+            {colleges.map((c, i) => (
+              <div
+                key={i}
+                className="rounded-xl px-4 py-3 flex items-center justify-between gap-3"
+                style={{
+                  background: "rgba(246,240,250,0.05)",
+                  border: "1px solid rgba(246,240,250,0.1)",
+                  filter: "blur(5px)",
+                  pointerEvents: "none",
+                  userSelect: "none",
+                }}
+              >
+                <div className="min-w-0">
+                  <div className="text-sm font-semibold text-[var(--lavender)] truncate">{c.name}</div>
+                  <div className="text-xs" style={{ color: "rgba(246,240,250,0.55)" }}>
+                    {c.loc}
+                  </div>
+                </div>
+                <div className="text-sm font-bold whitespace-nowrap" style={{ color: "var(--volt)" }}>
+                  Avg SAT: {c.avg}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {!unlocked && (
+          <div className="flex flex-col items-center justify-center text-center px-2 pt-4">
+            <div
+              className="size-14 rounded-full flex items-center justify-center"
+              style={{ background: "rgba(255,230,0,0.18)", border: "2px solid var(--spark)" }}
+            >
+              <Lock className="size-6" style={{ color: "var(--spark)" }} />
+            </div>
+            <h2
+              className="mt-4 display text-2xl sm:text-3xl text-[var(--lavender)] font-bold"
+              style={{ fontFamily: "'Exo 2', sans-serif" }}
+            >
+              You have {totalUpside} points waiting to be unlocked
+            </h2>
+            <p className="mt-2 max-w-sm text-sm font-medium" style={{ color: "rgba(246,240,250,0.75)" }}>
+              Sign up to see the weak spots you can master, and which colleges come into range when you do.
+            </p>
+            <Link
+              to={"/signup" as any}
+              className="btn-volt mt-6 px-8 py-4 text-base rounded-2xl"
+              style={{ boxShadow: "0 8px 0 0 #6e9c00, 0 0 50px -8px rgba(184,255,0,0.55)" }}
+            >
+              Sign up free to unlock →
+            </Link>
+            <p className="mt-3 text-xs font-medium" style={{ color: "rgba(246,240,250,0.5)" }}>
+              Free forever · No credit card needed
+            </p>
+          </div>
+        )}
+      </section>
+    </div>
+  );
+}
+
+function Sub({ label, value, accent }: { label: string; value: number; accent: string }) {
+  return (
+    <div className="rounded-2xl p-4" style={{ background: "rgba(0,0,0,0.25)", border: `1px solid ${accent}` }}>
+      <div className="score-num text-3xl text-[var(--lavender)]">{value}</div>
+      <div className="mt-1 text-[11px] font-bold uppercase tracking-widest" style={{ color: accent }}>
+        {label}
+      </div>
+    </div>
+  );
+}
+
+function Group({
+  label,
+  color,
+  items,
+  fallback,
+  fallbackPts,
+  showBadge,
+}: {
+  label: string;
+  color: string;
+  items: DomainStat[];
+  fallback: string[];
+  fallbackPts: number[];
+  showBadge: boolean;
+}) {
+  const display =
+    items.length > 0
+      ? items.map((d) => ({ name: d.domain, pts: d.missedWeight }))
+      : fallback.map((name, i) => ({ name, pts: fallbackPts[i] ?? 0 }));
+
+  if (!display.length) return null;
+  return (
+    <div className="mb-5 last:mb-0">
+      <div className="text-[11px] font-bold uppercase tracking-[0.18em]" style={{ color }}>
+        {label}
+      </div>
+      <div className="mt-2 grid gap-2">
+        {display.map((it, i) => (
+          <div
+            key={i}
+            className="relative rounded-xl px-4 py-3"
+            style={{ background: "rgba(246,240,250,0.05)", border: `1px solid ${color}` }}
+          >
+            <div
+              className="text-sm font-bold text-[var(--lavender)]"
+              style={{ filter: "blur(5px)", pointerEvents: "none", userSelect: "none" }}
+            >
+              ••••••••••••
+            </div>
+            {showBadge && it.pts > 0 && (
+              <div
+                className="absolute top-2 right-2 z-10 rounded-full px-2.5 py-1 text-[11px] font-bold"
+                style={{
+                  background: "var(--deep-violet, #1a0b2e)",
+                  color: "var(--volt)",
+                  border: "1px solid rgba(184,255,0,0.4)",
+                }}
+              >
+                +{it.pts} pts
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
