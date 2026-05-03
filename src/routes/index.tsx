@@ -103,8 +103,8 @@ function Landing() {
           <div className="rounded-3xl p-6 sm:p-7" style={{ background: "var(--violet-deep)", border: "1.5px solid var(--neon)" }}>
             <div className="flex items-start justify-between gap-4">
               <div className="text-left min-w-0">
-                <div className="text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.18em]" style={{ color: "var(--volt)" }}>
-                  Bianca, your predicted SAT score
+                <div className="text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.18em] whitespace-pre-line" style={{ color: "var(--volt)" }}>
+                  Hey Bianca!{"\n"}Your predicted SAT score
                 </div>
                 <div className="mt-3 flex items-end gap-1.5">
                   <div className="score-num text-[72px] sm:text-[96px] leading-none" style={{ color: "var(--volt)" }}>1340</div>
