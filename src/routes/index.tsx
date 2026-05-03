@@ -65,18 +65,18 @@ function Landing() {
       </header>
 
       {/* Hero */}
-      <section className="relative z-10 mx-auto max-w-6xl px-5 pt-16 pb-40 sm:pb-56 text-center">
-        <h1 className="mt-6 display text-5xl sm:text-7xl text-[var(--lavender)]">
+      <section className="relative z-10 mx-auto max-w-6xl px-5 pt-6 pb-6 sm:pt-16 sm:pb-56 text-center">
+        <h1 className="mt-2 sm:mt-6 display text-4xl sm:text-7xl text-[var(--lavender)]">
           Crush the SAT.<br />
           <span style={{ color: "var(--volt)" }}>Master your weak spots.</span>
         </h1>
-        <p className="mt-5 mx-auto max-w-2xl text-lg font-medium" style={{ color: "rgba(246,240,250,0.7)" }}>
+        <p className="mt-3 sm:mt-5 mx-auto max-w-2xl text-base sm:text-lg font-medium" style={{ color: "rgba(246,240,250,0.7)" }}>
           Bite-sized lessons that adapt to fix your weak spots. Watch your predicted score rise as you practice.
         </p>
-        <div className="mt-10 flex flex-col items-center gap-4">
+        <div className="mt-5 sm:mt-10 flex flex-col items-center gap-3 sm:gap-4">
           <Link
             to={"/diagnostic" as any}
-            className="btn-volt px-12 py-6 text-xl sm:text-2xl tracking-tight inline-flex items-center gap-2 rounded-2xl"
+            className="btn-volt px-10 py-4 sm:px-12 sm:py-6 text-lg sm:text-2xl tracking-tight inline-flex items-center gap-2 rounded-2xl"
             style={{
               boxShadow:
                 "0 10px 0 0 #6e9c00, 0 0 60px -8px rgba(184,255,0,0.65), 0 0 120px -20px rgba(184,255,0,0.5)",
