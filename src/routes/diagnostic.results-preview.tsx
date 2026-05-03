@@ -320,16 +320,6 @@ function UnlockOverlay({ totalUpside }: { totalUpside: number }) {
   );
 }
 
-function Sub({ label, value, accent }: { label: string; value: number; accent: string }) {
-  return (
-    <div className="rounded-2xl p-4" style={{ background: "rgba(0,0,0,0.25)", border: `1px solid ${accent}` }}>
-      <div className="score-num text-3xl text-[var(--lavender)]">{value}</div>
-      <div className="mt-1 text-[11px] font-bold uppercase tracking-widest" style={{ color: accent }}>
-        {label}
-      </div>
-    </div>
-  );
-}
 
 function Group({
   label,
