@@ -49,34 +49,21 @@ function ComingSoon() {
             Drop your email and we'll let you know the moment it's ready.
           </p>
 
-          <div
-            className="mt-8 rounded-2xl p-5 flex items-center gap-3 text-left"
-            style={{
-              background: "var(--violet-deep)",
-              border: "2px solid var(--volt)",
-              boxShadow: notify ? "0 0 60px -10px rgba(184,255,0,0.5)" : "none",
-            }}
-          >
+          <div className="mt-8 flex items-center justify-center gap-2 text-left">
             <Checkbox
               id="notify"
               checked={notify}
               onCheckedChange={(v) => toggle(Boolean(v))}
-              className="h-5 w-5"
+              className="h-3.5 w-3.5"
             />
-            <label htmlFor="notify" className="flex-1 cursor-pointer">
-              <div className="text-base font-bold text-[var(--lavender)]">
-                Notify me when it's here ⚡
-              </div>
-              <p className="text-xs font-medium mt-0.5" style={{ color: "rgba(246,240,250,0.7)" }}>
-                We'll email you the moment TestPhi launches — plus a special gift for being an early believer 🎁
-              </p>
+            <label
+              htmlFor="notify"
+              className="cursor-pointer text-xs font-medium"
+              style={{ color: "rgba(246,240,250,0.55)" }}
+            >
+              Notify me when it's here — plus a special gift for being an early believer 🎁
             </label>
           </div>
-          {notify && (
-            <p className="mt-3 text-xs font-bold" style={{ color: "var(--volt)" }}>
-              You're on the list
-            </p>
-          )}
 
           <Link
             to="/"
