@@ -13,6 +13,7 @@ import { Route as SignupRouteImport } from './routes/signup'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as PlansRouteImport } from './routes/plans'
 import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as ComingSoonRouteImport } from './routes/coming-soon'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DiagnosticIndexRouteImport } from './routes/diagnostic.index'
 import { Route as LessonNodeIdRouteImport } from './routes/lesson.$nodeId'
@@ -41,6 +42,11 @@ const PlansRoute = PlansRouteImport.update({
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ComingSoonRoute = ComingSoonRouteImport.update({
+  id: '/coming-soon',
+  path: '/coming-soon',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -92,6 +98,7 @@ const DiagnosticQuestionNRoute = DiagnosticQuestionNRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/coming-soon': typeof ComingSoonRoute
   '/dashboard': typeof DashboardRoute
   '/plans': typeof PlansRoute
   '/profile': typeof ProfileRoute
@@ -107,6 +114,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/coming-soon': typeof ComingSoonRoute
   '/dashboard': typeof DashboardRoute
   '/plans': typeof PlansRoute
   '/profile': typeof ProfileRoute
@@ -123,6 +131,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/coming-soon': typeof ComingSoonRoute
   '/dashboard': typeof DashboardRoute
   '/plans': typeof PlansRoute
   '/profile': typeof ProfileRoute
@@ -140,6 +149,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/coming-soon'
     | '/dashboard'
     | '/plans'
     | '/profile'
@@ -155,6 +165,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/coming-soon'
     | '/dashboard'
     | '/plans'
     | '/profile'
@@ -170,6 +181,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/coming-soon'
     | '/dashboard'
     | '/plans'
     | '/profile'
@@ -186,6 +198,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ComingSoonRoute: typeof ComingSoonRoute
   DashboardRoute: typeof DashboardRoute
   PlansRoute: typeof PlansRoute
   ProfileRoute: typeof ProfileRoute
@@ -228,6 +241,13 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/coming-soon': {
+      id: '/coming-soon'
+      path: '/coming-soon'
+      fullPath: '/coming-soon'
+      preLoaderRoute: typeof ComingSoonRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -298,6 +318,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ComingSoonRoute: ComingSoonRoute,
   DashboardRoute: DashboardRoute,
   PlansRoute: PlansRoute,
   ProfileRoute: ProfileRoute,
