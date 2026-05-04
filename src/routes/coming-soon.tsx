@@ -68,7 +68,7 @@ function ComingSoon() {
                 Notify me when it's here ⚡
               </div>
               <p className="text-xs font-medium mt-0.5" style={{ color: "rgba(246,240,250,0.7)" }}>
-                We'll email you the moment TestPhi launches.
+                We'll email you the moment TestPhi launches — plus a special gift for being an early believer 🎁
               </p>
             </label>
           </div>
