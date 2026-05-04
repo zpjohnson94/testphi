@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { Logo } from "@/components/Logo";
+import { Checkbox } from "@/components/ui/checkbox";
 
 export const Route = createFileRoute("/coming-soon")({
   head: () => ({
@@ -15,18 +16,15 @@ export const Route = createFileRoute("/coming-soon")({
 });
 
 function ComingSoon() {
-  const [email, setEmail] = useState("");
-  const [submitted, setSubmitted] = useState(false);
+  const [notify, setNotify] = useState(true);
 
-  function onSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    if (!email) return;
+  function toggle(v: boolean) {
+    setNotify(v);
     try {
       const list = JSON.parse(localStorage.getItem("waitlist") || "[]");
-      list.push({ email, ts: Date.now() });
+      list.push({ notify: v, ts: Date.now() });
       localStorage.setItem("waitlist", JSON.stringify(list));
     } catch {}
-    setSubmitted(true);
   }
 
   return (
@@ -51,40 +49,33 @@ function ComingSoon() {
             Drop your email and we'll let you know the moment it's ready.
           </p>
 
-          {submitted ? (
-            <div
-              className="mt-8 rounded-2xl p-6"
-              style={{
-                background: "var(--violet-deep)",
-                border: "2px solid var(--volt)",
-                boxShadow: "0 0 60px -10px rgba(184,255,0,0.5)",
-              }}
-            >
-              <div className="display text-2xl text-[var(--lavender)]">You're on the list ⚡</div>
-              <p className="mt-2 text-sm font-medium" style={{ color: "rgba(246,240,250,0.75)" }}>
-                Thanks! We'll email <span style={{ color: "var(--volt)" }}>{email}</span> as soon as
-                we launch.
+          <div
+            className="mt-8 rounded-2xl p-5 flex items-center gap-3 text-left"
+            style={{
+              background: "var(--violet-deep)",
+              border: "2px solid var(--volt)",
+              boxShadow: notify ? "0 0 60px -10px rgba(184,255,0,0.5)" : "none",
+            }}
+          >
+            <Checkbox
+              id="notify"
+              checked={notify}
+              onCheckedChange={(v) => toggle(Boolean(v))}
+              className="h-5 w-5"
+            />
+            <label htmlFor="notify" className="flex-1 cursor-pointer">
+              <div className="text-base font-bold text-[var(--lavender)]">
+                Notify me when it's here ⚡
+              </div>
+              <p className="text-xs font-medium mt-0.5" style={{ color: "rgba(246,240,250,0.7)" }}>
+                We'll email you the moment TestPhi launches.
               </p>
-            </div>
-          ) : (
-            <form onSubmit={onSubmit} className="mt-8 flex flex-col sm:flex-row gap-3">
-              <input
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@email.com"
-                className="flex-1 px-5 py-3.5 rounded-2xl text-base font-medium outline-none"
-                style={{
-                  background: "rgba(246,240,250,0.06)",
-                  border: "1.5px solid rgba(246,240,250,0.18)",
-                  color: "var(--lavender)",
-                }}
-              />
-              <button type="submit" className="btn-volt px-6 py-3.5 text-base rounded-2xl">
-                Notify me →
-              </button>
-            </form>
+            </label>
+          </div>
+          {notify && (
+            <p className="mt-3 text-xs font-bold" style={{ color: "var(--volt)" }}>
+              You're on the list
+            </p>
           )}
 
           <Link
