@@ -1,5 +1,6 @@
 import { createRouter, useRouter } from "@tanstack/react-router";
 import { routeTree } from "./routeTree.gen";
+import { trackPageView } from "./lib/analytics";
 
 function DefaultErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   const router = useRouter();
@@ -62,6 +63,12 @@ export const getRouter = () => {
     defaultPreloadStaleTime: 0,
     defaultErrorComponent: DefaultErrorComponent,
   });
+
+  if (typeof window !== "undefined") {
+    router.subscribe("onResolved", () => {
+      trackPageView(router.state.location.pathname);
+    });
+  }
 
   return router;
 };
