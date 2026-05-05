@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Zap } from "lucide-react";
 import { Avatar, defaultAvatar } from "@/components/Avatar";
 import { Logo } from "@/components/Logo";
+import { trackEvent } from "@/lib/analytics";
 import journeyBg from "@/assets/journey-bg.png";
 
 export const Route = createFileRoute("/")({
@@ -60,7 +61,7 @@ function Landing() {
             <Logo size={36} />
             <span className="display text-lg text-[var(--lavender)]">TestPhi</span>
           </Link>
-          <Link to={"/dashboard" as any} className="btn-volt px-4 py-2 text-sm">Sign in</Link>
+          <Link to={"/dashboard" as any} onClick={() => trackEvent("cta_click", { location: "nav", label: "Sign in" })} className="btn-volt px-4 py-2 text-sm">Sign in</Link>
         </div>
       </header>
 
@@ -76,6 +77,7 @@ function Landing() {
         <div className="mt-5 sm:mt-10 flex flex-col items-center gap-3 sm:gap-4">
           <Link
             to={"/diagnostic" as any}
+            onClick={() => trackEvent("cta_click", { location: "landing_hero", label: "Predict my score" })}
             className="btn-volt px-12 py-6 text-2xl tracking-tight inline-flex items-center gap-2 rounded-2xl"
             style={{
               boxShadow:
@@ -87,6 +89,7 @@ function Landing() {
           </Link>
           <Link
             to={"/dashboard" as any}
+            onClick={() => trackEvent("cta_click", { location: "landing_hero", label: "Already have an account" })}
             className="text-sm font-bold underline-offset-4 hover:underline"
             style={{ color: "rgba(246,240,250,0.7)" }}
           >

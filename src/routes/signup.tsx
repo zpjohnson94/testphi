@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { loadDiag } from "@/lib/diagnostic";
 import { Logo } from "@/components/Logo";
+import { trackEvent } from "@/lib/analytics";
 
 export const Route = createFileRoute("/signup")({
   head: () => ({
@@ -28,6 +29,7 @@ function Signup() {
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
+    trackEvent("signup_submit", { method: "email" });
     // MVP: no real auth — go to plans then results
     navigate({ to: "/plans" as any });
   };
@@ -48,7 +50,9 @@ function Signup() {
             Unlock your results and start improving your score.
           </p>
 
-          <button className="btn-volt w-full mt-6 py-3.5 text-base rounded-2xl">
+          <button
+            onClick={() => trackEvent("signup_click", { method: "google" })}
+            className="btn-volt w-full mt-6 py-3.5 text-base rounded-2xl">
             Continue with Google
           </button>
 

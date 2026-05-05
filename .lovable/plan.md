@@ -1,45 +1,37 @@
-## Plan to fix the avatar background customization
+## Wire up GA4 (G-M9WMJ97P5M)
 
-I understand the intended behavior now:
+Hardcoding the Measurement ID — it's a public identifier, safe in the codebase.
 
-- The avatar should look like the reference: a character sitting in front of a solid circular background.
-- The blue circle in the reference is not supposed to be removed visually; it should become a customizable color area.
-- When a user selects a color, that color should fill the full circular background behind the character.
-- The selected color should not appear as only a ring or border.
-- The bear is still broken and needs to be fixed first before adding the next avatars.
+### 1. Inject the gtag snippet
+In `src/routes/__root.tsx`, add to the root route's `head()`:
+- `<script async src="https://www.googletagmanager.com/gtag/js?id=G-M9WMJ97P5M">`
+- An inline init script that sets up `window.dataLayer`, defines `gtag()`, calls `gtag('js', new Date())` and `gtag('config', 'G-M9WMJ97P5M', { send_page_view: false })` (we'll fire pageviews manually on route change so SPA navigations get tracked).
 
-## What I will change
+### 2. Create `src/lib/analytics.ts`
+Tiny helper, SSR-safe (no-op when `window` undefined):
+- `trackEvent(name: string, params?: Record<string, any>)` → `window.gtag?.('event', name, params)`
+- `trackPageView(path: string)` → `window.gtag?.('event', 'page_view', { page_path: path, page_location: window.location.href })`
+- TS declaration for `window.gtag` and `window.dataLayer`.
 
-1. Rework the bear avatar asset
-   - Re-process the bear so the character itself is transparent around the edges.
-   - Remove the baked-in blue/background color from the asset if present.
-   - Preserve the bear and crown artwork cleanly, including its 3D shading.
-   - The saved PNG should contain only the bear/crown character on transparent pixels.
+### 3. Auto pageviews on route change
+In `src/router.tsx`, subscribe to router `onResolved` (or use `router.subscribe('onResolved', ...)`) and call `trackPageView(location.pathname)`. Fires on initial load + every SPA navigation.
 
-2. Rework the avatar rendering component
-   - Make `DiagAvatar` draw the circular background itself.
-   - The background circle will use the selected color from the color picker.
-   - The bear PNG will be layered on top of that circle.
-   - The color will fill the whole circle behind the bear, not just the rim.
+### 4. Instrument key CTAs
+- `src/routes/index.tsx` — landing CTA(s): `cta_click` with `{ location: 'landing', label: '<button text>' }`
+- `src/routes/plans.tsx` — both plan buttons: `cta_click` with `{ location: 'plans', plan: 'power_up' | 'free', billing }`
+- `src/routes/coming-soon.tsx` — waitlist form submit: `waitlist_opt_in`
+- `src/routes/signup.tsx` — Google button: `signup_click` with `{ method: 'google' }`; email submit: `signup_submit` with `{ method: 'email' }`
+- `src/routes/diagnostic.index.tsx` — start button: `diagnostic_start`
+- `src/routes/diagnostic.results.tsx` — on mount: `diagnostic_complete`
 
-3. Fix avatar picker thumbnails
-   - Update the avatar selection grid so each thumbnail also shows the selected/customizable background circle correctly.
-   - Avoid showing transparent checkerboard-looking or border-only behavior.
-   - Keep the active selection styling separate from the avatar background color, so the selected state does not get confused with the user’s chosen color.
+### 5. Mark conversions in GA4 (manual, after deploy)
+After events show up in GA4 (24–48h, or instantly via DebugView), go to **Admin → Events** and toggle these as **Key events**: `waitlist_opt_in`, `signup_submit`, `diagnostic_complete`, `cta_click` (optional).
 
-4. Check responsive sizing
-   - Make sure the large preview on `/diagnostic/avatar` looks good.
-   - Make sure the small thumbnails still fit in the grid.
-   - Ensure the character remains centered and naturally scaled inside the color circle.
+### Testing
+- Open the preview, open GA4 → **Admin → DebugView**.
+- Add `?debug_mode=1` to the URL, or install the GA Debugger Chrome extension.
+- Click around — events should appear in real time.
 
-## Technical details
-
-- `src/components/DiagAvatar.tsx` will remain the central rendering component.
-- It will render a circular container with `background: color` and `overflow: hidden`.
-- The transparent character PNG will be placed on top with `object-fit: contain`.
-- `src/routes/diagnostic.avatar.tsx` will use `DiagAvatar` for the grid thumbnails instead of raw `<img>` tags, so thumbnails match the main preview.
-- The bear asset at `src/assets/avatars/bear.png` will be corrected so it does not include its own fixed-color background.
-
-## After this
-
-Once the bear behaves correctly, we can apply the same pattern to the next uploaded avatar: isolate the character, remove any fixed background, and let the app-provided circular background be customizable.
+### Notes
+- No cookie banner yet. Fine for now; revisit before launching to EU traffic (add a consent banner + `gtag('consent', ...)`).
+- Unique visitors: GA4 tracks this automatically via the `_ga` cookie — nothing extra needed.
