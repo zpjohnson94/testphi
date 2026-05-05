@@ -1,7 +1,6 @@
 import { Outlet, Link, createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
 
 import appCss from "../styles.css?url";
-import faviconUrl from "../assets/logo.png";
 
 function NotFoundComponent() {
   return (
@@ -31,12 +30,18 @@ export const Route = createRootRoute({
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "TestPhi" },
-      { name: "description", content: "Adaptive SAT prep that feels like a game." },
+      { name: "description", content: "Adaptive SAT prep that detects your weak spots." },
       { name: "theme-color", content: "#1D2900" },
+      { property: "og:title", content: "TestPhi" },
+      { name: "twitter:title", content: "TestPhi" },
+      { property: "og:description", content: "Adaptive SAT prep that detects your weak spots." },
+      { name: "twitter:description", content: "Adaptive SAT prep that detects your weak spots." },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/xRxEwaZVtSRSny01qNrZLv7YgqE2/social-images/social-1778017988021-TestPhi_Logo.webp" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/xRxEwaZVtSRSny01qNrZLv7YgqE2/social-images/social-1778017988021-TestPhi_Logo.webp" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { property: "og:type", content: "website" },
     ],
     links: [
-      { rel: "icon", type: "image/png", href: faviconUrl },
-      { rel: "apple-touch-icon", href: faviconUrl },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
@@ -46,16 +51,6 @@ export const Route = createRootRoute({
       {
         rel: "stylesheet",
         href: appCss,
-      },
-    ],
-    scripts: [
-      {
-        src: "https://www.googletagmanager.com/gtag/js?id=G-M9WMJ97P5M",
-        async: true,
-      },
-      {
-        children:
-          "window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}window.gtag=gtag;gtag('js',new Date());gtag('config','G-M9WMJ97P5M',{send_page_view:false});",
       },
     ],
   }),
