@@ -4,6 +4,7 @@ import { Lock } from "lucide-react";
 import { loadDiag, scoreFor, QUESTIONS, TOTAL_QUESTIONS } from "@/lib/diagnostic";
 import { Logo } from "@/components/Logo";
 import { DiagAvatar, AVATAR_IMAGES, type AvatarId } from "@/components/DiagAvatar";
+import { trackEvent } from "@/lib/analytics";
 
 export const Route = createFileRoute("/diagnostic/results")({
   head: () => ({ meta: [{ title: "Your predicted SAT score — TestPhi" }] }),
@@ -82,6 +83,8 @@ function DiagResults() {
     if (s.answers.length < TOTAL_QUESTIONS) {
       const nextN = Math.min(TOTAL_QUESTIONS, s.answers.length + 1);
       navigate({ to: "/diagnostic/question/$n" as any, params: { n: String(nextN) } as any });
+    } else {
+      trackEvent("diagnostic_complete", { score: scoreFor(s).total });
     }
   }, [navigate]);
 
@@ -284,6 +287,7 @@ function UnlockOverlay({ totalUpside }: { totalUpside: number }) {
       </p>
       <Link
         to={"/signup" as any}
+        onClick={() => trackEvent("cta_click", { location: "results_unlock", label: "Sign up free" })}
         className="btn-volt mt-1 px-6 py-3 text-sm sm:text-base rounded-2xl w-full sm:w-auto"
         style={{ boxShadow: "0 6px 0 0 #6e9c00, 0 0 40px -8px rgba(184,255,0,0.55)" }}
       >

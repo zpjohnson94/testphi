@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { Logo } from "@/components/Logo";
 import { Checkbox } from "@/components/ui/checkbox";
+import { trackEvent } from "@/lib/analytics";
 
 export const Route = createFileRoute("/coming-soon")({
   head: () => ({
@@ -25,6 +26,7 @@ function ComingSoon() {
       list.push({ notify: v, ts: Date.now() });
       localStorage.setItem("waitlist", JSON.stringify(list));
     } catch {}
+    trackEvent("waitlist_opt_in", { notify: v });
   }
 
   return (

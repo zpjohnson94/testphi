@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Avatar, defaultAvatar } from "@/components/Avatar";
 import { Logo } from "@/components/Logo";
+import { trackEvent } from "@/lib/analytics";
 
 export const Route = createFileRoute("/diagnostic/")({
   head: () => ({
@@ -48,6 +49,7 @@ function DiagnosticStart() {
 
             <Link
               to={"/diagnostic/avatar" as any}
+              onClick={() => trackEvent("diagnostic_start")}
               className="btn-volt w-full mt-6 py-4 text-base rounded-2xl inline-flex items-center justify-center"
               style={{ boxShadow: "0 8px 0 0 #6e9c00, 0 0 50px -8px rgba(184,255,0,0.55)" }}
             >
