@@ -46,7 +46,7 @@ function ComingSoon() {
           </h1>
           <p className="mt-4 text-base sm:text-lg font-medium" style={{ color: "rgba(246,240,250,0.75)" }}>
             We're putting the finishing touches on adaptive practice that targets your weak spots.
-            Drop your email and we'll let you know the moment it's ready.
+            We'll let you know the moment it's ready.
           </p>
 
           <div className="mt-8 flex items-center justify-center gap-2 text-left">
