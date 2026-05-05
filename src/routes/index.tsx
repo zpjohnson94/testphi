@@ -12,6 +12,12 @@ export const Route = createFileRoute("/")({
       { name: "description", content: "Level up to your target SAT score with bite-sized lessons, an ELO rating like chess, and adaptive practice that hunts your weak spots." },
       { property: "og:title", content: "TestPhi — Adaptive SAT prep that feels like a game" },
       { property: "og:description", content: "Bite-sized lessons. An ELO rating like chess. An adaptive map that targets your weak spots." },
+      { property: "og:type", content: "website" },
+      { property: "og:image", content: journeyBg },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "TestPhi — Adaptive SAT prep that feels like a game" },
+      { name: "twitter:description", content: "Bite-sized lessons. An ELO rating like chess. An adaptive map that targets your weak spots." },
+      { name: "twitter:image", content: journeyBg },
     ],
   }),
   component: Landing,
@@ -88,7 +94,7 @@ function Landing() {
             <span aria-hidden="true" className="text-2xl sm:text-3xl">→</span>
           </Link>
           <Link
-            to={"/dashboard" as any}
+            to={"/diagnostic" as any}
             onClick={() => trackEvent("cta_click", { location: "landing_hero", label: "Already have an account" })}
             className="text-sm font-bold underline-offset-4 hover:underline"
             style={{ color: "rgba(246,240,250,0.7)" }}

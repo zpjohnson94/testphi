@@ -19,10 +19,11 @@ function Dashboard() {
 
   useEffect(() => {
     if (typeof window !== "undefined" && !state.hasOnboarded) {
-      const t = setTimeout(() => { if (!state.hasOnboarded) navigate({ to: "/diagnostic" as any }); }, 50);
-      return () => clearTimeout(t);
+      navigate({ to: "/diagnostic" as any, replace: true });
     }
   }, [state.hasOnboarded, navigate]);
+
+  if (!state.hasOnboarded) return null;
 
   const weak = weakestSkill(state);
   const next = nextRecommendedNode(state);
