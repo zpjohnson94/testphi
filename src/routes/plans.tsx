@@ -47,22 +47,6 @@ function Plans() {
 
         <div className="mt-10 grid gap-5 sm:grid-cols-2 max-w-3xl mx-auto">
           {/* Free */}
-          <div className="rounded-3xl p-6 sm:p-7"
-            style={{ background: "rgba(246,240,250,0.04)", border: "1.5px solid rgba(246,240,250,0.15)" }}>
-            <h3 className="display text-2xl text-[var(--lavender)]">Free</h3>
-            <div className="mt-2 score-num text-3xl text-[var(--lavender)]">$0 <span className="text-base font-semibold opacity-60">/ forever</span></div>
-            <ul className="mt-5 space-y-2.5">
-              <Feat>1 diagnostic test per day</Feat>
-              <Feat>Predicted score tracking</Feat>
-              <Feat>Score improvement graph</Feat>
-            </ul>
-            <Link to={"/coming-soon" as any}
-              className="block text-center mt-6 py-3.5 text-base font-bold rounded-2xl"
-              style={{ border: "1.5px solid rgba(246,240,250,0.25)", color: "var(--lavender)" }}>
-              Continue with Free
-            </Link>
-          </div>
-
           {/* Pro */}
           <div className="rounded-3xl p-6 sm:p-7 relative"
             style={{ background: "var(--violet-deep)", border: "2px solid var(--volt)", boxShadow: "0 0 60px -10px rgba(184,255,0,0.5)" }}>
@@ -95,6 +79,23 @@ function Plans() {
             <Link to={"/coming-soon" as any}
               className="btn-volt block text-center mt-6 py-3.5 text-base rounded-2xl">
               Get Power Up →
+            </Link>
+          </div>
+
+          {/* Free */}
+          <div className="rounded-3xl p-6 sm:p-7"
+            style={{ background: "rgba(246,240,250,0.04)", border: "1.5px solid rgba(246,240,250,0.15)" }}>
+            <h3 className="display text-2xl text-[var(--lavender)]">Free</h3>
+            <div className="mt-2 score-num text-3xl text-[var(--lavender)]">$0 <span className="text-base font-semibold opacity-60">/ forever</span></div>
+            <ul className="mt-5 space-y-2.5">
+              <Feat>1 diagnostic test per day</Feat>
+              <Feat>Predicted score tracking</Feat>
+              <Feat>Score improvement graph</Feat>
+            </ul>
+            <Link to={"/coming-soon" as any}
+              className="block text-center mt-6 py-3.5 text-base font-bold rounded-2xl"
+              style={{ border: "1.5px solid rgba(246,240,250,0.25)", color: "var(--lavender)" }}>
+              Continue with Free
             </Link>
           </div>
         </div>
