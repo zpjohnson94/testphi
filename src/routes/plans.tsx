@@ -81,6 +81,9 @@ function Plans() {
                 </>
               )}
             </div>
+            <div className="mt-2 text-xs font-medium italic" style={{ color: "rgba(246,240,250,0.55)" }}>
+              Less than half the cost of other test prep apps
+            </div>
             <ul className="mt-5 space-y-2.5">
               <Feat pro>Everything in Free</Feat>
               <Feat pro>Weak spot detection</Feat>
