@@ -14,7 +14,51 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      signups: {
+        Row: {
+          billing: string | null
+          created_at: string
+          diagnostic_score: Json | null
+          email: string
+          id: string
+          ip_address: string | null
+          name: string | null
+          notify_opt_in: boolean | null
+          plan: string | null
+          referrer: string | null
+          updated_at: string
+          user_agent: string | null
+        }
+        Insert: {
+          billing?: string | null
+          created_at?: string
+          diagnostic_score?: Json | null
+          email: string
+          id?: string
+          ip_address?: string | null
+          name?: string | null
+          notify_opt_in?: boolean | null
+          plan?: string | null
+          referrer?: string | null
+          updated_at?: string
+          user_agent?: string | null
+        }
+        Update: {
+          billing?: string | null
+          created_at?: string
+          diagnostic_score?: Json | null
+          email?: string
+          id?: string
+          ip_address?: string | null
+          name?: string | null
+          notify_opt_in?: boolean | null
+          plan?: string | null
+          referrer?: string | null
+          updated_at?: string
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
