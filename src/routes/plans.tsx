@@ -96,7 +96,7 @@ function Plans() {
               <Feat pro>Detailed answer explanations</Feat>
             </ul>
             <Link to={"/coming-soon" as any}
-              onClick={() => trackEvent("cta_click", { location: "plans", plan: "power_up", billing })}
+              onClick={() => recordPlan("power_up")}
               className="btn-volt block text-center mt-6 py-3.5 text-base rounded-2xl">
               Get Power Up →
             </Link>
@@ -113,7 +113,7 @@ function Plans() {
               <Feat>Score improvement graph</Feat>
             </ul>
             <Link to={"/coming-soon" as any}
-              onClick={() => trackEvent("cta_click", { location: "plans", plan: "free", billing })}
+              onClick={() => recordPlan("free")}
               className="block text-center mt-6 py-3.5 text-base font-bold rounded-2xl"
               style={{ border: "1.5px solid rgba(246,240,250,0.25)", color: "var(--lavender)" }}>
               Continue with Free
