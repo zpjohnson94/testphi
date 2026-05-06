@@ -1,87 +1,58 @@
 ## Goal
 
-Securely capture every email entered on `/signup`, along with the plan they pick on `/plans` and whether they kept the "Notify me" box checked on `/coming-soon`. Add a lightweight Privacy Policy page reachable from a subtle link on every page.
+Wire up real Google sign-in on `/signup` so that one-click Google users land in the same `signups` table as email signups, and continue through the rest of the funnel (`/plans`, `/coming-soon`) just like email users.
 
-## 1. Enable Lovable Cloud (Supabase)
+## 1. Enable Google in Lovable Cloud
 
-Right now there is no backend — the signup form just navigates to `/plans` and the waitlist box only writes to `localStorage`. To store emails durably and securely, we need to enable Lovable Cloud (one click, no config needed from you).
+The provider must be turned on once in **Cloud → Users & Auth → Sign-in methods → Google → Enable (Managed)**. No credentials needed — Lovable's managed OAuth handles it. I'll surface a button in the response so you can do this in one click.
 
-## 2. New `signups` table
+## 2. Wire the Lovable auth SDK
 
-Create a single table that captures the full funnel for one person:
+The `@lovable.dev/cloud-auth-js` package is already installed. Add a tiny wrapper at `src/integrations/lovable/index.ts`:
 
-| Column | Type | Notes |
-|---|---|---|
-| `id` | uuid PK | auto |
-| `email` | citext, unique | normalized lowercase |
-| `name` | text | from the signup form |
-| `plan` | text | `free`, `power_up`, or `null` if they bailed before /plans |
-| `billing` | text | `monthly` / `annual` (only meaningful for power_up) |
-| `notify_opt_in` | boolean | from the coming-soon checkbox; defaults true |
-| `diagnostic_score` | jsonb | snapshot of `loadDiag()` (target score, predicted score, weak skills) so outreach can be personalized |
-| `referrer` | text | `document.referrer` at signup |
-| `user_agent` | text | from request headers server-side |
-| `created_at` | timestamptz | default now() |
-| `updated_at` | timestamptz | bumped on each upsert |
-
-### Security (RLS)
-
-- RLS **enabled**.
-- **No** SELECT / UPDATE / DELETE policies for `anon` or `authenticated` — the table is write-only from the public perspective. Nobody can read the list from the browser, even by guessing the API.
-- Inserts/updates only happen through a server function (see below) using the service-role client, which bypasses RLS safely.
-- You (the project owner) can read the data anytime via the Cloud → Database viewer or by exporting CSV.
-
-## 3. Server function: `submitSignup`
-
-A `createServerFn` in `src/server/signups.functions.ts` that:
-
-1. Validates input with Zod (`email` required + format, `name` ≤ 100 chars, optional `plan`/`billing`/`notify_opt_in`/`diagnostic_score`).
-2. Reads `user-agent` and client IP via TanStack server utilities.
-3. Upserts on `email` (so progressing through signup → plans → coming-soon updates the same row instead of creating duplicates), using `supabaseAdmin`.
-4. Returns `{ ok: true }` only — never echoes other users' data.
-
-A second tiny server function `updateSignup` takes `{ email, plan?, billing?, notify_opt_in? }` and patches the existing row. Used by `/plans` and `/coming-soon`.
-
-## 4. Wire the three touchpoints
-
-- **`/signup`** — on form submit, call `submitSignup({ name, email, diagnostic_score, referrer })` before navigating to `/plans`. Keep the existing `signup_submit` analytics event. Password field stays in the UI (it's collected but not stored anywhere yet — note: real auth comes later; we are intentionally NOT storing passwords in this table).
-- **`/plans`** — when they click either "Get Power Up" or "Continue with Free", call `updateSignup({ email: lastEmail, plan, billing })`. We'll persist the email from the signup step in `localStorage` (key `signup_email`) so plans/coming-soon know who to update. Existing GA `cta_click` events stay.
-- **`/coming-soon`** — replace the localStorage-only `waitlist` write with `updateSignup({ email: lastEmail, notify_opt_in })`. Keep `waitlist_opt_in` GA event.
-
-If `signup_email` is missing (someone landed on /plans directly), the update calls just no-op silently — no errors, no broken UX.
-
-## 5. Privacy Policy page
-
-New route `src/routes/privacy.tsx` (`/privacy`) with a clean, lightweight policy covering:
-
-- What we collect (email, name, diagnostic results, plan interest, opt-in choice, basic device info).
-- Why (to email you when TestPhi launches and tailor onboarding).
-- Who we share it with (nobody — stored on Lovable Cloud / Supabase; not sold).
-- How to request deletion (email contact — placeholder `privacy@testphi.com`, you can change).
-- Effective date.
-
-Plain prose, same `topo-bg` styling as other routes, max-width readable column.
-
-## 6. Subtle footer link on every page
-
-Add a small `<Footer />` component (text-xs, muted lavender) with:
-
-```
-© 2026 TestPhi · Privacy
+```ts
+import { createLovableAuth } from "@lovable.dev/cloud-auth-js";
+export const lovable = { auth: createLovableAuth() };
 ```
 
-Render it inside `RootComponent` in `src/routes/__root.tsx` so it appears on every route automatically, positioned at the bottom of the viewport without disrupting existing layouts (a thin centered bar with `mt-auto` won't conflict because it lives outside the `<Outlet />`'s flex containers — it'll sit at the page bottom on short pages and below content on tall ones).
+This is the standard pattern for Lovable-managed social auth. Per project rules, this folder is agent-managed — no manual edits to its contents beyond this file.
 
-## Technical details
+## 3. Hook up the "Continue with Google" button on `/signup`
 
-- Email normalization: `.toLowerCase().trim()` before insert; `citext` extension makes the unique constraint case-insensitive as a belt-and-suspenders.
-- Upsert: `supabaseAdmin.from('signups').upsert({...}, { onConflict: 'email' })`.
-- Server function file split: `src/server/signups.functions.ts` (RPC wrappers) + `src/server/signups.server.ts` (Supabase calls), per project's server-function authoring conventions.
-- `useServerFn` hook used in components for proper React integration.
-- No password storage anywhere — the password input on `/signup` remains UI-only until real auth is added later. Calling this out so there's no false sense of security.
+Replace the existing analytics-only `onClick` with a real flow:
+
+1. Fire existing `signup_click { method: "google" }` GA event.
+2. Call `lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin + "/signup" })`.
+3. If `result.redirected` → return (browser navigates to Google).
+4. If `result.error` → show an inline error message under the button.
+5. If tokens come back → the Supabase session is set automatically. Fetch the user via `supabase.auth.getUser()`, extract `email` and `name` (from `user_metadata.full_name` or `name`), then:
+   - Save `signup_email` to `localStorage` (so `/plans` and `/coming-soon` can update the same row).
+   - Call the existing `submitSignup` server function with `{ email, name, diagnostic_score: loadDiag(), referrer: document.referrer }`.
+   - Fire GA `signup_submit { method: "google" }`.
+   - Navigate to `/plans`.
+
+## 4. Handle the OAuth return trip
+
+When Google bounces the user back to `/signup?...`, the Lovable SDK will resolve the `signInWithOAuth` promise with tokens. The flow above captures that. To be safe, also add a `useEffect` on mount that:
+
+- Reads `supabase.auth.getSession()`.
+- If a session exists AND no `signup_email` is yet stored AND we haven't recorded this user before in this browser session, runs the same "extract email/name → submitSignup → navigate to /plans" logic.
+
+This covers the case where the redirect lands the user back on `/signup` and the SDK has already set the session before our promise handler runs.
+
+## 5. No DB or schema changes
+
+The existing `signups` table already has everything we need (`email`, `name`, `diagnostic_score`, `referrer`, `user_agent`, `ip_address`). Google signups will just appear as new rows like any other lead. If the same email later submits the password form, the upsert merges them into one row.
 
 ## Out of scope
 
-- Real authentication (Supabase Auth flows). The signup page stays a fake-door / lead capture for now.
-- Admin dashboard inside the app to view leads — you'll use the Cloud database viewer.
-- Email sending (no welcome email yet — leads sit in the table until you launch).
+- Real authenticated app surface (dashboard gating, profile rows, RLS-protected data). The Google session sets up Supabase auth, but the rest of the app continues to work as-is — this is purely lead capture for now.
+- Apple sign-in (easy to add later — same SDK, just `"apple"` instead of `"google"`).
+- Storing the Google `sub`/user-id in the `signups` table (the email is enough for outreach).
+
+## Technical details
+
+- Files touched: `src/integrations/lovable/index.ts` (new), `src/routes/signup.tsx` (Google handler + return-trip effect).
+- Auth state: we rely on `supabase.auth.getUser()` after tokens land. The browser Supabase client already persists the session in `localStorage`.
+- Fallback: if `supabase.auth.getUser()` returns no email (shouldn't happen for Google, scope `email` is included by default), we skip the `submitSignup` call and still navigate to `/plans` so UX isn't blocked.
+- Error UX: a small `text-red-400` line under the Google button if OAuth fails (`result.error.message`), no toasts.
