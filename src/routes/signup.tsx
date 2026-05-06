@@ -27,11 +27,68 @@ function Signup() {
   const [password, setPassword] = useState("");
   const [showPw, setShowPw] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [oauthError, setOauthError] = useState<string | null>(null);
+
+  const captureGoogleSession = async () => {
+    try {
+      const { data } = await supabase.auth.getUser();
+      const user = data.user;
+      if (!user?.email) return;
+      const cleanEmail = user.email.trim().toLowerCase();
+      const fullName =
+        (user.user_metadata?.full_name as string | undefined) ||
+        (user.user_metadata?.name as string | undefined) ||
+        null;
+      if (typeof window !== "undefined") {
+        window.localStorage.setItem("signup_email", cleanEmail);
+      }
+      const diag = (() => { try { return loadDiag(); } catch { return null; } })();
+      const referrer = typeof document !== "undefined" ? document.referrer : "";
+      await submitSignupFn({
+        data: {
+          email: cleanEmail,
+          name: fullName,
+          diagnostic_score: diag,
+          referrer: referrer || null,
+        },
+      });
+      trackEvent("signup_submit", { method: "google" });
+      navigate({ to: "/plans" as any });
+    } catch (err) {
+      console.error("google signup capture failed", err);
+    }
+  };
 
   useEffect(() => {
     const s = loadDiag();
     if (s.name) setName(s.name);
+    // Return-trip from Google: if a session exists and we haven't recorded yet, capture now.
+    (async () => {
+      const { data } = await supabase.auth.getSession();
+      if (data.session && typeof window !== "undefined" && !window.localStorage.getItem("signup_email")) {
+        await captureGoogleSession();
+      }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const handleGoogle = async () => {
+    setOauthError(null);
+    trackEvent("signup_click", { method: "google" });
+    try {
+      const result = await lovable.auth.signInWithOAuth("google", {
+        redirect_uri: typeof window !== "undefined" ? window.location.origin + "/signup" : undefined,
+      });
+      if (result.redirected) return;
+      if (result.error) {
+        setOauthError(result.error.message || "Google sign-in failed");
+        return;
+      }
+      await captureGoogleSession();
+    } catch (err) {
+      setOauthError(err instanceof Error ? err.message : "Google sign-in failed");
+    }
+  };
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
