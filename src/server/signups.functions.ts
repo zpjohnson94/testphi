@@ -52,7 +52,12 @@ const updateSchema = z.object({
 export const updateSignup = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => updateSchema.parse(input))
   .handler(async ({ data }) => {
-    const patch: Record<string, unknown> = { email: data.email };
+    const patch: {
+      email: string;
+      plan?: string;
+      billing?: string;
+      notify_opt_in?: boolean;
+    } = { email: data.email };
     if (data.plan !== undefined) patch.plan = data.plan;
     if (data.billing !== undefined) patch.billing = data.billing;
     if (data.notify_opt_in !== undefined) patch.notify_opt_in = data.notify_opt_in;
