@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as ProfileRouteImport } from './routes/profile'
+import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as PlansRouteImport } from './routes/plans'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as ComingSoonRouteImport } from './routes/coming-soon'
@@ -32,6 +33,11 @@ const SignupRoute = SignupRouteImport.update({
 const ProfileRoute = ProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PlansRoute = PlansRouteImport.update({
@@ -101,6 +107,7 @@ export interface FileRoutesByFullPath {
   '/coming-soon': typeof ComingSoonRoute
   '/dashboard': typeof DashboardRoute
   '/plans': typeof PlansRoute
+  '/privacy': typeof PrivacyRoute
   '/profile': typeof ProfileRoute
   '/signup': typeof SignupRoute
   '/diagnostic/avatar': typeof DiagnosticAvatarRoute
@@ -117,6 +124,7 @@ export interface FileRoutesByTo {
   '/coming-soon': typeof ComingSoonRoute
   '/dashboard': typeof DashboardRoute
   '/plans': typeof PlansRoute
+  '/privacy': typeof PrivacyRoute
   '/profile': typeof ProfileRoute
   '/signup': typeof SignupRoute
   '/diagnostic/avatar': typeof DiagnosticAvatarRoute
@@ -134,6 +142,7 @@ export interface FileRoutesById {
   '/coming-soon': typeof ComingSoonRoute
   '/dashboard': typeof DashboardRoute
   '/plans': typeof PlansRoute
+  '/privacy': typeof PrivacyRoute
   '/profile': typeof ProfileRoute
   '/signup': typeof SignupRoute
   '/diagnostic/avatar': typeof DiagnosticAvatarRoute
@@ -152,6 +161,7 @@ export interface FileRouteTypes {
     | '/coming-soon'
     | '/dashboard'
     | '/plans'
+    | '/privacy'
     | '/profile'
     | '/signup'
     | '/diagnostic/avatar'
@@ -168,6 +178,7 @@ export interface FileRouteTypes {
     | '/coming-soon'
     | '/dashboard'
     | '/plans'
+    | '/privacy'
     | '/profile'
     | '/signup'
     | '/diagnostic/avatar'
@@ -184,6 +195,7 @@ export interface FileRouteTypes {
     | '/coming-soon'
     | '/dashboard'
     | '/plans'
+    | '/privacy'
     | '/profile'
     | '/signup'
     | '/diagnostic/avatar'
@@ -201,6 +213,7 @@ export interface RootRouteChildren {
   ComingSoonRoute: typeof ComingSoonRoute
   DashboardRoute: typeof DashboardRoute
   PlansRoute: typeof PlansRoute
+  PrivacyRoute: typeof PrivacyRoute
   ProfileRoute: typeof ProfileRoute
   SignupRoute: typeof SignupRoute
   DiagnosticAvatarRoute: typeof DiagnosticAvatarRoute
@@ -227,6 +240,13 @@ declare module '@tanstack/react-router' {
       path: '/profile'
       fullPath: '/profile'
       preLoaderRoute: typeof ProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/plans': {
@@ -321,6 +341,7 @@ const rootRouteChildren: RootRouteChildren = {
   ComingSoonRoute: ComingSoonRoute,
   DashboardRoute: DashboardRoute,
   PlansRoute: PlansRoute,
+  PrivacyRoute: PrivacyRoute,
   ProfileRoute: ProfileRoute,
   SignupRoute: SignupRoute,
   DiagnosticAvatarRoute: DiagnosticAvatarRoute,
