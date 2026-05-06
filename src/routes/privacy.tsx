@@ -73,22 +73,6 @@ function Privacy() {
           </section>
 
           <section>
-            <h2 className="display text-lg text-[var(--lavender)]">Your choices</h2>
-            <p className="mt-2">
-              You can ask us to delete everything we have about you at any time, no questions
-              asked. Email{" "}
-              <a
-                href="mailto:privacy@testphi.com"
-                className="font-bold"
-                style={{ color: "var(--volt)" }}
-              >
-                privacy@testphi.com
-              </a>{" "}
-              and we'll handle it within a few days.
-            </p>
-          </section>
-
-          <section>
             <h2 className="display text-lg text-[var(--lavender)]">Changes</h2>
             <p className="mt-2">
               If we change this policy in a meaningful way, we'll update the effective date at
