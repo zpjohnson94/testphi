@@ -18,6 +18,22 @@ export const Route = createFileRoute("/plans")({
 
 function Plans() {
   const [billing, setBilling] = useState<"monthly" | "annual">("annual");
+  const updateSignupFn = useServerFn(updateSignup);
+
+  const recordPlan = (plan: "free" | "power_up") => {
+    trackEvent("cta_click", { location: "plans", plan, billing });
+    try {
+      const email =
+        typeof window !== "undefined" ? window.localStorage.getItem("signup_email") : null;
+      if (email) {
+        void updateSignupFn({ data: { email, plan, billing } }).catch((err) =>
+          console.error("plan capture failed", err),
+        );
+      }
+    } catch (err) {
+      console.error("plan capture failed", err);
+    }
+  };
 
   return (
     <div className="topo-bg min-h-screen">
