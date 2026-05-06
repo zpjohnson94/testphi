@@ -1,7 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
-import { Eye, EyeOff } from "lucide-react";
 import { loadDiag } from "@/lib/diagnostic";
 import { Logo } from "@/components/Logo";
 import { trackEvent } from "@/lib/analytics";
@@ -22,8 +21,6 @@ function Signup() {
   const submitSignupFn = useServerFn(submitSignup);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPw, setShowPw] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
@@ -81,36 +78,12 @@ function Signup() {
           <form onSubmit={submit} className="space-y-3">
             <Field label="Name" value={name} onChange={setName} placeholder="Your first name" />
             <Field label="Email" type="email" value={email} onChange={setEmail} placeholder="you@example.com" required />
-            <div>
-              <label className="text-[11px] font-bold uppercase tracking-widest" style={{ color: "rgba(246,240,250,0.6)" }}>
-                Password
-              </label>
-              <div className="mt-1 flex items-center rounded-2xl px-3"
-                style={{ background: "rgba(0,0,0,0.25)", border: "1.5px solid rgba(246,240,250,0.12)" }}>
-                <input
-                  type={showPw ? "text" : "password"}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  minLength={6}
-                  placeholder="At least 6 characters"
-                  className="flex-1 bg-transparent outline-none py-3 text-[var(--lavender)] placeholder:text-[rgba(246,240,250,0.35)] font-semibold"
-                />
-                <button type="button" onClick={() => setShowPw((s) => !s)} className="text-[var(--lavender)] opacity-60 hover:opacity-100">
-                  {showPw ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
-                </button>
-              </div>
-            </div>
-
             <button type="submit" disabled={submitting} className="btn-volt w-full mt-4 py-3.5 text-base rounded-2xl disabled:opacity-60">
               {submitting ? "Creating…" : "Create account →"}
             </button>
           </form>
         </div>
 
-        <p className="mt-6 text-center text-xs" style={{ color: "rgba(246,240,250,0.5)" }}>
-          Already have an account? <Link to="/" className="font-bold" style={{ color: "var(--volt)" }}>Sign in</Link>
-        </p>
       </div>
     </div>
   );
