@@ -112,8 +112,8 @@ function Signup() {
               </div>
             </div>
 
-            <button type="submit" className="btn-volt w-full mt-4 py-3.5 text-base rounded-2xl">
-              Create account →
+            <button type="submit" disabled={submitting} className="btn-volt w-full mt-4 py-3.5 text-base rounded-2xl disabled:opacity-60">
+              {submitting ? "Creating…" : "Create account →"}
             </button>
           </form>
         </div>
