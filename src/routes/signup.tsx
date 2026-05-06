@@ -1,9 +1,11 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { loadDiag } from "@/lib/diagnostic";
 import { Logo } from "@/components/Logo";
 import { trackEvent } from "@/lib/analytics";
+import { submitSignup } from "@/server/signups.functions";
 
 export const Route = createFileRoute("/signup")({
   head: () => ({
@@ -17,20 +19,44 @@ export const Route = createFileRoute("/signup")({
 
 function Signup() {
   const navigate = useNavigate();
+  const submitSignupFn = useServerFn(submitSignup);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPw, setShowPw] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     const s = loadDiag();
     if (s.name) setName(s.name);
   }, []);
 
-  const submit = (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (submitting) return;
+    setSubmitting(true);
     trackEvent("signup_submit", { method: "email" });
-    // MVP: no real auth — go to plans then results
+
+    const cleanEmail = email.trim().toLowerCase();
+    try {
+      if (typeof window !== "undefined") {
+        window.localStorage.setItem("signup_email", cleanEmail);
+      }
+      const diag = (() => {
+        try { return loadDiag(); } catch { return null; }
+      })();
+      const referrer = typeof document !== "undefined" ? document.referrer : "";
+      await submitSignupFn({
+        data: {
+          email: cleanEmail,
+          name: name.trim() || null,
+          diagnostic_score: diag,
+          referrer: referrer || null,
+        },
+      });
+    } catch (err) {
+      console.error("signup capture failed", err);
+    }
     navigate({ to: "/plans" as any });
   };
 
