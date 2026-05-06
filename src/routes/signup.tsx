@@ -136,10 +136,13 @@ function Signup() {
           </p>
 
           <button
-            onClick={() => trackEvent("signup_click", { method: "google" })}
+            onClick={handleGoogle}
             className="btn-volt w-full mt-6 py-3.5 text-base rounded-2xl">
             Continue with Google
           </button>
+          {oauthError && (
+            <p className="mt-2 text-xs text-center text-red-400">{oauthError}</p>
+          )}
 
           <div className="my-5 flex items-center gap-3">
             <div className="flex-1 h-px" style={{ background: "rgba(246,240,250,0.12)" }} />
