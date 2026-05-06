@@ -6,6 +6,8 @@ import { loadDiag } from "@/lib/diagnostic";
 import { Logo } from "@/components/Logo";
 import { trackEvent } from "@/lib/analytics";
 import { submitSignup } from "@/server/signups.functions";
+import { lovable } from "@/integrations/lovable";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/signup")({
   head: () => ({
