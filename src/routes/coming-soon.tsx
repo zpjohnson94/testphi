@@ -22,6 +22,17 @@ function ComingSoon() {
   const [notify, setNotify] = useState(true);
   const updateSignupFn = useServerFn(updateSignup);
 
+  useEffect(() => {
+    try {
+      const email =
+        typeof window !== "undefined" ? window.localStorage.getItem("signup_email") : null;
+      if (email) {
+        void updateSignupFn({ data: { email, notify_opt_in: true } }).catch(() => {});
+      }
+    } catch {}
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   function toggle(v: boolean) {
     setNotify(v);
     trackEvent("waitlist_opt_in", { notify: v });
