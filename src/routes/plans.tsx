@@ -95,7 +95,7 @@ function Plans() {
               <Feat pro>Specific training across all 8 SAT domains</Feat>
               <Feat pro>Detailed answer explanations</Feat>
             </ul>
-            <Link to={"/coming-soon" as any}
+            <Link to={"/coming-soon?plan=powerup" as any}
               onClick={() => recordPlan("power_up")}
               className="btn-volt block text-center mt-6 py-3.5 text-base rounded-2xl">
               Get Power Up →
@@ -112,7 +112,7 @@ function Plans() {
               <Feat>Predicted score tracking</Feat>
               <Feat>Score improvement graph</Feat>
             </ul>
-            <Link to={"/coming-soon" as any}
+            <Link to={"/coming-soon?plan=free" as any}
               onClick={() => recordPlan("free")}
               className="block text-center mt-6 py-3.5 text-base font-bold rounded-2xl"
               style={{ border: "1.5px solid rgba(246,240,250,0.25)", color: "var(--lavender)" }}>
