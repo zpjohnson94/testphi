@@ -82,7 +82,7 @@ function Landing() {
         </p>
         <div className="mt-5 sm:mt-10 flex flex-col items-center gap-3 sm:gap-4">
           <Link
-            to={"/diagnostic" as any}
+            to={"/diagnostic?source=cta" as any}
             onClick={() => trackEvent("cta_click", { location: "landing_hero", label: "Predict my score" })}
             className="btn-volt px-12 py-6 text-2xl tracking-tight inline-flex items-center gap-2 rounded-2xl"
             style={{
