@@ -95,7 +95,7 @@ function Plans() {
               <Feat pro>Specific training across all 8 SAT domains</Feat>
               <Feat pro>Detailed answer explanations</Feat>
             </ul>
-            <Link to={"/coming-soon" as any}
+            <Link to={"/coming-soon" as any} search={{ plan: "powerup" }}
               onClick={() => recordPlan("power_up")}
               className="btn-volt block text-center mt-6 py-3.5 text-base rounded-2xl">
               Get Power Up →
