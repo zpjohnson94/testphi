@@ -1,5 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useEffect } from "react";
 import { Avatar, defaultAvatar } from "@/components/Avatar";
+import { AVATAR_IMAGES } from "@/components/DiagAvatar";
 import { Logo } from "@/components/Logo";
 import { trackEvent } from "@/lib/analytics";
 
