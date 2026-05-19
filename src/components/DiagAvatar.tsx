@@ -1,17 +1,17 @@
 // Avatar disc: animal PNGs with transparent backgrounds composited
 // over a circular disc whose fill color is user-customizable.
-import bear from "@/assets/avatars/bear.png";
-import frog from "@/assets/avatars/frog.png";
-import lion from "@/assets/avatars/lion.png";
-import panda from "@/assets/avatars/panda.png";
-import eagle from "@/assets/avatars/eagle.png";
-import croc from "@/assets/avatars/croc.png";
-import koala from "@/assets/avatars/koala.png";
-import bunny from "@/assets/avatars/bunny.png";
-import tiger from "@/assets/avatars/tiger.png";
-import penguin from "@/assets/avatars/penguin.png";
-import shiba from "@/assets/avatars/shiba.png";
-import pig from "@/assets/avatars/pig.png";
+import bear from "@/assets/avatars/bear.webp";
+import frog from "@/assets/avatars/frog.webp";
+import lion from "@/assets/avatars/lion.webp";
+import panda from "@/assets/avatars/panda.webp";
+import eagle from "@/assets/avatars/eagle.webp";
+import croc from "@/assets/avatars/croc.webp";
+import koala from "@/assets/avatars/koala.webp";
+import bunny from "@/assets/avatars/bunny.webp";
+import tiger from "@/assets/avatars/tiger.webp";
+import penguin from "@/assets/avatars/penguin.webp";
+import shiba from "@/assets/avatars/shiba.webp";
+import pig from "@/assets/avatars/pig.webp";
 
 export type AvatarId =
   | "bear" | "frog" | "lion" | "panda" | "eagle" | "croc"
