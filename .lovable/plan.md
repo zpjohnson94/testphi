@@ -1,58 +1,39 @@
-## Goal
+## Why avatars feel slow
 
-Wire up real Google sign-in on `/signup` so that one-click Google users land in the same `signups` table as email signups, and continue through the rest of the funnel (`/plans`, `/coming-soon`) just like email users.
+The 12 avatars in `src/assets/avatars/` total **~12 MB** (each PNG is 0.8–1.7 MB). They're imported in `DiagAvatar.tsx` so Vite bundles them as hashed assets, but they aren't fetched until the `/diagnostic/avatar` route mounts — and then the browser has to download ~12 MB of PNGs before the grid fills in. Pure `<link rel="preload">` won't fix that; the files are simply too big.
 
-## 1. Enable Google in Lovable Cloud
+So the fix is two-pronged: **shrink the files**, then **preload them** ahead of the route that needs them.
 
-The provider must be turned on once in **Cloud → Users & Auth → Sign-in methods → Google → Enable (Managed)**. No credentials needed — Lovable's managed OAuth handles it. I'll surface a button in the response so you can do this in one click.
+## Plan
 
-## 2. Wire the Lovable auth SDK
+### 1. Convert avatars to WebP (biggest win)
 
-The `@lovable.dev/cloud-auth-js` package is already installed. Add a tiny wrapper at `src/integrations/lovable/index.ts`:
+Re-encode each `src/assets/avatars/*.png` to `.webp` at ~512×512, quality ~85. Expected size: ~30–60 KB each, so ~0.5 MB total instead of 12 MB (>20× smaller). PNG transparency is preserved.
 
-```ts
-import { createLovableAuth } from "@lovable.dev/cloud-auth-js";
-export const lovable = { auth: createLovableAuth() };
-```
+Update `src/components/DiagAvatar.tsx` to import the `.webp` files instead of `.png`. No API change — same `AvatarId` map, same component props.
 
-This is the standard pattern for Lovable-managed social auth. Per project rules, this folder is agent-managed — no manual edits to its contents beyond this file.
+Delete the old `.png` files after the swap.
 
-## 3. Hook up the "Continue with Google" button on `/signup`
+### 2. Preload avatars before the picker route
 
-Replace the existing analytics-only `onClick` with a real flow:
+Two complementary hooks:
 
-1. Fire existing `signup_click { method: "google" }` GA event.
-2. Call `lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin + "/signup" })`.
-3. If `result.redirected` → return (browser navigates to Google).
-4. If `result.error` → show an inline error message under the button.
-5. If tokens come back → the Supabase session is set automatically. Fetch the user via `supabase.auth.getUser()`, extract `email` and `name` (from `user_metadata.full_name` or `name`), then:
-   - Save `signup_email` to `localStorage` (so `/plans` and `/coming-soon` can update the same row).
-   - Call the existing `submitSignup` server function with `{ email, name, diagnostic_score: loadDiag(), referrer: document.referrer }`.
-   - Fire GA `signup_submit { method: "google" }`.
-   - Navigate to `/plans`.
+- **Warm the cache from `/diagnostic`** (the screen right before the avatar picker): add a tiny `useEffect` that does `new Image().src = url` for all 12 webp URLs. By the time the user clicks "Start", the images are in the HTTP cache.
+- **`<link rel="preload" as="image">` on the avatar route itself**: in `src/routes/diagnostic.avatar.tsx`, use TanStack's `head().links` to list the 12 avatar URLs so they fetch in parallel at the highest priority the moment the route is requested.
 
-## 4. Handle the OAuth return trip
+### 3. Verify
 
-When Google bounces the user back to `/signup?...`, the Lovable SDK will resolve the `signInWithOAuth` promise with tokens. The flow above captures that. To be safe, also add a `useEffect` on mount that:
+Check the Network tab on `/diagnostic/avatar`: avatar requests should be served from cache (from step 1) or finish in <100 ms each (from step 2), and total avatar payload should drop from ~12 MB to <1 MB.
 
-- Reads `supabase.auth.getSession()`.
-- If a session exists AND no `signup_email` is yet stored AND we haven't recorded this user before in this browser session, runs the same "extract email/name → submitSignup → navigate to /plans" logic.
+## Files touched
 
-This covers the case where the redirect lands the user back on `/signup` and the SDK has already set the session before our promise handler runs.
+- `src/assets/avatars/*.webp` — new (created via `cwebp`)
+- `src/assets/avatars/*.png` — deleted
+- `src/components/DiagAvatar.tsx` — swap `.png` imports → `.webp`
+- `src/routes/diagnostic.avatar.tsx` — add `head().links` preload entries
+- `src/routes/diagnostic.index.tsx` — add `useEffect` that warms the image cache
 
-## 5. No DB or schema changes
+## Notes
 
-The existing `signups` table already has everything we need (`email`, `name`, `diagnostic_score`, `referrer`, `user_agent`, `ip_address`). Google signups will just appear as new rows like any other lead. If the same email later submits the password form, the upsert merges them into one row.
-
-## Out of scope
-
-- Real authenticated app surface (dashboard gating, profile rows, RLS-protected data). The Google session sets up Supabase auth, but the rest of the app continues to work as-is — this is purely lead capture for now.
-- Apple sign-in (easy to add later — same SDK, just `"apple"` instead of `"google"`).
-- Storing the Google `sub`/user-id in the `signups` table (the email is enough for outreach).
-
-## Technical details
-
-- Files touched: `src/integrations/lovable/index.ts` (new), `src/routes/signup.tsx` (Google handler + return-trip effect).
-- Auth state: we rely on `supabase.auth.getUser()` after tokens land. The browser Supabase client already persists the session in `localStorage`.
-- Fallback: if `supabase.auth.getUser()` returns no email (shouldn't happen for Google, scope `email` is included by default), we skip the `submitSignup` call and still navigate to `/plans` so UX isn't blocked.
-- Error UX: a small `text-red-400` line under the Google button if OAuth fails (`result.error.message`), no toasts.
+- No change to `Avatar.tsx` / `avatar-bear.png` (separate asset used elsewhere).
+- If you'd rather keep PNGs for any reason, say so and I'll skip step 1 — but preload alone won't make 12 MB feel fast on mobile.
