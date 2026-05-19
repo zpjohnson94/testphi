@@ -13,9 +13,8 @@ function createSupabaseClient() {
       ...(!SUPABASE_URL ? ['SUPABASE_URL'] : []),
       ...(!SUPABASE_PUBLISHABLE_KEY ? ['SUPABASE_PUBLISHABLE_KEY'] : []),
     ];
-    const message = `Missing Supabase environment variable(s): ${missing.join(', ')}. Connect Supabase in Lovable Cloud.`;
-    console.error(`[Supabase] ${message}`);
-    throw new Error(message);
+    console.warn(`[Supabase] Missing env var(s): ${missing.join(', ')}. Returning no-op client.`);
+    return null as unknown as ReturnType<typeof createClient<Database>>;
   }
 
   return createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
@@ -29,12 +28,36 @@ function createSupabaseClient() {
 
 let _supabase: ReturnType<typeof createSupabaseClient> | undefined;
 
+// No-op stub: any property access returns a chainable function that resolves
+// to `{ data: null, error: null }`. Lets the app keep running without auth.
+function createNoopClient(): any {
+  const handler: ProxyHandler<any> = {
+    get(_t, prop) {
+      if (prop === 'then') return undefined;
+      if (prop === 'subscribe' || prop === 'unsubscribe') return () => ({ data: { subscription: { unsubscribe() {} } } });
+      const fn: any = (..._args: any[]) => proxy;
+      return new Proxy(fn, handler);
+    },
+  };
+  const proxy: any = new Proxy(function noop() {}, {
+    ...handler,
+    apply: () => Promise.resolve({ data: null, error: null }),
+  });
+  return proxy;
+}
+
+const _noop = createNoopClient();
+
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
 export const supabase = new Proxy({} as ReturnType<typeof createSupabaseClient>, {
   get(_, prop, receiver) {
-    if (!_supabase) _supabase = createSupabaseClient();
+    if (_supabase === undefined) {
+      try { _supabase = createSupabaseClient(); } catch { _supabase = null as any; }
+    }
+    if (!_supabase) return Reflect.get(_noop, prop, receiver);
     return Reflect.get(_supabase, prop, receiver);
   },
 });
+
 
