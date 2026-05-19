@@ -6,7 +6,14 @@ import { sfx } from "@/lib/sfx";
 import { AVATAR_OPTIONS, AVATAR_IMAGES, DiagAvatar, type AvatarId } from "@/components/DiagAvatar";
 
 export const Route = createFileRoute("/diagnostic/avatar")({
-  head: () => ({ meta: [{ title: "Choose your character — TestPhi" }] }),
+  head: () => ({
+    meta: [{ title: "Choose your character — TestPhi" }],
+    links: Object.values(AVATAR_IMAGES).map((href) => ({
+      rel: "preload",
+      as: "image",
+      href,
+    })),
+  }),
   component: DiagAvatarPage,
 });
 

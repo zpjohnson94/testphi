@@ -1,5 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useEffect } from "react";
 import { Avatar, defaultAvatar } from "@/components/Avatar";
+import { AVATAR_IMAGES } from "@/components/DiagAvatar";
 import { Logo } from "@/components/Logo";
 import { trackEvent } from "@/lib/analytics";
 
@@ -14,6 +16,13 @@ export const Route = createFileRoute("/diagnostic/")({
 });
 
 function DiagnosticStart() {
+  useEffect(() => {
+    // Warm the HTTP cache so the avatar picker renders instantly.
+    Object.values(AVATAR_IMAGES).forEach((src) => {
+      const img = new Image();
+      img.src = src;
+    });
+  }, []);
   return (
     <div className="topo-bg topo-violet min-h-screen relative">
       <header className="absolute top-0 inset-x-0 z-30">
