@@ -16,6 +16,13 @@ export const Route = createFileRoute("/diagnostic/")({
 });
 
 function DiagnosticStart() {
+  useEffect(() => {
+    // Warm the HTTP cache so the avatar picker renders instantly.
+    Object.values(AVATAR_IMAGES).forEach((src) => {
+      const img = new Image();
+      img.src = src;
+    });
+  }, []);
   return (
     <div className="topo-bg topo-violet min-h-screen relative">
       <header className="absolute top-0 inset-x-0 z-30">
