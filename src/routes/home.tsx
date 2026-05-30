@@ -61,7 +61,7 @@ function HomePage() {
               style={{ background: "rgba(255,230,0,0.12)", border: "1px solid rgba(255,230,0,0.35)" }}
             >
               <Flame className="size-4" style={{ color: "var(--spark)" }} />
-              <span className="display text-sm tabular-nums text-[var(--lavender)]">{state.streak}</span>
+              <span className="display text-sm tabular-nums text-[var(--lavender)]">{streak}</span>
               <span className="text-[10px] font-bold uppercase" style={{ color: "rgba(246,240,250,0.7)" }}>
                 day streak
               </span>
