@@ -3,7 +3,15 @@ import { useEffect, useState } from "react";
 import { Flame, Zap } from "lucide-react";
 import { FreeShell } from "@/components/FreeShell";
 import { Logo } from "@/components/Logo";
-import { loadFree, hasCompletedToday, type FreeState } from "@/lib/freeUser";
+import { Avatar, defaultAvatar } from "@/components/Avatar";
+import { loadFree, hasCompletedToday, DOMAINS, type FreeState } from "@/lib/freeUser";
+
+function sectionScore(scores: Record<string, number>, section: "math" | "rw"): number {
+  const ids = DOMAINS.filter((d) => d.section === section).map((d) => d.id);
+  const vals = ids.map((id) => scores[id] ?? 40);
+  const avg = vals.reduce((a, b) => a + b, 0) / vals.length;
+  return Math.round((200 + (avg / 100) * 600) / 10) * 10;
+}
 
 export const Route = createFileRoute("/home")({
   head: () => ({ meta: [{ title: "Home — TestPhi" }] }),
@@ -43,6 +51,11 @@ function HomePage() {
   }, [state?.overall]);
 
   const answeredCount = done ? 5 : 0;
+  const scores = state?.domainScores ?? Object.fromEntries(DOMAINS.map((d) => [d.id, 40]));
+  const mathScore = sectionScore(scores, "math");
+  const rwScore = sectionScore(scores, "rw");
+  const monthDelta = lastSession?.delta ?? 0;
+  const name = (state?.name || "champ").split(" ")[0];
 
   return (
     <FreeShell>
@@ -51,58 +64,93 @@ function HomePage() {
           className="sticky top-0 z-30 backdrop-blur"
           style={{ background: "rgba(29,41,0,0.85)", borderBottom: "1px solid rgba(246,240,250,0.08)" }}
         >
-          <div className="mx-auto max-w-2xl px-5 py-3 flex items-center justify-between">
+          <div className="mx-auto max-w-2xl px-5 py-3 flex items-center">
             <div className="flex items-center gap-2">
               <Logo size={28} />
               <span className="display text-base text-[var(--lavender)]">TestPhi</span>
             </div>
-            <div
-              className="flex items-center gap-1.5 rounded-full px-3 py-1.5"
-              style={{ background: "rgba(255,230,0,0.12)", border: "1px solid rgba(255,230,0,0.35)" }}
-            >
-              <Flame className="size-4" style={{ color: "var(--spark)" }} />
-              <span className="display text-sm tabular-nums text-[var(--lavender)]">{streak}</span>
-              <span className="text-[10px] font-bold uppercase" style={{ color: "rgba(246,240,250,0.7)" }}>
-                day streak
-              </span>
-            </div>
           </div>
         </header>
 
-        <main className="mx-auto max-w-2xl px-5 pt-10 pb-10 space-y-8 animate-fade-up">
-          {/* Hero: predicted score */}
-          <section className="text-center">
-            <div
-              className="text-[11px] font-bold uppercase tracking-[0.18em]"
-              style={{ color: "var(--volt)" }}
-            >
-              Predicted Score
-            </div>
-            <div className="mt-3 flex items-end justify-center gap-2">
+        <main className="mx-auto max-w-2xl px-5 pt-8 pb-10 space-y-6 animate-fade-up">
+          {/* Profile box — mirrors landing page hero card */}
+          <section
+            className="rounded-3xl p-4 sm:p-7 backdrop-blur-md"
+            style={{
+              background: "color-mix(in oklab, var(--violet-deep) 45%, transparent)",
+              border: "1.5px solid var(--neon)",
+            }}
+          >
+            <div className="flex items-start justify-between gap-3 sm:gap-4">
+              <div className="text-left min-w-0">
+                <div
+                  className="text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.18em] whitespace-pre-line"
+                  style={{ color: "var(--volt)" }}
+                >
+                  {`Hey ${name}!\nYour predicted SAT score`}
+                </div>
+                <div className="mt-2 sm:mt-3 flex items-end gap-1.5">
+                  <div
+                    className="score-num text-[56px] sm:text-[96px] leading-none"
+                    style={{ color: "var(--volt)" }}
+                  >
+                    {animatedScore}
+                  </div>
+                  <div
+                    className="score-num text-lg sm:text-2xl mb-1.5 sm:mb-2"
+                    style={{ color: "rgba(184,255,0,0.6)" }}
+                  >
+                    /1600
+                  </div>
+                </div>
+                <div
+                  className="mt-2 sm:mt-3 inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-extrabold"
+                  style={{
+                    background: monthDelta >= 0 ? "rgba(184,255,0,0.15)" : "rgba(255,77,109,0.15)",
+                    color: monthDelta >= 0 ? "var(--volt)" : "var(--destructive)",
+                    border: `1px solid ${monthDelta >= 0 ? "var(--volt)" : "var(--destructive)"}`,
+                  }}
+                >
+                  <Zap className="size-3.5" />
+                  {monthDelta >= 0 ? "+" : ""}
+                  {monthDelta} pts this month
+                </div>
+              </div>
               <div
-                className="score-num text-[96px] sm:text-[120px] leading-none"
-                style={{ color: "var(--volt)" }}
+                className="shrink-0 size-16 sm:size-20 rounded-2xl flex items-center justify-center"
+                style={{ background: "rgba(184,255,0,0.15)", border: "2px solid var(--volt)" }}
               >
-                {animatedScore}
-              </div>
-              <div className="score-num text-2xl mb-3" style={{ color: "rgba(184,255,0,0.6)" }}>
-                /1600
+                <Avatar config={{ ...defaultAvatar(), accessory: "crown" }} size={56} animate />
               </div>
             </div>
-            {lastSession && lastSession.delta !== 0 && (
-              <div className="mt-2 inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-extrabold"
-                style={{
-                  background: lastSession.delta > 0 ? "rgba(184,255,0,0.15)" : "rgba(255,77,109,0.15)",
-                  color: lastSession.delta > 0 ? "var(--volt)" : "var(--destructive)",
-                  border: `1px solid ${lastSession.delta > 0 ? "var(--volt)" : "var(--destructive)"}`,
-                }}
+            <div className="mt-3 sm:mt-5 grid grid-cols-2 gap-2 sm:gap-3 text-left">
+              <div
+                className="rounded-2xl p-2.5 sm:p-3"
+                style={{ background: "rgba(0,0,0,0.25)", border: "1px solid var(--volt)" }}
               >
-                <Zap className="size-3.5" />
-                {lastSession.delta > 0 ? "+" : ""}
-                {lastSession.delta} pts last session
+                <div
+                  className="text-[10px] font-bold uppercase tracking-widest"
+                  style={{ color: "var(--volt)" }}
+                >
+                  R&W
+                </div>
+                <div className="score-num text-2xl sm:text-3xl text-[var(--lavender)]">{rwScore}</div>
               </div>
-            )}
+              <div
+                className="rounded-2xl p-2.5 sm:p-3"
+                style={{ background: "rgba(0,0,0,0.25)", border: "1px solid var(--neon)" }}
+              >
+                <div
+                  className="text-[10px] font-bold uppercase tracking-widest"
+                  style={{ color: "var(--neon)" }}
+                >
+                  Math
+                </div>
+                <div className="score-num text-2xl sm:text-3xl text-[var(--lavender)]">{mathScore}</div>
+              </div>
+            </div>
           </section>
+
 
           {/* Daily 5 card */}
           <section
@@ -176,6 +224,20 @@ function HomePage() {
               </Link>
             )}
           </section>
+
+          {/* Streak counter */}
+          <div className="flex justify-center">
+            <div
+              className="flex items-center gap-2 rounded-full px-4 py-2"
+              style={{ background: "rgba(255,230,0,0.12)", border: "1px solid rgba(255,230,0,0.35)" }}
+            >
+              <Flame className="size-4" style={{ color: "var(--spark)" }} />
+              <span className="display text-base tabular-nums text-[var(--lavender)]">{streak}</span>
+              <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: "rgba(246,240,250,0.7)" }}>
+                day streak
+              </span>
+            </div>
+          </div>
         </main>
       </div>
     </FreeShell>
