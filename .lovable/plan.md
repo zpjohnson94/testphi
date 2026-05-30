@@ -1,39 +1,43 @@
-## Why avatars feel slow
+## Problem
 
-The 12 avatars in `src/assets/avatars/` total **~12 MB** (each PNG is 0.8–1.7 MB). They're imported in `DiagAvatar.tsx` so Vite bundles them as hashed assets, but they aren't fetched until the `/diagnostic/avatar` route mounts — and then the browser has to download ~12 MB of PNGs before the grid fills in. Pure `<link rel="preload">` won't fix that; the files are simply too big.
+`/home` and `/skill-map` render blank (only the footer is visible). Both new route components do:
 
-So the fix is two-pronged: **shrink the files**, then **preload them** ahead of the route that needs them.
+```tsx
+const [state, setState] = useState<FreeState | null>(null);
+useEffect(() => { setState(loadFree()); }, []);
+if (!state) return null;
+```
 
-## Plan
+During SSR `state` is `null`, so the component renders nothing. On the client the existing TanStack Start hydration issue on this project (visible in the console as "Invariant failed: Expected to find a match below the root match in SPA mode") prevents the client effect from completing the second render — so the page stays at the SSR'd empty state forever. Only the root layout's Footer remains visible.
 
-### 1. Convert avatars to WebP (biggest win)
+## Fix
 
-Re-encode each `src/assets/avatars/*.png` to `.webp` at ~512×512, quality ~85. Expected size: ~30–60 KB each, so ~0.5 MB total instead of 12 MB (>20× smaller). PNG transparency is preserved.
+Don't gate rendering on `state`. Render the full UI with sensible defaults on the first pass, then swap in real values once `loadFree()` has run on the client. This makes the routes hydrate to identical markup as SSR and removes the dependency on the client effect to make the screen non-empty.
 
-Update `src/components/DiagAvatar.tsx` to import the `.webp` files instead of `.png`. No API change — same `AvatarId` map, same component props.
+### `src/routes/home.tsx`
+- Initialize `state` lazily so that on the client we get real data on the first render: `useState<FreeState | null>(() => (typeof window === "undefined" ? null : loadFree()))`.
+- Remove the `if (!state) return null` early return. Compute fallback values inline:
+  - `overall = state?.overall ?? 800`
+  - `streak = state?.streak ?? 0`
+  - `done = state ? hasCompletedToday(state) : false`
+  - `lastSession = state?.lastSession ?? null`
+- Keep the count-up animation effect but seed `animatedScore` to `overall` so SSR and first client paint match.
 
-Delete the old `.png` files after the swap.
+### `src/routes/skill-map.tsx`
+- Same lazy `useState` initializer.
+- Remove the `if (!state) return null` early return.
+- When `state` is null (SSR only), render the 8 domains with the default mastery of 40 (matches `defaultScores()` in `freeUser.ts`) so the SSR and client markup match.
 
-### 2. Preload avatars before the picker route
+### `src/routes/daily.complete.tsx`
+- Apply the same lazy-init + no-null-return pattern so this route doesn't hit the same blank-screen failure mode.
 
-Two complementary hooks:
+## Out of scope
 
-- **Warm the cache from `/diagnostic`** (the screen right before the avatar picker): add a tiny `useEffect` that does `new Image().src = url` for all 12 webp URLs. By the time the user clicks "Start", the images are in the HTTP cache.
-- **`<link rel="preload" as="image">` on the avatar route itself**: in `src/routes/diagnostic.avatar.tsx`, use TanStack's `head().links` to list the 12 avatar URLs so they fetch in parallel at the highest priority the moment the route is requested.
+- The pre-existing `/diagnostic` hydration mismatch (the `DiagAvatar` SSR/client `id` mismatch) is a separate issue and not touched here.
+- No business-logic changes to `freeUser.ts`, no design changes.
 
-### 3. Verify
+## Verification
 
-Check the Network tab on `/diagnostic/avatar`: avatar requests should be served from cache (from step 1) or finish in <100 ms each (from step 2), and total avatar payload should drop from ~12 MB to <1 MB.
-
-## Files touched
-
-- `src/assets/avatars/*.webp` — new (created via `cwebp`)
-- `src/assets/avatars/*.png` — deleted
-- `src/components/DiagAvatar.tsx` — swap `.png` imports → `.webp`
-- `src/routes/diagnostic.avatar.tsx` — add `head().links` preload entries
-- `src/routes/diagnostic.index.tsx` — add `useEffect` that warms the image cache
-
-## Notes
-
-- No change to `Avatar.tsx` / `avatar-bear.png` (separate asset used elsewhere).
-- If you'd rather keep PNGs for any reason, say so and I'll skip step 1 — but preload alone won't make 12 MB feel fast on mobile.
+- Reload `/home`: predicted score, Daily 5 card, and bottom nav are visible immediately.
+- Reload `/skill-map`: all 8 domain cards visible immediately, sorted by mastery once client state loads.
+- No new console errors introduced.
