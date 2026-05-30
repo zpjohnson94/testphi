@@ -12,11 +12,17 @@ export const Route = createFileRoute("/home")({
 
 function HomePage() {
   const navigate = useNavigate();
-  const [state, setState] = useState<FreeState | null>(null);
-  const [animatedScore, setAnimatedScore] = useState(800);
+  const [state, setState] = useState<FreeState | null>(() =>
+    typeof window === "undefined" ? null : loadFree(),
+  );
+  const overall = state?.overall ?? 800;
+  const streak = state?.streak ?? 0;
+  const done = state ? hasCompletedToday(state) : false;
+  const lastSession = state?.lastSession ?? null;
+  const [animatedScore, setAnimatedScore] = useState(overall);
 
   useEffect(() => {
-    setState(loadFree());
+    if (!state) setState(loadFree());
   }, []);
 
   useEffect(() => {
@@ -36,9 +42,6 @@ function HomePage() {
     return () => cancelAnimationFrame(raf);
   }, [state?.overall]);
 
-  if (!state) return null;
-
-  const done = hasCompletedToday(state);
   const answeredCount = done ? 5 : 0;
 
   return (
@@ -58,7 +61,7 @@ function HomePage() {
               style={{ background: "rgba(255,230,0,0.12)", border: "1px solid rgba(255,230,0,0.35)" }}
             >
               <Flame className="size-4" style={{ color: "var(--spark)" }} />
-              <span className="display text-sm tabular-nums text-[var(--lavender)]">{state.streak}</span>
+              <span className="display text-sm tabular-nums text-[var(--lavender)]">{streak}</span>
               <span className="text-[10px] font-bold uppercase" style={{ color: "rgba(246,240,250,0.7)" }}>
                 day streak
               </span>
@@ -86,17 +89,17 @@ function HomePage() {
                 /1600
               </div>
             </div>
-            {state.lastSession && state.lastSession.delta !== 0 && (
+            {lastSession && lastSession.delta !== 0 && (
               <div className="mt-2 inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-extrabold"
                 style={{
-                  background: state.lastSession.delta > 0 ? "rgba(184,255,0,0.15)" : "rgba(255,77,109,0.15)",
-                  color: state.lastSession.delta > 0 ? "var(--volt)" : "var(--destructive)",
-                  border: `1px solid ${state.lastSession.delta > 0 ? "var(--volt)" : "var(--destructive)"}`,
+                  background: lastSession.delta > 0 ? "rgba(184,255,0,0.15)" : "rgba(255,77,109,0.15)",
+                  color: lastSession.delta > 0 ? "var(--volt)" : "var(--destructive)",
+                  border: `1px solid ${lastSession.delta > 0 ? "var(--volt)" : "var(--destructive)"}`,
                 }}
               >
                 <Zap className="size-3.5" />
-                {state.lastSession.delta > 0 ? "+" : ""}
-                {state.lastSession.delta} pts last session
+                {lastSession.delta > 0 ? "+" : ""}
+                {lastSession.delta} pts last session
               </div>
             )}
           </section>

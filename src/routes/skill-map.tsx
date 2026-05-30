@@ -19,21 +19,20 @@ export const Route = createFileRoute("/skill-map")({
 });
 
 function SkillMap() {
-  const [state, setState] = useState<FreeState | null>(null);
+  const [state, setState] = useState<FreeState | null>(() =>
+    typeof window === "undefined" ? null : loadFree(),
+  );
   const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
-    setState(loadFree());
+    if (!state) setState(loadFree());
   }, []);
 
   const sorted = useMemo(() => {
-    if (!state) return [];
     return [...DOMAINS]
-      .map((d) => ({ ...d, mastery: state.domainScores[d.id] ?? 40 }))
+      .map((d) => ({ ...d, mastery: state?.domainScores[d.id] ?? 40 }))
       .sort((a, b) => a.mastery - b.mastery);
   }, [state]);
-
-  if (!state) return null;
 
   return (
     <FreeShell>
