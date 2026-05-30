@@ -12,11 +12,17 @@ export const Route = createFileRoute("/home")({
 
 function HomePage() {
   const navigate = useNavigate();
-  const [state, setState] = useState<FreeState | null>(null);
-  const [animatedScore, setAnimatedScore] = useState(800);
+  const [state, setState] = useState<FreeState | null>(() =>
+    typeof window === "undefined" ? null : loadFree(),
+  );
+  const overall = state?.overall ?? 800;
+  const streak = state?.streak ?? 0;
+  const done = state ? hasCompletedToday(state) : false;
+  const lastSession = state?.lastSession ?? null;
+  const [animatedScore, setAnimatedScore] = useState(overall);
 
   useEffect(() => {
-    setState(loadFree());
+    if (!state) setState(loadFree());
   }, []);
 
   useEffect(() => {
@@ -36,9 +42,6 @@ function HomePage() {
     return () => cancelAnimationFrame(raf);
   }, [state?.overall]);
 
-  if (!state) return null;
-
-  const done = hasCompletedToday(state);
   const answeredCount = done ? 5 : 0;
 
   return (
