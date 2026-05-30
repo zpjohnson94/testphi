@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Flame } from "lucide-react";
+import { Flame, ArrowRight, HelpCircle } from "lucide-react";
 import { pickDailyQuestions, domainIdFor, type SessionResult } from "@/lib/freeUser";
 import { loadFree } from "@/lib/freeUser";
 import { PowerUpModal } from "@/components/PowerUpModal";
@@ -204,9 +204,9 @@ function DailyQuestion() {
                   color = "#fff";
                   animClass = "animate-shake";
                 } else if (incorrect && isCorrectChoice) {
-                  bg = "#22c55e";
-                  border = "2px solid #16a34a";
-                  color = "#fff";
+                  bg = "var(--volt)";
+                  border = "2px solid var(--volt)";
+                  color = "var(--ink)";
                 }
               } else if (isSelected) {
                 bg = "rgba(168,85,247,0.18)";
@@ -235,16 +235,11 @@ function DailyQuestion() {
 
           {/* Reveal action buttons */}
           {submitted && (
-            <div className="mt-6 grid grid-cols-2 gap-3 animate-fade-up">
-              <button
-                onClick={goNext}
-                className="btn-volt py-3.5 text-base rounded-2xl"
-              >
-                {isLast ? "See results →" : "Next question →"}
-              </button>
+            <div className="mt-6 flex items-center justify-end gap-3 animate-fade-up">
               <button
                 onClick={() => setShowModal(true)}
-                className={`py-3.5 text-base font-bold rounded-2xl ${
+                aria-label="Answer explanation"
+                className={`h-14 w-14 rounded-2xl flex items-center justify-center ${
                   incorrect ? "pulse-soft" : ""
                 }`}
                 style={{
@@ -253,7 +248,14 @@ function DailyQuestion() {
                   border: "2px solid var(--neon)",
                 }}
               >
-                Answer explanation
+                <HelpCircle className="size-6" />
+              </button>
+              <button
+                onClick={goNext}
+                aria-label={isLast ? "See results" : "Next question"}
+                className="btn-volt h-14 w-14 rounded-2xl flex items-center justify-center"
+              >
+                <ArrowRight className="size-6" />
               </button>
             </div>
           )}
