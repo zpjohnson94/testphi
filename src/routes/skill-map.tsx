@@ -18,6 +18,29 @@ export const Route = createFileRoute("/skill-map")({
   component: SkillMap,
 });
 
+function DomainPill({ label }: { label: string }) {
+  const parts = label.split(" · ");
+  const section = parts[0];
+  const name = parts.slice(1).join(" · ");
+  const isMath = section === "Math";
+  return (
+    <div className="flex items-center justify-center gap-2">
+      <span
+        className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider shrink-0"
+        style={{
+          background: isMath ? "var(--neon)" : "var(--volt)",
+          color: isMath ? "var(--lavender)" : "var(--ink)",
+        }}
+      >
+        {section}
+      </span>
+      <span className="display text-base text-[var(--lavender)] truncate">
+        {name}
+      </span>
+    </div>
+  );
+}
+
 function SkillMap() {
   const [state, setState] = useState<FreeState | null>(() =>
     typeof window === "undefined" ? null : loadFree(),
@@ -70,22 +93,22 @@ function SkillMap() {
               return (
                 <div
                   key={d.id}
-                  className="rounded-2xl p-5"
+                  className="rounded-2xl p-5 text-center"
                   style={{
-                    background: "rgba(246,240,250,0.04)",
+                    background: "#1a1230",
                     border: `1.5px solid ${color}`,
                   }}
                 >
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0">
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="min-w-0 flex-1">
                       <div
                         className="text-[10px] font-bold uppercase tracking-[0.18em]"
                         style={{ color }}
                       >
                         {tierLabel(tier)}
                       </div>
-                      <div className="mt-1 display text-base text-[var(--lavender)] truncate">
-                        {d.label}
+                      <div className="mt-1">
+                        <DomainPill label={d.label} />
                       </div>
                     </div>
                     <div
@@ -133,3 +156,4 @@ function SkillMap() {
     </FreeShell>
   );
 }
+
