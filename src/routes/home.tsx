@@ -89,17 +89,17 @@ function HomePage() {
                 /1600
               </div>
             </div>
-            {state.lastSession && state.lastSession.delta !== 0 && (
+            {lastSession && lastSession.delta !== 0 && (
               <div className="mt-2 inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-extrabold"
                 style={{
-                  background: state.lastSession.delta > 0 ? "rgba(184,255,0,0.15)" : "rgba(255,77,109,0.15)",
-                  color: state.lastSession.delta > 0 ? "var(--volt)" : "var(--destructive)",
-                  border: `1px solid ${state.lastSession.delta > 0 ? "var(--volt)" : "var(--destructive)"}`,
+                  background: lastSession.delta > 0 ? "rgba(184,255,0,0.15)" : "rgba(255,77,109,0.15)",
+                  color: lastSession.delta > 0 ? "var(--volt)" : "var(--destructive)",
+                  border: `1px solid ${lastSession.delta > 0 ? "var(--volt)" : "var(--destructive)"}`,
                 }}
               >
                 <Zap className="size-3.5" />
-                {state.lastSession.delta > 0 ? "+" : ""}
-                {state.lastSession.delta} pts last session
+                {lastSession.delta > 0 ? "+" : ""}
+                {lastSession.delta} pts last session
               </div>
             )}
           </section>
