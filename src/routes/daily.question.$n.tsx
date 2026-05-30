@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Flame } from "lucide-react";
+import { Flame, ArrowRight, HelpCircle } from "lucide-react";
 import { pickDailyQuestions, domainIdFor, type SessionResult } from "@/lib/freeUser";
 import { loadFree } from "@/lib/freeUser";
 import { PowerUpModal } from "@/components/PowerUpModal";
@@ -204,9 +204,9 @@ function DailyQuestion() {
                   color = "#fff";
                   animClass = "animate-shake";
                 } else if (incorrect && isCorrectChoice) {
-                  bg = "#22c55e";
-                  border = "2px solid #16a34a";
-                  color = "#fff";
+                  bg = "var(--volt)";
+                  border = "2px solid var(--volt)";
+                  color = "var(--ink)";
                 }
               } else if (isSelected) {
                 bg = "rgba(168,85,247,0.18)";
