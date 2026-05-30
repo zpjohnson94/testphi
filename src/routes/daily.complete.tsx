@@ -14,7 +14,7 @@ import { PowerUpModal } from "@/components/PowerUpModal";
 
 export const Route = createFileRoute("/daily/complete")({
   head: () => ({ meta: [{ title: "Daily 5 complete — TestPhi" }] }),
-  component: DailyComplete;
+  component: DailyComplete,
 });
 
 const SESSION_KEY = "testphi:daily-session:v1";
