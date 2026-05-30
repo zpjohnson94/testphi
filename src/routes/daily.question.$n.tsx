@@ -235,16 +235,11 @@ function DailyQuestion() {
 
           {/* Reveal action buttons */}
           {submitted && (
-            <div className="mt-6 grid grid-cols-2 gap-3 animate-fade-up">
-              <button
-                onClick={goNext}
-                className="btn-volt py-3.5 text-base rounded-2xl"
-              >
-                {isLast ? "See results →" : "Next question →"}
-              </button>
+            <div className="mt-6 flex items-center justify-end gap-3 animate-fade-up">
               <button
                 onClick={() => setShowModal(true)}
-                className={`py-3.5 text-base font-bold rounded-2xl ${
+                aria-label="Answer explanation"
+                className={`h-14 w-14 rounded-2xl flex items-center justify-center ${
                   incorrect ? "pulse-soft" : ""
                 }`}
                 style={{
@@ -253,7 +248,14 @@ function DailyQuestion() {
                   border: "2px solid var(--neon)",
                 }}
               >
-                Answer explanation
+                <HelpCircle className="size-6" />
+              </button>
+              <button
+                onClick={goNext}
+                aria-label={isLast ? "See results" : "Next question"}
+                className="btn-volt h-14 w-14 rounded-2xl flex items-center justify-center"
+              >
+                <ArrowRight className="size-6" />
               </button>
             </div>
           )}
