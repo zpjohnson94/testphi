@@ -196,7 +196,7 @@ function DailyComplete() {
           </div>
         </section>
 
-        {/* Missed domains — locked */}
+        {/* Missed domains — each with drill button */}
         {missedDomains.length > 0 && (
           <section>
             <div
@@ -209,52 +209,50 @@ function DailyComplete() {
               {missedDomains.map((id) => {
                 const d = domainById(id);
                 if (!d) return null;
+                const parts = d.label.split(" · ");
+                const section = parts[0];
+                const name = parts.slice(1).join(" · ");
+                const isMath = section === "Math";
                 return (
                   <div
                     key={id}
-                    className="rounded-xl px-4 py-3 flex items-center justify-between gap-3"
+                    className="rounded-xl p-4 space-y-3"
                     style={{
                       background: "rgba(255,77,109,0.08)",
                       border: "1px solid rgba(255,77,109,0.35)",
                     }}
                   >
-                    <span className="text-sm font-bold text-[var(--lavender)]">{d.label}</span>
+                    <div className="flex items-center gap-2">
+                      <span
+                        className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider"
+                        style={{
+                          background: isMath ? "var(--neon)" : "var(--volt)",
+                          color: isMath ? "var(--lavender)" : "var(--ink)",
+                        }}
+                      >
+                        {section}
+                      </span>
+                      <span className="text-sm font-bold text-[var(--lavender)]">
+                        {name}
+                      </span>
+                    </div>
+
+                    <button
+                      onClick={() => setShowModal(true)}
+                      className="w-full rounded-xl py-2.5 text-sm font-bold flex items-center justify-center gap-2 transition-colors"
+                      style={{
+                        background: "rgba(74,6,136,0.4)",
+                        color: "var(--lavender)",
+                        border: "1px solid rgba(168,85,247,0.5)",
+                      }}
+                    >
+                      <Lock className="size-3.5" style={{ color: "var(--spark)" }} />
+                      Drill this domain
+                    </button>
                   </div>
                 );
               })}
             </div>
-
-            <button
-              onClick={() => setShowModal(true)}
-              className="mt-3 w-full rounded-2xl p-4 flex items-center justify-between gap-3 transition-transform hover:-translate-y-0.5"
-              style={{
-                background: "rgba(74,6,136,0.4)",
-                border: "1.5px solid var(--neon)",
-              }}
-            >
-              <div className="flex items-center gap-3 text-left">
-                <div
-                  className="size-10 rounded-full flex items-center justify-center shrink-0"
-                  style={{ background: "rgba(255,230,0,0.18)", border: "2px solid var(--spark)" }}
-                >
-                  <Lock className="size-4" style={{ color: "var(--spark)" }} />
-                </div>
-                <div>
-                  <div className="display text-base text-[var(--lavender)]">
-                    Drill the domains you missed
-                  </div>
-                  <div
-                    className="text-xs font-semibold mt-0.5"
-                    style={{ color: "rgba(246,240,250,0.7)" }}
-                  >
-                    Unlock with Power Up
-                  </div>
-                </div>
-              </div>
-              <span className="text-lg" style={{ color: "var(--volt)" }}>
-                →
-              </span>
-            </button>
           </section>
         )}
 
