@@ -145,14 +145,8 @@ function SkillMap() {
 
                         <button
                           onClick={() => setShowModal(true)}
-                          className="mt-4 w-full py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-colors"
-                          style={{
-                            background: "rgba(74,6,136,0.4)",
-                            color: "var(--lavender)",
-                            border: "1px solid rgba(168,85,247,0.5)",
-                          }}
+                          className="mt-4 w-full btn-volt py-3 text-sm font-bold text-center"
                         >
-                          <Lock className="size-3.5" style={{ color: "var(--spark)" }} />
                           Drill this domain
                         </button>
                       </div>
