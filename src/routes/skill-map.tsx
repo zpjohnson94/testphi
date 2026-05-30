@@ -10,6 +10,7 @@ import {
   tierLabel,
   tierOf,
   type FreeState,
+  type Tier,
 } from "@/lib/freeUser";
 import { PowerUpModal } from "@/components/PowerUpModal";
 
@@ -18,26 +19,18 @@ export const Route = createFileRoute("/skill-map")({
   component: SkillMap,
 });
 
-function DomainPill({ label }: { label: string }) {
-  const parts = label.split(" · ");
-  const section = parts[0];
-  const name = parts.slice(1).join(" · ");
+function DomainPill({ section }: { section: string }) {
   const isMath = section === "Math";
   return (
-    <div className="flex items-center justify-center gap-2">
-      <span
-        className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider shrink-0"
-        style={{
-          background: isMath ? "var(--neon)" : "var(--volt)",
-          color: isMath ? "var(--lavender)" : "var(--ink)",
-        }}
-      >
-        {section}
-      </span>
-      <span className="display text-base text-[var(--lavender)] truncate">
-        {name}
-      </span>
-    </div>
+    <span
+      className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider"
+      style={{
+        background: isMath ? "var(--neon)" : "var(--volt)",
+        color: isMath ? "var(--lavender)" : "var(--ink)",
+      }}
+    >
+      {section}
+    </span>
   );
 }
 
@@ -51,11 +44,17 @@ function SkillMap() {
     if (!state) setState(loadFree());
   }, []);
 
-  const sorted = useMemo(() => {
-    return [...DOMAINS]
-      .map((d) => ({ ...d, mastery: state?.domainScores[d.id] ?? 40 }))
-      .sort((a, b) => a.mastery - b.mastery);
+  const grouped = useMemo(() => {
+    const all = DOMAINS.map((d) => ({
+      ...d,
+      mastery: state?.domainScores[d.id] ?? 40,
+    })).sort((a, b) => a.mastery - b.mastery);
+    const groups: Record<Tier, typeof all> = { weak: [], developing: [], strong: [] };
+    for (const d of all) groups[tierOf(d.mastery)].push(d);
+    return groups;
   }, [state]);
+
+  const order: Tier[] = ["weak", "developing", "strong"];
 
   return (
     <FreeShell>
@@ -70,7 +69,7 @@ function SkillMap() {
           </div>
         </header>
 
-        <main className="mx-auto max-w-2xl px-5 pt-8 pb-10 space-y-6 animate-fade-up">
+        <main className="mx-auto w-full max-w-2xl px-5 pt-8 pb-10 space-y-8 animate-fade-up">
           <div>
             <div
               className="text-[11px] font-bold uppercase tracking-[0.18em]"
@@ -86,65 +85,84 @@ function SkillMap() {
             </p>
           </div>
 
-          <div className="grid gap-3">
-            {sorted.map((d) => {
-              const tier = tierOf(d.mastery);
-              const color = tierColor(tier);
-              return (
-                <div
-                  key={d.id}
-                  className="rounded-2xl p-5 text-center"
-                  style={{
-                    background: "#1a1230",
-                    border: `1.5px solid ${color}`,
-                  }}
-                >
-                  <div className="flex items-center justify-between gap-3">
-                    <div className="min-w-0 flex-1">
-                      <div
-                        className="text-[10px] font-bold uppercase tracking-[0.18em]"
-                        style={{ color }}
-                      >
-                        {tierLabel(tier)}
-                      </div>
-                      <div className="mt-1">
-                        <DomainPill label={d.label} />
-                      </div>
-                    </div>
-                    <div
-                      className="score-num text-lg tabular-nums shrink-0"
-                      style={{ color }}
-                    >
-                      {Math.round(d.mastery)}%
-                    </div>
-                  </div>
-
-                  <div
-                    className="mt-3 h-2 rounded-full overflow-hidden"
-                    style={{ background: "rgba(0,0,0,0.3)" }}
+          {order.map((tier) => {
+            const items = grouped[tier];
+            if (!items.length) return null;
+            const color = tierColor(tier);
+            return (
+              <section key={tier} className="space-y-3">
+                <div className="flex items-center gap-3">
+                  <span
+                    className="inline-block size-2.5 rounded-full shrink-0"
+                    style={{ background: color }}
+                  />
+                  <h2
+                    className="text-[11px] font-bold uppercase tracking-[0.18em]"
+                    style={{ color }}
                   >
-                    <div
-                      className="h-full transition-all duration-700"
-                      style={{ width: `${d.mastery}%`, background: color }}
-                    />
-                  </div>
-
-                  <button
-                    onClick={() => setShowModal(true)}
-                    className="mt-4 w-full py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-colors"
-                    style={{
-                      background: "rgba(74,6,136,0.4)",
-                      color: "var(--lavender)",
-                      border: "1px solid rgba(168,85,247,0.5)",
-                    }}
-                  >
-                    <Lock className="size-3.5" style={{ color: "var(--spark)" }} />
-                    Drill this domain
-                  </button>
+                    {tierLabel(tier)}
+                    <span className="ml-2 opacity-60">({items.length})</span>
+                  </h2>
                 </div>
-              );
-            })}
-          </div>
+
+                <div className="grid gap-3">
+                  {items.map((d) => {
+                    const parts = d.label.split(" · ");
+                    const section = parts[0];
+                    const name = parts.slice(1).join(" · ");
+                    return (
+                      <div
+                        key={d.id}
+                        className="w-full rounded-2xl p-5"
+                        style={{
+                          background: "#1a1230",
+                          border: `1.5px solid ${color}`,
+                        }}
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="min-w-0 flex-1 text-left">
+                            <DomainPill section={section} />
+                            <div className="mt-2 display text-lg text-[var(--lavender)] leading-tight">
+                              {name}
+                            </div>
+                          </div>
+                          <div
+                            className="score-num text-lg tabular-nums shrink-0"
+                            style={{ color }}
+                          >
+                            {Math.round(d.mastery)}%
+                          </div>
+                        </div>
+
+                        <div
+                          className="mt-4 h-2 rounded-full overflow-hidden"
+                          style={{ background: "rgba(0,0,0,0.3)" }}
+                        >
+                          <div
+                            className="h-full transition-all duration-700"
+                            style={{ width: `${d.mastery}%`, background: color }}
+                          />
+                        </div>
+
+                        <button
+                          onClick={() => setShowModal(true)}
+                          className="mt-4 w-full py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-colors"
+                          style={{
+                            background: "rgba(74,6,136,0.4)",
+                            color: "var(--lavender)",
+                            border: "1px solid rgba(168,85,247,0.5)",
+                          }}
+                        >
+                          <Lock className="size-3.5" style={{ color: "var(--spark)" }} />
+                          Drill this domain
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+              </section>
+            );
+          })}
         </main>
       </div>
 
@@ -156,4 +174,3 @@ function SkillMap() {
     </FreeShell>
   );
 }
-
