@@ -92,7 +92,9 @@ function DailyComplete() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [computed?.delta, computed?.state.name]);
 
-  if (!computed) return null;
+  if (!computed) {
+    return <div className="topo-bg min-h-screen" />;
+  }
 
   const { state, results, delta } = computed;
 
