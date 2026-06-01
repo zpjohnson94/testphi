@@ -34,7 +34,7 @@ export function PowerUpModal({ open, onClose, title = "Power Up for answer expla
         onClick={(e) => e.stopPropagation()}
         className="relative w-full max-w-md rounded-3xl p-6 sm:p-7"
         style={{
-          background: "var(--violet-deep)",
+          background: "rgba(74,6,136,0.92)",
           border: "2px solid var(--volt)",
           boxShadow: "0 0 60px -10px rgba(184,255,0,0.5)",
         }}
