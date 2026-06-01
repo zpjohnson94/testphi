@@ -136,6 +136,8 @@ export function loadFree(): FreeState {
   const { scores, name } = seedFromDiag();
   const s: FreeState = {
     name,
+    email: "",
+    plan: "free",
     seeded: true,
     domainScores: scores,
     overall: computeOverall(scores),
