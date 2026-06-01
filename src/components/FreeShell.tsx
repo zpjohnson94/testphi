@@ -1,5 +1,5 @@
 import { Link, useLocation } from "@tanstack/react-router";
-import { Home, Grid3x3 } from "lucide-react";
+import { Home, Grid3x3, User2 } from "lucide-react";
 
 export function FreeShell({ children }: { children: React.ReactNode }) {
   return (
@@ -15,6 +15,7 @@ function FreeBottomNav() {
   const items = [
     { to: "/home", label: "Home", Icon: Home },
     { to: "/skill-map", label: "Skill Map", Icon: Grid3x3 },
+    { to: "/account", label: "Account", Icon: User2 },
   ] as const;
 
   return (
@@ -22,7 +23,7 @@ function FreeBottomNav() {
       className="fixed bottom-0 inset-x-0 z-40 backdrop-blur"
       style={{ background: "rgba(29,41,0,0.92)", borderTop: "1px solid rgba(246,240,250,0.1)" }}
     >
-      <div className="mx-auto max-w-2xl grid grid-cols-2">
+      <div className="mx-auto max-w-2xl grid grid-cols-3">
         {items.map(({ to, label, Icon }) => {
           const active = pathname === to || pathname.startsWith(to + "/");
           return (
