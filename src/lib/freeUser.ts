@@ -44,6 +44,8 @@ export interface LastSession {
 
 export interface FreeState {
   name: string;
+  email: string;
+  plan: "free" | "powerup";
   seeded: boolean;
   domainScores: Record<string, number>; // 0..100 mastery
   overall: number; // 400..1600
