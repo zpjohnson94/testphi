@@ -112,6 +112,8 @@ function defaultState(): FreeState {
   const scores = defaultScores();
   return {
     name: "",
+    email: "",
+    plan: "free",
     seeded: false,
     domainScores: scores,
     overall: computeOverall(scores),
