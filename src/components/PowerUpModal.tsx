@@ -50,7 +50,7 @@ export function PowerUpModal({ open, onClose, title = "Power Up for answer expla
 
         <div
           className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest"
-          style={{ background: "var(--volt)", color: "var(--ink)" }}
+          style={{ background: "rgba(74,6,136,0.85)", color: "var(--lavender)", border: "1px solid rgba(168,85,247,0.4)" }}
         >
           Recommended
         </div>
