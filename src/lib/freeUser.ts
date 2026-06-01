@@ -44,6 +44,8 @@ export interface LastSession {
 
 export interface FreeState {
   name: string;
+  email: string;
+  plan: "free" | "powerup";
   seeded: boolean;
   domainScores: Record<string, number>; // 0..100 mastery
   overall: number; // 400..1600
@@ -110,6 +112,8 @@ function defaultState(): FreeState {
   const scores = defaultScores();
   return {
     name: "",
+    email: "",
+    plan: "free",
     seeded: false,
     domainScores: scores,
     overall: computeOverall(scores),
@@ -132,6 +136,8 @@ export function loadFree(): FreeState {
   const { scores, name } = seedFromDiag();
   const s: FreeState = {
     name,
+    email: "",
+    plan: "free",
     seeded: true,
     domainScores: scores,
     overall: computeOverall(scores),
