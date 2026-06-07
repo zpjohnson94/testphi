@@ -53,7 +53,7 @@ function AccountPage() {
   return (
     <FreeShell>
       <div className="topo-bg topo-dim min-h-screen">
-        <div className="mx-auto max-w-2xl p-5 space-y-4 animate-fade-up">
+        <div className="mx-auto max-w-2xl p-5 space-y-4">
           <h1 className="display text-2xl text-[var(--lavender)]">Account</h1>
 
           {/* Identity card */}
