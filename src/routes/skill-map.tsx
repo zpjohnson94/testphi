@@ -74,13 +74,13 @@ function SkillMap() {
               className="text-[11px] font-bold uppercase tracking-[0.18em]"
               style={{ color: "var(--volt)" }}
             >
-              Skill Map
+              <br />
             </div>
             <h1 className="mt-1 display text-3xl text-[var(--lavender)]">
-              All 8 SAT domains
+              Skill map
             </h1>
             <p className="mt-2 text-sm font-medium" style={{ color: "rgba(246,240,250,0.7)" }}>
-              Sorted from weakest to strongest. Focus where the upside is biggest.
+              Review your level of mastery over 8 SAT domains, sorted from weakest to strongest.
             </p>
           </div>
 
