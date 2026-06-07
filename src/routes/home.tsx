@@ -72,7 +72,7 @@ function HomePage() {
           </div>
         </header>
 
-        <main className="mx-auto max-w-2xl px-5 pt-8 pb-10 space-y-6 animate-fade-up">
+        <main className="mx-auto max-w-2xl px-5 pt-8 pb-10 space-y-6">
           {/* Profile box — mirrors landing page hero card */}
           <section
             className="rounded-3xl p-4 sm:p-7 backdrop-blur-md"

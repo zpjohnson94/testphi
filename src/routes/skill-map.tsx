@@ -68,7 +68,7 @@ function SkillMap() {
           </div>
         </header>
 
-        <main className="mx-auto w-full max-w-2xl px-5 pt-8 pb-10 space-y-8 animate-fade-up">
+        <main className="mx-auto w-full max-w-2xl px-5 pt-8 pb-10 space-y-8">
           <div>
             <div
               className="text-[11px] font-bold uppercase tracking-[0.18em]"
