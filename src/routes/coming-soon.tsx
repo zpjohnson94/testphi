@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { Logo } from "@/components/Logo";
 import { Checkbox } from "@/components/ui/checkbox";
 import { trackEvent } from "@/lib/analytics";
-import { updateSignup } from "@/server/signups.functions";
+import { updateSignup } from "@/lib/signups.functions";
 
 export const Route = createFileRoute("/coming-soon")({
   head: () => ({

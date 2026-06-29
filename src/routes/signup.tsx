@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { loadDiag } from "@/lib/diagnostic";
 import { Logo } from "@/components/Logo";
 import { trackEvent } from "@/lib/analytics";
-import { submitSignup } from "@/server/signups.functions";
+import { submitSignup } from "@/lib/signups.functions";
 
 export const Route = createFileRoute("/signup")({
   head: () => ({
