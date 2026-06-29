@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Check } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { trackEvent } from "@/lib/analytics";
-import { updateSignup } from "@/server/signups.functions";
+import { updateSignup } from "@/lib/signups.functions";
 
 export const Route = createFileRoute("/plans")({
   head: () => ({
