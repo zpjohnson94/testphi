@@ -481,38 +481,38 @@ function deltaFor(
   return -SCORING.BASE_LOSS[difficulty] * tf;
 }
 
-// Apply a single answered question to the state.
-function applyOneResult(state: FreeState, r: SessionResult): FreeState {
+// Apply a single answered question to the state. Returns base + actual gain
+// contribution for the diff (post-init only; pre-init returns 0).
+function applyOneResult(
+  state: FreeState,
+  r: SessionResult,
+): { base: number; actual: number } {
   const stat = state.domainStats[r.domainId];
-  if (!stat) return state;
+  if (!stat) return { base: 0, actual: 0 };
   const tf = timeFactor(r.correct, r.elapsedSeconds, expectedSecondsForDifficulty(r.difficulty));
 
-  // Always update the answered counter and last-touched date for decay.
   stat.answered += 1;
   stat.lastAnsweredISO = todayISO();
 
   if (!stat.initialized) {
-    // Pre-init: contribute to batch. Bonus-round questions get the spec's fixed
-    // difficulties; practice fillers use whatever the question is tagged with.
     stat.batch.push({ difficulty: r.difficulty, correct: r.correct, timeFactor: tf });
     if (r.isBonus) stat.bonusStep = Math.min(3, stat.bonusStep + 1) as 0 | 1 | 2 | 3;
-    // Trigger initialization once the bonus round completes (or, for users
-    // who somehow over-fill the batch, when we have 8 entries).
     if (stat.bonusStep >= 3 || stat.batch.length >= 8) {
       stat.mastery = initializeMastery(stat.batch);
       stat.initialized = true;
     }
-    return state;
+    return { base: 0, actual: 0 };
   }
 
-  // Post-init: delta math.
   const momentum = momentumMultiplier(state);
-  const delta = deltaFor(stat.mastery, r.difficulty, r.correct, tf, momentum);
+  const base = deltaFor(stat.mastery, r.difficulty, r.correct, tf, 1);
+  const actual = deltaFor(stat.mastery, r.difficulty, r.correct, tf, momentum);
+  const prev = stat.mastery;
   stat.mastery = Math.max(
     SCORING.MASTERY_FLOOR,
-    Math.min(SCORING.MASTERY_CEIL, stat.mastery + delta),
+    Math.min(SCORING.MASTERY_CEIL, stat.mastery + actual),
   );
-  return state;
+  return { base, actual: stat.mastery - prev };
 }
 
 function expectedSecondsForDifficulty(d: Difficulty): number {
@@ -520,6 +520,7 @@ function expectedSecondsForDifficulty(d: Difficulty): number {
   if (d === 3) return 90;
   return 60;
 }
+
 
 function yesterdayISO() {
   return isoMinusDays(todayISO(), 1);
