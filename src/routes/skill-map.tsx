@@ -133,7 +133,7 @@ function SkillMap() {
                             className="score-num text-lg tabular-nums shrink-0"
                             style={{ color }}
                           >
-                            {Math.round(d.mastery)}%
+                            {d.initialized ? `${Math.round(d.mastery)}%` : "—"}
                           </div>
                         </div>
 
@@ -143,9 +143,20 @@ function SkillMap() {
                         >
                           <div
                             className="h-full transition-all duration-700"
-                            style={{ width: `${d.mastery}%`, background: color }}
+                            style={{
+                              width: d.initialized ? `${d.mastery}%` : "0%",
+                              background: color,
+                            }}
                           />
                         </div>
+                        {!d.initialized && (
+                          <div
+                            className="mt-2 text-[11px] font-bold uppercase tracking-wider"
+                            style={{ color: "rgba(246,240,250,0.55)" }}
+                          >
+                            Calibrating — practice to unlock
+                          </div>
+                        )}
 
                         <button
                           onClick={() => setShowModal(true)}
