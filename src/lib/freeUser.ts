@@ -526,23 +526,46 @@ function yesterdayISO() {
   return isoMinusDays(todayISO(), 1);
 }
 
-// Apply a completed Daily 5 session. Updates mastery, momentum, streak, and
-// snapshots, and stores a LastSession diff for the post-session screen.
+// Apply a completed session. Updates mastery, momentum, streak, snapshots,
+// and stores a rich LastSession diff for the post-session screen.
 export function applySession(prev: FreeState, results: SessionResult[]): FreeState {
   const next: FreeState = JSON.parse(JSON.stringify(prev));
   const prevOverall = prev.overall;
+  const wasCalibrated = isCalibrated(prev);
 
-  for (const r of results) applyOneResult(next, r);
+  // Snapshot per-domain pre-state for diffing.
+  const pre: Record<string, { answered: number; mastery: number; initialized: boolean; bonusStep: number }> = {};
+  for (const d of DOMAINS) {
+    const s = prev.domainStats[d.id];
+    pre[d.id] = {
+      answered: s?.answered ?? 0,
+      mastery: s?.mastery ?? 0,
+      initialized: s?.initialized ?? false,
+      bonusStep: s?.bonusStep ?? 0,
+    };
+  }
+
+  const baseByDomain: Record<string, number> = {};
+  const actualByDomain: Record<string, number> = {};
+  for (const r of results) {
+    const { base, actual } = applyOneResult(next, r);
+    baseByDomain[r.domainId] = (baseByDomain[r.domainId] ?? 0) + base;
+    actualByDomain[r.domainId] = (actualByDomain[r.domainId] ?? 0) + actual;
+  }
 
   // Streak
   const td = todayISO();
+  const streakBefore = next.streak;
   let streak = next.streak;
-  if (next.lastDailyDate === yesterdayISO()) streak += 1;
-  else if (next.lastDailyDate !== td) streak = 1;
+  if (results.length >= SCORING.QUALIFYING_QUESTIONS && next.lastDailyDate !== td) {
+    if (next.lastDailyDate === yesterdayISO()) streak += 1;
+    else streak = 1;
+  }
   next.streak = streak;
-  next.lastDailyDate = td;
+  if (results.length >= SCORING.QUALIFYING_QUESTIONS) next.lastDailyDate = td;
 
-  // Momentum: qualifying session (≥5 non-diagnostic questions today).
+  // Momentum
+  const momentumBefore = prev.momentumNeedle;
   if (results.length >= SCORING.QUALIFYING_QUESTIONS) {
     if (!next.qualifyingDays.includes(td)) {
       next.qualifyingDays = [...next.qualifyingDays, td].slice(-30);
@@ -552,15 +575,65 @@ export function applySession(prev: FreeState, results: SessionResult[]): FreeSta
   }
 
   syncSnapshots(next);
+
+  const nowCalibrated = isCalibrated(next);
+  const domainDiffs: DomainDiff[] = DOMAINS.map((d) => {
+    const p = pre[d.id];
+    const s = next.domainStats[d.id];
+    const justUnlocked = !p.initialized && s.initialized;
+    const bonusUnlocked = !p.initialized && s.answered >= SCORING.THRESHOLD_QUESTIONS && p.answered < SCORING.THRESHOLD_QUESTIONS;
+    return {
+      domainId: d.id,
+      wasInitialized: p.initialized,
+      nowInitialized: s.initialized,
+      justUnlocked,
+      prevAnswered: p.answered,
+      newAnswered: s.answered,
+      prevMastery: p.mastery,
+      newMastery: s.mastery,
+      baseGain: baseByDomain[d.id] ?? 0,
+      actualGain: actualByDomain[d.id] ?? 0,
+      bonusUnlockedThisSession: bonusUnlocked,
+    };
+  }).filter((d) => d.newAnswered > d.prevAnswered);
+
   next.lastSession = {
     date: td,
     results,
     prevOverall,
     newOverall: next.overall,
     delta: next.overall - prevOverall,
+    domainDiffs,
+    momentumBefore,
+    momentumAfter: next.momentumNeedle,
+    momentumIncreased: next.momentumNeedle > momentumBefore,
+    streakBefore,
+    streakAfter: next.streak,
+    streakIncreased: next.streak > streakBefore,
+    wasCalibrated,
+    nowCalibrated,
+    calibrationMilestone: !wasCalibrated && nowCalibrated,
   };
   return next;
 }
+
+export function isCalibrated(s: FreeState): boolean {
+  return DOMAINS.every((d) => s.domainStats[d.id]?.initialized);
+}
+
+export function momentumNeedleOf(s: FreeState): number {
+  return s.momentumNeedle;
+}
+
+export function momentumMultiplierOf(s: FreeState): number {
+  return momentumMultiplier(s);
+}
+
+export function bonusStepOf(s: FreeState, domainId: string): number {
+  return s.domainStats[domainId]?.bonusStep ?? 0;
+}
+
+
 
 // ---------- Mastery → category (for Skill Map) ----------
 
