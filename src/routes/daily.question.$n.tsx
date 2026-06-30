@@ -107,11 +107,17 @@ function DailyQuestion() {
 
     const elapsedSeconds = (Date.now() - startRef.current) / 1000;
     const domainId = domainIdFor(question.domainLabel) ?? "math-algebra";
+    const isBonus = isBonusQuestionFor(freeState, domainId);
+    const difficulty = isBonus
+      ? nextBonusDifficulty(freeState, domainId)
+      : (question.difficulty ?? 2);
     const record: SessionResult = {
       n: question.n,
       domainId,
+      difficulty,
       correct: isCorrect,
       elapsedSeconds,
+      isBonus,
     };
     const all = loadSessionResults().filter((r) => r.n !== question.n);
     all.push(record);
