@@ -44,16 +44,20 @@ function SkillMap() {
   }, []);
 
   const grouped = useMemo(() => {
-    const all = DOMAINS.map((d) => ({
-      ...d,
-      mastery: state?.domainScores[d.id] ?? 40,
-    })).sort((a, b) => a.mastery - b.mastery);
-    const groups: Record<Tier, typeof all> = { weak: [], developing: [], strong: [] };
-    for (const d of all) groups[tierOf(d.mastery)].push(d);
+    const all = DOMAINS.map((d) => {
+      const stat = state?.domainStats[d.id];
+      return {
+        ...d,
+        mastery: stat?.mastery ?? 0,
+        initialized: stat?.initialized ?? false,
+      };
+    }).sort((a, b) => a.mastery - b.mastery);
+    const groups: Record<Tier, typeof all> = { locked: [], weak: [], developing: [], strong: [] };
+    for (const d of all) groups[tierOf(d.mastery, d.initialized)].push(d);
     return groups;
   }, [state]);
 
-  const order: Tier[] = ["weak", "developing", "strong"];
+  const order: Tier[] = ["weak", "developing", "strong", "locked"];
 
   return (
     <FreeShell>
