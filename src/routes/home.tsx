@@ -1,17 +1,20 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Flame, Zap } from "lucide-react";
+import { Flame } from "lucide-react";
 import { FreeShell } from "@/components/FreeShell";
 import { Logo } from "@/components/Logo";
 import { Avatar, defaultAvatar } from "@/components/Avatar";
-import { loadFree, hasCompletedToday, DOMAINS, type FreeState } from "@/lib/freeUser";
+import { PredictedScore } from "@/components/PredictedScore";
+import { MomentumGauge } from "@/components/MomentumGauge";
+import {
+  loadFree,
+  hasCompletedToday,
+  DOMAINS,
+  isCalibrated,
+  sectionScore,
+  type FreeState,
+} from "@/lib/freeUser";
 
-function sectionScore(scores: Record<string, number>, section: "math" | "rw"): number {
-  const ids = DOMAINS.filter((d) => d.section === section).map((d) => d.id);
-  const vals = ids.map((id) => scores[id] ?? 40);
-  const avg = vals.reduce((a, b) => a + b, 0) / vals.length;
-  return Math.round((200 + (avg / 100) * 600) / 10) * 10;
-}
 
 export const Route = createFileRoute("/home")({
   head: () => ({ meta: [{ title: "Home — TestPhi" }] }),
