@@ -86,12 +86,36 @@ export interface SessionResult {
   isBonus?: boolean;
 }
 
+export interface DomainDiff {
+  domainId: string;
+  wasInitialized: boolean;
+  nowInitialized: boolean;
+  justUnlocked: boolean;
+  prevAnswered: number;
+  newAnswered: number;
+  prevMastery: number;
+  newMastery: number;
+  baseGain: number;
+  actualGain: number;
+  bonusUnlockedThisSession: boolean;
+}
+
 export interface LastSession {
   date: string;
   results: SessionResult[];
   prevOverall: number;
   newOverall: number;
   delta: number;
+  domainDiffs: DomainDiff[];
+  momentumBefore: number;
+  momentumAfter: number;
+  momentumIncreased: boolean;
+  streakBefore: number;
+  streakAfter: number;
+  streakIncreased: boolean;
+  wasCalibrated: boolean;
+  nowCalibrated: boolean;
+  calibrationMilestone: boolean;
 }
 
 export interface FreeState {
