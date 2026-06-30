@@ -225,23 +225,40 @@ function scaleToSection(pointsFromBaseline: number, max: number): number {
   return Math.max(200, Math.min(800, scaled));
 }
 
+// Spec: Diagnostic Score
+//   base       = 400 + (correct/15)^1.3 × 1120
+//   time_bonus = Σ (time_factor − 1.0) × 20  [correct answers only]
+//   Diagnostic Score = clamp(round(base + time_bonus, −1), 400, 1560)
 export function scoreFor(state: DiagState): Subscores {
-  let mathPts = 0, rwPts = 0;
+  const total = QUESTIONS.length;
+  let correct = 0;
+  let mathCorrect = 0;
+  let rwCorrect = 0;
+  let timeBonus = 0;
   for (const a of state.answers) {
     const q = QUESTIONS.find(qq => qq.n === a.n);
     if (!q) continue;
-    const p = pointsForAnswer(q, a);
-    if (q.section === "math") mathPts += p; else rwPts += p;
+    if (a.correct) {
+      correct += 1;
+      if (q.section === "math") mathCorrect += 1; else rwCorrect += 1;
+      const tf = timeFactor(true, a.elapsedSeconds, q.expectedSeconds);
+      timeBonus += (tf - 1.0) * 20;
+    }
   }
-  const mathScaled = scaleToSection(mathPts, MAX_MATH_POINTS);
-  const rwScaled = scaleToSection(rwPts, MAX_RW_POINTS);
-  const totalRaw = mathScaled + rwScaled;
-  const total = Math.max(400, Math.min(1600, Math.round(totalRaw / 10) * 10));
+  const base = 400 + Math.pow(correct / total, 1.3) * 1120;
+  const raw = base + timeBonus;
+  const clamped = Math.max(400, Math.min(1560, Math.round(raw / 10) * 10));
+  // Approximate section split from per-section correct ratio so legacy UI still renders.
+  const mathTotal = QUESTIONS.filter(q => q.section === "math").length || 1;
+  const rwTotal = QUESTIONS.filter(q => q.section === "rw").length || 1;
+  const mathRatio = mathCorrect / mathTotal;
+  const rwRatio = rwCorrect / rwTotal;
+  const mathScaled = Math.round((200 + mathRatio * 600) / 10) * 10;
+  const rwScaled = Math.round((200 + rwRatio * 600) / 10) * 10;
   return {
-    math: mathPts, rw: rwPts, total,
-    mathScaled: Math.round(mathScaled / 10) * 10,
-    rwScaled: Math.round(rwScaled / 10) * 10,
-    percentile: percentileLabel(total),
+    math: mathCorrect, rw: rwCorrect, total: clamped,
+    mathScaled, rwScaled,
+    percentile: percentileLabel(clamped),
   };
 }
 
