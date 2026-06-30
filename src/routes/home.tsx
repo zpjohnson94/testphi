@@ -93,32 +93,27 @@ function HomePage() {
                 >
                   {`Hey ${name}!\nYour predicted SAT score`}
                 </div>
-                <div className="mt-2 sm:mt-3 flex items-end gap-1.5">
-                  <div
-                    className="score-num text-[56px] sm:text-[96px] leading-none"
-                    style={{ color: "var(--volt)" }}
-                  >
-                    {animatedScore}
-                  </div>
-                  <div
-                    className="score-num text-lg sm:text-2xl mb-1.5 sm:mb-2"
-                    style={{ color: "rgba(184,255,0,0.6)" }}
-                  >
-                    /1600
-                  </div>
+                <div className="mt-2 sm:mt-3">
+                  <PredictedScore
+                    score={state?.overall ?? 800}
+                    calibrated={calibrated}
+                    animateFrom={800}
+                  />
                 </div>
-                <div
-                  className="mt-2 sm:mt-3 inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-extrabold"
-                  style={{
-                    background: monthDelta >= 0 ? "rgba(184,255,0,0.15)" : "rgba(255,77,109,0.15)",
-                    color: monthDelta >= 0 ? "var(--volt)" : "var(--destructive)",
-                    border: `1px solid ${monthDelta >= 0 ? "var(--volt)" : "var(--destructive)"}`,
-                  }}
-                >
-                  <Zap className="size-3.5" />
-                  {monthDelta >= 0 ? "+" : ""}
-                  {monthDelta} pts this month
-                </div>
+                {monthDelta !== 0 && (
+                  <div
+                    className="mt-2 sm:mt-3 inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-extrabold"
+                    style={{
+                      background: monthDelta >= 0 ? "rgba(184,255,0,0.15)" : "rgba(255,77,109,0.15)",
+                      color: monthDelta >= 0 ? "var(--volt)" : "var(--destructive)",
+                      border: `1px solid ${monthDelta >= 0 ? "var(--volt)" : "var(--destructive)"}`,
+                    }}
+                  >
+                    {monthDelta >= 0 ? "+" : ""}
+                    {monthDelta} pts last session
+                  </div>
+                )}
+
               </div>
               <div
                 className="shrink-0 size-16 sm:size-20 rounded-2xl flex items-center justify-center"
