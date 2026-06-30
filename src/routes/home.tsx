@@ -1,17 +1,20 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Flame, Zap } from "lucide-react";
+import { Flame } from "lucide-react";
 import { FreeShell } from "@/components/FreeShell";
 import { Logo } from "@/components/Logo";
 import { Avatar, defaultAvatar } from "@/components/Avatar";
-import { loadFree, hasCompletedToday, DOMAINS, type FreeState } from "@/lib/freeUser";
+import { PredictedScore } from "@/components/PredictedScore";
+import { MomentumGauge } from "@/components/MomentumGauge";
+import {
+  loadFree,
+  hasCompletedToday,
+  DOMAINS,
+  isCalibrated,
+  sectionScore,
+  type FreeState,
+} from "@/lib/freeUser";
 
-function sectionScore(scores: Record<string, number>, section: "math" | "rw"): number {
-  const ids = DOMAINS.filter((d) => d.section === section).map((d) => d.id);
-  const vals = ids.map((id) => scores[id] ?? 40);
-  const avg = vals.reduce((a, b) => a + b, 0) / vals.length;
-  return Math.round((200 + (avg / 100) * 600) / 10) * 10;
-}
 
 export const Route = createFileRoute("/home")({
   head: () => ({ meta: [{ title: "Home — TestPhi" }] }),
@@ -51,11 +54,12 @@ function HomePage() {
   }, [state?.overall]);
 
   const answeredCount = done ? 5 : 0;
-  const scores = state?.domainScores ?? Object.fromEntries(DOMAINS.map((d) => [d.id, 40]));
-  const mathScore = sectionScore(scores, "math");
-  const rwScore = sectionScore(scores, "rw");
+  const mathScore = state ? sectionScore(state, "math") : 400;
+  const rwScore = state ? sectionScore(state, "rw") : 400;
   const monthDelta = lastSession?.delta ?? 0;
   const name = (state?.name || "champ").split(" ")[0];
+  const calibrated = state ? isCalibrated(state) : false;
+
 
   return (
     <FreeShell>
@@ -89,32 +93,27 @@ function HomePage() {
                 >
                   {`Hey ${name}!\nYour predicted SAT score`}
                 </div>
-                <div className="mt-2 sm:mt-3 flex items-end gap-1.5">
-                  <div
-                    className="score-num text-[56px] sm:text-[96px] leading-none"
-                    style={{ color: "var(--volt)" }}
-                  >
-                    {animatedScore}
-                  </div>
-                  <div
-                    className="score-num text-lg sm:text-2xl mb-1.5 sm:mb-2"
-                    style={{ color: "rgba(184,255,0,0.6)" }}
-                  >
-                    /1600
-                  </div>
+                <div className="mt-2 sm:mt-3">
+                  <PredictedScore
+                    score={state?.overall ?? 800}
+                    calibrated={calibrated}
+                    animateFrom={800}
+                  />
                 </div>
-                <div
-                  className="mt-2 sm:mt-3 inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-extrabold"
-                  style={{
-                    background: monthDelta >= 0 ? "rgba(184,255,0,0.15)" : "rgba(255,77,109,0.15)",
-                    color: monthDelta >= 0 ? "var(--volt)" : "var(--destructive)",
-                    border: `1px solid ${monthDelta >= 0 ? "var(--volt)" : "var(--destructive)"}`,
-                  }}
-                >
-                  <Zap className="size-3.5" />
-                  {monthDelta >= 0 ? "+" : ""}
-                  {monthDelta} pts this month
-                </div>
+                {monthDelta !== 0 && (
+                  <div
+                    className="mt-2 sm:mt-3 inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-extrabold"
+                    style={{
+                      background: monthDelta >= 0 ? "rgba(184,255,0,0.15)" : "rgba(255,77,109,0.15)",
+                      color: monthDelta >= 0 ? "var(--volt)" : "var(--destructive)",
+                      border: `1px solid ${monthDelta >= 0 ? "var(--volt)" : "var(--destructive)"}`,
+                    }}
+                  >
+                    {monthDelta >= 0 ? "+" : ""}
+                    {monthDelta} pts last session
+                  </div>
+                )}
+
               </div>
               <div
                 className="shrink-0 size-16 sm:size-20 rounded-2xl flex items-center justify-center"
@@ -225,19 +224,37 @@ function HomePage() {
             )}
           </section>
 
-          {/* Streak counter */}
-          <div className="flex justify-center">
+          {/* Momentum + Streak row */}
+          <div className="grid gap-4 sm:grid-cols-[auto,1fr] items-center justify-items-center">
             <div
-              className="flex items-center gap-2 rounded-full px-4 py-2"
-              style={{ background: "rgba(255,230,0,0.12)", border: "1px solid rgba(255,230,0,0.35)" }}
+              className="rounded-3xl p-4 flex flex-col items-center"
+              style={{
+                background: "rgba(0,0,0,0.35)",
+                border: "1px solid rgba(246,240,250,0.1)",
+              }}
             >
-              <Flame className="size-4" style={{ color: "var(--spark)" }} />
-              <span className="display text-base tabular-nums text-[var(--lavender)]">{streak}</span>
-              <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: "rgba(246,240,250,0.7)" }}>
-                day streak
-              </span>
+              <div
+                className="text-[10px] font-bold uppercase tracking-[0.18em] mb-1"
+                style={{ color: "rgba(246,240,250,0.65)" }}
+              >
+                Momentum
+              </div>
+              <MomentumGauge needle={state?.momentumNeedle ?? 0} size={180} />
+            </div>
+            <div className="flex flex-col items-center gap-2">
+              <div
+                className="flex items-center gap-2 rounded-full px-4 py-2"
+                style={{ background: "rgba(255,230,0,0.12)", border: "1px solid rgba(255,230,0,0.35)" }}
+              >
+                <Flame className="size-4" style={{ color: "var(--spark)" }} />
+                <span className="display text-base tabular-nums text-[var(--lavender)]">{streak}</span>
+                <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: "rgba(246,240,250,0.7)" }}>
+                  day streak
+                </span>
+              </div>
             </div>
           </div>
+
         </main>
       </div>
     </FreeShell>

@@ -1,0 +1,85 @@
+import { useEffect, useState } from "react";
+import { Info } from "lucide-react";
+
+interface PredictedScoreProps {
+  score: number;
+  calibrated: boolean;
+  animateFrom?: number;
+  sizeClass?: string; // tailwind size class for the digits
+}
+
+export function PredictedScore({
+  score,
+  calibrated,
+  animateFrom = 800,
+  sizeClass = "text-[56px] sm:text-[96px]",
+}: PredictedScoreProps) {
+  const [shown, setShown] = useState(animateFrom);
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    const start = shown;
+    const end = score;
+    const dur = 1500;
+    const t0 = performance.now();
+    let raf = 0;
+    const tick = (now: number) => {
+      const k = Math.min(1, (now - t0) / dur);
+      const eased = 1 - Math.pow(1 - k, 3);
+      setShown(Math.round(start + (end - start) * eased));
+      if (k < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [score]);
+
+  const color = calibrated ? "var(--volt)" : "rgba(184,255,0,0.55)";
+  const subColor = calibrated ? "rgba(184,255,0,0.6)" : "rgba(184,255,0,0.3)";
+
+  return (
+    <div className="relative">
+      <div className="flex items-end gap-1.5">
+        <div
+          className={`score-num ${sizeClass} leading-none`}
+          style={{ color, textShadow: calibrated ? "0 0 24px rgba(184,255,0,0.35)" : undefined }}
+        >
+          {shown}
+        </div>
+        <div className="score-num text-lg sm:text-2xl mb-1.5 sm:mb-2" style={{ color: subColor }}>
+          /1600
+        </div>
+      </div>
+      {!calibrated && (
+        <button
+          type="button"
+          onClick={() => setOpen((v) => !v)}
+          onMouseEnter={() => setOpen(true)}
+          onMouseLeave={() => setOpen(false)}
+          className="mt-1.5 inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider"
+          style={{
+            background: "rgba(246,240,250,0.08)",
+            color: "rgba(246,240,250,0.75)",
+            border: "1px solid rgba(246,240,250,0.18)",
+          }}
+        >
+          <Info className="size-3" />
+          Low confidence
+        </button>
+      )}
+      {open && !calibrated && (
+        <div
+          className="absolute z-40 left-0 top-full mt-2 w-64 sm:w-72 rounded-xl p-3 text-xs leading-relaxed"
+          style={{
+            background: "rgba(20,12,40,0.97)",
+            border: "1px solid rgba(168,85,247,0.5)",
+            color: "rgba(246,240,250,0.92)",
+            boxShadow: "0 8px 24px rgba(0,0,0,0.5)",
+          }}
+        >
+          This score is based only on your diagnostic. Unlock your mastery score in all 8 domains and we'll have enough data to give you a higher-confidence prediction.
+        </div>
+      )}
+    </div>
+  );
+}

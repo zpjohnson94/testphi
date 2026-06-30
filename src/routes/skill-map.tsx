@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
+import { Sparkles } from "lucide-react";
 import { FreeShell } from "@/components/FreeShell";
 import { Logo } from "@/components/Logo";
 import {
@@ -8,10 +9,12 @@ import {
   tierColor,
   tierLabel,
   tierOf,
+  SCORING,
   type FreeState,
   type Tier,
 } from "@/lib/freeUser";
 import { PowerUpModal } from "@/components/PowerUpModal";
+
 
 export const Route = createFileRoute("/skill-map")({
   head: () => ({ meta: [{ title: "Skill Map — TestPhi" }] }),
@@ -50,14 +53,21 @@ function SkillMap() {
         ...d,
         mastery: stat?.mastery ?? 0,
         initialized: stat?.initialized ?? false,
+        answered: stat?.answered ?? 0,
+        bonusStep: stat?.bonusStep ?? 0,
+        bonusReady: !!stat && !stat.initialized && stat.answered >= SCORING.THRESHOLD_QUESTIONS,
       };
-    }).sort((a, b) => a.mastery - b.mastery);
+    }).sort((a, b) => {
+      if (a.initialized !== b.initialized) return a.initialized ? -1 : 1;
+      return a.mastery - b.mastery;
+    });
     const groups: Record<Tier, typeof all> = { locked: [], weak: [], developing: [], strong: [] };
     for (const d of all) groups[tierOf(d.mastery, d.initialized)].push(d);
     return groups;
   }, [state]);
 
   const order: Tier[] = ["weak", "developing", "strong", "locked"];
+
 
   return (
     <FreeShell>
@@ -133,28 +143,49 @@ function SkillMap() {
                             className="score-num text-lg tabular-nums shrink-0"
                             style={{ color }}
                           >
-                            {d.initialized ? `${Math.round(d.mastery)}%` : "—"}
+                            {d.initialized ? `${Math.round(d.mastery)}%` : ""}
                           </div>
                         </div>
 
-                        <div
-                          className="mt-4 h-2 rounded-full overflow-hidden"
-                          style={{ background: "rgba(0,0,0,0.3)" }}
-                        >
+                        {d.initialized ? (
                           <div
-                            className="h-full transition-all duration-700"
-                            style={{
-                              width: d.initialized ? `${d.mastery}%` : "0%",
-                              background: color,
-                            }}
-                          />
-                        </div>
-                        {!d.initialized && (
-                          <div
-                            className="mt-2 text-[11px] font-bold uppercase tracking-wider"
-                            style={{ color: "rgba(246,240,250,0.55)" }}
+                            className="mt-4 h-2 rounded-full overflow-hidden"
+                            style={{ background: "rgba(0,0,0,0.3)" }}
                           >
-                            Calibrating — practice to unlock
+                            <div
+                              className="h-full transition-all duration-700"
+                              style={{ width: `${d.mastery}%`, background: color }}
+                            />
+                          </div>
+                        ) : (
+                          <div className="mt-4">
+                            <div className="flex gap-1.5">
+                              {Array.from({ length: SCORING.THRESHOLD_QUESTIONS }).map((_, i) => {
+                                const filled = i < d.answered;
+                                return (
+                                  <div
+                                    key={i}
+                                    className="flex-1 h-2 rounded-full"
+                                    style={{
+                                      background: filled ? "var(--volt)" : "rgba(246,240,250,0.12)",
+                                    }}
+                                  />
+                                );
+                              })}
+                            </div>
+                            <div
+                              className="mt-2 text-[11px] font-bold uppercase tracking-wider flex items-center gap-1.5"
+                              style={{ color: d.bonusReady ? "var(--spark)" : "rgba(246,240,250,0.55)" }}
+                            >
+                              {d.bonusReady ? (
+                                <>
+                                  <Sparkles className="size-3.5" />
+                                  Bonus round ready · {d.bonusStep}/3
+                                </>
+                              ) : (
+                                <>{d.answered} / {SCORING.THRESHOLD_QUESTIONS} questions</>
+                              )}
+                            </div>
                           </div>
                         )}
 
@@ -168,6 +199,7 @@ function SkillMap() {
                     );
                   })}
                 </div>
+
               </section>
             );
           })}

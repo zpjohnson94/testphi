@@ -86,12 +86,36 @@ export interface SessionResult {
   isBonus?: boolean;
 }
 
+export interface DomainDiff {
+  domainId: string;
+  wasInitialized: boolean;
+  nowInitialized: boolean;
+  justUnlocked: boolean;
+  prevAnswered: number;
+  newAnswered: number;
+  prevMastery: number;
+  newMastery: number;
+  baseGain: number;
+  actualGain: number;
+  bonusUnlockedThisSession: boolean;
+}
+
 export interface LastSession {
   date: string;
   results: SessionResult[];
   prevOverall: number;
   newOverall: number;
   delta: number;
+  domainDiffs: DomainDiff[];
+  momentumBefore: number;
+  momentumAfter: number;
+  momentumIncreased: boolean;
+  streakBefore: number;
+  streakAfter: number;
+  streakIncreased: boolean;
+  wasCalibrated: boolean;
+  nowCalibrated: boolean;
+  calibrationMilestone: boolean;
 }
 
 export interface FreeState {
@@ -457,38 +481,38 @@ function deltaFor(
   return -SCORING.BASE_LOSS[difficulty] * tf;
 }
 
-// Apply a single answered question to the state.
-function applyOneResult(state: FreeState, r: SessionResult): FreeState {
+// Apply a single answered question to the state. Returns base + actual gain
+// contribution for the diff (post-init only; pre-init returns 0).
+function applyOneResult(
+  state: FreeState,
+  r: SessionResult,
+): { base: number; actual: number } {
   const stat = state.domainStats[r.domainId];
-  if (!stat) return state;
+  if (!stat) return { base: 0, actual: 0 };
   const tf = timeFactor(r.correct, r.elapsedSeconds, expectedSecondsForDifficulty(r.difficulty));
 
-  // Always update the answered counter and last-touched date for decay.
   stat.answered += 1;
   stat.lastAnsweredISO = todayISO();
 
   if (!stat.initialized) {
-    // Pre-init: contribute to batch. Bonus-round questions get the spec's fixed
-    // difficulties; practice fillers use whatever the question is tagged with.
     stat.batch.push({ difficulty: r.difficulty, correct: r.correct, timeFactor: tf });
     if (r.isBonus) stat.bonusStep = Math.min(3, stat.bonusStep + 1) as 0 | 1 | 2 | 3;
-    // Trigger initialization once the bonus round completes (or, for users
-    // who somehow over-fill the batch, when we have 8 entries).
     if (stat.bonusStep >= 3 || stat.batch.length >= 8) {
       stat.mastery = initializeMastery(stat.batch);
       stat.initialized = true;
     }
-    return state;
+    return { base: 0, actual: 0 };
   }
 
-  // Post-init: delta math.
   const momentum = momentumMultiplier(state);
-  const delta = deltaFor(stat.mastery, r.difficulty, r.correct, tf, momentum);
+  const base = deltaFor(stat.mastery, r.difficulty, r.correct, tf, 1);
+  const actual = deltaFor(stat.mastery, r.difficulty, r.correct, tf, momentum);
+  const prev = stat.mastery;
   stat.mastery = Math.max(
     SCORING.MASTERY_FLOOR,
-    Math.min(SCORING.MASTERY_CEIL, stat.mastery + delta),
+    Math.min(SCORING.MASTERY_CEIL, stat.mastery + actual),
   );
-  return state;
+  return { base, actual: stat.mastery - prev };
 }
 
 function expectedSecondsForDifficulty(d: Difficulty): number {
@@ -497,27 +521,51 @@ function expectedSecondsForDifficulty(d: Difficulty): number {
   return 60;
 }
 
+
 function yesterdayISO() {
   return isoMinusDays(todayISO(), 1);
 }
 
-// Apply a completed Daily 5 session. Updates mastery, momentum, streak, and
-// snapshots, and stores a LastSession diff for the post-session screen.
+// Apply a completed session. Updates mastery, momentum, streak, snapshots,
+// and stores a rich LastSession diff for the post-session screen.
 export function applySession(prev: FreeState, results: SessionResult[]): FreeState {
   const next: FreeState = JSON.parse(JSON.stringify(prev));
   const prevOverall = prev.overall;
+  const wasCalibrated = isCalibrated(prev);
 
-  for (const r of results) applyOneResult(next, r);
+  // Snapshot per-domain pre-state for diffing.
+  const pre: Record<string, { answered: number; mastery: number; initialized: boolean; bonusStep: number }> = {};
+  for (const d of DOMAINS) {
+    const s = prev.domainStats[d.id];
+    pre[d.id] = {
+      answered: s?.answered ?? 0,
+      mastery: s?.mastery ?? 0,
+      initialized: s?.initialized ?? false,
+      bonusStep: s?.bonusStep ?? 0,
+    };
+  }
+
+  const baseByDomain: Record<string, number> = {};
+  const actualByDomain: Record<string, number> = {};
+  for (const r of results) {
+    const { base, actual } = applyOneResult(next, r);
+    baseByDomain[r.domainId] = (baseByDomain[r.domainId] ?? 0) + base;
+    actualByDomain[r.domainId] = (actualByDomain[r.domainId] ?? 0) + actual;
+  }
 
   // Streak
   const td = todayISO();
+  const streakBefore = next.streak;
   let streak = next.streak;
-  if (next.lastDailyDate === yesterdayISO()) streak += 1;
-  else if (next.lastDailyDate !== td) streak = 1;
+  if (results.length >= SCORING.QUALIFYING_QUESTIONS && next.lastDailyDate !== td) {
+    if (next.lastDailyDate === yesterdayISO()) streak += 1;
+    else streak = 1;
+  }
   next.streak = streak;
-  next.lastDailyDate = td;
+  if (results.length >= SCORING.QUALIFYING_QUESTIONS) next.lastDailyDate = td;
 
-  // Momentum: qualifying session (≥5 non-diagnostic questions today).
+  // Momentum
+  const momentumBefore = prev.momentumNeedle;
   if (results.length >= SCORING.QUALIFYING_QUESTIONS) {
     if (!next.qualifyingDays.includes(td)) {
       next.qualifyingDays = [...next.qualifyingDays, td].slice(-30);
@@ -527,15 +575,65 @@ export function applySession(prev: FreeState, results: SessionResult[]): FreeSta
   }
 
   syncSnapshots(next);
+
+  const nowCalibrated = isCalibrated(next);
+  const domainDiffs: DomainDiff[] = DOMAINS.map((d) => {
+    const p = pre[d.id];
+    const s = next.domainStats[d.id];
+    const justUnlocked = !p.initialized && s.initialized;
+    const bonusUnlocked = !p.initialized && s.answered >= SCORING.THRESHOLD_QUESTIONS && p.answered < SCORING.THRESHOLD_QUESTIONS;
+    return {
+      domainId: d.id,
+      wasInitialized: p.initialized,
+      nowInitialized: s.initialized,
+      justUnlocked,
+      prevAnswered: p.answered,
+      newAnswered: s.answered,
+      prevMastery: p.mastery,
+      newMastery: s.mastery,
+      baseGain: baseByDomain[d.id] ?? 0,
+      actualGain: actualByDomain[d.id] ?? 0,
+      bonusUnlockedThisSession: bonusUnlocked,
+    };
+  }).filter((d) => d.newAnswered > d.prevAnswered);
+
   next.lastSession = {
     date: td,
     results,
     prevOverall,
     newOverall: next.overall,
     delta: next.overall - prevOverall,
+    domainDiffs,
+    momentumBefore,
+    momentumAfter: next.momentumNeedle,
+    momentumIncreased: next.momentumNeedle > momentumBefore,
+    streakBefore,
+    streakAfter: next.streak,
+    streakIncreased: next.streak > streakBefore,
+    wasCalibrated,
+    nowCalibrated,
+    calibrationMilestone: !wasCalibrated && nowCalibrated,
   };
   return next;
 }
+
+export function isCalibrated(s: FreeState): boolean {
+  return DOMAINS.every((d) => s.domainStats[d.id]?.initialized);
+}
+
+export function momentumNeedleOf(s: FreeState): number {
+  return s.momentumNeedle;
+}
+
+export function momentumMultiplierOf(s: FreeState): number {
+  return momentumMultiplier(s);
+}
+
+export function bonusStepOf(s: FreeState, domainId: string): number {
+  return s.domainStats[domainId]?.bonusStep ?? 0;
+}
+
+
 
 // ---------- Mastery → category (for Skill Map) ----------
 

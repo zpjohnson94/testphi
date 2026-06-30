@@ -1,19 +1,24 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { Flame, Lock } from "lucide-react";
+import { Flame, X, Sparkles } from "lucide-react";
 import {
   applySession,
   loadFree,
   saveFree,
-  pickHeadline,
   domainById,
+  DOMAINS,
+  SCORING,
+  isCalibrated,
   type SessionResult,
   type FreeState,
+  type LastSession,
 } from "@/lib/freeUser";
-import { PowerUpModal } from "@/components/PowerUpModal";
+import { PredictedScore } from "@/components/PredictedScore";
+import { MomentumGauge } from "@/components/MomentumGauge";
+import { FreeShell } from "@/components/FreeShell";
 
 export const Route = createFileRoute("/daily/complete")({
-  head: () => ({ meta: [{ title: "Daily 5 complete — TestPhi" }] }),
+  head: () => ({ meta: [{ title: "Session complete — TestPhi" }] }),
   component: DailyComplete,
 });
 
@@ -36,239 +41,427 @@ function clearSession() {
   } catch {}
 }
 
+const NO_MISS_LINES = [
+  "Zero incorrect answers. Smart cookie.",
+  "Perfect session. Your SAT doesn't know what's coming.",
+  "Nothing missed. Keep that up.",
+];
+
 function DailyComplete() {
   const navigate = useNavigate();
-  const [computed, setComputed] = useState<{
-    state: FreeState;
-    results: SessionResult[];
-    prevOverall: number;
-    newOverall: number;
-    delta: number;
-  } | null>(null);
-  const [animatedScore, setAnimatedScore] = useState(0);
-  const [showModal, setShowModal] = useState(false);
+  const [next, setNext] = useState<FreeState | null>(null);
+  const [prev, setPrev] = useState<FreeState | null>(null);
 
-  // Apply the session ONCE on mount.
   useEffect(() => {
     const results = loadSessionResults();
     if (results.length === 0) {
       navigate({ to: "/home" as any, replace: true });
       return;
     }
-    const prev = loadFree();
-    const next = applySession(prev, results);
-    saveFree(next);
+    const before = loadFree();
+    const after = applySession(before, results);
+    saveFree(after);
     clearSession();
-    setComputed({
-      state: next,
-      results,
-      prevOverall: prev.overall,
-      newOverall: next.overall,
-      delta: next.overall - prev.overall,
-    });
-    setAnimatedScore(prev.overall);
+    setPrev(before);
+    setNext(after);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  useEffect(() => {
-    if (!computed) return;
-    const { prevOverall, newOverall } = computed;
-    const duration = 1800;
-    const t0 = performance.now();
-    let raf = 0;
-    const tick = (now: number) => {
-      const t = Math.min(1, (now - t0) / duration);
-      const eased = 1 - Math.pow(1 - t, 3);
-      setAnimatedScore(Math.round(prevOverall + (newOverall - prevOverall) * eased));
-      if (t < 1) raf = requestAnimationFrame(tick);
-    };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, [computed]);
-
-  const headline = useMemo(() => {
-    if (!computed) return "";
-    return pickHeadline(computed.delta >= 0, computed.state.name);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [computed?.delta, computed?.state.name]);
-
-  if (!computed) {
+  if (!next || !prev || !next.lastSession) {
     return <div className="topo-bg min-h-screen" />;
   }
-
-  const { state, results, delta } = computed;
-
-  const missedDomains = Array.from(
-    new Set(results.filter((r) => !r.correct).map((r) => r.domainId)),
-  );
-
-  const positive = delta > 0;
-  const neutral = delta === 0;
-  const deltaColor = positive
-    ? "var(--volt)"
-    : neutral
-      ? "rgba(246,240,250,0.65)"
-      : "var(--destructive)";
-  const deltaText = neutral
-    ? "No change"
-    : `${positive ? "+" : ""}${delta} points`;
+  const session = next.lastSession;
 
   return (
-    <div className="topo-bg min-h-screen pb-12">
-      <main className="mx-auto max-w-2xl px-5 pt-10 space-y-7 animate-fade-up">
-        {/* Headline */}
-        <div className="text-center">
-          <div
-            className="text-[11px] font-bold uppercase tracking-[0.18em]"
-            style={{ color: positive ? "var(--volt)" : neutral ? "rgba(246,240,250,0.6)" : "var(--destructive)" }}
-          >
-            Daily 5 complete
-          </div>
-          <h1 className="mt-2 display text-3xl sm:text-4xl text-[var(--lavender)]">{headline}</h1>
-        </div>
+    <FreeShell>
+      <CompleteContent prev={prev} next={next} session={session} onExit={() => navigate({ to: "/home" as any })} />
+    </FreeShell>
+  );
+}
 
-        {/* New score */}
-        <section
-          className="rounded-3xl p-6 text-center"
-          style={{
-            background: "var(--violet-deep)",
-            border: "1.5px solid rgba(168,85,247,0.4)",
-          }}
-        >
-          <div
-            className="text-[11px] font-bold uppercase tracking-[0.18em]"
-            style={{ color: "var(--volt)" }}
-          >
-            New Predicted Score
-          </div>
-          <div className="mt-3 flex items-end justify-center gap-2">
+interface ContentProps {
+  prev: FreeState;
+  next: FreeState;
+  session: LastSession;
+  onExit: () => void;
+}
+
+// Sequenced reveal indices
+const SEQ = {
+  SCORE: 0,
+  DOMAINS_START: 1, // each domain occupies one slot
+};
+
+function CompleteContent({ prev, next, session, onExit }: ContentProps) {
+  const calibrated = isCalibrated(next);
+  const wasCalibrated = session.wasCalibrated;
+  const calibrationMoment = session.calibrationMilestone;
+
+  const diffs = session.domainDiffs;
+  // Reveal each section in turn. We use a simple time-based step.
+  const totalSteps = 1 /* score */ + diffs.length + 3 /* missed, momentum?, streak?, finish */;
+  const [step, setStep] = useState(0);
+  useEffect(() => {
+    if (step >= totalSteps) return;
+    const delay = step === 0 ? 200 : 650;
+    const t = setTimeout(() => setStep((s) => s + 1), delay);
+    return () => clearTimeout(t);
+  }, [step, totalSteps]);
+
+  const missed = session.results.filter((r) => !r.correct);
+  const missedCount = missed.length;
+  const showMissed = step >= 1 + diffs.length;
+  const showMomentum = session.momentumIncreased && step >= 2 + diffs.length;
+  const showStreak = session.streakIncreased && step >= 2 + diffs.length + (session.momentumIncreased ? 1 : 0);
+  const showFinish = step >= totalSteps;
+
+  const noMissLine = useMemo(
+    () => NO_MISS_LINES[Math.floor(Math.random() * NO_MISS_LINES.length)],
+    [],
+  );
+
+  return (
+    <div className="topo-bg min-h-screen pb-28 relative">
+      {/* X button */}
+      <button
+        onClick={onExit}
+        className="fixed top-4 right-4 z-40 size-10 rounded-full flex items-center justify-center"
+        style={{ background: "rgba(0,0,0,0.5)", border: "1px solid rgba(246,240,250,0.18)", color: "var(--lavender)" }}
+        aria-label="Close session summary"
+      >
+        <X className="size-5" />
+      </button>
+
+      <main className="mx-auto max-w-2xl px-5 pt-10 space-y-7">
+        {/* 1. Predicted Score */}
+        <SectionFade show={step >= 0}>
+          {calibrationMoment ? (
+            <CalibrationMilestone prevScore={prev.overall} newScore={next.overall} />
+          ) : (
             <div
-              className="score-num text-[80px] sm:text-[100px] leading-none"
-              style={{ color: "var(--volt)" }}
+              className="rounded-3xl p-6 text-center"
+              style={{ background: "var(--violet-deep)", border: "1.5px solid rgba(168,85,247,0.4)" }}
             >
-              {animatedScore}
-            </div>
-            <div className="score-num text-2xl mb-3" style={{ color: "rgba(184,255,0,0.6)" }}>
-              /1600
-            </div>
-          </div>
-          <div
-            className="mt-3 inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-extrabold"
-            style={{
-              background: `color-mix(in oklab, ${deltaColor} 15%, transparent)`,
-              color: deltaColor,
-              border: `1px solid ${deltaColor}`,
-            }}
-          >
-            {deltaText}
-          </div>
-        </section>
-
-        {/* Result circles + streak */}
-        <section
-          className="rounded-3xl p-5"
-          style={{
-            background: "rgba(246,240,250,0.04)",
-            border: "1px solid rgba(246,240,250,0.1)",
-          }}
-        >
-          <div className="flex items-center gap-3 justify-center">
-            {results
-              .sort((a, b) => a.n - b.n)
-              .map((r, i) => (
+              <div className="text-[11px] font-bold uppercase tracking-[0.18em]" style={{ color: "var(--volt)" }}>
+                {wasCalibrated ? "Predicted SAT score" : "Predicted SAT score · low confidence"}
+              </div>
+              <div className="mt-3 flex justify-center">
+                <PredictedScore
+                  score={next.overall}
+                  calibrated={calibrated}
+                  animateFrom={prev.overall}
+                  sizeClass="text-[72px] sm:text-[96px]"
+                />
+              </div>
+              {session.delta !== 0 && (
                 <div
-                  key={i}
-                  className="size-10 rounded-full flex items-center justify-center"
+                  className="mt-3 inline-flex items-center rounded-full px-3 py-1.5 text-sm font-extrabold"
                   style={{
-                    background: r.correct ? "var(--volt)" : "var(--destructive)",
-                    color: r.correct ? "var(--ink)" : "#fff",
+                    background: session.delta > 0 ? "rgba(184,255,0,0.15)" : "rgba(255,77,109,0.15)",
+                    color: session.delta > 0 ? "var(--volt)" : "var(--destructive)",
+                    border: `1px solid ${session.delta > 0 ? "var(--volt)" : "var(--destructive)"}`,
                   }}
                 >
-                  <span className="font-extrabold text-sm">{r.correct ? "✓" : "✕"}</span>
+                  {session.delta > 0 ? "+" : ""}
+                  {session.delta} points
                 </div>
-              ))}
-          </div>
-          <div className="mt-4 flex items-center justify-center gap-2">
-            <Flame className="size-5" style={{ color: "var(--spark)" }} />
-            <span className="display text-base text-[var(--lavender)]">
-              {state.streak} day streak
-            </span>
-          </div>
+              )}
+            </div>
+          )}
+        </SectionFade>
+
+        {/* 2. Domain Progress */}
+        <section className="space-y-3">
+          {diffs.map((diff, i) => (
+            <SectionFade key={diff.domainId} show={step >= 1 + i}>
+              <DomainRow diff={diff} momentumActive={next.lastSession!.momentumAfter > 0 && diff.actualGain > diff.baseGain} />
+            </SectionFade>
+          ))}
         </section>
 
-        {/* Missed domains — each with drill button */}
-        {missedDomains.length > 0 && (
-          <section>
+        {/* 3. Missed Questions */}
+        <SectionFade show={showMissed}>
+          {missedCount > 0 ? (
             <div
-              className="text-[11px] font-bold uppercase tracking-[0.18em] px-1"
-              style={{ color: "rgba(246,240,250,0.7)" }}
+              className="rounded-2xl p-4 flex items-center justify-between gap-3"
+              style={{ background: "rgba(255,77,109,0.08)", border: "1px solid rgba(255,77,109,0.35)" }}
             >
-              Domains to review
+              <div className="text-sm font-bold text-[var(--lavender)]">
+                {missedCount} question{missedCount === 1 ? "" : "s"} incorrect
+              </div>
+              <button
+                className="rounded-xl px-4 py-2 text-sm font-bold"
+                style={{ background: "rgba(74,6,136,0.5)", color: "var(--lavender)", border: "1px solid rgba(168,85,247,0.5)" }}
+                onClick={() => {/* review flow placeholder */}}
+              >
+                Review →
+              </button>
             </div>
-            <div className="mt-3 space-y-2">
-              {missedDomains.map((id) => {
-                const d = domainById(id);
-                if (!d) return null;
-                const parts = d.label.split(" · ");
-                const section = parts[0];
-                const name = parts.slice(1).join(" · ");
-                const isMath = section === "Math";
-                return (
-                  <div
-                    key={id}
-                    className="rounded-xl p-4 space-y-3"
-                    style={{
-                      background: "rgba(255,77,109,0.08)",
-                      border: "1px solid rgba(255,77,109,0.35)",
-                    }}
-                  >
-                    <div className="flex items-center gap-2">
-                      <span
-                        className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider"
-                        style={{
-                          background: isMath ? "var(--neon)" : "var(--volt)",
-                          color: isMath ? "var(--lavender)" : "var(--ink)",
-                        }}
-                      >
-                        {section}
-                      </span>
-                      <span className="text-sm font-bold text-[var(--lavender)]">
-                        {name}
-                      </span>
-                    </div>
+          ) : (
+            <div
+              className="rounded-2xl p-4 text-center"
+              style={{ background: "rgba(184,255,0,0.08)", border: "1px solid rgba(184,255,0,0.35)" }}
+            >
+              <div className="text-sm font-bold" style={{ color: "var(--volt)" }}>
+                {noMissLine}
+              </div>
+            </div>
+          )}
+        </SectionFade>
 
-                    <button
-                      onClick={() => setShowModal(true)}
-                      className="w-full rounded-xl py-2.5 text-sm font-bold flex items-center justify-center gap-2 transition-colors"
-                      style={{
-                        background: "rgba(74,6,136,0.4)",
-                        color: "var(--lavender)",
-                        border: "1px solid rgba(168,85,247,0.5)",
-                      }}
-                    >
-                      <Lock className="size-3.5" style={{ color: "var(--spark)" }} />
-                      Drill this domain
-                    </button>
-                  </div>
-                );
-              })}
+        {/* 4. Momentum (conditional) */}
+        {session.momentumIncreased && (
+          <SectionFade show={showMomentum}>
+            <div
+              className="rounded-3xl p-5 flex flex-col items-center"
+              style={{ background: "var(--violet-deep)", border: "1.5px solid rgba(168,85,247,0.4)" }}
+            >
+              <MomentumGauge needle={session.momentumAfter} size={200} />
+              <div className="mt-2 text-sm font-bold" style={{ color: "var(--lavender)" }}>
+                Momentum increased{" "}
+                <span style={{ color: "var(--volt)" }}>
+                  +{((session.momentumAfter - session.momentumBefore) * SCORING.MOMENTUM_STEP).toFixed(2)}
+                </span>{" "}
+                → {(1 + session.momentumAfter * SCORING.MOMENTUM_STEP).toFixed(2)}x
+              </div>
             </div>
-          </section>
+          </SectionFade>
         )}
 
-        <Link
-          to={"/home" as any}
-          className="btn-volt block text-center mt-4 py-3.5 text-base rounded-2xl"
-        >
-          Back to Home
-        </Link>
-      </main>
+        {/* 5. Streak (conditional) */}
+        {session.streakIncreased && (
+          <SectionFade show={showStreak}>
+            <div className="flex items-center justify-center gap-2">
+              <Flame className="size-6" style={{ color: "var(--spark)" }} />
+              <span className="display text-2xl text-[var(--lavender)]">
+                {session.streakAfter}-day streak
+              </span>
+            </div>
+          </SectionFade>
+        )}
 
-      <PowerUpModal
-        open={showModal}
-        onClose={() => setShowModal(false)}
-        title="Power Up to drill your weak domains"
-      />
+        {/* 6. Finish Session */}
+        <SectionFade show={showFinish}>
+          <button onClick={onExit} className="btn-volt w-full py-4 text-base rounded-2xl">
+            Finish Session
+          </button>
+        </SectionFade>
+      </main>
     </div>
   );
 }
+
+function SectionFade({ show, children }: { show: boolean; children: React.ReactNode }) {
+  return (
+    <div
+      style={{
+        opacity: show ? 1 : 0,
+        transform: show ? "translateY(0)" : "translateY(12px)",
+        transition: "opacity 420ms ease, transform 420ms ease",
+        pointerEvents: show ? "auto" : "none",
+      }}
+    >
+      {children}
+    </div>
+  );
+}
+
+function CalibrationMilestone({ prevScore, newScore }: { prevScore: number; newScore: number }) {
+  return (
+    <div
+      className="rounded-3xl p-6 text-center relative overflow-hidden"
+      style={{
+        background: "linear-gradient(140deg, #2a0e54 0%, #1a0b2e 100%)",
+        border: "2px solid var(--volt)",
+        boxShadow: "0 0 60px -10px rgba(184,255,0,0.6)",
+      }}
+    >
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background: "radial-gradient(ellipse at top, rgba(184,255,0,0.3), transparent 60%)",
+          animation: "calibPulse 2.4s ease-in-out infinite",
+        }}
+      />
+      <div className="relative">
+        <div className="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-[0.18em]" style={{ color: "var(--volt)" }}>
+          <Sparkles className="size-4" /> Calibration Milestone <Sparkles className="size-4" />
+        </div>
+        <h2 className="mt-3 display text-3xl text-[var(--lavender)]">Your score is now calibrated</h2>
+        <div className="mt-5 grid grid-cols-2 gap-4">
+          <div>
+            <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: "rgba(246,240,250,0.55)" }}>
+              Diagnostic
+            </div>
+            <div className="score-num text-4xl mt-1" style={{ color: "rgba(246,240,250,0.65)" }}>
+              {prevScore}
+            </div>
+          </div>
+          <div>
+            <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: "var(--volt)" }}>
+              Calibrated
+            </div>
+            <PredictedScore
+              score={newScore}
+              calibrated
+              animateFrom={prevScore}
+              sizeClass="text-[40px] sm:text-[56px]"
+            />
+          </div>
+        </div>
+      </div>
+      <style>{`@keyframes calibPulse { 0%,100% { opacity:0.6 } 50% { opacity:1 } }`}</style>
+    </div>
+  );
+}
+
+function DomainRow({
+  diff,
+  momentumActive,
+}: {
+  diff: ReturnType<() => FreeState["lastSession"]> extends infer T ? any : never;
+  momentumActive: boolean;
+}) {
+  const d = domainById(diff.domainId);
+  if (!d) return null;
+  const parts = d.label.split(" · ");
+  const sectionName = parts[0];
+  const name = parts.slice(1).join(" · ");
+  const isMath = sectionName === "Math";
+
+  const wasInit = diff.wasInitialized;
+  const nowInit = diff.nowInitialized;
+  const justUnlocked = diff.justUnlocked;
+
+  // Animated progress bar fill
+  const [pct, setPct] = useState(wasInit ? diff.prevMastery : 0);
+  const [maskShown, setMaskShown] = useState(0);
+
+  useEffect(() => {
+    if (nowInit) {
+      const start = wasInit ? diff.prevMastery : 0;
+      const end = diff.newMastery;
+      const dur = 1100;
+      const t0 = performance.now();
+      let raf = 0;
+      const tick = (now: number) => {
+        const k = Math.min(1, (now - t0) / dur);
+        const eased = 1 - Math.pow(1 - k, 3);
+        setPct(start + (end - start) * eased);
+        if (k < 1) raf = requestAnimationFrame(tick);
+      };
+      raf = requestAnimationFrame(tick);
+      return () => cancelAnimationFrame(raf);
+    } else {
+      // Animate block fills left to right
+      const newCount = diff.newAnswered;
+      const prevCount = diff.prevAnswered;
+      let i = prevCount;
+      setMaskShown(prevCount);
+      const tick = () => {
+        if (i >= newCount) return;
+        i += 1;
+        setMaskShown(i);
+        setTimeout(tick, 220);
+      };
+      setTimeout(tick, 200);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const deltaSign = diff.newMastery >= diff.prevMastery ? "+" : "";
+  const deltaPct = nowInit && wasInit ? `${deltaSign}${(diff.newMastery - diff.prevMastery).toFixed(1)}%` : "";
+
+  return (
+    <div
+      className="rounded-2xl p-4"
+      style={{
+        background: "#1a1230",
+        border: justUnlocked ? "1.5px solid var(--volt)" : "1px solid rgba(246,240,250,0.1)",
+        boxShadow: justUnlocked ? "0 0 40px -10px rgba(184,255,0,0.55)" : undefined,
+      }}
+    >
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2 min-w-0">
+          <span
+            className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider"
+            style={{
+              background: isMath ? "var(--neon)" : "var(--volt)",
+              color: isMath ? "var(--lavender)" : "var(--ink)",
+            }}
+          >
+            {sectionName}
+          </span>
+          <span className="text-sm font-bold text-[var(--lavender)] truncate">{name}</span>
+        </div>
+        <div className="flex items-baseline gap-2 shrink-0">
+          {nowInit ? (
+            <>
+              <span className="score-num text-base tabular-nums text-[var(--lavender)]">
+                {Math.round(pct)}%
+              </span>
+              {deltaPct && (
+                <span
+                  className="text-xs font-bold tabular-nums"
+                  style={{
+                    color: diff.newMastery >= diff.prevMastery ? "var(--volt)" : "var(--destructive)",
+                  }}
+                >
+                  {deltaPct}
+                </span>
+              )}
+            </>
+          ) : null}
+        </div>
+      </div>
+
+      {nowInit ? (
+        <div className="mt-3 h-2 rounded-full overflow-hidden" style={{ background: "rgba(0,0,0,0.3)" }}>
+          <div className="h-full" style={{ width: `${pct}%`, background: "var(--volt)" }} />
+        </div>
+      ) : (
+        <div className="mt-3 flex gap-1.5">
+          {Array.from({ length: SCORING.THRESHOLD_QUESTIONS }).map((_, i) => {
+            const filled = i < maskShown;
+            return (
+              <div
+                key={i}
+                className="flex-1 h-2.5 rounded-full transition-colors"
+                style={{ background: filled ? "var(--volt)" : "rgba(246,240,250,0.12)" }}
+              />
+            );
+          })}
+        </div>
+      )}
+
+      {justUnlocked && (
+        <div
+          className="mt-2 inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider"
+          style={{ color: "var(--volt)" }}
+        >
+          <Sparkles className="size-3.5" /> Mastery unlocked
+        </div>
+      )}
+
+      {!nowInit && diff.bonusUnlockedThisSession && (
+        <div
+          className="mt-2 inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider"
+          style={{ color: "var(--spark)" }}
+        >
+          <Sparkles className="size-3.5" /> Bonus round unlocked
+        </div>
+      )}
+
+      {momentumActive && nowInit && wasInit && diff.baseGain > 0 && (
+        <div className="mt-2 text-[11px] font-medium" style={{ color: "rgba(246,240,250,0.65)" }}>
+          +{diff.baseGain.toFixed(1)}% ×{" "}
+          {(diff.actualGain / Math.max(0.0001, diff.baseGain)).toFixed(2)}x = +
+          {diff.actualGain.toFixed(1)}%
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Suppress unused import warnings — DOMAINS is referenced indirectly via diff list ordering.
+void DOMAINS;
