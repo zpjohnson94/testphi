@@ -46,7 +46,8 @@ function DailyQuestion() {
   const [selected, setSelected] = useState<number | null>(null);
   const [submitted, setSubmitted] = useState(false);
   const [showModal, setShowModal] = useState(false);
-  const [streak] = useState(() => loadFree().streak);
+  const freeState = useMemo(() => loadFree(), []);
+  const [streak] = useState(() => freeState.streak);
   const startRef = useRef(Date.now());
   const choiceRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const progressRef = useRef<HTMLDivElement | null>(null);
