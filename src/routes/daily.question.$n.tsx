@@ -1,8 +1,14 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Flame, ArrowRight, HelpCircle } from "lucide-react";
-import { pickDailyQuestions, domainIdFor, type SessionResult } from "@/lib/freeUser";
-import { loadFree } from "@/lib/freeUser";
+import {
+  pickDailyQuestions,
+  domainIdFor,
+  isBonusQuestionFor,
+  nextBonusDifficulty,
+  loadFree,
+  type SessionResult,
+} from "@/lib/freeUser";
 import { PowerUpModal } from "@/components/PowerUpModal";
 import { sfx } from "@/lib/sfx";
 
