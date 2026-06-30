@@ -1,8 +1,14 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Flame, ArrowRight, HelpCircle } from "lucide-react";
-import { pickDailyQuestions, domainIdFor, type SessionResult } from "@/lib/freeUser";
-import { loadFree } from "@/lib/freeUser";
+import {
+  pickDailyQuestions,
+  domainIdFor,
+  isBonusQuestionFor,
+  nextBonusDifficulty,
+  loadFree,
+  type SessionResult,
+} from "@/lib/freeUser";
 import { PowerUpModal } from "@/components/PowerUpModal";
 import { sfx } from "@/lib/sfx";
 
@@ -40,7 +46,8 @@ function DailyQuestion() {
   const [selected, setSelected] = useState<number | null>(null);
   const [submitted, setSubmitted] = useState(false);
   const [showModal, setShowModal] = useState(false);
-  const [streak] = useState(() => loadFree().streak);
+  const freeState = useMemo(() => loadFree(), []);
+  const [streak] = useState(() => freeState.streak);
   const startRef = useRef(Date.now());
   const choiceRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const progressRef = useRef<HTMLDivElement | null>(null);
@@ -100,11 +107,17 @@ function DailyQuestion() {
 
     const elapsedSeconds = (Date.now() - startRef.current) / 1000;
     const domainId = domainIdFor(question.domainLabel) ?? "math-algebra";
+    const isBonus = isBonusQuestionFor(freeState, domainId);
+    const difficulty = isBonus
+      ? nextBonusDifficulty(freeState, domainId)
+      : (question.difficulty ?? 2);
     const record: SessionResult = {
       n: question.n,
       domainId,
+      difficulty,
       correct: isCorrect,
       elapsedSeconds,
+      isBonus,
     };
     const all = loadSessionResults().filter((r) => r.n !== question.n);
     all.push(record);

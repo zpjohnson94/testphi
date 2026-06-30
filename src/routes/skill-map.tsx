@@ -44,16 +44,20 @@ function SkillMap() {
   }, []);
 
   const grouped = useMemo(() => {
-    const all = DOMAINS.map((d) => ({
-      ...d,
-      mastery: state?.domainScores[d.id] ?? 40,
-    })).sort((a, b) => a.mastery - b.mastery);
-    const groups: Record<Tier, typeof all> = { weak: [], developing: [], strong: [] };
-    for (const d of all) groups[tierOf(d.mastery)].push(d);
+    const all = DOMAINS.map((d) => {
+      const stat = state?.domainStats[d.id];
+      return {
+        ...d,
+        mastery: stat?.mastery ?? 0,
+        initialized: stat?.initialized ?? false,
+      };
+    }).sort((a, b) => a.mastery - b.mastery);
+    const groups: Record<Tier, typeof all> = { locked: [], weak: [], developing: [], strong: [] };
+    for (const d of all) groups[tierOf(d.mastery, d.initialized)].push(d);
     return groups;
   }, [state]);
 
-  const order: Tier[] = ["weak", "developing", "strong"];
+  const order: Tier[] = ["weak", "developing", "strong", "locked"];
 
   return (
     <FreeShell>
@@ -129,7 +133,7 @@ function SkillMap() {
                             className="score-num text-lg tabular-nums shrink-0"
                             style={{ color }}
                           >
-                            {Math.round(d.mastery)}%
+                            {d.initialized ? `${Math.round(d.mastery)}%` : "—"}
                           </div>
                         </div>
 
@@ -139,9 +143,20 @@ function SkillMap() {
                         >
                           <div
                             className="h-full transition-all duration-700"
-                            style={{ width: `${d.mastery}%`, background: color }}
+                            style={{
+                              width: d.initialized ? `${d.mastery}%` : "0%",
+                              background: color,
+                            }}
                           />
                         </div>
+                        {!d.initialized && (
+                          <div
+                            className="mt-2 text-[11px] font-bold uppercase tracking-wider"
+                            style={{ color: "rgba(246,240,250,0.55)" }}
+                          >
+                            Calibrating — practice to unlock
+                          </div>
+                        )}
 
                         <button
                           onClick={() => setShowModal(true)}

@@ -1,8 +1,43 @@
-// Free-user data layer: per-domain mastery, predicted SAT score,
-// Daily 5 selection, streak tracking, and the scoring update applied
-// after each Daily 5 session.
+// Free-user data layer implementing the TestPhi Scoring Algorithm spec.
+// All numbers are mastery 0..100 (the spec's 0..1 ratio × 100), surfaced
+// throughout the UI as a percent. Predicted score uses the spec's
+// per-domain transform once all 8 domains are calibrated; before that
+// the diagnostic score is shown.
 
-import { QUESTIONS, type DiagQuestion, loadDiag } from "./diagnostic";
+import {
+  QUESTIONS,
+  loadDiag,
+  scoreFor,
+  timeFactor,
+  type DiagQuestion,
+  type Difficulty,
+} from "./diagnostic";
+
+// ---------- Constants from spec ----------
+
+export const SCORING = {
+  THRESHOLD_QUESTIONS: 5,                  // 2 diag + 3 practice
+  BONUS_DIFFICULTIES: [1, 2, 3] as Difficulty[],
+  MASTERY_INIT_FLOOR: 15,                  // %
+  MASTERY_INIT_CEIL: 90,                   // %
+  MASTERY_FLOOR: 0,
+  MASTERY_CEIL: 100,
+  DIFF_WEIGHTS: { 1: 1, 2: 2, 3: 3 } as Record<Difficulty, number>,
+  BASE_GAIN: { 1: 1.5, 2: 2.5, 3: 4.0 } as Record<Difficulty, number>,
+  BASE_LOSS: { 1: 3.0, 2: 2.0, 3: 1.0 } as Record<Difficulty, number>,
+  // null = no cap / no floor
+  GAIN_CEILING: { 1: 50, 2: 85, 3: null } as Record<Difficulty, number | null>,
+  LOSS_FLOOR:   { 1: null, 2: 25, 3: 50 } as Record<Difficulty, number | null>,
+  MOMENTUM_MIN: 1.0,
+  MOMENTUM_MAX: 1.5,
+  MOMENTUM_STEP: 0.05,                     // ±0.05 per calendar day
+  QUALIFYING_QUESTIONS: 5,                 // questions/day to count as qualifying
+  DECAY_GRACE_DAYS: 3,
+  DECAY_PER_WEEK: 2,                       // %
+  DECAY_FLOOR: 30,                         // %
+} as const;
+
+// ---------- Domains ----------
 
 export const DOMAINS: { id: string; label: string; section: "math" | "rw" }[] = [
   { id: "math-algebra", label: "Math · Algebra", section: "math" },
@@ -27,11 +62,28 @@ export function domainById(id: string) {
 
 // ---------- State ----------
 
+export interface BatchEntry {
+  difficulty: Difficulty;
+  correct: boolean;
+  timeFactor: number;
+}
+
+export interface DomainStat {
+  answered: number;            // total questions answered in this domain (diag + practice + bonus)
+  initialized: boolean;        // mastery has been initialized via the batch formula
+  mastery: number;             // 0..100; meaningless until initialized
+  lastAnsweredISO: string;     // for decay tracking
+  batch: BatchEntry[];         // up to 8 entries used for one-time mastery init
+  bonusStep: 0 | 1 | 2 | 3;    // 0..3 bonus questions completed
+}
+
 export interface SessionResult {
   n: number;
   domainId: string;
+  difficulty: Difficulty;
   correct: boolean;
   elapsedSeconds: number;
+  isBonus?: boolean;
 }
 
 export interface LastSession {
@@ -47,81 +99,208 @@ export interface FreeState {
   email: string;
   plan: "free" | "powerup";
   seeded: boolean;
-  domainScores: Record<string, number>; // 0..100 mastery
-  overall: number; // 400..1600
+  diagnosticScore: number;                 // 400..1600, snapshot from /diagnostic
+  domainStats: Record<string, DomainStat>;
+  momentumNeedle: number;                  // 0..10 (multiplier = 1 + 0.05 × needle)
+  lastMomentumDateISO: string;             // last date momentum was updated
+  qualifyingDays: string[];                // ISO dates with ≥5 non-diag questions
   streak: number;
-  lastDailyDate: string; // ISO date "YYYY-MM-DD" of last completed Daily 5
+  lastDailyDate: string;                   // ISO date of last completed Daily 5
   lastSession: LastSession | null;
+  // Derived snapshots kept on the state for read convenience.
+  domainScores: Record<string, number>;    // mastery 0..100 per domain
+  overall: number;                         // predicted SAT score 400..1600
 }
 
-const KEY = "testphi:free:v1";
+const KEY = "testphi:free:v2";
+const LEGACY_KEY = "testphi:free:v1";
 
 export function todayISO() {
   return new Date().toISOString().slice(0, 10);
 }
 
-function yesterdayISO() {
-  const d = new Date();
-  d.setDate(d.getDate() - 1);
+function isoMinusDays(iso: string, days: number): string {
+  const d = new Date(iso);
+  d.setDate(d.getDate() - days);
   return d.toISOString().slice(0, 10);
 }
 
-function defaultScores(): Record<string, number> {
-  const r: Record<string, number> = {};
-  for (const d of DOMAINS) r[d.id] = 40;
-  return r;
+function daysBetween(aISO: string, bISO: string): number {
+  if (!aISO || !bISO) return 0;
+  const a = new Date(aISO).getTime();
+  const b = new Date(bISO).getTime();
+  return Math.max(0, Math.round((b - a) / 86400000));
 }
 
-function seedFromDiag(): { scores: Record<string, number>; name: string } {
-  const diag = loadDiag();
-  const buckets = new Map<string, { correct: number; total: number }>();
-  for (const a of diag.answers) {
-    const q = QUESTIONS.find((qq) => qq.n === a.n);
-    if (!q) continue;
-    const id = domainIdFor(q.domainLabel);
-    if (!id) continue;
-    const cur = buckets.get(id) ?? { correct: 0, total: 0 };
-    cur.total += 1;
-    if (a.correct) cur.correct += 1;
-    buckets.set(id, cur);
-  }
-  const scores = defaultScores();
-  for (const [id, b] of buckets.entries()) {
-    if (b.total === 0) continue;
-    const ratio = b.correct / b.total;
-    scores[id] = Math.round(ratio * 70 + 15); // 15..85
-  }
-  return { scores, name: diag.name || "" };
-}
-
-export function computeOverall(scores: Record<string, number>): number {
-  const mathAvg = avg(DOMAINS.filter((d) => d.section === "math").map((d) => scores[d.id] ?? 40));
-  const rwAvg = avg(DOMAINS.filter((d) => d.section === "rw").map((d) => scores[d.id] ?? 40));
-  const mathSec = 200 + (mathAvg / 100) * 600;
-  const rwSec = 200 + (rwAvg / 100) * 600;
-  const total = Math.round((mathSec + rwSec) / 10) * 10;
-  return Math.max(400, Math.min(1600, total));
-}
-
-function avg(xs: number[]): number {
-  if (!xs.length) return 0;
-  return xs.reduce((a, b) => a + b, 0) / xs.length;
+function emptyDomainStat(): DomainStat {
+  return {
+    answered: 0,
+    initialized: false,
+    mastery: 0,
+    lastAnsweredISO: "",
+    batch: [],
+    bonusStep: 0,
+  };
 }
 
 function defaultState(): FreeState {
-  const scores = defaultScores();
+  const stats: Record<string, DomainStat> = {};
+  const scores: Record<string, number> = {};
+  for (const d of DOMAINS) {
+    stats[d.id] = emptyDomainStat();
+    scores[d.id] = 0;
+  }
   return {
     name: "",
     email: "",
     plan: "free",
     seeded: false,
-    domainScores: scores,
-    overall: computeOverall(scores),
+    diagnosticScore: 800,
+    domainStats: stats,
+    momentumNeedle: 0,
+    lastMomentumDateISO: "",
+    qualifyingDays: [],
     streak: 0,
     lastDailyDate: "",
     lastSession: null,
+    domainScores: scores,
+    overall: 800,
   };
 }
+
+// ---------- Predicted Score ----------
+
+// Domain Score = 50 + 150 × (mastery/100)^1.4 → 50..200.
+function domainScore(masteryPct: number): number {
+  const m = Math.max(0, Math.min(100, masteryPct)) / 100;
+  return 50 + 150 * Math.pow(m, 1.4);
+}
+
+function computePredicted(state: FreeState): number {
+  const allInit = DOMAINS.every((d) => state.domainStats[d.id]?.initialized);
+  if (!allInit) {
+    return state.diagnosticScore || 800;
+  }
+  let total = 0;
+  for (const d of DOMAINS) {
+    total += domainScore(state.domainStats[d.id].mastery);
+  }
+  return Math.max(400, Math.min(1600, Math.round(total / 10) * 10));
+}
+
+export function sectionScore(state: FreeState, section: "math" | "rw"): number {
+  const allInit = DOMAINS.every((d) => state.domainStats[d.id]?.initialized);
+  if (allInit) {
+    const ids = DOMAINS.filter((d) => d.section === section).map((d) => d.id);
+    const sum = ids.reduce((acc, id) => acc + domainScore(state.domainStats[id].mastery), 0);
+    return Math.max(200, Math.min(800, Math.round(sum / 10) * 10));
+  }
+  // Pre-calibration: split diagnostic score 50/50.
+  return Math.round(state.diagnosticScore / 2 / 10) * 10;
+}
+
+// ---------- Migration / seeding ----------
+
+// Seed per-domain `answered` and per-question batch entries from the diagnostic.
+// Diagnostic questions count toward the 5-question threshold and contribute to
+// the batch initialization, but do NOT individually update mastery.
+function seedFromDiagnostic(state: FreeState): FreeState {
+  const diag = loadDiag();
+  const next: FreeState = {
+    ...state,
+    name: state.name || diag.name || "",
+    seeded: true,
+  };
+  next.diagnosticScore = scoreFor(diag).total;
+  for (const a of diag.answers) {
+    const q = QUESTIONS.find((qq) => qq.n === a.n);
+    if (!q) continue;
+    const id = domainIdFor(q.domainLabel);
+    if (!id) continue;
+    const stat = next.domainStats[id];
+    if (!stat) continue;
+    const difficulty = (q.difficulty ?? 2) as Difficulty;
+    stat.answered += 1;
+    stat.batch.push({
+      difficulty,
+      correct: a.correct,
+      timeFactor: timeFactor(a.correct, a.elapsedSeconds, q.expectedSeconds),
+    });
+    stat.lastAnsweredISO = todayISO();
+  }
+  next.overall = computePredicted(next);
+  return next;
+}
+
+function migrateLegacy(raw: string): FreeState | null {
+  try {
+    const old = JSON.parse(raw);
+    const base = defaultState();
+    base.name = old.name ?? "";
+    base.email = old.email ?? "";
+    base.plan = old.plan ?? "free";
+    base.streak = old.streak ?? 0;
+    base.lastDailyDate = old.lastDailyDate ?? "";
+    base.diagnosticScore = old.overall ?? 800;
+    if (old.domainScores && typeof old.domainScores === "object") {
+      for (const d of DOMAINS) {
+        const m = Number(old.domainScores[d.id]);
+        if (Number.isFinite(m)) {
+          base.domainStats[d.id].mastery = m;
+          base.domainScores[d.id] = m;
+          // Legacy users won't have proper batch data; leave initialized=false
+          // so the spec's threshold flow still runs for them.
+        }
+      }
+    }
+    base.overall = computePredicted(base);
+    return base;
+  } catch {
+    return null;
+  }
+}
+
+// ---------- Decay ----------
+
+function applyDecayInPlace(state: FreeState) {
+  const today = todayISO();
+  for (const d of DOMAINS) {
+    const stat = state.domainStats[d.id];
+    if (!stat || !stat.initialized || !stat.lastAnsweredISO) continue;
+    const idle = daysBetween(stat.lastAnsweredISO, today);
+    if (idle <= SCORING.DECAY_GRACE_DAYS) continue;
+    const weeks = (idle - SCORING.DECAY_GRACE_DAYS) / 7;
+    const loss = SCORING.DECAY_PER_WEEK * weeks;
+    stat.mastery = Math.max(SCORING.DECAY_FLOOR, stat.mastery - loss);
+  }
+}
+
+// ---------- Momentum ----------
+
+function recomputeMomentum(state: FreeState) {
+  const today = todayISO();
+  const last = state.lastMomentumDateISO || today;
+  const idleDays = daysBetween(last, today);
+  let needle = state.momentumNeedle;
+  // We've already credited qualifying days at session-complete time, so here
+  // we only decay for days with no qualifying session since `last`.
+  const qualifiedDays = new Set(state.qualifyingDays);
+  for (let i = 1; i <= idleDays; i++) {
+    const day = isoMinusDays(today, idleDays - i);
+    if (!qualifiedDays.has(day)) {
+      needle = Math.max(0, needle - 1); // −0.05 multiplier = −1 needle tick
+    }
+  }
+  state.momentumNeedle = Math.max(0, Math.min(10, needle));
+  state.lastMomentumDateISO = today;
+}
+
+function momentumMultiplier(state: FreeState): number {
+  const m = SCORING.MOMENTUM_MIN + state.momentumNeedle * SCORING.MOMENTUM_STEP;
+  return Math.max(SCORING.MOMENTUM_MIN, Math.min(SCORING.MOMENTUM_MAX, m));
+}
+
+// ---------- Persistence ----------
 
 export function loadFree(): FreeState {
   if (typeof window === "undefined") return defaultState();
@@ -129,28 +308,50 @@ export function loadFree(): FreeState {
     const raw = window.localStorage.getItem(KEY);
     if (raw) {
       const parsed = JSON.parse(raw) as FreeState;
-      return { ...defaultState(), ...parsed };
+      const merged: FreeState = { ...defaultState(), ...parsed };
+      // Repair domainStats if shape drifted.
+      for (const d of DOMAINS) {
+        merged.domainStats[d.id] = {
+          ...emptyDomainStat(),
+          ...(merged.domainStats?.[d.id] ?? {}),
+        };
+        merged.domainScores[d.id] = merged.domainStats[d.id].mastery;
+      }
+      applyDecayInPlace(merged);
+      recomputeMomentum(merged);
+      merged.overall = computePredicted(merged);
+      syncSnapshots(merged);
+      return merged;
+    }
+    // Try legacy v1 → v2 migration.
+    const legacyRaw = window.localStorage.getItem(LEGACY_KEY);
+    if (legacyRaw) {
+      const migrated = migrateLegacy(legacyRaw);
+      if (migrated) {
+        const seeded = seedFromDiagnostic(migrated);
+        syncSnapshots(seeded);
+        saveFree(seeded);
+        return seeded;
+      }
     }
   } catch {}
-  // Seed from diagnostic on first load.
-  const { scores, name } = seedFromDiag();
-  const s: FreeState = {
-    name,
-    email: "",
-    plan: "free",
-    seeded: true,
-    domainScores: scores,
-    overall: computeOverall(scores),
-    streak: 0,
-    lastDailyDate: "",
-    lastSession: null,
-  };
-  saveFree(s);
-  return s;
+  // First-ever load: seed from diagnostic if it's been completed.
+  const fresh = seedFromDiagnostic(defaultState());
+  syncSnapshots(fresh);
+  saveFree(fresh);
+  return fresh;
+}
+
+function syncSnapshots(s: FreeState) {
+  for (const d of DOMAINS) {
+    s.domainScores[d.id] = s.domainStats[d.id].mastery;
+  }
+  s.overall = computePredicted(s);
 }
 
 export function saveFree(s: FreeState) {
   if (typeof window === "undefined") return;
+  syncSnapshots(s);
   try {
     window.localStorage.setItem(KEY, JSON.stringify(s));
   } catch {}
@@ -164,72 +365,184 @@ function dayOfYear(d = new Date()): number {
   return Math.floor(diff / 86400000);
 }
 
-export function pickDailyQuestions(): DiagQuestion[] {
-  // Rotate through QUESTIONS deterministically by day.
+// If any domain is past its 5-question threshold but hasn't finished its
+// bonus round, prioritise that domain's next bonus question. Otherwise
+// rotate deterministically by day for variety.
+export function pickDailyQuestions(state?: FreeState): DiagQuestion[] {
+  const s = state ?? (typeof window !== "undefined" ? loadFree() : defaultState());
   const offset = (dayOfYear() * 5) % QUESTIONS.length;
+  const base: DiagQuestion[] = [];
+  for (let i = 0; i < 5; i++) base.push(QUESTIONS[(offset + i) % QUESTIONS.length]);
+
+  // Surface pending-bonus domains first.
+  const pending = DOMAINS.filter((d) => {
+    const st = s.domainStats[d.id];
+    return st && !st.initialized && st.answered >= SCORING.THRESHOLD_QUESTIONS && st.bonusStep < 3;
+  });
+  if (pending.length === 0) return base;
   const out: DiagQuestion[] = [];
-  for (let i = 0; i < 5; i++) {
-    out.push(QUESTIONS[(offset + i) % QUESTIONS.length]);
+  for (const d of pending) {
+    const inDomain = QUESTIONS.filter((q) => domainIdFor(q.domainLabel) === d.id);
+    if (inDomain.length === 0) continue;
+    // Pick distinct questions per remaining bonus step.
+    const remaining = 3 - s.domainStats[d.id].bonusStep;
+    for (let i = 0; i < remaining && out.length < 5; i++) {
+      out.push(inDomain[i % inDomain.length]);
+    }
   }
-  return out;
+  for (const q of base) {
+    if (out.length >= 5) break;
+    if (!out.includes(q)) out.push(q);
+  }
+  return out.slice(0, 5);
 }
 
 export function hasCompletedToday(s: FreeState): boolean {
   return s.lastDailyDate === todayISO();
 }
 
-// ---------- Score update ----------
-
-function timeMul(correct: boolean, elapsed: number, expected: number): number {
-  const slow = elapsed > expected;
-  if (correct) return slow ? 0.75 : 1.2;
-  return slow ? 1.4 : 1.0;
+// Is this question being served as part of an unfinished bonus round for the
+// given domain? The caller uses this both to label the UI and to stamp the
+// SessionResult with `isBonus`.
+export function isBonusQuestionFor(state: FreeState, domainId: string): boolean {
+  const st = state.domainStats[domainId];
+  if (!st) return false;
+  return !st.initialized && st.answered >= SCORING.THRESHOLD_QUESTIONS && st.bonusStep < 3;
 }
 
-export function applySession(prev: FreeState, results: SessionResult[]): FreeState {
-  const scores = { ...prev.domainScores };
-  for (const r of results) {
-    const q = QUESTIONS.find((qq) => qq.n === r.n);
-    if (!q) continue;
-    const mastery = scores[r.domainId] ?? 40;
-    const tm = timeMul(r.correct, r.elapsedSeconds, q.expectedSeconds);
-    let delta: number;
-    if (r.correct) {
-      // Stronger move when mastery is low; tiny when already high.
-      delta = (100 - mastery) * 0.12 * tm;
-    } else {
-      // Stronger penalty when mastery is high (regression) capped.
-      delta = -(3 + mastery * 0.06) * tm;
-    }
-    scores[r.domainId] = Math.max(0, Math.min(100, mastery + delta));
+export function nextBonusDifficulty(state: FreeState, domainId: string): Difficulty {
+  const st = state.domainStats[domainId];
+  const step = st?.bonusStep ?? 0;
+  return (SCORING.BONUS_DIFFICULTIES[step] ?? 2) as Difficulty;
+}
+
+// ---------- Mastery update ----------
+
+// Spec Mastery Initialization (Batch):
+//   question_score = difficulty_weight × time_factor   [if correct, else 0]
+//   question_max   = difficulty_weight × 1.25
+//   ratio          = Σ question_score / Σ question_max
+//   mastery_init   = 0.15 + 0.75 × ratio^0.7  → clamp [0.15, 0.90]
+function initializeMastery(batch: BatchEntry[]): number {
+  if (batch.length === 0) return SCORING.MASTERY_INIT_FLOOR;
+  let scoreSum = 0;
+  let maxSum = 0;
+  for (const e of batch) {
+    const w = SCORING.DIFF_WEIGHTS[e.difficulty];
+    maxSum += w * 1.25;
+    if (e.correct) scoreSum += w * e.timeFactor;
   }
-  const prevOverall = prev.overall;
-  const newOverall = computeOverall(scores);
-  const td = todayISO();
-  let streak = prev.streak;
-  if (prev.lastDailyDate === yesterdayISO()) streak += 1;
-  else if (prev.lastDailyDate !== td) streak = 1;
-  return {
-    ...prev,
-    domainScores: scores,
-    overall: newOverall,
-    streak,
-    lastDailyDate: td,
-    lastSession: {
-      date: td,
-      results,
-      prevOverall,
-      newOverall,
-      delta: newOverall - prevOverall,
-    },
-  };
+  const ratio = maxSum === 0 ? 0 : scoreSum / maxSum;
+  const m = 0.15 + 0.75 * Math.pow(Math.max(0, ratio), 0.7);
+  const pct = m * 100;
+  return Math.max(SCORING.MASTERY_INIT_FLOOR, Math.min(SCORING.MASTERY_INIT_CEIL, pct));
 }
 
-// ---------- Mastery → category ----------
+// Spec Post-Initialization deltas with ceilings/floors.
+function deltaFor(
+  mastery: number,
+  difficulty: Difficulty,
+  correct: boolean,
+  tf: number,
+  momentum: number,
+): number {
+  if (correct) {
+    const ceiling = SCORING.GAIN_CEILING[difficulty];
+    if (ceiling !== null && mastery >= ceiling) return 0;
+    const scale = Math.sqrt(Math.max(0, 1 - mastery / 100));
+    return SCORING.BASE_GAIN[difficulty] * scale * tf * momentum;
+  }
+  const floor = SCORING.LOSS_FLOOR[difficulty];
+  if (floor !== null && mastery <= floor) return 0;
+  return -SCORING.BASE_LOSS[difficulty] * tf;
+}
 
-export type Tier = "weak" | "developing" | "strong";
+// Apply a single answered question to the state.
+function applyOneResult(state: FreeState, r: SessionResult): FreeState {
+  const stat = state.domainStats[r.domainId];
+  if (!stat) return state;
+  const tf = timeFactor(r.correct, r.elapsedSeconds, expectedSecondsForDifficulty(r.difficulty));
 
-export function tierOf(mastery: number): Tier {
+  // Always update the answered counter and last-touched date for decay.
+  stat.answered += 1;
+  stat.lastAnsweredISO = todayISO();
+
+  if (!stat.initialized) {
+    // Pre-init: contribute to batch. Bonus-round questions get the spec's fixed
+    // difficulties; practice fillers use whatever the question is tagged with.
+    stat.batch.push({ difficulty: r.difficulty, correct: r.correct, timeFactor: tf });
+    if (r.isBonus) stat.bonusStep = Math.min(3, stat.bonusStep + 1) as 0 | 1 | 2 | 3;
+    // Trigger initialization once the bonus round completes (or, for users
+    // who somehow over-fill the batch, when we have 8 entries).
+    if (stat.bonusStep >= 3 || stat.batch.length >= 8) {
+      stat.mastery = initializeMastery(stat.batch);
+      stat.initialized = true;
+    }
+    return state;
+  }
+
+  // Post-init: delta math.
+  const momentum = momentumMultiplier(state);
+  const delta = deltaFor(stat.mastery, r.difficulty, r.correct, tf, momentum);
+  stat.mastery = Math.max(
+    SCORING.MASTERY_FLOOR,
+    Math.min(SCORING.MASTERY_CEIL, stat.mastery + delta),
+  );
+  return state;
+}
+
+function expectedSecondsForDifficulty(d: Difficulty): number {
+  if (d === 1) return 30;
+  if (d === 3) return 90;
+  return 60;
+}
+
+function yesterdayISO() {
+  return isoMinusDays(todayISO(), 1);
+}
+
+// Apply a completed Daily 5 session. Updates mastery, momentum, streak, and
+// snapshots, and stores a LastSession diff for the post-session screen.
+export function applySession(prev: FreeState, results: SessionResult[]): FreeState {
+  const next: FreeState = JSON.parse(JSON.stringify(prev));
+  const prevOverall = prev.overall;
+
+  for (const r of results) applyOneResult(next, r);
+
+  // Streak
+  const td = todayISO();
+  let streak = next.streak;
+  if (next.lastDailyDate === yesterdayISO()) streak += 1;
+  else if (next.lastDailyDate !== td) streak = 1;
+  next.streak = streak;
+  next.lastDailyDate = td;
+
+  // Momentum: qualifying session (≥5 non-diagnostic questions today).
+  if (results.length >= SCORING.QUALIFYING_QUESTIONS) {
+    if (!next.qualifyingDays.includes(td)) {
+      next.qualifyingDays = [...next.qualifyingDays, td].slice(-30);
+      next.momentumNeedle = Math.min(10, next.momentumNeedle + 1);
+    }
+    next.lastMomentumDateISO = td;
+  }
+
+  syncSnapshots(next);
+  next.lastSession = {
+    date: td,
+    results,
+    prevOverall,
+    newOverall: next.overall,
+    delta: next.overall - prevOverall,
+  };
+  return next;
+}
+
+// ---------- Mastery → category (for Skill Map) ----------
+
+export type Tier = "weak" | "developing" | "strong" | "locked";
+
+export function tierOf(mastery: number, initialized = true): Tier {
+  if (!initialized) return "locked";
   if (mastery < 45) return "weak";
   if (mastery < 70) return "developing";
   return "strong";
@@ -238,12 +551,14 @@ export function tierOf(mastery: number): Tier {
 export function tierColor(t: Tier): string {
   if (t === "weak") return "#ff4d6d";
   if (t === "developing") return "#FFE600";
+  if (t === "locked") return "rgba(246,240,250,0.45)";
   return "#B8FF00";
 }
 
 export function tierLabel(t: Tier): string {
   if (t === "weak") return "Weak spot";
   if (t === "developing") return "Developing";
+  if (t === "locked") return "Not yet calibrated";
   return "Strength";
 }
 
