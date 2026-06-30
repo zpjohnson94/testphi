@@ -210,20 +210,6 @@ export interface Subscores {
   percentile: string;      // human label
 }
 
-const MAX_MATH_POINTS = QUESTIONS.filter(q => q.section === "math").reduce((s, q) => s + q.correctWeight, 0);
-const MAX_RW_POINTS = QUESTIONS.filter(q => q.section === "rw").reduce((s, q) => s + q.correctWeight, 0);
-
-function pointsForAnswer(q: DiagQuestion, a: AnswerRecord): number {
-  if (a.correct && a.elapsedSeconds > q.expectedSeconds) return q.correctWeight * 0.7;
-  if (a.correct) return q.correctWeight;
-  return -q.incorrectWeight;
-}
-
-function scaleToSection(pointsFromBaseline: number, max: number): number {
-  // Baseline 500. Full credit on every question maps to 800. -max maps to ~200.
-  const scaled = 500 + (pointsFromBaseline / max) * 300;
-  return Math.max(200, Math.min(800, scaled));
-}
 
 // Spec: Diagnostic Score
 //   base       = 400 + (correct/15)^1.3 × 1120
