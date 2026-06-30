@@ -13,7 +13,7 @@ export interface DiagQuestion {
   expectedSeconds: number;
   correctWeight: number;
   incorrectWeight: number;
-  difficulty: Difficulty;  // per spec all diagnostic questions are Medium (2)
+  difficulty?: Difficulty; // optional; defaults to Medium (2). Per spec all diagnostic questions are Medium.
   prompt: string;
   passage?: string;        // optional short passage shown above prompt
   choices: [string, string, string, string];
