@@ -3,6 +3,8 @@
 
 export type Section = "math" | "rw";
 
+export type Difficulty = 1 | 2 | 3; // 1 = Easy, 2 = Medium, 3 = Hard
+
 export interface DiagQuestion {
   n: number;
   section: Section;
@@ -11,10 +13,32 @@ export interface DiagQuestion {
   expectedSeconds: number;
   correctWeight: number;
   incorrectWeight: number;
+  difficulty: Difficulty;  // per spec all diagnostic questions are Medium (2)
   prompt: string;
   passage?: string;        // optional short passage shown above prompt
   choices: [string, string, string, string];
   correctIndex: 0 | 1 | 2 | 3;
+}
+
+// Per-spec time factor tables (Section "Time Factor").
+export function timeFactor(correct: boolean, actualSeconds: number, expectedSeconds: number): number {
+  const ratio = expectedSeconds > 0 ? actualSeconds / expectedSeconds : 1;
+  if (correct) {
+    if (ratio < 0.5) return 1.25;
+    if (ratio < 0.75) return 1.1;
+    if (ratio < 1.25) return 1.0;
+    if (ratio < 1.75) return 0.85;
+    return 0.7;
+  }
+  if (ratio < 0.75) return 0.8;
+  if (ratio < 1.25) return 1.0;
+  return 1.3;
+}
+
+export function expectedSecondsFor(difficulty: Difficulty): number {
+  if (difficulty === 1) return 30;
+  if (difficulty === 3) return 90;
+  return 60;
 }
 
 export const QUESTIONS: DiagQuestion[] = [
