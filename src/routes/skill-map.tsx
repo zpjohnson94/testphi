@@ -53,14 +53,21 @@ function SkillMap() {
         ...d,
         mastery: stat?.mastery ?? 0,
         initialized: stat?.initialized ?? false,
+        answered: stat?.answered ?? 0,
+        bonusStep: stat?.bonusStep ?? 0,
+        bonusReady: !!stat && !stat.initialized && stat.answered >= SCORING.THRESHOLD_QUESTIONS,
       };
-    }).sort((a, b) => a.mastery - b.mastery);
+    }).sort((a, b) => {
+      if (a.initialized !== b.initialized) return a.initialized ? -1 : 1;
+      return a.mastery - b.mastery;
+    });
     const groups: Record<Tier, typeof all> = { locked: [], weak: [], developing: [], strong: [] };
     for (const d of all) groups[tierOf(d.mastery, d.initialized)].push(d);
     return groups;
   }, [state]);
 
   const order: Tier[] = ["weak", "developing", "strong", "locked"];
+
 
   return (
     <FreeShell>
