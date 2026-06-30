@@ -19,7 +19,7 @@ import { FreeShell } from "@/components/FreeShell";
 
 export const Route = createFileRoute("/daily/complete")({
   head: () => ({ meta: [{ title: "Session complete — TestPhi" }] }),
-  component: DailyComplete;
+  component: DailyComplete,
 });
 
 const SESSION_KEY = "testphi:daily-session:v1";
