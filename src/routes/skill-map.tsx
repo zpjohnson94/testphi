@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
+import { Sparkles } from "lucide-react";
 import { FreeShell } from "@/components/FreeShell";
 import { Logo } from "@/components/Logo";
 import {
@@ -8,10 +9,12 @@ import {
   tierColor,
   tierLabel,
   tierOf,
+  SCORING,
   type FreeState,
   type Tier,
 } from "@/lib/freeUser";
 import { PowerUpModal } from "@/components/PowerUpModal";
+
 
 export const Route = createFileRoute("/skill-map")({
   head: () => ({ meta: [{ title: "Skill Map — TestPhi" }] }),
