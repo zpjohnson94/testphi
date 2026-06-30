@@ -54,11 +54,12 @@ function HomePage() {
   }, [state?.overall]);
 
   const answeredCount = done ? 5 : 0;
-  const scores = state?.domainScores ?? Object.fromEntries(DOMAINS.map((d) => [d.id, 40]));
-  const mathScore = sectionScore(scores, "math");
-  const rwScore = sectionScore(scores, "rw");
+  const mathScore = state ? sectionScore(state, "math") : 400;
+  const rwScore = state ? sectionScore(state, "rw") : 400;
   const monthDelta = lastSession?.delta ?? 0;
   const name = (state?.name || "champ").split(" ")[0];
+  const calibrated = state ? isCalibrated(state) : false;
+
 
   return (
     <FreeShell>
