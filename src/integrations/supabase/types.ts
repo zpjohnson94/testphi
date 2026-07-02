@@ -14,6 +14,161 @@ export type Database = {
   }
   public: {
     Tables: {
+      answers: {
+        Row: {
+          answered_at: string
+          correct: boolean
+          difficulty: number
+          domain_id: string
+          elapsed_seconds: number
+          id: string
+          is_bonus: boolean
+          question_id: string
+          session_id: string | null
+          user_id: string
+        }
+        Insert: {
+          answered_at?: string
+          correct: boolean
+          difficulty: number
+          domain_id: string
+          elapsed_seconds: number
+          id?: string
+          is_bonus?: boolean
+          question_id: string
+          session_id?: string | null
+          user_id: string
+        }
+        Update: {
+          answered_at?: string
+          correct?: boolean
+          difficulty?: number
+          domain_id?: string
+          elapsed_seconds?: number
+          id?: string
+          is_bonus?: boolean
+          question_id?: string
+          session_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "answers_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          avatar_id: string | null
+          created_at: string
+          email: string | null
+          id: string
+          name: string | null
+          plan: string
+          updated_at: string
+        }
+        Insert: {
+          avatar_id?: string | null
+          created_at?: string
+          email?: string | null
+          id: string
+          name?: string | null
+          plan?: string
+          updated_at?: string
+        }
+        Update: {
+          avatar_id?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          name?: string | null
+          plan?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      questions: {
+        Row: {
+          created_at: string
+          difficulty: number
+          domain_id: string
+          expected_seconds: number
+          id: string
+          payload: Json
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          difficulty: number
+          domain_id: string
+          expected_seconds?: number
+          id: string
+          payload?: Json
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          difficulty?: number
+          domain_id?: string
+          expected_seconds?: number
+          id?: string
+          payload?: Json
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      sessions: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          delta: number | null
+          id: string
+          kind: string
+          momentum_after: number | null
+          momentum_before: number | null
+          new_overall: number | null
+          prev_overall: number | null
+          started_at: string
+          streak_after: number | null
+          streak_before: number | null
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          delta?: number | null
+          id?: string
+          kind: string
+          momentum_after?: number | null
+          momentum_before?: number | null
+          new_overall?: number | null
+          prev_overall?: number | null
+          started_at?: string
+          streak_after?: number | null
+          streak_before?: number | null
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          delta?: number | null
+          id?: string
+          kind?: string
+          momentum_after?: number | null
+          momentum_before?: number | null
+          new_overall?: number | null
+          prev_overall?: number | null
+          started_at?: string
+          streak_after?: number | null
+          streak_before?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       signups: {
         Row: {
           billing: string | null
@@ -56,6 +211,84 @@ export type Database = {
           referrer?: string | null
           updated_at?: string
           user_agent?: string | null
+        }
+        Relationships: []
+      }
+      user_domain_mastery: {
+        Row: {
+          answered: number
+          batch: Json
+          bonus_step: number
+          created_at: string
+          domain_id: string
+          initialized: boolean
+          last_answered_at: string | null
+          mastery: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          answered?: number
+          batch?: Json
+          bonus_step?: number
+          created_at?: string
+          domain_id: string
+          initialized?: boolean
+          last_answered_at?: string | null
+          mastery?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          answered?: number
+          batch?: Json
+          bonus_step?: number
+          created_at?: string
+          domain_id?: string
+          initialized?: boolean
+          last_answered_at?: string | null
+          mastery?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_scoring_state: {
+        Row: {
+          created_at: string
+          diagnostic_score: number
+          last_daily_date: string | null
+          last_momentum_date: string | null
+          momentum_needle: number
+          qualifying_days: Json
+          seeded: boolean
+          streak: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          diagnostic_score?: number
+          last_daily_date?: string | null
+          last_momentum_date?: string | null
+          momentum_needle?: number
+          qualifying_days?: Json
+          seeded?: boolean
+          streak?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          diagnostic_score?: number
+          last_daily_date?: string | null
+          last_momentum_date?: string | null
+          momentum_needle?: number
+          qualifying_days?: Json
+          seeded?: boolean
+          streak?: number
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }

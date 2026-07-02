@@ -1,67 +1,60 @@
-# Apply TestPhi Scoring Algorithm
+## Migrate TestPhi off localStorage to Lovable Cloud
 
-The spec replaces ad-hoc scoring with: a new diagnostic formula, per-domain mastery thresholds, a 3-question bonus round, batch mastery initialization, post-init delta math with ceilings/floors, time factor, momentum multiplier, and weekly decay.
+Move all user data (scores, mastery, sessions, answers, streaks, momentum) from `localStorage` into the backend, behind magic-link auth. Diagnostic stays anonymous in `localStorage` until signup, then migrates.
 
-All work stays client-side (localStorage); no backend changes.
+### 1. Auth
 
-## Scope of changes
+- Add magic-link email auth (Supabase). Reuse existing email capture: entering email at the end of the diagnostic sends a magic link instead of a plain insert.
+- New public route `/auth/callback` to hydrate the session, then redirect into `/home`.
+- Wrap authenticated routes (`/home`, `/skill-map`, `/account`, `/daily/*`) under `src/routes/_authenticated/`. Managed layout gates them client-side.
+- Root route: single `onAuthStateChange` listener → `router.invalidate()` on identity transitions.
 
-### 1. `src/lib/diagnostic.ts` — diagnostic scoring
-- Tag every question with `difficulty: 1|2|3` (all 15 = `2` per spec).
-- Replace `scoreFor` with: `base = 400 + (correct/15)^1.3 * 1120`, plus `time_bonus = Σ (time_factor − 1.0) * 20` for correct answers only. Clamp 400–1560, round to nearest 10.
-- Export a shared `timeFactor(correct, ratio)` helper using the spec's two tables.
-- Keep `mathScaled` / `rwScaled` as a rough split of the total (so the existing UI still renders) but mark them as approximate — true section scores come post-calibration.
+### 2. Schema (Lovable Cloud)
 
-### 2. `src/lib/freeUser.ts` — mastery, momentum, decay, predicted score
-Rewrite the math layer; keep public types (`FreeState`, `SessionResult`, `loadFree`, `saveFree`, `applySession`, `pickDailyQuestions`, headlines, tier helpers) so call sites compile.
+Hot layer (per-user computed state, one row per user):
+- `profiles` — name, email, avatar_id, plan
+- `user_scoring_state` — momentum_needle, last_momentum_date, qualifying_days (jsonb), streak, last_daily_date, diagnostic_score, seeded
+- `user_domain_mastery` — (user_id, domain_id), answered, initialized, mastery, last_answered_at, bonus_step, batch (jsonb of up to 8 entries)
 
-New `FreeState` fields:
-- `domainStats: Record<domainId, { answered: number; initialized: boolean; mastery: number; lastAnsweredISO: string; pendingBonus: number }>` — replaces flat `domainScores`.
-- `momentum: number` (0–10 needle, multiplier = 1 + 0.05 × needle).
-- `lastQualifyingISO: string` for momentum build/decay.
-- `calibrated: boolean` — true once all 8 domains initialized.
-- Keep `overall` for back-compat; recompute either from diagnostic score (pre-calibration) or domain-composite (post).
+Cold layer (immutable history):
+- `sessions` — id, user_id, kind (`diagnostic`|`daily`|`drill`), started_at, completed_at, prev_overall, new_overall, delta, momentum_before/after, streak_before/after
+- `answers` — id, session_id, user_id, question_id, domain_id, difficulty, correct, elapsed_seconds, is_bonus, answered_at
 
-New logic:
-- `recordAnswer({domainId, difficulty, correct, elapsedSeconds, isDiagnostic})` — single source of truth. Tracks per-domain `answered++`, applies ceilings/floors and delta formulas, applies time factor, multiplies gains by momentum.
-- Batch init at 5 answered: queue 3 bonus questions (E/M/H); only initialize mastery once all 3 answered using the spec's `mastery_init = 0.15 + 0.75 × performance_ratio^0.7` formula across the 8-question batch (stored per-domain in `bonusBatch`).
-- `applyDecay(state)` called on load: for each initialized domain idle >3 days, subtract 2%/week (floor 30%). Pure function; updates `lastAnsweredISO` semantics.
-- `updateMomentum(state, didQualifyToday)` — +0.05 per day of qualifying session, −0.05 per idle day, range 1.0–1.5. A "qualifying session" = ≥5 questions completed on that calendar date (non-diagnostic).
-- `computePredictedScore(state)` — if `!calibrated`, use last diagnostic score; otherwise `Σ (50 + 150 × mastery^1.4)` across 8 domains, summed then rounded to nearest 10.
-- `pickDailyQuestions` extended: if any domain has a pending bonus round, surface its next bonus question first (E→M→H ordering).
+Support:
+- `questions` — id (text, matches question bank IDs the user will provide), domain_id, difficulty, expected_seconds, payload (jsonb prompt/choices/answer). Seeded via migration once IDs arrive.
+- All tables: GRANTs + RLS scoped to `auth.uid()`. `service_role` grants for admin ops.
+- Trigger to auto-create `profiles` + `user_scoring_state` + 8 `user_domain_mastery` rows on new user signup.
 
-### 3. `src/routes/daily.question.$n.tsx` — wire to new layer
-- After each answer call `recordAnswer` with the question's difficulty + elapsed time instead of buffering raw `SessionResult`s.
-- Detect bonus-round questions (flag returned from `pickDailyQuestions`) so UI can label them and avoid double-counting momentum.
+### 3. Server functions (`src/lib/*.functions.ts`)
 
-### 4. `src/routes/daily.complete.tsx` & `src/routes/home.tsx`
-- Read `predicted` and `delta` from new helpers.
-- Show momentum needle (existing streak pill can be repurposed or kept alongside).
+All wrap `requireSupabaseAuth`:
+- `getFreeState` — returns hot state + snapshots. Applies decay + momentum recompute server-side (moved from `freeUser.ts`).
+- `applySession({ results })` — inserts `sessions` + `answers` rows, updates mastery/momentum/streak atomically, returns new `LastSession` diff.
+- `pickDailyQuestions` — server-side selection using current mastery + bonus-pending domains.
+- `updateProfile({ name, avatarId })`.
+- `migrateAnonymousDiagnostic({ diag })` — called once right after magic-link signup: replays diagnostic answers into `answers` + seeds domain batches. Idempotent (no-op if `seeded=true`).
 
-### 5. `src/routes/skill-map.tsx`
-- Use new `mastery` and `initialized` flags. Uninitialized domains render with a "Locked — practice 3 more" hint instead of a numeric mastery.
+Scoring math (`freeUser.ts` logic — initializeMastery, deltaFor, momentumMultiplier, computePredicted) moves into a shared `src/lib/scoring.ts` used only by server handlers.
 
-### 6. `src/routes/diagnostic.results.tsx`
-- Pull diagnostic score from updated `scoreFor`.
+### 4. Client
 
-## Technical notes
+- Replace `loadFree()`/`saveFree()` with TanStack Query hooks: `useFreeState()`, `useApplySession()`, etc.
+- `home.tsx`, `skill-map.tsx`, `account.tsx`, `daily.question.$n.tsx`, `daily.complete.tsx` refactored to read from Query cache instead of `localStorage`.
+- Diagnostic flow (`/diagnostic/*`) unchanged — still stores answers in `localStorage`. On signup, `migrateAnonymousDiagnostic` is called and `localStorage` diag key is cleared.
 
-```text
-diagnostic answer ─┐
-                   ├─► recordAnswer ─► domainStats[d].answered++
-practice answer  ─┘                    if not initialized:
-                                          push to bonusBatch
-                                          if answered == 5 → queue bonus E/M/H
-                                          if batch complete → initialize mastery
-                                       else:
-                                          apply ceilings/floors + delta + time + momentum
-                                       update lastAnsweredISO
-```
+### 5. Rollout
 
-Reference table values from the spec are encoded as switch/if-chain lookups (not interpolated) for fidelity. All numeric constants live in a `SCORING` constants block at the top of `freeUser.ts` for auditability.
+- Fake-door `/coming-soon` and `/plans` untouched (still just insert into `signups`).
+- Existing `localStorage` users on the live site: on first sign-in after deploy, if `testphi:free:v2` exists locally we call `migrateAnonymousDiagnostic` with that data and then clear it. Best-effort — some device-locked users will start fresh.
 
-## Out of scope (this pass)
+### Order of operations
 
-- UI redesigns beyond surfacing momentum + locked-domain state.
-- Server persistence — still localStorage-only.
-- Question content additions for the bonus round; for now the bonus round reuses existing questions tagged by domain & difficulty, repeating if the pool is too small (logged with a TODO).
+**Pass 1 (this turn after approval):** enable magic-link auth, ship schema + RLS + GRANTs + signup trigger, add `/auth` and `/auth/callback` routes, gate authenticated routes.
+
+**Pass 2:** build server functions + move scoring math server-side, refactor client to Query, wire anonymous-diagnostic migration.
+
+**Pass 3 (when you provide the question bank):** seed `questions` table via migration; switch `pickDailyQuestions` to read from DB.
+
+### Open items to confirm before I start
+
+- Question IDs: current questions are integers 1–15 hardcoded in `src/lib/diagnostic.ts`. Until your bank arrives, I'll keep the `questions` table empty and have server fns reference question metadata from the existing `QUESTIONS` constant (imported server-side). When you deliver the bank, we seed and swap. OK?

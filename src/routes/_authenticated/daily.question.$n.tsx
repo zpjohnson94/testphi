@@ -12,7 +12,7 @@ import {
 import { PowerUpModal } from "@/components/PowerUpModal";
 import { sfx } from "@/lib/sfx";
 
-export const Route = createFileRoute("/daily/question/$n")({
+export const Route = createFileRoute("/_authenticated/daily/question/$n")({
   head: () => ({ meta: [{ title: "Daily 5 — TestPhi" }] }),
   component: DailyQuestion,
 });

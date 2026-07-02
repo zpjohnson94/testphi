@@ -16,7 +16,7 @@ import {
 } from "@/lib/freeUser";
 
 
-export const Route = createFileRoute("/home")({
+export const Route = createFileRoute("/_authenticated/home")({
   head: () => ({ meta: [{ title: "Home — TestPhi" }] }),
   component: HomePage,
 });
