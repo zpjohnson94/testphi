@@ -15,6 +15,8 @@ import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as PlansRouteImport } from './routes/plans'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as ComingSoonRouteImport } from './routes/coming-soon'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DiagnosticIndexRouteImport } from './routes/diagnostic.index'
 import { Route as LessonNodeIdRouteImport } from './routes/lesson.$nodeId'
@@ -60,6 +62,15 @@ const ComingSoonRoute = ComingSoonRouteImport.update({
   path: '/coming-soon',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -102,19 +113,19 @@ const DiagnosticAvatarRoute = DiagnosticAvatarRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedSkillMapRoute = AuthenticatedSkillMapRouteImport.update({
-  id: '/_authenticated/skill-map',
+  id: '/skill-map',
   path: '/skill-map',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedHomeRoute = AuthenticatedHomeRouteImport.update({
-  id: '/_authenticated/home',
+  id: '/home',
   path: '/home',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedAccountRoute = AuthenticatedAccountRouteImport.update({
-  id: '/_authenticated/account',
+  id: '/account',
   path: '/account',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const DiagnosticQuestionNRoute = DiagnosticQuestionNRouteImport.update({
   id: '/diagnostic/question/$n',
@@ -123,19 +134,20 @@ const DiagnosticQuestionNRoute = DiagnosticQuestionNRouteImport.update({
 } as any)
 const AuthenticatedDailyCompleteRoute =
   AuthenticatedDailyCompleteRouteImport.update({
-    id: '/_authenticated/daily/complete',
+    id: '/daily/complete',
     path: '/daily/complete',
-    getParentRoute: () => rootRouteImport,
+    getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedDailyQuestionNRoute =
   AuthenticatedDailyQuestionNRouteImport.update({
-    id: '/_authenticated/daily/question/$n',
+    id: '/daily/question/$n',
     path: '/daily/question/$n',
-    getParentRoute: () => rootRouteImport,
+    getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
   '/coming-soon': typeof ComingSoonRoute
   '/dashboard': typeof DashboardRoute
   '/plans': typeof PlansRoute
@@ -158,6 +170,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
   '/coming-soon': typeof ComingSoonRoute
   '/dashboard': typeof DashboardRoute
   '/plans': typeof PlansRoute
@@ -181,6 +194,8 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/auth': typeof AuthRoute
   '/coming-soon': typeof ComingSoonRoute
   '/dashboard': typeof DashboardRoute
   '/plans': typeof PlansRoute
@@ -205,6 +220,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/auth'
     | '/coming-soon'
     | '/dashboard'
     | '/plans'
@@ -227,6 +243,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/auth'
     | '/coming-soon'
     | '/dashboard'
     | '/plans'
@@ -249,6 +266,8 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/_authenticated'
+    | '/auth'
     | '/coming-soon'
     | '/dashboard'
     | '/plans'
@@ -272,15 +291,14 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AuthRoute: typeof AuthRoute
   ComingSoonRoute: typeof ComingSoonRoute
   DashboardRoute: typeof DashboardRoute
   PlansRoute: typeof PlansRoute
   PrivacyRoute: typeof PrivacyRoute
   ProfileRoute: typeof ProfileRoute
   SignupRoute: typeof SignupRoute
-  AuthenticatedAccountRoute: typeof AuthenticatedAccountRoute
-  AuthenticatedHomeRoute: typeof AuthenticatedHomeRoute
-  AuthenticatedSkillMapRoute: typeof AuthenticatedSkillMapRoute
   DiagnosticAvatarRoute: typeof DiagnosticAvatarRoute
   DiagnosticResultsRoute: typeof DiagnosticResultsRoute
   DiagnosticResultsPreviewRoute: typeof DiagnosticResultsPreviewRoute
@@ -288,9 +306,7 @@ export interface RootRouteChildren {
   LearnReadingWritingRoute: typeof LearnReadingWritingRoute
   LessonNodeIdRoute: typeof LessonNodeIdRoute
   DiagnosticIndexRoute: typeof DiagnosticIndexRoute
-  AuthenticatedDailyCompleteRoute: typeof AuthenticatedDailyCompleteRoute
   DiagnosticQuestionNRoute: typeof DiagnosticQuestionNRoute
-  AuthenticatedDailyQuestionNRoute: typeof AuthenticatedDailyQuestionNRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -335,6 +351,20 @@ declare module '@tanstack/react-router' {
       path: '/coming-soon'
       fullPath: '/coming-soon'
       preLoaderRoute: typeof ComingSoonRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -398,21 +428,21 @@ declare module '@tanstack/react-router' {
       path: '/skill-map'
       fullPath: '/skill-map'
       preLoaderRoute: typeof AuthenticatedSkillMapRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/home': {
       id: '/_authenticated/home'
       path: '/home'
       fullPath: '/home'
       preLoaderRoute: typeof AuthenticatedHomeRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/account': {
       id: '/_authenticated/account'
       path: '/account'
       fullPath: '/account'
       preLoaderRoute: typeof AuthenticatedAccountRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/diagnostic/question/$n': {
       id: '/diagnostic/question/$n'
@@ -426,29 +456,47 @@ declare module '@tanstack/react-router' {
       path: '/daily/complete'
       fullPath: '/daily/complete'
       preLoaderRoute: typeof AuthenticatedDailyCompleteRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/daily/question/$n': {
       id: '/_authenticated/daily/question/$n'
       path: '/daily/question/$n'
       fullPath: '/daily/question/$n'
       preLoaderRoute: typeof AuthenticatedDailyQuestionNRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
   }
 }
 
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAccountRoute: typeof AuthenticatedAccountRoute
+  AuthenticatedHomeRoute: typeof AuthenticatedHomeRoute
+  AuthenticatedSkillMapRoute: typeof AuthenticatedSkillMapRoute
+  AuthenticatedDailyCompleteRoute: typeof AuthenticatedDailyCompleteRoute
+  AuthenticatedDailyQuestionNRoute: typeof AuthenticatedDailyQuestionNRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAccountRoute: AuthenticatedAccountRoute,
+  AuthenticatedHomeRoute: AuthenticatedHomeRoute,
+  AuthenticatedSkillMapRoute: AuthenticatedSkillMapRoute,
+  AuthenticatedDailyCompleteRoute: AuthenticatedDailyCompleteRoute,
+  AuthenticatedDailyQuestionNRoute: AuthenticatedDailyQuestionNRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AuthRoute: AuthRoute,
   ComingSoonRoute: ComingSoonRoute,
   DashboardRoute: DashboardRoute,
   PlansRoute: PlansRoute,
   PrivacyRoute: PrivacyRoute,
   ProfileRoute: ProfileRoute,
   SignupRoute: SignupRoute,
-  AuthenticatedAccountRoute: AuthenticatedAccountRoute,
-  AuthenticatedHomeRoute: AuthenticatedHomeRoute,
-  AuthenticatedSkillMapRoute: AuthenticatedSkillMapRoute,
   DiagnosticAvatarRoute: DiagnosticAvatarRoute,
   DiagnosticResultsRoute: DiagnosticResultsRoute,
   DiagnosticResultsPreviewRoute: DiagnosticResultsPreviewRoute,
@@ -456,9 +504,7 @@ const rootRouteChildren: RootRouteChildren = {
   LearnReadingWritingRoute: LearnReadingWritingRoute,
   LessonNodeIdRoute: LessonNodeIdRoute,
   DiagnosticIndexRoute: DiagnosticIndexRoute,
-  AuthenticatedDailyCompleteRoute: AuthenticatedDailyCompleteRoute,
   DiagnosticQuestionNRoute: DiagnosticQuestionNRoute,
-  AuthenticatedDailyQuestionNRoute: AuthenticatedDailyQuestionNRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
