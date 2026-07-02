@@ -16,7 +16,7 @@ import {
 import { PowerUpModal } from "@/components/PowerUpModal";
 
 
-export const Route = createFileRoute("/skill-map")({
+export const Route = createFileRoute("/_authenticated/skill-map")({
   head: () => ({ meta: [{ title: "Skill Map — TestPhi" }] }),
   component: SkillMap,
 });

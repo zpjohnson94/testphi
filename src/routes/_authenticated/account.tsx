@@ -7,7 +7,7 @@ import { loadFree, saveFree, type FreeState } from "@/lib/freeUser";
 import { useHydration, useStore, updateAvatar } from "@/lib/store";
 import { sfx } from "@/lib/sfx";
 
-export const Route = createFileRoute("/account")({
+export const Route = createFileRoute("/_authenticated/account")({
   head: () => ({ meta: [{ title: "Account — TestPhi" }] }),
   component: AccountPage,
 });

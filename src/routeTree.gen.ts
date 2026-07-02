@@ -9,15 +9,12 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as SkillMapRouteImport } from './routes/skill-map'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as PlansRouteImport } from './routes/plans'
-import { Route as HomeRouteImport } from './routes/home'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as ComingSoonRouteImport } from './routes/coming-soon'
-import { Route as AccountRouteImport } from './routes/account'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DiagnosticIndexRouteImport } from './routes/diagnostic.index'
 import { Route as LessonNodeIdRouteImport } from './routes/lesson.$nodeId'
@@ -26,15 +23,13 @@ import { Route as LearnMathRouteImport } from './routes/learn.math'
 import { Route as DiagnosticResultsPreviewRouteImport } from './routes/diagnostic.results-preview'
 import { Route as DiagnosticResultsRouteImport } from './routes/diagnostic.results'
 import { Route as DiagnosticAvatarRouteImport } from './routes/diagnostic.avatar'
-import { Route as DailyCompleteRouteImport } from './routes/daily.complete'
+import { Route as AuthenticatedSkillMapRouteImport } from './routes/_authenticated/skill-map'
+import { Route as AuthenticatedHomeRouteImport } from './routes/_authenticated/home'
+import { Route as AuthenticatedAccountRouteImport } from './routes/_authenticated/account'
 import { Route as DiagnosticQuestionNRouteImport } from './routes/diagnostic.question.$n'
-import { Route as DailyQuestionNRouteImport } from './routes/daily.question.$n'
+import { Route as AuthenticatedDailyCompleteRouteImport } from './routes/_authenticated/daily.complete'
+import { Route as AuthenticatedDailyQuestionNRouteImport } from './routes/_authenticated/daily.question.$n'
 
-const SkillMapRoute = SkillMapRouteImport.update({
-  id: '/skill-map',
-  path: '/skill-map',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
   path: '/signup',
@@ -55,11 +50,6 @@ const PlansRoute = PlansRouteImport.update({
   path: '/plans',
   getParentRoute: () => rootRouteImport,
 } as any)
-const HomeRoute = HomeRouteImport.update({
-  id: '/home',
-  path: '/home',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -68,11 +58,6 @@ const DashboardRoute = DashboardRouteImport.update({
 const ComingSoonRoute = ComingSoonRouteImport.update({
   id: '/coming-soon',
   path: '/coming-soon',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AccountRoute = AccountRouteImport.update({
-  id: '/account',
-  path: '/account',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -116,9 +101,19 @@ const DiagnosticAvatarRoute = DiagnosticAvatarRouteImport.update({
   path: '/diagnostic/avatar',
   getParentRoute: () => rootRouteImport,
 } as any)
-const DailyCompleteRoute = DailyCompleteRouteImport.update({
-  id: '/daily/complete',
-  path: '/daily/complete',
+const AuthenticatedSkillMapRoute = AuthenticatedSkillMapRouteImport.update({
+  id: '/_authenticated/skill-map',
+  path: '/skill-map',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedHomeRoute = AuthenticatedHomeRouteImport.update({
+  id: '/_authenticated/home',
+  path: '/home',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedAccountRoute = AuthenticatedAccountRouteImport.update({
+  id: '/_authenticated/account',
+  path: '/account',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DiagnosticQuestionNRoute = DiagnosticQuestionNRouteImport.update({
@@ -126,24 +121,30 @@ const DiagnosticQuestionNRoute = DiagnosticQuestionNRouteImport.update({
   path: '/diagnostic/question/$n',
   getParentRoute: () => rootRouteImport,
 } as any)
-const DailyQuestionNRoute = DailyQuestionNRouteImport.update({
-  id: '/daily/question/$n',
-  path: '/daily/question/$n',
-  getParentRoute: () => rootRouteImport,
-} as any)
+const AuthenticatedDailyCompleteRoute =
+  AuthenticatedDailyCompleteRouteImport.update({
+    id: '/_authenticated/daily/complete',
+    path: '/daily/complete',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const AuthenticatedDailyQuestionNRoute =
+  AuthenticatedDailyQuestionNRouteImport.update({
+    id: '/_authenticated/daily/question/$n',
+    path: '/daily/question/$n',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/account': typeof AccountRoute
   '/coming-soon': typeof ComingSoonRoute
   '/dashboard': typeof DashboardRoute
-  '/home': typeof HomeRoute
   '/plans': typeof PlansRoute
   '/privacy': typeof PrivacyRoute
   '/profile': typeof ProfileRoute
   '/signup': typeof SignupRoute
-  '/skill-map': typeof SkillMapRoute
-  '/daily/complete': typeof DailyCompleteRoute
+  '/account': typeof AuthenticatedAccountRoute
+  '/home': typeof AuthenticatedHomeRoute
+  '/skill-map': typeof AuthenticatedSkillMapRoute
   '/diagnostic/avatar': typeof DiagnosticAvatarRoute
   '/diagnostic/results': typeof DiagnosticResultsRoute
   '/diagnostic/results-preview': typeof DiagnosticResultsPreviewRoute
@@ -151,21 +152,21 @@ export interface FileRoutesByFullPath {
   '/learn/reading-writing': typeof LearnReadingWritingRoute
   '/lesson/$nodeId': typeof LessonNodeIdRoute
   '/diagnostic/': typeof DiagnosticIndexRoute
-  '/daily/question/$n': typeof DailyQuestionNRoute
+  '/daily/complete': typeof AuthenticatedDailyCompleteRoute
   '/diagnostic/question/$n': typeof DiagnosticQuestionNRoute
+  '/daily/question/$n': typeof AuthenticatedDailyQuestionNRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/account': typeof AccountRoute
   '/coming-soon': typeof ComingSoonRoute
   '/dashboard': typeof DashboardRoute
-  '/home': typeof HomeRoute
   '/plans': typeof PlansRoute
   '/privacy': typeof PrivacyRoute
   '/profile': typeof ProfileRoute
   '/signup': typeof SignupRoute
-  '/skill-map': typeof SkillMapRoute
-  '/daily/complete': typeof DailyCompleteRoute
+  '/account': typeof AuthenticatedAccountRoute
+  '/home': typeof AuthenticatedHomeRoute
+  '/skill-map': typeof AuthenticatedSkillMapRoute
   '/diagnostic/avatar': typeof DiagnosticAvatarRoute
   '/diagnostic/results': typeof DiagnosticResultsRoute
   '/diagnostic/results-preview': typeof DiagnosticResultsPreviewRoute
@@ -173,22 +174,22 @@ export interface FileRoutesByTo {
   '/learn/reading-writing': typeof LearnReadingWritingRoute
   '/lesson/$nodeId': typeof LessonNodeIdRoute
   '/diagnostic': typeof DiagnosticIndexRoute
-  '/daily/question/$n': typeof DailyQuestionNRoute
+  '/daily/complete': typeof AuthenticatedDailyCompleteRoute
   '/diagnostic/question/$n': typeof DiagnosticQuestionNRoute
+  '/daily/question/$n': typeof AuthenticatedDailyQuestionNRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/account': typeof AccountRoute
   '/coming-soon': typeof ComingSoonRoute
   '/dashboard': typeof DashboardRoute
-  '/home': typeof HomeRoute
   '/plans': typeof PlansRoute
   '/privacy': typeof PrivacyRoute
   '/profile': typeof ProfileRoute
   '/signup': typeof SignupRoute
-  '/skill-map': typeof SkillMapRoute
-  '/daily/complete': typeof DailyCompleteRoute
+  '/_authenticated/account': typeof AuthenticatedAccountRoute
+  '/_authenticated/home': typeof AuthenticatedHomeRoute
+  '/_authenticated/skill-map': typeof AuthenticatedSkillMapRoute
   '/diagnostic/avatar': typeof DiagnosticAvatarRoute
   '/diagnostic/results': typeof DiagnosticResultsRoute
   '/diagnostic/results-preview': typeof DiagnosticResultsPreviewRoute
@@ -196,23 +197,23 @@ export interface FileRoutesById {
   '/learn/reading-writing': typeof LearnReadingWritingRoute
   '/lesson/$nodeId': typeof LessonNodeIdRoute
   '/diagnostic/': typeof DiagnosticIndexRoute
-  '/daily/question/$n': typeof DailyQuestionNRoute
+  '/_authenticated/daily/complete': typeof AuthenticatedDailyCompleteRoute
   '/diagnostic/question/$n': typeof DiagnosticQuestionNRoute
+  '/_authenticated/daily/question/$n': typeof AuthenticatedDailyQuestionNRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/account'
     | '/coming-soon'
     | '/dashboard'
-    | '/home'
     | '/plans'
     | '/privacy'
     | '/profile'
     | '/signup'
+    | '/account'
+    | '/home'
     | '/skill-map'
-    | '/daily/complete'
     | '/diagnostic/avatar'
     | '/diagnostic/results'
     | '/diagnostic/results-preview'
@@ -220,21 +221,21 @@ export interface FileRouteTypes {
     | '/learn/reading-writing'
     | '/lesson/$nodeId'
     | '/diagnostic/'
-    | '/daily/question/$n'
+    | '/daily/complete'
     | '/diagnostic/question/$n'
+    | '/daily/question/$n'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/account'
     | '/coming-soon'
     | '/dashboard'
-    | '/home'
     | '/plans'
     | '/privacy'
     | '/profile'
     | '/signup'
+    | '/account'
+    | '/home'
     | '/skill-map'
-    | '/daily/complete'
     | '/diagnostic/avatar'
     | '/diagnostic/results'
     | '/diagnostic/results-preview'
@@ -242,21 +243,21 @@ export interface FileRouteTypes {
     | '/learn/reading-writing'
     | '/lesson/$nodeId'
     | '/diagnostic'
-    | '/daily/question/$n'
+    | '/daily/complete'
     | '/diagnostic/question/$n'
+    | '/daily/question/$n'
   id:
     | '__root__'
     | '/'
-    | '/account'
     | '/coming-soon'
     | '/dashboard'
-    | '/home'
     | '/plans'
     | '/privacy'
     | '/profile'
     | '/signup'
-    | '/skill-map'
-    | '/daily/complete'
+    | '/_authenticated/account'
+    | '/_authenticated/home'
+    | '/_authenticated/skill-map'
     | '/diagnostic/avatar'
     | '/diagnostic/results'
     | '/diagnostic/results-preview'
@@ -264,22 +265,22 @@ export interface FileRouteTypes {
     | '/learn/reading-writing'
     | '/lesson/$nodeId'
     | '/diagnostic/'
-    | '/daily/question/$n'
+    | '/_authenticated/daily/complete'
     | '/diagnostic/question/$n'
+    | '/_authenticated/daily/question/$n'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AccountRoute: typeof AccountRoute
   ComingSoonRoute: typeof ComingSoonRoute
   DashboardRoute: typeof DashboardRoute
-  HomeRoute: typeof HomeRoute
   PlansRoute: typeof PlansRoute
   PrivacyRoute: typeof PrivacyRoute
   ProfileRoute: typeof ProfileRoute
   SignupRoute: typeof SignupRoute
-  SkillMapRoute: typeof SkillMapRoute
-  DailyCompleteRoute: typeof DailyCompleteRoute
+  AuthenticatedAccountRoute: typeof AuthenticatedAccountRoute
+  AuthenticatedHomeRoute: typeof AuthenticatedHomeRoute
+  AuthenticatedSkillMapRoute: typeof AuthenticatedSkillMapRoute
   DiagnosticAvatarRoute: typeof DiagnosticAvatarRoute
   DiagnosticResultsRoute: typeof DiagnosticResultsRoute
   DiagnosticResultsPreviewRoute: typeof DiagnosticResultsPreviewRoute
@@ -287,19 +288,13 @@ export interface RootRouteChildren {
   LearnReadingWritingRoute: typeof LearnReadingWritingRoute
   LessonNodeIdRoute: typeof LessonNodeIdRoute
   DiagnosticIndexRoute: typeof DiagnosticIndexRoute
-  DailyQuestionNRoute: typeof DailyQuestionNRoute
+  AuthenticatedDailyCompleteRoute: typeof AuthenticatedDailyCompleteRoute
   DiagnosticQuestionNRoute: typeof DiagnosticQuestionNRoute
+  AuthenticatedDailyQuestionNRoute: typeof AuthenticatedDailyQuestionNRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/skill-map': {
-      id: '/skill-map'
-      path: '/skill-map'
-      fullPath: '/skill-map'
-      preLoaderRoute: typeof SkillMapRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/signup': {
       id: '/signup'
       path: '/signup'
@@ -328,13 +323,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PlansRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/home': {
-      id: '/home'
-      path: '/home'
-      fullPath: '/home'
-      preLoaderRoute: typeof HomeRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/dashboard': {
       id: '/dashboard'
       path: '/dashboard'
@@ -347,13 +335,6 @@ declare module '@tanstack/react-router' {
       path: '/coming-soon'
       fullPath: '/coming-soon'
       preLoaderRoute: typeof ComingSoonRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/account': {
-      id: '/account'
-      path: '/account'
-      fullPath: '/account'
-      preLoaderRoute: typeof AccountRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -412,11 +393,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DiagnosticAvatarRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/daily/complete': {
-      id: '/daily/complete'
-      path: '/daily/complete'
-      fullPath: '/daily/complete'
-      preLoaderRoute: typeof DailyCompleteRouteImport
+    '/_authenticated/skill-map': {
+      id: '/_authenticated/skill-map'
+      path: '/skill-map'
+      fullPath: '/skill-map'
+      preLoaderRoute: typeof AuthenticatedSkillMapRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/home': {
+      id: '/_authenticated/home'
+      path: '/home'
+      fullPath: '/home'
+      preLoaderRoute: typeof AuthenticatedHomeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/account': {
+      id: '/_authenticated/account'
+      path: '/account'
+      fullPath: '/account'
+      preLoaderRoute: typeof AuthenticatedAccountRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/diagnostic/question/$n': {
@@ -426,11 +421,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DiagnosticQuestionNRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/daily/question/$n': {
-      id: '/daily/question/$n'
+    '/_authenticated/daily/complete': {
+      id: '/_authenticated/daily/complete'
+      path: '/daily/complete'
+      fullPath: '/daily/complete'
+      preLoaderRoute: typeof AuthenticatedDailyCompleteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/daily/question/$n': {
+      id: '/_authenticated/daily/question/$n'
       path: '/daily/question/$n'
       fullPath: '/daily/question/$n'
-      preLoaderRoute: typeof DailyQuestionNRouteImport
+      preLoaderRoute: typeof AuthenticatedDailyQuestionNRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -438,16 +440,15 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AccountRoute: AccountRoute,
   ComingSoonRoute: ComingSoonRoute,
   DashboardRoute: DashboardRoute,
-  HomeRoute: HomeRoute,
   PlansRoute: PlansRoute,
   PrivacyRoute: PrivacyRoute,
   ProfileRoute: ProfileRoute,
   SignupRoute: SignupRoute,
-  SkillMapRoute: SkillMapRoute,
-  DailyCompleteRoute: DailyCompleteRoute,
+  AuthenticatedAccountRoute: AuthenticatedAccountRoute,
+  AuthenticatedHomeRoute: AuthenticatedHomeRoute,
+  AuthenticatedSkillMapRoute: AuthenticatedSkillMapRoute,
   DiagnosticAvatarRoute: DiagnosticAvatarRoute,
   DiagnosticResultsRoute: DiagnosticResultsRoute,
   DiagnosticResultsPreviewRoute: DiagnosticResultsPreviewRoute,
@@ -455,8 +456,9 @@ const rootRouteChildren: RootRouteChildren = {
   LearnReadingWritingRoute: LearnReadingWritingRoute,
   LessonNodeIdRoute: LessonNodeIdRoute,
   DiagnosticIndexRoute: DiagnosticIndexRoute,
-  DailyQuestionNRoute: DailyQuestionNRoute,
+  AuthenticatedDailyCompleteRoute: AuthenticatedDailyCompleteRoute,
   DiagnosticQuestionNRoute: DiagnosticQuestionNRoute,
+  AuthenticatedDailyQuestionNRoute: AuthenticatedDailyQuestionNRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
