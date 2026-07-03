@@ -1,12 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { Flame, ArrowRight, HelpCircle } from "lucide-react";
-import {
-  isBonusQuestionFor,
-  nextBonusDifficulty,
-  type SessionResult,
-} from "@/lib/freeUser";
-import { useFreeState, useTodayDailySet } from "@/lib/useFree";
+import { useFreeState, useServeDailyQuestion, useGradeDailyAnswer } from "@/lib/useFree";
 import { PowerUpModal } from "@/components/PowerUpModal";
 import { sfx } from "@/lib/sfx";
 
@@ -15,36 +10,20 @@ export const Route = createFileRoute("/_authenticated/daily/question/$n")({
   component: DailyQuestion,
 });
 
-const SESSION_KEY = "testphi:daily-session:v1";
-
-function loadSessionResults(): SessionResult[] {
-  if (typeof window === "undefined") return [];
-  try {
-    const raw = window.localStorage.getItem(SESSION_KEY);
-    return raw ? (JSON.parse(raw) as SessionResult[]) : [];
-  } catch {
-    return [];
-  }
-}
-
-function saveSessionResults(r: SessionResult[]) {
-  if (typeof window === "undefined") return;
-  try {
-    window.localStorage.setItem(SESSION_KEY, JSON.stringify(r));
-  } catch {}
-}
-
 function DailyQuestion() {
   const { n } = Route.useParams();
   const navigate = useNavigate();
   const { data: freeState } = useFreeState();
-  const { data: dailySet, isLoading: dailyLoading } = useTodayDailySet();
-  const questions = dailySet?.questions ?? [];
   const idx = Math.max(1, Math.min(5, parseInt(n, 10) || 1));
-  const question = questions[idx - 1];
+  const isLast = idx === 5;
+
+  const { data: served, isLoading } = useServeDailyQuestion(idx);
+  const grade = useGradeDailyAnswer();
 
   const [selected, setSelected] = useState<number | null>(null);
   const [submitted, setSubmitted] = useState(false);
+  const [correctPos, setCorrectPos] = useState<number | null>(null);
+  const [isCorrect, setIsCorrect] = useState<boolean>(false);
   const [showModal, setShowModal] = useState(false);
   const streak = freeState?.streak ?? 0;
   const startRef = useRef(Date.now());
@@ -55,15 +34,22 @@ function DailyQuestion() {
   >([]);
   const boltSeq = useRef(0);
 
-  const isLast = idx === 5;
-  const correct = submitted && !!question && selected === question.correctIndex;
-  const incorrect = submitted && !!question && selected !== question.correctIndex;
-
+  // Reset transient UI on slot change; restore reveal if server says already answered.
   useEffect(() => {
     startRef.current = Date.now();
     setSelected(null);
     setSubmitted(false);
+    setCorrectPos(null);
+    setIsCorrect(false);
   }, [idx]);
+
+  useEffect(() => {
+    if (!served?.alreadyAnswered) return;
+    setSelected(served.selectedPosition ?? null);
+    setCorrectPos(served.correctPosition ?? null);
+    setIsCorrect(!!served.isCorrect);
+    setSubmitted(true);
+  }, [served?.attemptId]);
 
   const fireBolts = (choiceIdx: number) => {
     const btn = choiceRefs.current[choiceIdx];
@@ -92,37 +78,30 @@ function DailyQuestion() {
     });
     setBolts((prev) => [...prev, ...newBolts]);
     window.setTimeout(() => {
-      setBolts((prev) => prev.filter((x) => !newBolts.find((n) => n.id === x.id)));
+      setBolts((prev) => prev.filter((x) => !newBolts.find((nb) => nb.id === x.id)));
     }, 900);
   };
 
-  const submit = (choiceIdx: number) => {
-    if (submitted) return;
-    if (!question) return;
+  const submit = async (choiceIdx: number) => {
+    if (submitted || !served) return;
     setSelected(choiceIdx);
     setSubmitted(true);
     sfx.tap();
-    const isCorrect = choiceIdx === question.correctIndex;
-    if (isCorrect) fireBolts(choiceIdx);
-
-    const elapsedSeconds = (Date.now() - startRef.current) / 1000;
-    const domainId = question.domainId;
-    const isBonus = freeState ? isBonusQuestionFor(freeState, domainId) : false;
-    const difficulty = isBonus && freeState
-      ? nextBonusDifficulty(freeState, domainId)
-      : (question.difficulty ?? 2);
-    const record: SessionResult = {
-      n: idx,
-      questionId: question.questionId,
-      domainId,
-      difficulty,
-      correct: isCorrect,
-      elapsedSeconds,
-      isBonus,
-    };
-    const all = loadSessionResults().filter((r) => r.n !== idx);
-    all.push(record);
-    saveSessionResults(all);
+    const elapsedMs = Date.now() - startRef.current;
+    try {
+      const result = await grade.mutateAsync({
+        attemptId: served.attemptId,
+        selectedPosition: choiceIdx,
+        elapsedMs,
+      });
+      setIsCorrect(result.isCorrect);
+      setCorrectPos(result.correctPosition);
+      if (result.isCorrect) fireBolts(choiceIdx);
+    } catch {
+      // Roll back on failure so the user can retry.
+      setSubmitted(false);
+      setSelected(null);
+    }
   };
 
   const goNext = () => {
@@ -135,15 +114,15 @@ function DailyQuestion() {
 
   const progressPct = (idx / 5) * 100;
 
-  if (!question) {
+  if (!served) {
     return (
       <div className="topo-bg topo-dim min-h-screen flex items-center justify-center text-[var(--lavender)]/70 text-sm">
-        {dailyLoading ? "Loading today's questions…" : "Daily set unavailable."}
+        {isLoading ? "Loading today's questions…" : "Daily set unavailable."}
       </div>
     );
   }
 
-
+  const revealCorrect = submitted && correctPos !== null;
 
   return (
     <div className="topo-bg topo-dim min-h-screen">
@@ -195,39 +174,39 @@ function DailyQuestion() {
             className="inline-block rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-[0.18em]"
             style={{ background: "rgba(74,6,136,0.12)", color: "var(--violet-deep)" }}
           >
-            {question.domainLabel}
+            {served.domainLabel}
           </div>
 
-          {question.passage && (
+          {served.passage && (
             <p className="mt-4 text-sm leading-relaxed" style={{ color: "#3b2f57" }}>
-              {question.passage}
+              {served.passage}
             </p>
           )}
 
           <h1 className="mt-3 text-base sm:text-lg font-bold" style={{ color: "var(--ink)" }}>
-            {question.prompt}
+            {served.question}
           </h1>
 
           <div className="mt-5 grid gap-2.5">
-            {question.choices.map((choice, i) => {
+            {served.choices.map((choice: string, i: number) => {
               const isSelected = selected === i;
-              const isCorrectChoice = i === question.correctIndex;
+              const isCorrectChoice = revealCorrect && i === correctPos;
               let bg = "#fff";
               let border = "1.5px solid rgba(29,41,0,0.12)";
               let color = "var(--ink)";
               let animClass = "";
 
               if (submitted) {
-                if (isSelected && correct) {
+                if (isSelected && isCorrect) {
                   bg = "var(--volt)";
                   border = "2px solid var(--volt)";
                   animClass = "animate-pop";
-                } else if (isSelected && incorrect) {
+                } else if (isSelected && !isCorrect) {
                   bg = "#ff4d6d";
                   border = "2px solid #ff4d6d";
                   color = "#fff";
                   animClass = "animate-shake";
-                } else if (incorrect && isCorrectChoice) {
+                } else if (!isCorrect && isCorrectChoice) {
                   bg = "var(--volt)";
                   border = "2px solid var(--volt)";
                   color = "var(--ink)";
@@ -257,14 +236,13 @@ function DailyQuestion() {
             })}
           </div>
 
-          {/* Reveal action buttons */}
           {submitted && (
             <div className="mt-6 flex items-center justify-end gap-3 animate-fade-up">
               <button
                 onClick={() => setShowModal(true)}
                 aria-label="Answer explanation"
                 className={`h-14 w-14 rounded-2xl flex items-center justify-center ${
-                  incorrect ? "pulse-soft" : ""
+                  !isCorrect ? "pulse-soft" : ""
                 }`}
                 style={{
                   background: "var(--violet-deep)",
@@ -286,7 +264,6 @@ function DailyQuestion() {
         </div>
       </main>
 
-      {/* Lightning bolt overlay */}
       <div className="pointer-events-none fixed inset-0 z-50" aria-hidden>
         {bolts.map((b) => {
           const burstDist = 60 + Math.random() * 40;

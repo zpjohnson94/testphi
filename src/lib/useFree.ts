@@ -7,7 +7,7 @@ import {
   migrateAnonymousDiagnostic,
   updateProfile,
 } from "./free.functions";
-import { getTodayDailySet, type DailySetResponse } from "./dailySet.functions";
+
 import type { FreeState, SessionResult } from "./freeUser";
 import type { DiagState } from "./diagnostic";
 
@@ -51,13 +51,42 @@ export function useMigrateDiagnostic() {
   });
 }
 
-export const dailySetKey = ["daily-set"] as const;
+import {
+  serveDailyQuestion,
+  gradeDailyAnswer,
+  finalizeDailySession,
+  type ServedQuestion,
+  type GradeResult,
+} from "./dailyAttempt.functions";
 
-export function useTodayDailySet() {
-  const fn = useServerFn(getTodayDailySet);
-  return useQuery<DailySetResponse>({
-    queryKey: dailySetKey,
-    queryFn: () => fn(),
-    staleTime: 5 * 60_000,
+export const servedQuestionKey = (slot: number) => ["daily-question", slot] as const;
+
+export function useServeDailyQuestion(slot: number) {
+  const fn = useServerFn(serveDailyQuestion);
+  return useQuery<ServedQuestion>({
+    queryKey: servedQuestionKey(slot),
+    queryFn: () => fn({ data: { slot } }),
+    staleTime: Infinity, // shuffle is stable per (user, date, slot)
+    retry: false,
   });
 }
+
+export function useGradeDailyAnswer() {
+  const fn = useServerFn(gradeDailyAnswer);
+  return useMutation({
+    mutationFn: (vars: { attemptId: string; selectedPosition: number; elapsedMs: number }) =>
+      fn({ data: vars }),
+  });
+}
+
+export function useFinalizeDailySession() {
+  const fn = useServerFn(finalizeDailySession);
+  const qc = useQueryClient();
+  return useMutation<FreeState>({
+    mutationFn: () => fn(),
+    onSuccess: (next) => {
+      qc.setQueryData(freeStateKey, next);
+    },
+  });
+}
+

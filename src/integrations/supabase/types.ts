@@ -61,6 +61,57 @@ export type Database = {
           },
         ]
       }
+      daily_attempts: {
+        Row: {
+          answered_at: string | null
+          correct_position: number
+          created_at: string
+          elapsed_ms: number | null
+          id: string
+          is_correct: boolean | null
+          question_id: string
+          selected_position: number | null
+          served_at: string
+          set_date: string
+          shuffled_order: string[]
+          slot: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          answered_at?: string | null
+          correct_position: number
+          created_at?: string
+          elapsed_ms?: number | null
+          id?: string
+          is_correct?: boolean | null
+          question_id: string
+          selected_position?: number | null
+          served_at?: string
+          set_date: string
+          shuffled_order: string[]
+          slot: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          answered_at?: string | null
+          correct_position?: number
+          created_at?: string
+          elapsed_ms?: number | null
+          id?: string
+          is_correct?: boolean | null
+          question_id?: string
+          selected_position?: number | null
+          served_at?: string
+          set_date?: string
+          shuffled_order?: string[]
+          slot?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       daily_sets: {
         Row: {
           generated_at: string
@@ -120,7 +171,7 @@ export type Database = {
           is_active: boolean
           passage_group_id: string | null
           payload: Json
-          skill: string | null
+          source: string
           updated_at: string
         }
         Insert: {
@@ -133,7 +184,7 @@ export type Database = {
           is_active?: boolean
           passage_group_id?: string | null
           payload?: Json
-          skill?: string | null
+          source?: string
           updated_at?: string
         }
         Update: {
@@ -146,7 +197,7 @@ export type Database = {
           is_active?: boolean
           passage_group_id?: string | null
           payload?: Json
-          skill?: string | null
+          source?: string
           updated_at?: string
         }
         Relationships: []
