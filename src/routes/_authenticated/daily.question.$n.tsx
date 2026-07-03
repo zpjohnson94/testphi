@@ -135,6 +135,16 @@ function DailyQuestion() {
 
   const progressPct = (idx / 5) * 100;
 
+  if (!question) {
+    return (
+      <div className="topo-bg topo-dim min-h-screen flex items-center justify-center text-[var(--lavender)]/70 text-sm">
+        {dailyLoading ? "Loading today's questions…" : "Daily set unavailable."}
+      </div>
+    );
+  }
+
+
+
   return (
     <div className="topo-bg topo-dim min-h-screen">
       <header
