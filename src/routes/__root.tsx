@@ -30,7 +30,7 @@ function NotFoundComponent() {
   );
 }
 
-export const Route = createRootRoute({
+export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
   head: () => ({
     meta: [
       { charSet: "utf-8" },
@@ -100,17 +100,33 @@ function RootShell({ children }: { children: React.ReactNode }) {
 
 function RootComponent() {
   const router = useRouter();
+  const { queryClient } = Route.useRouteContext();
   useEffect(() => {
     const { data: sub } = supabase.auth.onAuthStateChange((event) => {
       if (event !== "SIGNED_IN" && event !== "SIGNED_OUT" && event !== "USER_UPDATED") return;
+      if (event === "SIGNED_IN") {
+        // Best-effort migrate any anonymous diagnostic answers stored locally.
+        try {
+          const diag = loadDiag();
+          if (diag && diag.answers && diag.answers.length > 0) {
+            migrateAnonymousDiagnostic({ data: { diag } })
+              .then(() => {
+                clearDiag();
+                queryClient.invalidateQueries({ queryKey: ["free-state"] });
+              })
+              .catch((err) => console.warn("diag migration failed", err));
+          }
+        } catch {}
+      }
+      if (event === "SIGNED_OUT") queryClient.clear();
       router.invalidate();
     });
     return () => sub.subscription.unsubscribe();
-  }, [router]);
+  }, [router, queryClient]);
   return (
-    <>
+    <QueryClientProvider client={queryClient}>
       <Outlet />
       <Footer />
-    </>
+    </QueryClientProvider>
   );
 }
