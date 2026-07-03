@@ -1,7 +1,10 @@
-import { Outlet, Link, createRootRoute, HeadContent, Scripts, useRouter } from "@tanstack/react-router";
+import { Outlet, Link, createRootRouteWithContext, HeadContent, Scripts, useRouter } from "@tanstack/react-router";
+import { QueryClientProvider, type QueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { Footer } from "@/components/Footer";
 import { supabase } from "@/integrations/supabase/client";
+import { migrateAnonymousDiagnostic } from "@/lib/free.functions";
+import { loadDiag, clearDiag } from "@/lib/diagnostic";
 
 import appCss from "../styles.css?url";
 
