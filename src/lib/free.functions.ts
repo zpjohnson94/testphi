@@ -243,6 +243,7 @@ export const getFreeState = createServerFn({ method: "GET" })
 
 const sessionResultSchema = z.object({
   n: z.number(),
+  questionId: z.string().optional(),
   domainId: z.string(),
   difficulty: z.union([z.literal(1), z.literal(2), z.literal(3)]),
   correct: z.boolean(),
