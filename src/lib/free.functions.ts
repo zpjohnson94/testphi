@@ -373,7 +373,7 @@ export const updateProfile = createServerFn({ method: "POST" })
     }).parse(raw),
   )
   .handler(async ({ data, context }) => {
-    const patch: Record<string, string> = {};
+    const patch: { name?: string; email?: string } = {};
     if (data.name !== undefined) patch.name = data.name;
     if (data.email !== undefined) patch.email = data.email;
     if (Object.keys(patch).length === 0) return { ok: true };
