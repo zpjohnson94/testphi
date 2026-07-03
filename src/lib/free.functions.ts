@@ -283,7 +283,7 @@ export const applySessionFn = createServerFn({ method: "POST" })
       const answerRows = data.results.map((r) => ({
         session_id: sessionRow.id,
         user_id: context.userId,
-        question_id: String(r.n),
+        question_id: r.questionId ?? String(r.n),
         domain_id: r.domainId,
         difficulty: r.difficulty,
         correct: r.correct,
