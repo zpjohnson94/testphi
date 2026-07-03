@@ -116,7 +116,7 @@ async function hydrateByIds(
 ): Promise<DailyQuestion[]> {
   const { data } = await supabase
     .from("questions")
-    .select("id, domain_id, difficulty, expected_seconds, payload, skill, passage_group_id, diagram_group_id")
+    .select("id, domain_id, difficulty, expected_seconds, payload, passage_group_id, diagram_group_id")
     .in("id", ids);
   if (!data) return [];
   const byId = new Map<string, any>(data.map((r: any) => [r.id, r]));
@@ -225,7 +225,7 @@ async function pickOne(
   for (const t of tries) {
     let query = supabase
       .from("questions")
-      .select("id, domain_id, difficulty, expected_seconds, payload, skill, passage_group_id, diagram_group_id")
+      .select("id, domain_id, difficulty, expected_seconds, payload, passage_group_id, diagram_group_id")
       .eq("domain_id", domainId)
       .eq("is_active", true)
       .limit(50);
