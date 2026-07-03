@@ -78,7 +78,8 @@ export interface DomainStat {
 }
 
 export interface SessionResult {
-  n: number;
+  n: number;                    // 1..5 ordinal within the session
+  questionId?: string;          // real bank ID (falls back to String(n) if absent)
   domainId: string;
   difficulty: Difficulty;
   correct: boolean;
