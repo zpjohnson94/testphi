@@ -7,13 +7,12 @@ import { Avatar, defaultAvatar } from "@/components/Avatar";
 import { PredictedScore } from "@/components/PredictedScore";
 import { MomentumGauge } from "@/components/MomentumGauge";
 import {
-  loadFree,
   hasCompletedToday,
   DOMAINS,
   isCalibrated,
   sectionScore,
-  type FreeState,
 } from "@/lib/freeUser";
+import { useFreeState } from "@/lib/useFree";
 
 
 export const Route = createFileRoute("/_authenticated/home")({
@@ -23,18 +22,12 @@ export const Route = createFileRoute("/_authenticated/home")({
 
 function HomePage() {
   const navigate = useNavigate();
-  const [state, setState] = useState<FreeState | null>(() =>
-    typeof window === "undefined" ? null : loadFree(),
-  );
+  const { data: state } = useFreeState();
   const overall = state?.overall ?? 800;
   const streak = state?.streak ?? 0;
   const done = state ? hasCompletedToday(state) : false;
   const lastSession = state?.lastSession ?? null;
   const [animatedScore, setAnimatedScore] = useState(overall);
-
-  useEffect(() => {
-    if (!state) setState(loadFree());
-  }, []);
 
   useEffect(() => {
     if (!state) return;

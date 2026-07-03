@@ -1,18 +1,17 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Sparkles } from "lucide-react";
 import { FreeShell } from "@/components/FreeShell";
 import { Logo } from "@/components/Logo";
 import {
   DOMAINS,
-  loadFree,
   tierColor,
   tierLabel,
   tierOf,
   SCORING,
-  type FreeState,
   type Tier,
 } from "@/lib/freeUser";
+import { useFreeState } from "@/lib/useFree";
 import { PowerUpModal } from "@/components/PowerUpModal";
 
 
@@ -37,14 +36,8 @@ function DomainPill({ section }: { section: string }) {
 }
 
 function SkillMap() {
-  const [state, setState] = useState<FreeState | null>(() =>
-    typeof window === "undefined" ? null : loadFree(),
-  );
+  const { data: state } = useFreeState();
   const [showModal, setShowModal] = useState(false);
-
-  useEffect(() => {
-    if (!state) setState(loadFree());
-  }, []);
 
   const grouped = useMemo(() => {
     const all = DOMAINS.map((d) => {
