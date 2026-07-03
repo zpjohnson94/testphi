@@ -243,6 +243,7 @@ export const getFreeState = createServerFn({ method: "GET" })
 
 const sessionResultSchema = z.object({
   n: z.number(),
+  questionId: z.string().optional(),
   domainId: z.string(),
   difficulty: z.union([z.literal(1), z.literal(2), z.literal(3)]),
   correct: z.boolean(),
@@ -282,7 +283,7 @@ export const applySessionFn = createServerFn({ method: "POST" })
       const answerRows = data.results.map((r) => ({
         session_id: sessionRow.id,
         user_id: context.userId,
-        question_id: String(r.n),
+        question_id: r.questionId ?? String(r.n),
         domain_id: r.domainId,
         difficulty: r.difficulty,
         correct: r.correct,

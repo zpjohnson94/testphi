@@ -30,6 +30,7 @@ import { Route as AuthenticatedHomeRouteImport } from './routes/_authenticated/h
 import { Route as AuthenticatedAccountRouteImport } from './routes/_authenticated/account'
 import { Route as DiagnosticQuestionNRouteImport } from './routes/diagnostic.question.$n'
 import { Route as AuthenticatedDailyCompleteRouteImport } from './routes/_authenticated/daily.complete'
+import { Route as ApiPublicHooksGenerateDailySetsRouteImport } from './routes/api/public/hooks/generate-daily-sets'
 import { Route as AuthenticatedDailyQuestionNRouteImport } from './routes/_authenticated/daily.question.$n'
 
 const SignupRoute = SignupRouteImport.update({
@@ -138,6 +139,12 @@ const AuthenticatedDailyCompleteRoute =
     path: '/daily/complete',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const ApiPublicHooksGenerateDailySetsRoute =
+  ApiPublicHooksGenerateDailySetsRouteImport.update({
+    id: '/api/public/hooks/generate-daily-sets',
+    path: '/api/public/hooks/generate-daily-sets',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AuthenticatedDailyQuestionNRoute =
   AuthenticatedDailyQuestionNRouteImport.update({
     id: '/daily/question/$n',
@@ -167,6 +174,7 @@ export interface FileRoutesByFullPath {
   '/daily/complete': typeof AuthenticatedDailyCompleteRoute
   '/diagnostic/question/$n': typeof DiagnosticQuestionNRoute
   '/daily/question/$n': typeof AuthenticatedDailyQuestionNRoute
+  '/api/public/hooks/generate-daily-sets': typeof ApiPublicHooksGenerateDailySetsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -190,6 +198,7 @@ export interface FileRoutesByTo {
   '/daily/complete': typeof AuthenticatedDailyCompleteRoute
   '/diagnostic/question/$n': typeof DiagnosticQuestionNRoute
   '/daily/question/$n': typeof AuthenticatedDailyQuestionNRoute
+  '/api/public/hooks/generate-daily-sets': typeof ApiPublicHooksGenerateDailySetsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -215,6 +224,7 @@ export interface FileRoutesById {
   '/_authenticated/daily/complete': typeof AuthenticatedDailyCompleteRoute
   '/diagnostic/question/$n': typeof DiagnosticQuestionNRoute
   '/_authenticated/daily/question/$n': typeof AuthenticatedDailyQuestionNRoute
+  '/api/public/hooks/generate-daily-sets': typeof ApiPublicHooksGenerateDailySetsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -240,6 +250,7 @@ export interface FileRouteTypes {
     | '/daily/complete'
     | '/diagnostic/question/$n'
     | '/daily/question/$n'
+    | '/api/public/hooks/generate-daily-sets'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -263,6 +274,7 @@ export interface FileRouteTypes {
     | '/daily/complete'
     | '/diagnostic/question/$n'
     | '/daily/question/$n'
+    | '/api/public/hooks/generate-daily-sets'
   id:
     | '__root__'
     | '/'
@@ -287,6 +299,7 @@ export interface FileRouteTypes {
     | '/_authenticated/daily/complete'
     | '/diagnostic/question/$n'
     | '/_authenticated/daily/question/$n'
+    | '/api/public/hooks/generate-daily-sets'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -307,6 +320,7 @@ export interface RootRouteChildren {
   LessonNodeIdRoute: typeof LessonNodeIdRoute
   DiagnosticIndexRoute: typeof DiagnosticIndexRoute
   DiagnosticQuestionNRoute: typeof DiagnosticQuestionNRoute
+  ApiPublicHooksGenerateDailySetsRoute: typeof ApiPublicHooksGenerateDailySetsRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -458,6 +472,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDailyCompleteRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/api/public/hooks/generate-daily-sets': {
+      id: '/api/public/hooks/generate-daily-sets'
+      path: '/api/public/hooks/generate-daily-sets'
+      fullPath: '/api/public/hooks/generate-daily-sets'
+      preLoaderRoute: typeof ApiPublicHooksGenerateDailySetsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/daily/question/$n': {
       id: '/_authenticated/daily/question/$n'
       path: '/daily/question/$n'
@@ -505,6 +526,7 @@ const rootRouteChildren: RootRouteChildren = {
   LessonNodeIdRoute: LessonNodeIdRoute,
   DiagnosticIndexRoute: DiagnosticIndexRoute,
   DiagnosticQuestionNRoute: DiagnosticQuestionNRoute,
+  ApiPublicHooksGenerateDailySetsRoute: ApiPublicHooksGenerateDailySetsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

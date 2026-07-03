@@ -61,6 +61,24 @@ export type Database = {
           },
         ]
       }
+      daily_sets: {
+        Row: {
+          generated_at: string
+          question_ids: string[]
+          set_date: string
+        }
+        Insert: {
+          generated_at?: string
+          question_ids: string[]
+          set_date: string
+        }
+        Update: {
+          generated_at?: string
+          question_ids?: string[]
+          set_date?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_id: string | null
@@ -94,29 +112,41 @@ export type Database = {
       questions: {
         Row: {
           created_at: string
+          diagram_group_id: string | null
           difficulty: number
           domain_id: string
           expected_seconds: number
           id: string
+          is_active: boolean
+          passage_group_id: string | null
           payload: Json
+          skill: string | null
           updated_at: string
         }
         Insert: {
           created_at?: string
+          diagram_group_id?: string | null
           difficulty: number
           domain_id: string
           expected_seconds?: number
           id: string
+          is_active?: boolean
+          passage_group_id?: string | null
           payload?: Json
+          skill?: string | null
           updated_at?: string
         }
         Update: {
           created_at?: string
+          diagram_group_id?: string | null
           difficulty?: number
           domain_id?: string
           expected_seconds?: number
           id?: string
+          is_active?: boolean
+          passage_group_id?: string | null
           payload?: Json
+          skill?: string | null
           updated_at?: string
         }
         Relationships: []

@@ -1,60 +1,98 @@
-## Migrate TestPhi off localStorage to Lovable Cloud
+## Pass 3 — Question Bank Integration
 
-Move all user data (scores, mastery, sessions, answers, streaks, momentum) from `localStorage` into the backend, behind magic-link auth. Diagnostic stays anonymous in `localStorage` until signup, then migrates.
+Wires the `questions` table to real content and switches Daily 5 to a universal, pre-generated set. Bonus rounds stay adaptive. Diagnostic stays fully decoupled and hardcoded.
 
-### 1. Auth
+### 1. Schema changes
 
-- Add magic-link email auth (Supabase). Reuse existing email capture: entering email at the end of the diagnostic sends a magic link instead of a plain insert.
-- New public route `/auth/callback` to hydrate the session, then redirect into `/home`.
-- Wrap authenticated routes (`/home`, `/skill-map`, `/account`, `/daily/*`) under `src/routes/_authenticated/`. Managed layout gates them client-side.
-- Root route: single `onAuthStateChange` listener → `router.invalidate()` on identity transitions.
+Migration adds:
 
-### 2. Schema (Lovable Cloud)
+- `questions.is_active boolean not null default true` — retirement flag (append-only; never hard-delete).
+- `questions.passage_group_id uuid null` and `questions.diagram_group_id uuid null` — nullable now, populated later. Indexed for grouped-render lookups.
+- `questions.skill text null` — mirror of `payload.skill` for cheap filtering. Optional, can also live only in payload.
+- New table `daily_sets`:
 
-Hot layer (per-user computed state, one row per user):
-- `profiles` — name, email, avatar_id, plan
-- `user_scoring_state` — momentum_needle, last_momentum_date, qualifying_days (jsonb), streak, last_daily_date, diagnostic_score, seeded
-- `user_domain_mastery` — (user_id, domain_id), answered, initialized, mastery, last_answered_at, bonus_step, batch (jsonb of up to 8 entries)
+  ```text
+  set_date       date primary key
+  question_ids   uuid[]  -- exactly 5, ordered
+  generated_at   timestamptz default now()
+  ```
 
-Cold layer (immutable history):
-- `sessions` — id, user_id, kind (`diagnostic`|`daily`|`drill`), started_at, completed_at, prev_overall, new_overall, delta, momentum_before/after, streak_before/after
-- `answers` — id, session_id, user_id, question_id, domain_id, difficulty, correct, elapsed_seconds, is_bonus, answered_at
+  GRANTs: `SELECT` to `authenticated` (Daily 5 fetch), `ALL` to `service_role`. RLS on, single policy `for select using (true)` for authenticated. Writes only via service role from the batch generator.
 
-Support:
-- `questions` — id (text, matches question bank IDs the user will provide), domain_id, difficulty, expected_seconds, payload (jsonb prompt/choices/answer). Seeded via migration once IDs arrive.
-- All tables: GRANTs + RLS scoped to `auth.uid()`. `service_role` grants for admin ops.
-- Trigger to auto-create `profiles` + `user_scoring_state` + 8 `user_domain_mastery` rows on new user signup.
+- Frozen `questions.payload` shape (documented in a comment on the column):
 
-### 3. Server functions (`src/lib/*.functions.ts`)
+  ```json
+  {
+    "prompt": "...",
+    "choices": ["...","...","...","..."],
+    "correctIndex": 0,
+    "skill": "algebra",
+    "passage_group_id": null,
+    "diagram_group_id": null
+  }
+  ```
 
-All wrap `requireSupabaseAuth`:
-- `getFreeState` — returns hot state + snapshots. Applies decay + momentum recompute server-side (moved from `freeUser.ts`).
-- `applySession({ results })` — inserts `sessions` + `answers` rows, updates mastery/momentum/streak atomically, returns new `LastSession` diff.
-- `pickDailyQuestions` — server-side selection using current mastery + bonus-pending domains.
-- `updateProfile({ name, avatarId })`.
-- `migrateAnonymousDiagnostic({ diag })` — called once right after magic-link signup: replays diagnostic answers into `answers` + seeds domain batches. Idempotent (no-op if `seeded=true`).
+  No `correctWeight`/`incorrectWeight` — those are derived at answer-time in `scoring.ts` from difficulty + mastery ceiling/floor + time factor + momentum. If they ever slip into a seeded payload, seeding strips them.
 
-Scoring math (`freeUser.ts` logic — initializeMastery, deltaFor, momentumMultiplier, computePredicted) moves into a shared `src/lib/scoring.ts` used only by server handlers.
+### 2. Question bank seeding
 
-### 4. Client
+New folder `supabase/seed/questions/` holds the bank JSON files (one file per domain or one combined file — TBD when bank arrives). A migration reads them via `COPY … FROM STDIN` equivalent (actually `INSERT … ON CONFLICT (id) DO UPDATE`) so re-running is idempotent and edits to the JSON reseed on next migration. Each row:
 
-- Replace `loadFree()`/`saveFree()` with TanStack Query hooks: `useFreeState()`, `useApplySession()`, etc.
-- `home.tsx`, `skill-map.tsx`, `account.tsx`, `daily.question.$n.tsx`, `daily.complete.tsx` refactored to read from Query cache instead of `localStorage`.
-- Diagnostic flow (`/diagnostic/*`) unchanged — still stores answers in `localStorage`. On signup, `migrateAnonymousDiagnostic` is called and `localStorage` diag key is cleared.
+- `id` = bank ID (text, from the bank file).
+- `domain_id` = one of the 8 known IDs (`math-algebra`, `math-advanced`, `math-data`, `math-geo`, `rw-info`, `rw-craft`, `rw-expr`, `rw-conv`).
+- `difficulty` = 1/2/3 from bank.
+- `expected_seconds` = derived from difficulty via `expectedSecondsFor()` (30/60/90) unless the bank overrides.
+- `payload` = strict shape above.
 
-### 5. Rollout
+### 3. Daily 5 — universal set
 
-- Fake-door `/coming-soon` and `/plans` untouched (still just insert into `signups`).
-- Existing `localStorage` users on the live site: on first sign-in after deploy, if `testphi:free:v2` exists locally we call `migrateAnonymousDiagnostic` with that data and then clear it. Best-effort — some device-locked users will start fresh.
+New server function `getTodayDailySet` (auth required):
 
-### Order of operations
+1. Compute `today = current_date` in UTC (server-side, `select current_date`).
+2. `select question_ids from daily_sets where set_date = today`.
+3. If missing (batch job hasn't run / gap), fall back to on-the-fly generation using the same rule set below and insert the row so all users on that day get the same 5.
+4. Fetch the 5 `questions` rows in the stored order and return prompt/choices/domain/difficulty/expected_seconds.
 
-**Pass 1 (this turn after approval):** enable magic-link auth, ship schema + RLS + GRANTs + signup trigger, add `/auth` and `/auth/callback` routes, gate authenticated routes.
+`pickDailyQuestions` (per-user, mastery-aware) is deleted for Daily 5. Bonus-round selection stays adaptive and continues to read `bonusStep` + domain mastery — unchanged.
 
-**Pass 2:** build server functions + move scoring math server-side, refactor client to Query, wire anonymous-diagnostic migration.
+`daily.question.$n.tsx` and `daily.complete.tsx` switch from local `QUESTIONS` to the server-fetched daily set. `applySessionFn` continues to persist answers and update mastery/momentum; it uses `question_id` from the daily set (real bank IDs), which lets historical `answers` rows resolve to bank rows forever.
 
-**Pass 3 (when you provide the question bank):** seed `questions` table via migration; switch `pickDailyQuestions` to read from DB.
+### 4. Daily set generator (batch)
 
-### Open items to confirm before I start
+New TanStack server route `POST /api/public/hooks/generate-daily-sets` (secured via `apikey` header with the anon key, per the standard cron pattern). Behavior:
 
-- Question IDs: current questions are integers 1–15 hardcoded in `src/lib/diagnostic.ts`. Until your bank arrives, I'll keep the `questions` table empty and have server fns reference question metadata from the existing `QUESTIONS` constant (imported server-side). When you deliver the bank, we seed and swap. OK?
+- Generates rows for the next 30 days that don't yet exist in `daily_sets`.
+- For each date, picks 5 questions using:
+  - **Difficulty shape:** 2 Easy + 2 Medium + 1 Hard.
+  - **Section mix:** alternate 3M/2RW and 2M/3RW day over day.
+  - **Domain rotation:** deterministic 2-week cycle across the 8 domains — each domain appears at least twice per 16-day window.
+  - **No-repeat:** exclude any `question_id` present in any prior `daily_sets` row until the eligible pool for a slot is exhausted, then allow recycling.
+  - **Active only:** `where is_active = true`.
+- Deterministic per `set_date` seed so re-runs produce the same set until the pool changes.
+
+Scheduled via `pg_cron` daily at 03:00 UTC calling the endpoint. One-shot manual trigger endpoint also usable for backfill.
+
+### 5. Retirement flow
+
+No UI. Retirement is a manual SQL step: `update questions set is_active = false where id = '…'`. `answers.question_id` remains valid. Already-generated `daily_sets` rows are not rewritten — retirement takes effect for future generations only.
+
+### 6. Diagnostic — no change
+
+`migrateAnonymousDiagnostic` continues to reference the hardcoded `QUESTIONS` array in `src/lib/diagnostic.ts`. Diagnostic never reads from the `questions` table. When the finalized 15-question diagnostic set arrives, it replaces the hardcoded array — no schema or server-fn change.
+
+### Files touched
+
+- `supabase/migrations/<ts>_questions_bank.sql` — schema deltas + `daily_sets` + GRANTs + RLS.
+- `supabase/migrations/<ts>_seed_questions.sql` — bulk upsert from bank JSON (added once the bank file arrives).
+- `src/lib/dailySet.functions.ts` — new `getTodayDailySet` server fn.
+- `src/lib/free.functions.ts` — remove per-user Daily 5 picker; keep bonus adaptive path.
+- `src/lib/useFree.ts` — add `useTodayDailySet()` hook.
+- `src/routes/_authenticated/daily.question.$n.tsx` and `daily.complete.tsx` — read from `useTodayDailySet()` instead of local `QUESTIONS`.
+- `src/routes/api/public/hooks/generate-daily-sets.ts` — batch generator route.
+- One `supabase--insert` call to install the `pg_cron` schedule (kept out of migrations because it holds the anon key URL).
+
+### Open items (not blocking this pass)
+
+- Exact bank file layout (one JSON vs per-domain) — align once you drop the file.
+- Whether Daily 5 should also enforce a "no domain twice in one day" rule inside the 5.
+- Diagnostic count 15 vs 16 — tracked separately, not touched here.

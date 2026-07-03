@@ -1,14 +1,12 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Flame, ArrowRight, HelpCircle } from "lucide-react";
 import {
-  pickDailyQuestions,
-  domainIdFor,
   isBonusQuestionFor,
   nextBonusDifficulty,
   type SessionResult,
 } from "@/lib/freeUser";
-import { useFreeState } from "@/lib/useFree";
+import { useFreeState, useTodayDailySet } from "@/lib/useFree";
 import { PowerUpModal } from "@/components/PowerUpModal";
 import { sfx } from "@/lib/sfx";
 
@@ -40,7 +38,8 @@ function DailyQuestion() {
   const { n } = Route.useParams();
   const navigate = useNavigate();
   const { data: freeState } = useFreeState();
-  const questions = useMemo(() => pickDailyQuestions(freeState ?? undefined), [freeState]);
+  const { data: dailySet, isLoading: dailyLoading } = useTodayDailySet();
+  const questions = dailySet?.questions ?? [];
   const idx = Math.max(1, Math.min(5, parseInt(n, 10) || 1));
   const question = questions[idx - 1];
 
@@ -57,8 +56,8 @@ function DailyQuestion() {
   const boltSeq = useRef(0);
 
   const isLast = idx === 5;
-  const correct = submitted && selected === question.correctIndex;
-  const incorrect = submitted && selected !== question.correctIndex;
+  const correct = submitted && !!question && selected === question.correctIndex;
+  const incorrect = submitted && !!question && selected !== question.correctIndex;
 
   useEffect(() => {
     startRef.current = Date.now();
@@ -99,6 +98,7 @@ function DailyQuestion() {
 
   const submit = (choiceIdx: number) => {
     if (submitted) return;
+    if (!question) return;
     setSelected(choiceIdx);
     setSubmitted(true);
     sfx.tap();
@@ -106,20 +106,21 @@ function DailyQuestion() {
     if (isCorrect) fireBolts(choiceIdx);
 
     const elapsedSeconds = (Date.now() - startRef.current) / 1000;
-    const domainId = domainIdFor(question.domainLabel) ?? "math-algebra";
+    const domainId = question.domainId;
     const isBonus = freeState ? isBonusQuestionFor(freeState, domainId) : false;
     const difficulty = isBonus && freeState
       ? nextBonusDifficulty(freeState, domainId)
       : (question.difficulty ?? 2);
     const record: SessionResult = {
-      n: question.n,
+      n: idx,
+      questionId: question.questionId,
       domainId,
       difficulty,
       correct: isCorrect,
       elapsedSeconds,
       isBonus,
     };
-    const all = loadSessionResults().filter((r) => r.n !== question.n);
+    const all = loadSessionResults().filter((r) => r.n !== idx);
     all.push(record);
     saveSessionResults(all);
   };
@@ -133,6 +134,16 @@ function DailyQuestion() {
   };
 
   const progressPct = (idx / 5) * 100;
+
+  if (!question) {
+    return (
+      <div className="topo-bg topo-dim min-h-screen flex items-center justify-center text-[var(--lavender)]/70 text-sm">
+        {dailyLoading ? "Loading today's questions…" : "Daily set unavailable."}
+      </div>
+    );
+  }
+
+
 
   return (
     <div className="topo-bg topo-dim min-h-screen">

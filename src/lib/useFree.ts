@@ -7,6 +7,7 @@ import {
   migrateAnonymousDiagnostic,
   updateProfile,
 } from "./free.functions";
+import { getTodayDailySet, type DailySetResponse } from "./dailySet.functions";
 import type { FreeState, SessionResult } from "./freeUser";
 import type { DiagState } from "./diagnostic";
 
@@ -47,5 +48,16 @@ export function useMigrateDiagnostic() {
   return useMutation({
     mutationFn: (diag: DiagState) => fn({ data: { diag } }),
     onSuccess: () => qc.invalidateQueries({ queryKey: freeStateKey }),
+  });
+}
+
+export const dailySetKey = ["daily-set"] as const;
+
+export function useTodayDailySet() {
+  const fn = useServerFn(getTodayDailySet);
+  return useQuery<DailySetResponse>({
+    queryKey: dailySetKey,
+    queryFn: () => fn(),
+    staleTime: 5 * 60_000,
   });
 }
