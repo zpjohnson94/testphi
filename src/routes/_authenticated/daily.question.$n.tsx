@@ -6,9 +6,9 @@ import {
   domainIdFor,
   isBonusQuestionFor,
   nextBonusDifficulty,
-  loadFree,
   type SessionResult,
 } from "@/lib/freeUser";
+import { useFreeState } from "@/lib/useFree";
 import { PowerUpModal } from "@/components/PowerUpModal";
 import { sfx } from "@/lib/sfx";
 
@@ -39,15 +39,15 @@ function saveSessionResults(r: SessionResult[]) {
 function DailyQuestion() {
   const { n } = Route.useParams();
   const navigate = useNavigate();
-  const questions = useMemo(() => pickDailyQuestions(), []);
+  const { data: freeState } = useFreeState();
+  const questions = useMemo(() => pickDailyQuestions(freeState ?? undefined), [freeState]);
   const idx = Math.max(1, Math.min(5, parseInt(n, 10) || 1));
   const question = questions[idx - 1];
 
   const [selected, setSelected] = useState<number | null>(null);
   const [submitted, setSubmitted] = useState(false);
   const [showModal, setShowModal] = useState(false);
-  const freeState = useMemo(() => loadFree(), []);
-  const [streak] = useState(() => freeState.streak);
+  const streak = freeState?.streak ?? 0;
   const startRef = useRef(Date.now());
   const choiceRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const progressRef = useRef<HTMLDivElement | null>(null);
