@@ -1,14 +1,12 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Flame, ArrowRight, HelpCircle } from "lucide-react";
 import {
-  pickDailyQuestions,
-  domainIdFor,
   isBonusQuestionFor,
   nextBonusDifficulty,
   type SessionResult,
 } from "@/lib/freeUser";
-import { useFreeState } from "@/lib/useFree";
+import { useFreeState, useTodayDailySet } from "@/lib/useFree";
 import { PowerUpModal } from "@/components/PowerUpModal";
 import { sfx } from "@/lib/sfx";
 
@@ -40,7 +38,8 @@ function DailyQuestion() {
   const { n } = Route.useParams();
   const navigate = useNavigate();
   const { data: freeState } = useFreeState();
-  const questions = useMemo(() => pickDailyQuestions(freeState ?? undefined), [freeState]);
+  const { data: dailySet, isLoading: dailyLoading } = useTodayDailySet();
+  const questions = dailySet?.questions ?? [];
   const idx = Math.max(1, Math.min(5, parseInt(n, 10) || 1));
   const question = questions[idx - 1];
 
