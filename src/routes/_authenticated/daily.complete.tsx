@@ -1,10 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Flame, X, Sparkles } from "lucide-react";
 import {
-  applySession,
-  loadFree,
-  saveFree,
   domainById,
   DOMAINS,
   SCORING,
@@ -13,6 +10,7 @@ import {
   type FreeState,
   type LastSession,
 } from "@/lib/freeUser";
+import { useApplySession, useFreeState } from "@/lib/useFree";
 import { PredictedScore } from "@/components/PredictedScore";
 import { MomentumGauge } from "@/components/MomentumGauge";
 import { FreeShell } from "@/components/FreeShell";
@@ -49,23 +47,33 @@ const NO_MISS_LINES = [
 
 function DailyComplete() {
   const navigate = useNavigate();
-  const [next, setNext] = useState<FreeState | null>(null);
+  const { data: freeState } = useFreeState();
+  const applyMutation = useApplySession();
   const [prev, setPrev] = useState<FreeState | null>(null);
+  const [next, setNext] = useState<FreeState | null>(null);
+  const submittedRef = useRef(false);
 
   useEffect(() => {
+    if (submittedRef.current) return;
+    if (!freeState) return;
     const results = loadSessionResults();
     if (results.length === 0) {
       navigate({ to: "/home" as any, replace: true });
       return;
     }
-    const before = loadFree();
-    const after = applySession(before, results);
-    saveFree(after);
-    clearSession();
-    setPrev(before);
-    setNext(after);
+    submittedRef.current = true;
+    setPrev(freeState);
+    applyMutation.mutate(results, {
+      onSuccess: (after) => {
+        setNext(after);
+        clearSession();
+      },
+      onError: () => {
+        submittedRef.current = false;
+      },
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [freeState]);
 
   if (!next || !prev || !next.lastSession) {
     return <div className="topo-bg min-h-screen" />;
