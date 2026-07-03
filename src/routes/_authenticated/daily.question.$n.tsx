@@ -98,6 +98,7 @@ function DailyQuestion() {
 
   const submit = (choiceIdx: number) => {
     if (submitted) return;
+    if (!question) return;
     setSelected(choiceIdx);
     setSubmitted(true);
     sfx.tap();
@@ -105,20 +106,21 @@ function DailyQuestion() {
     if (isCorrect) fireBolts(choiceIdx);
 
     const elapsedSeconds = (Date.now() - startRef.current) / 1000;
-    const domainId = domainIdFor(question.domainLabel) ?? "math-algebra";
+    const domainId = question.domainId;
     const isBonus = freeState ? isBonusQuestionFor(freeState, domainId) : false;
     const difficulty = isBonus && freeState
       ? nextBonusDifficulty(freeState, domainId)
       : (question.difficulty ?? 2);
     const record: SessionResult = {
-      n: question.n,
+      n: idx,
+      questionId: question.questionId,
       domainId,
       difficulty,
       correct: isCorrect,
       elapsedSeconds,
       isBonus,
     };
-    const all = loadSessionResults().filter((r) => r.n !== question.n);
+    const all = loadSessionResults().filter((r) => r.n !== idx);
     all.push(record);
     saveSessionResults(all);
   };
