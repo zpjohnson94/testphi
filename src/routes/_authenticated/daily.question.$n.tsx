@@ -56,8 +56,8 @@ function DailyQuestion() {
   const boltSeq = useRef(0);
 
   const isLast = idx === 5;
-  const correct = submitted && selected === question.correctIndex;
-  const incorrect = submitted && selected !== question.correctIndex;
+  const correct = submitted && !!question && selected === question.correctIndex;
+  const incorrect = submitted && !!question && selected !== question.correctIndex;
 
   useEffect(() => {
     startRef.current = Date.now();
