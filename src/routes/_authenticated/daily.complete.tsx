@@ -6,11 +6,10 @@ import {
   DOMAINS,
   SCORING,
   isCalibrated,
-  type SessionResult,
   type FreeState,
   type LastSession,
 } from "@/lib/freeUser";
-import { useApplySession, useFreeState } from "@/lib/useFree";
+import { useFinalizeDailySession, useFreeState } from "@/lib/useFree";
 import { PredictedScore } from "@/components/PredictedScore";
 import { MomentumGauge } from "@/components/MomentumGauge";
 import { FreeShell } from "@/components/FreeShell";
@@ -19,25 +18,6 @@ export const Route = createFileRoute("/_authenticated/daily/complete")({
   head: () => ({ meta: [{ title: "Session complete — TestPhi" }] }),
   component: DailyComplete,
 });
-
-const SESSION_KEY = "testphi:daily-session:v1";
-
-function loadSessionResults(): SessionResult[] {
-  if (typeof window === "undefined") return [];
-  try {
-    const raw = window.localStorage.getItem(SESSION_KEY);
-    return raw ? (JSON.parse(raw) as SessionResult[]) : [];
-  } catch {
-    return [];
-  }
-}
-
-function clearSession() {
-  if (typeof window === "undefined") return;
-  try {
-    window.localStorage.removeItem(SESSION_KEY);
-  } catch {}
-}
 
 const NO_MISS_LINES = [
   "Zero incorrect answers. Smart cookie.",
@@ -48,7 +28,7 @@ const NO_MISS_LINES = [
 function DailyComplete() {
   const navigate = useNavigate();
   const { data: freeState } = useFreeState();
-  const applyMutation = useApplySession();
+  const finalize = useFinalizeDailySession();
   const [prev, setPrev] = useState<FreeState | null>(null);
   const [next, setNext] = useState<FreeState | null>(null);
   const submittedRef = useRef(false);
@@ -56,20 +36,14 @@ function DailyComplete() {
   useEffect(() => {
     if (submittedRef.current) return;
     if (!freeState) return;
-    const results = loadSessionResults();
-    if (results.length === 0) {
-      navigate({ to: "/home" as any, replace: true });
-      return;
-    }
     submittedRef.current = true;
     setPrev(freeState);
-    applyMutation.mutate(results, {
-      onSuccess: (after) => {
-        setNext(after);
-        clearSession();
-      },
+    finalize.mutate(undefined, {
+      onSuccess: (after) => setNext(after),
       onError: () => {
         submittedRef.current = false;
+        // Session incomplete or server error — send user home.
+        navigate({ to: "/home" as any, replace: true });
       },
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -86,6 +60,7 @@ function DailyComplete() {
     </FreeShell>
   );
 }
+
 
 interface ContentProps {
   prev: FreeState;
