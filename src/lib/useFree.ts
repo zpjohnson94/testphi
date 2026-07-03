@@ -7,7 +7,7 @@ import {
   migrateAnonymousDiagnostic,
   updateProfile,
 } from "./free.functions";
-import { getTodayDailySet, type DailySetResponse } from "./dailySet.functions";
+
 import type { FreeState, SessionResult } from "./freeUser";
 import type { DiagState } from "./diagnostic";
 
