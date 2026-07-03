@@ -50,3 +50,14 @@ export function useMigrateDiagnostic() {
     onSuccess: () => qc.invalidateQueries({ queryKey: freeStateKey }),
   });
 }
+
+export const dailySetKey = ["daily-set"] as const;
+
+export function useTodayDailySet() {
+  const fn = useServerFn(getTodayDailySet);
+  return useQuery<DailySetResponse>({
+    queryKey: dailySetKey,
+    queryFn: () => fn(),
+    staleTime: 5 * 60_000,
+  });
+}
