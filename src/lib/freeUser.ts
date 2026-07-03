@@ -384,43 +384,11 @@ export function saveFree(s: FreeState) {
 
 // ---------- Daily 5 selection ----------
 
-function dayOfYear(d = new Date()): number {
-  const start = new Date(d.getFullYear(), 0, 0);
-  const diff = d.getTime() - start.getTime();
-  return Math.floor(diff / 86400000);
-}
+// Daily 5 selection now lives server-side in `src/lib/dailySet.functions.ts`.
+// It reads the universal `daily_sets` row per calendar date and is not
+// personalized. Bonus-round selection stays adaptive and is handled per
+// domain via `isBonusQuestionFor` / `nextBonusDifficulty` below.
 
-// If any domain is past its 5-question threshold but hasn't finished its
-// bonus round, prioritise that domain's next bonus question. Otherwise
-// rotate deterministically by day for variety.
-export function pickDailyQuestions(state?: FreeState): DiagQuestion[] {
-  const s = state ?? (typeof window !== "undefined" ? loadFree() : defaultState());
-  const offset = (dayOfYear() * 5) % QUESTIONS.length;
-  const base: DiagQuestion[] = [];
-  for (let i = 0; i < 5; i++) base.push(QUESTIONS[(offset + i) % QUESTIONS.length]);
-
-  // Surface pending-bonus domains first.
-  const pending = DOMAINS.filter((d) => {
-    const st = s.domainStats[d.id];
-    return st && !st.initialized && st.answered >= SCORING.THRESHOLD_QUESTIONS && st.bonusStep < 3;
-  });
-  if (pending.length === 0) return base;
-  const out: DiagQuestion[] = [];
-  for (const d of pending) {
-    const inDomain = QUESTIONS.filter((q) => domainIdFor(q.domainLabel) === d.id);
-    if (inDomain.length === 0) continue;
-    // Pick distinct questions per remaining bonus step.
-    const remaining = 3 - s.domainStats[d.id].bonusStep;
-    for (let i = 0; i < remaining && out.length < 5; i++) {
-      out.push(inDomain[i % inDomain.length]);
-    }
-  }
-  for (const q of base) {
-    if (out.length >= 5) break;
-    if (!out.includes(q)) out.push(q);
-  }
-  return out.slice(0, 5);
-}
 
 export function hasCompletedToday(s: FreeState): boolean {
   return s.lastDailyDate === todayISO();
