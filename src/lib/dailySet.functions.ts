@@ -74,13 +74,9 @@ function domainRotation(iso: string, sections: ("math" | "rw")[]): string[] {
 export const getTodayDailySet = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<DailySetResponse> => {
-    const { data: nowRow } = await context.supabase
-      .rpc("get_current_date_utc")
-      .single<{ today: string }>();
-    // The RPC above may not exist; compute in JS as fallback (UTC).
-    const today =
-      (nowRow?.today as string | undefined) ??
-      new Date().toISOString().slice(0, 10);
+    // Server-anchored UTC date. Workers run in UTC, so toISOString().slice(0,10)
+    // is the canonical calendar date for the universal set.
+    const today = new Date().toISOString().slice(0, 10);
 
     // 1. Read today's row.
     const { data: setRow } = await context.supabase
