@@ -1,9 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Zap, Pencil, Check, X } from "lucide-react";
 import { FreeShell } from "@/components/FreeShell";
 import { Avatar, ANIMALS, COLOR_SWATCHES, ACCESSORIES, type AvatarConfig, type AnimalId, type AccessoryId } from "@/components/Avatar";
-import { loadFree, saveFree, type FreeState } from "@/lib/freeUser";
+import { useFreeState, useUpdateProfile } from "@/lib/useFree";
 import { useHydration, useStore, updateAvatar } from "@/lib/store";
 import { sfx } from "@/lib/sfx";
 
@@ -17,10 +17,8 @@ function AccountPage() {
   const storeAvatar = useStore((s) => s.avatar);
   const unlocked = useStore((s) => s.unlockedAccessories);
 
-  const [free, setFree] = useState<FreeState | null>(() =>
-    typeof window === "undefined" ? null : loadFree(),
-  );
-  useEffect(() => { if (!free) setFree(loadFree()); }, []);
+  const { data: free } = useFreeState();
+  const updateProfileMut = useUpdateProfile();
 
   const [editingName, setEditingName] = useState(false);
   const [editingEmail, setEditingEmail] = useState(false);
@@ -34,16 +32,10 @@ function AccountPage() {
     return <FreeShell><div className="mx-auto max-w-2xl p-5" /></FreeShell>;
   }
 
-  const persist = (patch: Partial<FreeState>) => {
-    const next = { ...free, ...patch };
-    setFree(next);
-    saveFree(next);
-  };
-
   const startName = () => { setNameDraft(free.name); setEditingName(true); };
-  const saveName = () => { persist({ name: nameDraft.trim() }); setEditingName(false); };
+  const saveName = () => { updateProfileMut.mutate({ name: nameDraft.trim() }); setEditingName(false); };
   const startEmail = () => { setEmailDraft(free.email); setEditingEmail(true); };
-  const saveEmail = () => { persist({ email: emailDraft.trim() }); setEditingEmail(false); };
+  const saveEmail = () => { updateProfileMut.mutate({ email: emailDraft.trim() }); setEditingEmail(false); };
 
   const startAvatar = () => { setAvatarDraft(storeAvatar); setEditingAvatar(true); };
   const saveAvatar = () => { updateAvatar(avatarDraft); setEditingAvatar(false); sfx.levelUp(); };
