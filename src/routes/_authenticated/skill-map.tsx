@@ -9,10 +9,13 @@ import {
   tierLabel,
   tierOf,
   SCORING,
+  domainById,
   type Tier,
 } from "@/lib/freeUser";
 import { useFreeState } from "@/lib/useFree";
 import { PowerUpModal } from "@/components/PowerUpModal";
+import { UnlockReadyCard } from "@/components/UnlockReadyCard";
+import { BonusUnlockModal } from "@/components/BonusUnlockModal";
 
 
 export const Route = createFileRoute("/_authenticated/skill-map")({
