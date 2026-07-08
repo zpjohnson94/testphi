@@ -242,3 +242,38 @@
   0%, 100% { transform: scale(1, 1); }
   50% { transform: scale(1.04, 0.96); }
 }
+
+/* --- Bonus round unlock card motion --- */
+@keyframes unlock-vibrate {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  20% { transform: translate(-0.6px, 0.4px) rotate(-0.35deg); }
+  40% { transform: translate(0.6px, -0.4px) rotate(0.35deg); }
+  60% { transform: translate(-0.4px, 0.6px) rotate(-0.25deg); }
+  80% { transform: translate(0.4px, -0.6px) rotate(0.25deg); }
+}
+@keyframes electric-flow {
+  0%   { stroke-dashoffset: 0; opacity: 0.85; }
+  50%  { opacity: 1; }
+  100% { stroke-dashoffset: -220; opacity: 0.85; }
+}
+@keyframes chest-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.045); }
+}
+@keyframes chest-shake {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(var(--shake, 4deg)); }
+  75% { transform: rotate(calc(var(--shake, 4deg) * -1)); }
+}
+@keyframes screen-flash {
+  0% { opacity: 0; }
+  30% { opacity: 1; }
+  100% { opacity: 0; }
+}
+@keyframes sand-fly {
+  0%   { transform: translate(0, 0) scale(1); opacity: 1; }
+  100% { transform: translate(var(--dx), var(--dy)) scale(0.6); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .unlock-vibrate, .chest-pulse, .chest-shake { animation: none !important; }
+}

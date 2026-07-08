@@ -1,0 +1,28 @@
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+import { serveBonusRound, submitBonusRound, type BonusServedRound } from "./bonusRound.functions";
+import { freeStateKey } from "./useFree";
+import type { FreeState } from "./freeUser";
+
+export function useServeBonusRound(domainId: string | null) {
+  const fn = useServerFn(serveBonusRound);
+  return useQuery<BonusServedRound>({
+    queryKey: ["bonus-round", domainId],
+    queryFn: () => fn({ data: { domainId: domainId! } }),
+    enabled: !!domainId,
+    staleTime: 0,
+    gcTime: 0,
+    refetchOnWindowFocus: false,
+  });
+}
+
+export function useSubmitBonusRound() {
+  const fn = useServerFn(submitBonusRound);
+  const qc = useQueryClient();
+  return useMutation<FreeState, Error, Parameters<typeof submitBonusRound>[0]["data"]>({
+    mutationFn: (payload) => fn({ data: payload }),
+    onSuccess: (next) => {
+      qc.setQueryData(freeStateKey, next);
+    },
+  });
+}
