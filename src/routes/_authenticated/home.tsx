@@ -1,14 +1,18 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Flame, Info } from "lucide-react";
 import { FreeShell } from "@/components/FreeShell";
 import { Logo } from "@/components/Logo";
 import { Avatar, defaultAvatar } from "@/components/Avatar";
 import { PredictedScore } from "@/components/PredictedScore";
 import { MomentumGauge } from "@/components/MomentumGauge";
+import { UnlockReadyCard } from "@/components/UnlockReadyCard";
+import { BonusUnlockModal } from "@/components/BonusUnlockModal";
 import {
   hasCompletedToday,
   DOMAINS,
+  SCORING,
+  domainById,
   isCalibrated,
   sectionScore,
 } from "@/lib/freeUser";
