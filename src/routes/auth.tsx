@@ -61,6 +61,29 @@ function AuthPage() {
     setStatus("sent");
   }
 
+  async function handleDemoSignIn() {
+    setStatus("sending");
+    setError(null);
+    try {
+      const res = await fetch("/api/public/ensure-demo-user", { method: "POST" });
+      const body = await res.json().catch(() => ({}));
+      if (!res.ok || !body?.ok) {
+        throw new Error(body?.reason || "Failed to provision demo account");
+      }
+      const { error } = await supabase.auth.signInWithPassword({
+        email: "demo@testphi.app",
+        password: "demo-testphi-2026",
+      });
+      if (error) throw error;
+      // onAuthStateChange in the effect above handles the redirect.
+    } catch (err) {
+      setStatus("error");
+      setError(err instanceof Error ? err.message : "Demo sign-in failed");
+    }
+  }
+
+
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-6 py-12">
       <div className="w-full max-w-md">
@@ -113,6 +136,29 @@ function AuthPage() {
                 {status === "sending" ? "Sending..." : "Send magic link"}
               </button>
             </form>
+          )}
+
+          {status !== "sent" && (
+            <>
+              <div className="mt-6 flex items-center gap-3">
+                <div className="h-px flex-1 bg-[rgba(246,240,250,0.15)]" />
+                <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+                  or
+                </span>
+                <div className="h-px flex-1 bg-[rgba(246,240,250,0.15)]" />
+              </div>
+              <button
+                type="button"
+                onClick={handleDemoSignIn}
+                disabled={status === "sending"}
+                className="mt-4 w-full rounded-lg border border-[rgba(246,240,250,0.2)] bg-transparent px-4 py-3 text-sm font-semibold text-foreground transition-colors hover:bg-[rgba(246,240,250,0.06)] disabled:opacity-60"
+              >
+                Preview as demo user
+              </button>
+              <p className="mt-2 text-[10px] text-center text-muted-foreground">
+                Instant access to a shared demo account — no email needed.
+              </p>
+            </>
           )}
         </div>
       </div>
