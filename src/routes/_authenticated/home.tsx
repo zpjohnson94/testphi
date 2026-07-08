@@ -260,7 +260,7 @@ function HomePage() {
                 </div>
               )}
             </div>
-            <MomentumGauge needle={7} size={180} />
+            <MomentumGauge needle={state?.momentumNeedle ?? 0} size={180} />
           </div>
             <div className="flex flex-col items-center gap-2">
               <div
