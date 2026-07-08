@@ -56,6 +56,7 @@ import {
   serveDailySetBatch,
   gradeDailyAnswer,
   finalizeDailySession,
+  resetDemoAccount,
   type ServedQuestion,
   type GradeResult,
 } from "./dailyAttempt.functions";
@@ -99,6 +100,18 @@ export function useFinalizeDailySession() {
     mutationFn: () => fn(),
     onSuccess: (next) => {
       qc.setQueryData(freeStateKey, next);
+    },
+  });
+}
+
+export function useResetDemo() {
+  const fn = useServerFn(resetDemoAccount);
+  const qc = useQueryClient();
+  return useMutation<FreeState>({
+    mutationFn: () => fn(),
+    onSuccess: (next) => {
+      qc.setQueryData(freeStateKey, next);
+      qc.removeQueries({ queryKey: ["daily-question"] });
     },
   });
 }

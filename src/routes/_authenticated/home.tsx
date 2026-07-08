@@ -12,7 +12,7 @@ import {
   isCalibrated,
   sectionScore,
 } from "@/lib/freeUser";
-import { useFreeState } from "@/lib/useFree";
+import { useFreeState, useResetDemo } from "@/lib/useFree";
 
 export const Route = createFileRoute("/_authenticated/home")({
   head: () => ({ meta: [{ title: "Home — TestPhi" }] }),
@@ -52,6 +52,8 @@ function HomePage() {
   const name = (state?.name || "champ").split(" ")[0];
   const calibrated = state ? isCalibrated(state) : false;
   const [momentumOpen, setMomentumOpen] = useState(false);
+  const resetDemo = useResetDemo();
+  const isDev = import.meta.env.DEV;
 
 
   return (
@@ -273,6 +275,29 @@ function HomePage() {
               </div>
             </div>
           </div>
+
+          {isDev && (
+            <div className="pt-4 flex justify-center">
+              <button
+                type="button"
+                onClick={() => {
+                  if (resetDemo.isPending) return;
+                  if (confirm("Reset demo account? This wipes all Daily 5 progress, sessions, streak, and mastery for your account.")) {
+                    resetDemo.mutate();
+                  }
+                }}
+                disabled={resetDemo.isPending}
+                className="text-[11px] font-bold uppercase tracking-[0.18em] rounded-full px-4 py-2 disabled:opacity-50"
+                style={{
+                  background: "rgba(255,77,109,0.12)",
+                  border: "1px dashed rgba(255,77,109,0.6)",
+                  color: "var(--destructive)",
+                }}
+              >
+                {resetDemo.isPending ? "Resetting…" : "Dev: Reset demo account"}
+              </button>
+            </div>
+          )}
 
         </main>
       </div>
