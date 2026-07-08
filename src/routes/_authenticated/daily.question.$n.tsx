@@ -213,7 +213,13 @@ function DailyQuestion() {
               let color = "var(--ink)";
               let animClass = "";
 
-              if (submitted) {
+              if (submitted && !graded) {
+                if (isSelected) {
+                  bg = "rgba(168,85,247,0.25)";
+                  border = "2px solid var(--neon)";
+                  color = "var(--violet-deep)";
+                }
+              } else if (submitted && graded) {
                 if (isSelected && isCorrect) {
                   bg = "var(--volt)";
                   border = "2px solid var(--volt)";
