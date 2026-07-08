@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { Flame, ArrowRight, HelpCircle } from "lucide-react";
-import { useFreeState, useServeDailyQuestion, useGradeDailyAnswer } from "@/lib/useFree";
+import { useFreeState, useServeDailyQuestion, useGradeDailyAnswer, usePrefetchDailySet } from "@/lib/useFree";
 import { PowerUpModal } from "@/components/PowerUpModal";
 import { sfx } from "@/lib/sfx";
 
@@ -19,9 +19,11 @@ function DailyQuestion() {
 
   const { data: served, isLoading } = useServeDailyQuestion(idx);
   const grade = useGradeDailyAnswer();
+  const prefetchAll = usePrefetchDailySet();
 
   const [selected, setSelected] = useState<number | null>(null);
   const [submitted, setSubmitted] = useState(false);
+  const [graded, setGraded] = useState(false);
   const [correctPos, setCorrectPos] = useState<number | null>(null);
   const [isCorrect, setIsCorrect] = useState<boolean>(false);
   const [showModal, setShowModal] = useState(false);
@@ -39,9 +41,20 @@ function DailyQuestion() {
     startRef.current = Date.now();
     setSelected(null);
     setSubmitted(false);
+    setGraded(false);
     setCorrectPos(null);
     setIsCorrect(false);
   }, [idx]);
+
+  // Prefetch all 5 questions on entry (slot 1) so subsequent slots are instant.
+  const prefetchedRef = useRef(false);
+  useEffect(() => {
+    if (idx !== 1 || prefetchedRef.current) return;
+    prefetchedRef.current = true;
+    prefetchAll().catch(() => {
+      prefetchedRef.current = false;
+    });
+  }, [idx, prefetchAll]);
 
   useEffect(() => {
     if (!served?.alreadyAnswered) return;
@@ -49,6 +62,7 @@ function DailyQuestion() {
     setCorrectPos(served.correctPosition ?? null);
     setIsCorrect(!!served.isCorrect);
     setSubmitted(true);
+    setGraded(true);
   }, [served?.attemptId]);
 
   const fireBolts = (choiceIdx: number) => {
@@ -86,6 +100,7 @@ function DailyQuestion() {
     if (submitted || !served) return;
     setSelected(choiceIdx);
     setSubmitted(true);
+    setGraded(false);
     sfx.tap();
     const elapsedMs = Date.now() - startRef.current;
     try {
@@ -96,11 +111,13 @@ function DailyQuestion() {
       });
       setIsCorrect(result.isCorrect);
       setCorrectPos(result.correctPosition);
+      setGraded(true);
       if (result.isCorrect) fireBolts(choiceIdx);
     } catch {
       // Roll back on failure so the user can retry.
       setSubmitted(false);
       setSelected(null);
+      setGraded(false);
     }
   };
 
@@ -122,7 +139,7 @@ function DailyQuestion() {
     );
   }
 
-  const revealCorrect = submitted && correctPos !== null;
+  const revealCorrect = graded && correctPos !== null;
 
   return (
     <div className="topo-bg topo-dim min-h-screen">
@@ -196,7 +213,13 @@ function DailyQuestion() {
               let color = "var(--ink)";
               let animClass = "";
 
-              if (submitted) {
+              if (submitted && !graded) {
+                if (isSelected) {
+                  bg = "rgba(168,85,247,0.25)";
+                  border = "2px solid var(--neon)";
+                  color = "var(--violet-deep)";
+                }
+              } else if (submitted && graded) {
                 if (isSelected && isCorrect) {
                   bg = "var(--volt)";
                   border = "2px solid var(--volt)";
@@ -236,7 +259,7 @@ function DailyQuestion() {
             })}
           </div>
 
-          {submitted && (
+          {graded && (
             <div className="mt-6 flex items-center justify-end gap-3 animate-fade-up">
               <button
                 onClick={() => setShowModal(true)}

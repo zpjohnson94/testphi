@@ -53,6 +53,7 @@ export function useMigrateDiagnostic() {
 
 import {
   serveDailyQuestion,
+  serveDailySetBatch,
   gradeDailyAnswer,
   finalizeDailySession,
   type ServedQuestion,
@@ -69,6 +70,18 @@ export function useServeDailyQuestion(slot: number) {
     staleTime: Infinity, // shuffle is stable per (user, date, slot)
     retry: false,
   });
+}
+
+export function usePrefetchDailySet() {
+  const fn = useServerFn(serveDailySetBatch);
+  const qc = useQueryClient();
+  return async () => {
+    const all = await fn();
+    for (const q of all) {
+      qc.setQueryData(servedQuestionKey(q.slot), q);
+    }
+    return all;
+  };
 }
 
 export function useGradeDailyAnswer() {

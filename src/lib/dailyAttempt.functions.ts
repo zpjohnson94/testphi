@@ -265,6 +265,99 @@ export const serveDailyQuestion = createServerFn({ method: "POST" })
     };
   });
 
+// ---------- serveDailySetBatch ----------
+// Returns all 5 ServedQuestion for today in a single round-trip. Idempotent:
+// reuses existing shuffles when present, inserts fresh attempts otherwise.
+
+export const serveDailySetBatch = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }): Promise<ServedQuestion[]> => {
+    const today = new Date().toISOString().slice(0, 10);
+    const set = await getTodayDailySet();
+
+    const { data: existingRows } = await context.supabase
+      .from("daily_attempts")
+      .select("id, slot, question_id, shuffled_order, correct_position, selected_position, is_correct, answered_at")
+      .eq("user_id", context.userId)
+      .eq("set_date", today);
+    const bySlot = new Map<number, any>();
+    for (const r of existingRows ?? []) bySlot.set(r.slot, r);
+
+    const out: ServedQuestion[] = [];
+    for (let slot = 1; slot <= 5; slot++) {
+      const question = set.questions[slot - 1];
+      if (!question) throw new Error(`Missing question for slot ${slot}`);
+      const existing = bySlot.get(slot);
+
+      if (existing && existing.question_id === question.questionId) {
+        const shuffledChoices = existing.shuffled_order.map(
+          (l: string) => question.choices[letterToIndex(l)],
+        ) as [string, string, string, string];
+        const s: ServedQuestion = {
+          attemptId: existing.id,
+          slot,
+          questionId: question.questionId,
+          domainId: question.domainId,
+          domainLabel: question.domainLabel,
+          difficulty: question.difficulty,
+          expectedSeconds: question.expectedSeconds,
+          question: question.prompt,
+          passage: question.passage,
+          choices: shuffledChoices,
+        };
+        if (existing.answered_at) {
+          s.alreadyAnswered = true;
+          s.selectedPosition = existing.selected_position ?? undefined;
+          s.isCorrect = existing.is_correct ?? undefined;
+          s.correctPosition = existing.correct_position;
+        }
+        out.push(s);
+        continue;
+      }
+
+      const order = shuffleLetters();
+      const correctLetter = LETTERS[question.correctIndex];
+      const correctPosition = order.indexOf(correctLetter);
+      const shuffledChoices = order.map((l) => question.choices[letterToIndex(l)]) as [
+        string,
+        string,
+        string,
+        string,
+      ];
+
+      const { data: inserted, error } = await context.supabase
+        .from("daily_attempts")
+        .upsert(
+          {
+            user_id: context.userId,
+            set_date: today,
+            slot,
+            question_id: question.questionId,
+            shuffled_order: order,
+            correct_position: correctPosition,
+          },
+          { onConflict: "user_id,set_date,slot" },
+        )
+        .select("id")
+        .single();
+      if (error || !inserted) throw new Error(error?.message ?? "Failed to create attempt");
+
+      out.push({
+        attemptId: inserted.id,
+        slot,
+        questionId: question.questionId,
+        domainId: question.domainId,
+        domainLabel: question.domainLabel,
+        difficulty: question.difficulty,
+        expectedSeconds: question.expectedSeconds,
+        question: question.prompt,
+        passage: question.passage,
+        choices: shuffledChoices,
+      });
+    }
+    return out;
+  });
+
 // ---------- gradeDailyAnswer ----------
 
 export interface GradeResult {

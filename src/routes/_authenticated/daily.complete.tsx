@@ -31,26 +31,75 @@ function DailyComplete() {
   const finalize = useFinalizeDailySession();
   const [prev, setPrev] = useState<FreeState | null>(null);
   const [next, setNext] = useState<FreeState | null>(null);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const submittedRef = useRef(false);
+
+  const runFinalize = (isRetry = false) => {
+    if (!freeState) return;
+    if (!isRetry) setPrev(freeState);
+    setErrorMsg(null);
+    finalize.mutate(undefined, {
+      onSuccess: (after) => setNext(after),
+      onError: async (err: any) => {
+        const msg = String(err?.message ?? err ?? "");
+        // Retry once for the grade-not-yet-committed race.
+        if (!isRetry && /Session incomplete/i.test(msg)) {
+          await new Promise((r) => setTimeout(r, 500));
+          runFinalize(true);
+          return;
+        }
+        setErrorMsg(msg || "Something went wrong finalizing your session.");
+      },
+    });
+  };
 
   useEffect(() => {
     if (submittedRef.current) return;
     if (!freeState) return;
     submittedRef.current = true;
-    setPrev(freeState);
-    finalize.mutate(undefined, {
-      onSuccess: (after) => setNext(after),
-      onError: () => {
-        submittedRef.current = false;
-        // Session incomplete or server error — send user home.
-        navigate({ to: "/home" as any, replace: true });
-      },
-    });
+    runFinalize(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [freeState]);
 
+  if (errorMsg) {
+    return (
+      <div className="topo-bg min-h-screen flex items-center justify-center px-6">
+        <div
+          className="max-w-sm w-full rounded-2xl p-6 text-center"
+          style={{ background: "var(--violet-deep)", border: "1.5px solid rgba(255,77,109,0.5)" }}
+        >
+          <div className="text-sm font-bold text-[var(--lavender)]">
+            Couldn't wrap up your session
+          </div>
+          <div className="mt-2 text-xs" style={{ color: "rgba(246,240,250,0.7)" }}>
+            {errorMsg}
+          </div>
+          <div className="mt-5 flex gap-2">
+            <button
+              onClick={() => runFinalize(false)}
+              className="btn-volt flex-1 py-3 rounded-xl text-sm"
+            >
+              Retry
+            </button>
+            <button
+              onClick={() => navigate({ to: "/home" as any, replace: true })}
+              className="flex-1 py-3 rounded-xl text-sm font-bold"
+              style={{ background: "rgba(246,240,250,0.08)", color: "var(--lavender)", border: "1px solid rgba(246,240,250,0.2)" }}
+            >
+              Home
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   if (!next || !prev || !next.lastSession) {
-    return <div className="topo-bg min-h-screen" />;
+    return (
+      <div className="topo-bg min-h-screen flex items-center justify-center text-[var(--lavender)]/70 text-sm">
+        Wrapping up your session…
+      </div>
+    );
   }
   const session = next.lastSession;
 
