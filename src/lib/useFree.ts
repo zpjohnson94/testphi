@@ -112,7 +112,9 @@ export function useResetDemo() {
     onSuccess: (next) => {
       qc.setQueryData(freeStateKey, next);
       qc.removeQueries({ queryKey: ["daily-question"] });
+      qc.invalidateQueries({ queryKey: freeStateKey });
     },
   });
 }
+
 

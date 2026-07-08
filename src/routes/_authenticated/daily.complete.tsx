@@ -32,14 +32,22 @@ function DailyComplete() {
   const [prev, setPrev] = useState<FreeState | null>(null);
   const [next, setNext] = useState<FreeState | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [stuck, setStuck] = useState(false);
   const submittedRef = useRef(false);
 
   const runFinalize = (isRetry = false) => {
     if (!freeState) return;
     if (!isRetry) setPrev(freeState);
     setErrorMsg(null);
+    setStuck(false);
     finalize.mutate(undefined, {
-      onSuccess: (after) => setNext(after),
+      onSuccess: (after) => {
+        if (!after || !after.lastSession) {
+          setErrorMsg("Session finalized but no summary was returned. Try again from Home.");
+          return;
+        }
+        setNext(after);
+      },
       onError: async (err: any) => {
         const msg = String(err?.message ?? err ?? "");
         // Retry once for the grade-not-yet-committed race.
@@ -61,7 +69,21 @@ function DailyComplete() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [freeState]);
 
-  if (errorMsg) {
+  // Safety net: if the mutation neither resolves nor errors within 10s,
+  // surface an escape hatch so the user isn't frozen on "Wrapping up…".
+  useEffect(() => {
+    if (next || errorMsg) {
+      setStuck(false);
+      return;
+    }
+    const t = setTimeout(() => setStuck(true), 10_000);
+    return () => clearTimeout(t);
+  }, [next, errorMsg, prev]);
+
+  if (errorMsg || stuck) {
+    const displayMsg =
+      errorMsg ??
+      "This is taking longer than expected. Your answers were saved — you can retry or head home.";
     return (
       <div className="topo-bg min-h-screen flex items-center justify-center px-6">
         <div
@@ -69,10 +91,10 @@ function DailyComplete() {
           style={{ background: "var(--violet-deep)", border: "1.5px solid rgba(255,77,109,0.5)" }}
         >
           <div className="text-sm font-bold text-[var(--lavender)]">
-            Couldn't wrap up your session
+            {errorMsg ? "Couldn't wrap up your session" : "Still wrapping up…"}
           </div>
           <div className="mt-2 text-xs" style={{ color: "rgba(246,240,250,0.7)" }}>
-            {errorMsg}
+            {displayMsg}
           </div>
           <div className="mt-5 flex gap-2">
             <button
@@ -93,6 +115,7 @@ function DailyComplete() {
       </div>
     );
   }
+
 
   if (!next || !prev || !next.lastSession) {
     return (
