@@ -238,33 +238,48 @@ function CompleteContent({ prev, next, session, onExit }: ContentProps) {
                   sizeClass="text-[72px] sm:text-[96px]"
                 />
               </div>
-              {session.delta !== 0 && (
+              <div className="mt-3 flex flex-col items-center gap-2">
                 <div
-                  className="mt-3 inline-flex items-center rounded-full px-3 py-1.5 text-sm font-extrabold"
+                  className="inline-flex items-center rounded-full px-3 py-1.5 text-sm font-extrabold"
                   style={{
-                    background: session.delta > 0 ? "rgba(184,255,0,0.15)" : "rgba(255,77,109,0.15)",
-                    color: session.delta > 0 ? "var(--volt)" : "var(--destructive)",
-                    border: `1px solid ${session.delta > 0 ? "var(--volt)" : "var(--destructive)"}`,
+                    background:
+                      session.delta > 0
+                        ? "rgba(184,255,0,0.15)"
+                        : session.delta < 0
+                          ? "rgba(255,77,109,0.15)"
+                          : "rgba(246,240,250,0.08)",
+                    color:
+                      session.delta > 0
+                        ? "var(--volt)"
+                        : session.delta < 0
+                          ? "var(--destructive)"
+                          : "var(--lavender)",
+                    border: `1px solid ${
+                      session.delta > 0
+                        ? "var(--volt)"
+                        : session.delta < 0
+                          ? "var(--destructive)"
+                          : "rgba(246,240,250,0.25)"
+                    }`,
                   }}
                 >
                   {session.delta > 0 ? "+" : ""}
-                  {session.delta} points
+                  {session.delta} points{session.delta > 0 ? "!" : ""}
                 </div>
-              )}
+                {!calibrated && session.delta === 0 && (
+                  <div
+                    className="text-[11px] leading-snug max-w-xs"
+                    style={{ color: "rgba(246,240,250,0.6)" }}
+                  >
+                    Your score won't budge until all 8 domains are calibrated — keep going to unlock live point changes.
+                  </div>
+                )}
+              </div>
             </div>
           )}
         </SectionFade>
 
-        {/* 2. Domain Progress */}
-        <section className="space-y-3">
-          {diffs.map((diff, i) => (
-            <SectionFade key={diff.domainId} show={step >= 1 + i}>
-              <DomainRow diff={diff} momentumActive={next.lastSession!.momentumAfter > 0 && diff.actualGain > diff.baseGain} />
-            </SectionFade>
-          ))}
-        </section>
-
-        {/* 3. Missed Questions */}
+        {/* 2. Missed Questions */}
         <SectionFade show={showMissed}>
           {missedCount > 0 ? (
             <div
@@ -293,6 +308,16 @@ function CompleteContent({ prev, next, session, onExit }: ContentProps) {
             </div>
           )}
         </SectionFade>
+
+        {/* 3. Domain Progress */}
+        <section className="space-y-3">
+          {diffs.map((diff, i) => (
+            <SectionFade key={diff.domainId} show={step >= domainsStart + i}>
+              <DomainRow diff={diff} momentumActive={next.lastSession!.momentumAfter > 0 && diff.actualGain > diff.baseGain} />
+            </SectionFade>
+          ))}
+        </section>
+
 
         {/* 4. Momentum (conditional) */}
         {session.momentumIncreased && (
