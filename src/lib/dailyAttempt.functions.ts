@@ -500,3 +500,41 @@ export const finalizeDailySession = createServerFn({ method: "POST" })
     await persistFreeState(context, next);
     return next;
   });
+
+// ---------- resetDemoAccount (dev helper) ----------
+// Wipes the caller's own daily progress so they can re-run the Daily 5 flow.
+// Deletes daily_attempts, sessions, answers, and resets scoring/mastery to
+// defaults. Only touches the calling user's rows (RLS enforced).
+
+export const resetDemoAccount = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }): Promise<FreeState> => {
+    const uid = context.userId;
+    await context.supabase.from("daily_attempts").delete().eq("user_id", uid);
+    await context.supabase.from("answers").delete().eq("user_id", uid);
+    await context.supabase.from("sessions").delete().eq("user_id", uid);
+    await context.supabase
+      .from("user_scoring_state")
+      .update({
+        momentum_needle: 0,
+        last_momentum_date: null,
+        qualifying_days: [],
+        streak: 0,
+        last_daily_date: null,
+        diagnostic_score: 800,
+        seeded: false,
+      })
+      .eq("user_id", uid);
+    await context.supabase
+      .from("user_domain_mastery")
+      .update({
+        answered: 0,
+        initialized: false,
+        mastery: 0,
+        last_answered_at: null,
+        batch: [],
+        bonus_step: 0,
+      })
+      .eq("user_id", uid);
+    return loadFreeState(context);
+  });
