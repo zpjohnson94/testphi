@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Flame } from "lucide-react";
+import { Flame, Info } from "lucide-react";
 import { FreeShell } from "@/components/FreeShell";
 import { Logo } from "@/components/Logo";
 import { Avatar, defaultAvatar } from "@/components/Avatar";
@@ -52,6 +52,7 @@ function HomePage() {
   const monthDelta = lastSession?.delta ?? 0;
   const name = (state?.name || "champ").split(" ")[0];
   const calibrated = state ? isCalibrated(state) : false;
+  const [momentumOpen, setMomentumOpen] = useState(false);
 
 
   return (
@@ -219,21 +220,47 @@ function HomePage() {
 
           {/* Momentum + Streak row */}
           <div className="grid gap-4 sm:grid-cols-[auto,1fr] items-center justify-items-center">
-            <div
-              className="rounded-3xl p-4 flex flex-col items-center"
-              style={{
-                background: "rgba(0,0,0,0.35)",
-                border: "1px solid rgba(246,240,250,0.1)",
-              }}
-            >
+          <div
+            className="rounded-3xl p-4 flex flex-col items-center"
+            style={{
+              background: "rgba(0,0,0,0.35)",
+              border: "1px solid rgba(246,240,250,0.1)",
+            }}
+          >
+            <div className="relative mb-1 flex items-center gap-1.5">
               <div
-                className="text-[10px] font-bold uppercase tracking-[0.18em] mb-1"
+                className="text-[10px] font-bold uppercase tracking-[0.18em]"
                 style={{ color: "rgba(246,240,250,0.65)" }}
               >
                 Momentum
               </div>
-              <MomentumGauge needle={state?.momentumNeedle ?? 0} size={180} />
+              <button
+                type="button"
+                onClick={() => setMomentumOpen((v) => !v)}
+                onMouseEnter={() => setMomentumOpen(true)}
+                onMouseLeave={() => setMomentumOpen(false)}
+                className="inline-flex rounded-full p-1"
+                style={{ color: "rgba(246,240,250,0.55)" }}
+                aria-label="What is momentum?"
+              >
+                <Info className="size-3.5" />
+              </button>
+              {momentumOpen && (
+                <div
+                  className="absolute z-40 left-1/2 -translate-x-1/2 top-full mt-2 w-64 sm:w-72 rounded-xl p-3 text-xs leading-relaxed"
+                  style={{
+                    background: "rgba(20,12,40,0.97)",
+                    border: "1px solid rgba(168,85,247,0.5)",
+                    color: "rgba(246,240,250,0.92)",
+                    boxShadow: "0 8px 24px rgba(0,0,0,0.5)",
+                  }}
+                >
+                  Momentum rewards consistency. Complete a full Daily 5 session to raise it by 1; each level adds +0.05 to your mastery multiplier. Miss a day and it decays by 1.
+                </div>
+              )}
             </div>
+            <MomentumGauge needle={state?.momentumNeedle ?? 0} size={180} />
+          </div>
             <div className="flex flex-col items-center gap-2">
               <div
                 className="flex items-center gap-2 rounded-full px-4 py-2"
