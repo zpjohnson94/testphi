@@ -169,3 +169,25 @@ function describeArc(cx: number, cy: number, r: number, startAngle: number, endA
   const largeArc = endAngle - startAngle <= 180 ? "0" : "1";
   return `M ${start.x} ${start.y} A ${r} ${r} 0 ${largeArc} 0 ${end.x} ${end.y}`;
 }
+
+function describeRingArc(
+  cx: number,
+  cy: number,
+  outerR: number,
+  innerR: number,
+  startAngle: number,
+  endAngle: number,
+) {
+  const startOuter = polarToCartesian(cx, cy, outerR, startAngle);
+  const endOuter = polarToCartesian(cx, cy, outerR, endAngle);
+  const startInner = polarToCartesian(cx, cy, innerR, startAngle);
+  const endInner = polarToCartesian(cx, cy, innerR, endAngle);
+  const largeArc = endAngle - startAngle <= 180 ? "0" : "1";
+  return [
+    `M ${startOuter.x} ${startOuter.y}`,
+    `A ${outerR} ${outerR} 0 ${largeArc} 0 ${endOuter.x} ${endOuter.y}`,
+    `L ${endInner.x} ${endInner.y}`,
+    `A ${innerR} ${innerR} 0 ${largeArc} 0 ${startInner.x} ${startInner.y}`,
+    "Z",
+  ].join(" ");
+}
