@@ -176,7 +176,7 @@ function SkillMap() {
                                   Bonus round ready · {d.bonusStep}/3
                                 </>
                               ) : (
-                                <>{d.answered} / {SCORING.THRESHOLD_QUESTIONS} questions</>
+                                <>{d.answered} / {SCORING.THRESHOLD_QUESTIONS} questions to calibration</>
                               )}
                             </div>
                           </div>
