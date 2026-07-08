@@ -13,6 +13,8 @@ import { useFinalizeDailySession, useFreeState } from "@/lib/useFree";
 import { PredictedScore } from "@/components/PredictedScore";
 import { MomentumGauge } from "@/components/MomentumGauge";
 import { FreeShell } from "@/components/FreeShell";
+import { UnlockReadyCard } from "@/components/UnlockReadyCard";
+import { BonusUnlockModal } from "@/components/BonusUnlockModal";
 
 export const Route = createFileRoute("/_authenticated/daily/complete")({
   head: () => ({ meta: [{ title: "Session complete — TestPhi" }] }),
@@ -184,6 +186,7 @@ function CompleteContent({ prev, next, session, onExit }: ContentProps) {
     (session.streakIncreased ? 1 : 0) +
     1; /* finish */
   const [step, setStep] = useState(0);
+  const [bonusDomainId, setBonusDomainId] = useState<string | null>(null);
   useEffect(() => {
     if (step >= totalSteps) return;
     const delay = step === 0 ? 200 : 550;
@@ -311,12 +314,33 @@ function CompleteContent({ prev, next, session, onExit }: ContentProps) {
 
         {/* 3. Domain Progress */}
         <section className="space-y-3">
-          {diffs.map((diff, i) => (
-            <SectionFade key={diff.domainId} show={step >= domainsStart + i}>
-              <DomainRow diff={diff} momentumActive={next.lastSession!.momentumAfter > 0 && diff.actualGain > diff.baseGain} />
-            </SectionFade>
-          ))}
+          {diffs.map((diff, i) => {
+            const isBonusReady =
+              !diff.nowInitialized && diff.newAnswered >= SCORING.THRESHOLD_QUESTIONS;
+            return (
+              <SectionFade key={diff.domainId} show={step >= domainsStart + i}>
+                {isBonusReady ? (
+                  <UnlockReadyCard
+                    domainName={
+                      domainById(diff.domainId)?.label.split(" · ").slice(1).join(" · ") ??
+                      diff.domainId
+                    }
+                    onOpen={() => setBonusDomainId(diff.domainId)}
+                  />
+                ) : (
+                  <DomainRow
+                    diff={diff}
+                    momentumActive={
+                      next.lastSession!.momentumAfter > 0 && diff.actualGain > diff.baseGain
+                    }
+                  />
+                )}
+              </SectionFade>
+            );
+          })}
         </section>
+
+
 
 
         {/* 4. Momentum (conditional) */}
@@ -357,6 +381,13 @@ function CompleteContent({ prev, next, session, onExit }: ContentProps) {
           </button>
         </SectionFade>
       </main>
+
+      <BonusUnlockModal
+        open={!!bonusDomainId}
+        domainId={bonusDomainId}
+        domainLabel={bonusDomainId ? (domainById(bonusDomainId)?.label ?? "") : ""}
+        onClose={() => setBonusDomainId(null)}
+      />
     </div>
   );
 }

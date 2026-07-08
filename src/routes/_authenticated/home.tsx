@@ -1,14 +1,18 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Flame, Info } from "lucide-react";
 import { FreeShell } from "@/components/FreeShell";
 import { Logo } from "@/components/Logo";
 import { Avatar, defaultAvatar } from "@/components/Avatar";
 import { PredictedScore } from "@/components/PredictedScore";
 import { MomentumGauge } from "@/components/MomentumGauge";
+import { UnlockReadyCard } from "@/components/UnlockReadyCard";
+import { BonusUnlockModal } from "@/components/BonusUnlockModal";
 import {
   hasCompletedToday,
   DOMAINS,
+  SCORING,
+  domainById,
   isCalibrated,
   sectionScore,
 } from "@/lib/freeUser";
@@ -52,8 +56,20 @@ function HomePage() {
   const name = (state?.name || "champ").split(" ")[0];
   const calibrated = state ? isCalibrated(state) : false;
   const [momentumOpen, setMomentumOpen] = useState(false);
+  const [bonusDomainId, setBonusDomainId] = useState<string | null>(null);
   const resetDemo = useResetDemo();
   const isDev = import.meta.env.DEV;
+
+  const bonusReadyDomains = useMemo(() => {
+    if (!state) return [] as { id: string; name: string; label: string }[];
+    return DOMAINS.filter((d) => {
+      const s = state.domainStats[d.id];
+      return s && !s.initialized && s.answered >= SCORING.THRESHOLD_QUESTIONS && s.bonusStep < 3;
+    }).map((d) => {
+      const parts = d.label.split(" · ");
+      return { id: d.id, name: parts.slice(1).join(" · "), label: d.label };
+    });
+  }, [state]);
 
 
   return (
@@ -145,6 +161,18 @@ function HomePage() {
             </div>
           </section>
 
+          {/* Bonus round unlock cards (one per domain that's ready) */}
+          {bonusReadyDomains.length > 0 && (
+            <section className="space-y-2.5">
+              {bonusReadyDomains.map((d) => (
+                <UnlockReadyCard
+                  key={d.id}
+                  domainName={d.name}
+                  onOpen={() => setBonusDomainId(d.id)}
+                />
+              ))}
+            </section>
+          )}
 
           {/* Daily 5 card */}
           <section
@@ -324,6 +352,13 @@ function HomePage() {
 
         </main>
       </div>
+
+      <BonusUnlockModal
+        open={!!bonusDomainId}
+        domainId={bonusDomainId}
+        domainLabel={bonusDomainId ? (domainById(bonusDomainId)?.label ?? "") : ""}
+        onClose={() => setBonusDomainId(null)}
+      />
     </FreeShell>
   );
 }
