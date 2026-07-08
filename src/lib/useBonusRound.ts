@@ -16,10 +16,18 @@ export function useServeBonusRound(domainId: string | null) {
   });
 }
 
+export interface BonusSubmitAnswer {
+  step: 1 | 2 | 3;
+  questionId: string;
+  selectedPosition: number;
+  shuffleSeed: string;
+  elapsedMs: number;
+}
+
 export function useSubmitBonusRound() {
   const fn = useServerFn(submitBonusRound);
   const qc = useQueryClient();
-  return useMutation<FreeState, Error, Parameters<typeof submitBonusRound>[0]["data"]>({
+  return useMutation<FreeState, Error, { domainId: string; answers: BonusSubmitAnswer[] }>({
     mutationFn: (payload) => fn({ data: payload }),
     onSuccess: (next) => {
       qc.setQueryData(freeStateKey, next);
