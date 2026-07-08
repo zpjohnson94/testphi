@@ -41,9 +41,20 @@ function DailyQuestion() {
     startRef.current = Date.now();
     setSelected(null);
     setSubmitted(false);
+    setGraded(false);
     setCorrectPos(null);
     setIsCorrect(false);
   }, [idx]);
+
+  // Prefetch all 5 questions on entry (slot 1) so subsequent slots are instant.
+  const prefetchedRef = useRef(false);
+  useEffect(() => {
+    if (idx !== 1 || prefetchedRef.current) return;
+    prefetchedRef.current = true;
+    prefetchAll().catch(() => {
+      prefetchedRef.current = false;
+    });
+  }, [idx, prefetchAll]);
 
   useEffect(() => {
     if (!served?.alreadyAnswered) return;
@@ -51,6 +62,7 @@ function DailyQuestion() {
     setCorrectPos(served.correctPosition ?? null);
     setIsCorrect(!!served.isCorrect);
     setSubmitted(true);
+    setGraded(true);
   }, [served?.attemptId]);
 
   const fireBolts = (choiceIdx: number) => {
