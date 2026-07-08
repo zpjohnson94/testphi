@@ -61,6 +61,29 @@ function AuthPage() {
     setStatus("sent");
   }
 
+  async function handleDemoSignIn() {
+    setStatus("sending");
+    setError(null);
+    try {
+      const res = await fetch("/api/public/ensure-demo-user", { method: "POST" });
+      const body = await res.json().catch(() => ({}));
+      if (!res.ok || !body?.ok) {
+        throw new Error(body?.reason || "Failed to provision demo account");
+      }
+      const { error } = await supabase.auth.signInWithPassword({
+        email: "demo@testphi.app",
+        password: "demo-testphi-2026",
+      });
+      if (error) throw error;
+      // onAuthStateChange in the effect above handles the redirect.
+    } catch (err) {
+      setStatus("error");
+      setError(err instanceof Error ? err.message : "Demo sign-in failed");
+    }
+  }
+
+
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-6 py-12">
       <div className="w-full max-w-md">

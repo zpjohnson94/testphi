@@ -29,6 +29,7 @@ import { Route as AuthenticatedSkillMapRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedHomeRouteImport } from './routes/_authenticated/home'
 import { Route as AuthenticatedAccountRouteImport } from './routes/_authenticated/account'
 import { Route as DiagnosticQuestionNRouteImport } from './routes/diagnostic.question.$n'
+import { Route as ApiPublicEnsureDemoUserRouteImport } from './routes/api/public/ensure-demo-user'
 import { Route as AuthenticatedDailyCompleteRouteImport } from './routes/_authenticated/daily.complete'
 import { Route as ApiPublicHooksGenerateDailySetsRouteImport } from './routes/api/public/hooks/generate-daily-sets'
 import { Route as AuthenticatedDailyQuestionNRouteImport } from './routes/_authenticated/daily.question.$n'
@@ -133,6 +134,11 @@ const DiagnosticQuestionNRoute = DiagnosticQuestionNRouteImport.update({
   path: '/diagnostic/question/$n',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicEnsureDemoUserRoute = ApiPublicEnsureDemoUserRouteImport.update({
+  id: '/api/public/ensure-demo-user',
+  path: '/api/public/ensure-demo-user',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedDailyCompleteRoute =
   AuthenticatedDailyCompleteRouteImport.update({
     id: '/daily/complete',
@@ -172,6 +178,7 @@ export interface FileRoutesByFullPath {
   '/lesson/$nodeId': typeof LessonNodeIdRoute
   '/diagnostic/': typeof DiagnosticIndexRoute
   '/daily/complete': typeof AuthenticatedDailyCompleteRoute
+  '/api/public/ensure-demo-user': typeof ApiPublicEnsureDemoUserRoute
   '/diagnostic/question/$n': typeof DiagnosticQuestionNRoute
   '/daily/question/$n': typeof AuthenticatedDailyQuestionNRoute
   '/api/public/hooks/generate-daily-sets': typeof ApiPublicHooksGenerateDailySetsRoute
@@ -196,6 +203,7 @@ export interface FileRoutesByTo {
   '/lesson/$nodeId': typeof LessonNodeIdRoute
   '/diagnostic': typeof DiagnosticIndexRoute
   '/daily/complete': typeof AuthenticatedDailyCompleteRoute
+  '/api/public/ensure-demo-user': typeof ApiPublicEnsureDemoUserRoute
   '/diagnostic/question/$n': typeof DiagnosticQuestionNRoute
   '/daily/question/$n': typeof AuthenticatedDailyQuestionNRoute
   '/api/public/hooks/generate-daily-sets': typeof ApiPublicHooksGenerateDailySetsRoute
@@ -222,6 +230,7 @@ export interface FileRoutesById {
   '/lesson/$nodeId': typeof LessonNodeIdRoute
   '/diagnostic/': typeof DiagnosticIndexRoute
   '/_authenticated/daily/complete': typeof AuthenticatedDailyCompleteRoute
+  '/api/public/ensure-demo-user': typeof ApiPublicEnsureDemoUserRoute
   '/diagnostic/question/$n': typeof DiagnosticQuestionNRoute
   '/_authenticated/daily/question/$n': typeof AuthenticatedDailyQuestionNRoute
   '/api/public/hooks/generate-daily-sets': typeof ApiPublicHooksGenerateDailySetsRoute
@@ -248,6 +257,7 @@ export interface FileRouteTypes {
     | '/lesson/$nodeId'
     | '/diagnostic/'
     | '/daily/complete'
+    | '/api/public/ensure-demo-user'
     | '/diagnostic/question/$n'
     | '/daily/question/$n'
     | '/api/public/hooks/generate-daily-sets'
@@ -272,6 +282,7 @@ export interface FileRouteTypes {
     | '/lesson/$nodeId'
     | '/diagnostic'
     | '/daily/complete'
+    | '/api/public/ensure-demo-user'
     | '/diagnostic/question/$n'
     | '/daily/question/$n'
     | '/api/public/hooks/generate-daily-sets'
@@ -297,6 +308,7 @@ export interface FileRouteTypes {
     | '/lesson/$nodeId'
     | '/diagnostic/'
     | '/_authenticated/daily/complete'
+    | '/api/public/ensure-demo-user'
     | '/diagnostic/question/$n'
     | '/_authenticated/daily/question/$n'
     | '/api/public/hooks/generate-daily-sets'
@@ -319,6 +331,7 @@ export interface RootRouteChildren {
   LearnReadingWritingRoute: typeof LearnReadingWritingRoute
   LessonNodeIdRoute: typeof LessonNodeIdRoute
   DiagnosticIndexRoute: typeof DiagnosticIndexRoute
+  ApiPublicEnsureDemoUserRoute: typeof ApiPublicEnsureDemoUserRoute
   DiagnosticQuestionNRoute: typeof DiagnosticQuestionNRoute
   ApiPublicHooksGenerateDailySetsRoute: typeof ApiPublicHooksGenerateDailySetsRoute
 }
@@ -465,6 +478,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DiagnosticQuestionNRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/ensure-demo-user': {
+      id: '/api/public/ensure-demo-user'
+      path: '/api/public/ensure-demo-user'
+      fullPath: '/api/public/ensure-demo-user'
+      preLoaderRoute: typeof ApiPublicEnsureDemoUserRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/daily/complete': {
       id: '/_authenticated/daily/complete'
       path: '/daily/complete'
@@ -525,19 +545,10 @@ const rootRouteChildren: RootRouteChildren = {
   LearnReadingWritingRoute: LearnReadingWritingRoute,
   LessonNodeIdRoute: LessonNodeIdRoute,
   DiagnosticIndexRoute: DiagnosticIndexRoute,
+  ApiPublicEnsureDemoUserRoute: ApiPublicEnsureDemoUserRoute,
   DiagnosticQuestionNRoute: DiagnosticQuestionNRoute,
   ApiPublicHooksGenerateDailySetsRoute: ApiPublicHooksGenerateDailySetsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
