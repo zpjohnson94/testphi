@@ -137,6 +137,29 @@ function AuthPage() {
               </button>
             </form>
           )}
+
+          {status !== "sent" && (
+            <>
+              <div className="mt-6 flex items-center gap-3">
+                <div className="h-px flex-1 bg-[rgba(246,240,250,0.15)]" />
+                <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+                  or
+                </span>
+                <div className="h-px flex-1 bg-[rgba(246,240,250,0.15)]" />
+              </div>
+              <button
+                type="button"
+                onClick={handleDemoSignIn}
+                disabled={status === "sending"}
+                className="mt-4 w-full rounded-lg border border-[rgba(246,240,250,0.2)] bg-transparent px-4 py-3 text-sm font-semibold text-foreground transition-colors hover:bg-[rgba(246,240,250,0.06)] disabled:opacity-60"
+              >
+                Preview as demo user
+              </button>
+              <p className="mt-2 text-[10px] text-center text-muted-foreground">
+                Instant access to a shared demo account — no email needed.
+              </p>
+            </>
+          )}
         </div>
       </div>
     </div>
