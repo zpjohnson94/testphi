@@ -259,7 +259,7 @@ function DailyQuestion() {
             })}
           </div>
 
-          {submitted && (
+          {graded && (
             <div className="mt-6 flex items-center justify-end gap-3 animate-fade-up">
               <button
                 onClick={() => setShowModal(true)}
