@@ -12,7 +12,7 @@ import {
   isCalibrated,
   sectionScore,
 } from "@/lib/freeUser";
-import { useFreeState } from "@/lib/useFree";
+import { useFreeState, useResetDemo } from "@/lib/useFree";
 
 export const Route = createFileRoute("/_authenticated/home")({
   head: () => ({ meta: [{ title: "Home — TestPhi" }] }),
