@@ -13,6 +13,8 @@ import { useFinalizeDailySession, useFreeState } from "@/lib/useFree";
 import { PredictedScore } from "@/components/PredictedScore";
 import { MomentumGauge } from "@/components/MomentumGauge";
 import { FreeShell } from "@/components/FreeShell";
+import { UnlockReadyCard } from "@/components/UnlockReadyCard";
+import { BonusUnlockModal } from "@/components/BonusUnlockModal";
 
 export const Route = createFileRoute("/_authenticated/daily/complete")({
   head: () => ({ meta: [{ title: "Session complete — TestPhi" }] }),
