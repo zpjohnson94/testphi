@@ -173,21 +173,32 @@ function CompleteContent({ prev, next, session, onExit }: ContentProps) {
 
   const diffs = session.domainDiffs;
   // Reveal each section in turn. We use a simple time-based step.
-  const totalSteps = 1 /* score */ + diffs.length + 3 /* missed, momentum?, streak?, finish */;
+  // Order: SCORE, MISSED, DOMAIN rows, MOMENTUM?, STREAK?, FINISH
+  const missed = session.results.filter((r) => !r.correct);
+  const missedCount = missed.length;
+  const totalSteps =
+    1 /* score */ +
+    1 /* missed */ +
+    diffs.length +
+    (session.momentumIncreased ? 1 : 0) +
+    (session.streakIncreased ? 1 : 0) +
+    1; /* finish */
   const [step, setStep] = useState(0);
   useEffect(() => {
     if (step >= totalSteps) return;
-    const delay = step === 0 ? 200 : 650;
+    const delay = step === 0 ? 200 : 550;
     const t = setTimeout(() => setStep((s) => s + 1), delay);
     return () => clearTimeout(t);
   }, [step, totalSteps]);
 
-  const missed = session.results.filter((r) => !r.correct);
-  const missedCount = missed.length;
-  const showMissed = step >= 1 + diffs.length;
-  const showMomentum = session.momentumIncreased && step >= 2 + diffs.length;
-  const showStreak = session.streakIncreased && step >= 2 + diffs.length + (session.momentumIncreased ? 1 : 0);
+  const showMissed = step >= 1;
+  const domainsStart = 2;
+  const momentumStep = domainsStart + diffs.length;
+  const streakStep = momentumStep + (session.momentumIncreased ? 1 : 0);
+  const showMomentum = session.momentumIncreased && step >= momentumStep;
+  const showStreak = session.streakIncreased && step >= streakStep;
   const showFinish = step >= totalSteps;
+
 
   const noMissLine = useMemo(
     () => NO_MISS_LINES[Math.floor(Math.random() * NO_MISS_LINES.length)],
@@ -227,33 +238,48 @@ function CompleteContent({ prev, next, session, onExit }: ContentProps) {
                   sizeClass="text-[72px] sm:text-[96px]"
                 />
               </div>
-              {session.delta !== 0 && (
+              <div className="mt-3 flex flex-col items-center gap-2">
                 <div
-                  className="mt-3 inline-flex items-center rounded-full px-3 py-1.5 text-sm font-extrabold"
+                  className="inline-flex items-center rounded-full px-3 py-1.5 text-sm font-extrabold"
                   style={{
-                    background: session.delta > 0 ? "rgba(184,255,0,0.15)" : "rgba(255,77,109,0.15)",
-                    color: session.delta > 0 ? "var(--volt)" : "var(--destructive)",
-                    border: `1px solid ${session.delta > 0 ? "var(--volt)" : "var(--destructive)"}`,
+                    background:
+                      session.delta > 0
+                        ? "rgba(184,255,0,0.15)"
+                        : session.delta < 0
+                          ? "rgba(255,77,109,0.15)"
+                          : "rgba(246,240,250,0.08)",
+                    color:
+                      session.delta > 0
+                        ? "var(--volt)"
+                        : session.delta < 0
+                          ? "var(--destructive)"
+                          : "var(--lavender)",
+                    border: `1px solid ${
+                      session.delta > 0
+                        ? "var(--volt)"
+                        : session.delta < 0
+                          ? "var(--destructive)"
+                          : "rgba(246,240,250,0.25)"
+                    }`,
                   }}
                 >
                   {session.delta > 0 ? "+" : ""}
-                  {session.delta} points
+                  {session.delta} points{session.delta > 0 ? "!" : ""}
                 </div>
-              )}
+                {!calibrated && session.delta === 0 && (
+                  <div
+                    className="text-[11px] leading-snug max-w-xs"
+                    style={{ color: "rgba(246,240,250,0.6)" }}
+                  >
+                    Your score won't budge until all 8 domains are calibrated — keep going to unlock live point changes.
+                  </div>
+                )}
+              </div>
             </div>
           )}
         </SectionFade>
 
-        {/* 2. Domain Progress */}
-        <section className="space-y-3">
-          {diffs.map((diff, i) => (
-            <SectionFade key={diff.domainId} show={step >= 1 + i}>
-              <DomainRow diff={diff} momentumActive={next.lastSession!.momentumAfter > 0 && diff.actualGain > diff.baseGain} />
-            </SectionFade>
-          ))}
-        </section>
-
-        {/* 3. Missed Questions */}
+        {/* 2. Missed Questions */}
         <SectionFade show={showMissed}>
           {missedCount > 0 ? (
             <div
@@ -282,6 +308,16 @@ function CompleteContent({ prev, next, session, onExit }: ContentProps) {
             </div>
           )}
         </SectionFade>
+
+        {/* 3. Domain Progress */}
+        <section className="space-y-3">
+          {diffs.map((diff, i) => (
+            <SectionFade key={diff.domainId} show={step >= domainsStart + i}>
+              <DomainRow diff={diff} momentumActive={next.lastSession!.momentumAfter > 0 && diff.actualGain > diff.baseGain} />
+            </SectionFade>
+          ))}
+        </section>
+
 
         {/* 4. Momentum (conditional) */}
         {session.momentumIncreased && (
@@ -494,19 +530,39 @@ function DomainRow({
           <div className="h-full" style={{ width: `${pct}%`, background: "var(--volt)" }} />
         </div>
       ) : (
-        <div className="mt-3 flex gap-1.5">
-          {Array.from({ length: SCORING.THRESHOLD_QUESTIONS }).map((_, i) => {
-            const filled = i < maskShown;
-            return (
-              <div
-                key={i}
-                className="flex-1 h-2.5 rounded-full transition-colors"
-                style={{ background: filled ? "var(--volt)" : "rgba(246,240,250,0.12)" }}
-              />
-            );
-          })}
+        <div>
+          <div className="mt-3 flex gap-1.5">
+            {Array.from({ length: SCORING.THRESHOLD_QUESTIONS }).map((_, i) => {
+              const filled = i < maskShown;
+              const isNewThisSession = i >= diff.prevAnswered && i < maskShown;
+              return (
+                <div
+                  key={i}
+                  className="flex-1 h-2.5 rounded-full"
+                  style={{
+                    background: filled
+                      ? isNewThisSession
+                        ? "var(--spark)"
+                        : "var(--volt)"
+                      : "rgba(246,240,250,0.12)",
+                    transition: "background-color 300ms ease, transform 400ms cubic-bezier(0.34, 1.56, 0.64, 1)",
+                    transform: isNewThisSession ? "scaleY(1.15)" : "scaleY(1)",
+                    boxShadow: isNewThisSession ? "0 0 12px rgba(255,140,60,0.55)" : undefined,
+                  }}
+                />
+              );
+            })}
+          </div>
+          <div
+            className="mt-2 text-[11px] font-bold uppercase tracking-wider"
+            style={{ color: "rgba(246,240,250,0.6)" }}
+          >
+            <span style={{ color: "var(--lavender)" }}>{Math.min(maskShown, SCORING.THRESHOLD_QUESTIONS)}</span>
+            <span>/{SCORING.THRESHOLD_QUESTIONS} questions to calibration</span>
+          </div>
         </div>
       )}
+
 
       {justUnlocked && (
         <div
