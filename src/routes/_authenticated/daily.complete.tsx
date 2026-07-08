@@ -173,21 +173,32 @@ function CompleteContent({ prev, next, session, onExit }: ContentProps) {
 
   const diffs = session.domainDiffs;
   // Reveal each section in turn. We use a simple time-based step.
-  const totalSteps = 1 /* score */ + diffs.length + 3 /* missed, momentum?, streak?, finish */;
+  // Order: SCORE, MISSED, DOMAIN rows, MOMENTUM?, STREAK?, FINISH
+  const missed = session.results.filter((r) => !r.correct);
+  const missedCount = missed.length;
+  const totalSteps =
+    1 /* score */ +
+    1 /* missed */ +
+    diffs.length +
+    (session.momentumIncreased ? 1 : 0) +
+    (session.streakIncreased ? 1 : 0) +
+    1; /* finish */
   const [step, setStep] = useState(0);
   useEffect(() => {
     if (step >= totalSteps) return;
-    const delay = step === 0 ? 200 : 650;
+    const delay = step === 0 ? 200 : 550;
     const t = setTimeout(() => setStep((s) => s + 1), delay);
     return () => clearTimeout(t);
   }, [step, totalSteps]);
 
-  const missed = session.results.filter((r) => !r.correct);
-  const missedCount = missed.length;
-  const showMissed = step >= 1 + diffs.length;
-  const showMomentum = session.momentumIncreased && step >= 2 + diffs.length;
-  const showStreak = session.streakIncreased && step >= 2 + diffs.length + (session.momentumIncreased ? 1 : 0);
+  const showMissed = step >= 1;
+  const domainsStart = 2;
+  const momentumStep = domainsStart + diffs.length;
+  const streakStep = momentumStep + (session.momentumIncreased ? 1 : 0);
+  const showMomentum = session.momentumIncreased && step >= momentumStep;
+  const showStreak = session.streakIncreased && step >= streakStep;
   const showFinish = step >= totalSteps;
+
 
   const noMissLine = useMemo(
     () => NO_MISS_LINES[Math.floor(Math.random() * NO_MISS_LINES.length)],
