@@ -14,7 +14,6 @@ import {
 } from "@/lib/freeUser";
 import { useFreeState } from "@/lib/useFree";
 
-
 export const Route = createFileRoute("/_authenticated/home")({
   head: () => ({ meta: [{ title: "Home — TestPhi" }] }),
   component: HomePage,
