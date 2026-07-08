@@ -161,6 +161,18 @@ function HomePage() {
             </div>
           </section>
 
+          {/* Bonus round unlock cards (one per domain that's ready) */}
+          {bonusReadyDomains.length > 0 && (
+            <section className="space-y-2.5">
+              {bonusReadyDomains.map((d) => (
+                <UnlockReadyCard
+                  key={d.id}
+                  domainName={d.name}
+                  onOpen={() => setBonusDomainId(d.id)}
+                />
+              ))}
+            </section>
+          )}
 
           {/* Daily 5 card */}
           <section
