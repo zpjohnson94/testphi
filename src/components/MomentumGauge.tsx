@@ -185,7 +185,7 @@ function describeRingArc(
   const largeArc = endAngle - startAngle <= 180 ? "0" : "1";
   return [
     `M ${startOuter.x} ${startOuter.y}`,
-    `A ${outerR} ${outerR} 0 ${largeArc} 0 ${endOuter.x} ${endOuter.y}`,
+    `A ${outerR} ${outerR} 0 ${largeArc} 1 ${endOuter.x} ${endOuter.y}`,
     `L ${endInner.x} ${endInner.y}`,
     `A ${innerR} ${innerR} 0 ${largeArc} 0 ${startInner.x} ${startInner.y}`,
     "Z",
