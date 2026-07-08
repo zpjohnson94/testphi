@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { Info } from "lucide-react";
+
 
 interface MomentumGaugeProps {
   needle: number;        // 0..10
