@@ -1,7 +1,5 @@
 import { useEffect, useState } from "react";
 
-
-
 interface MomentumGaugeProps {
   needle: number;        // 0..10
   size?: number;
