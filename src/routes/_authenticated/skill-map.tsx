@@ -41,6 +41,7 @@ function DomainPill({ section }: { section: string }) {
 function SkillMap() {
   const { data: state } = useFreeState();
   const [showModal, setShowModal] = useState(false);
+  const [bonusDomainId, setBonusDomainId] = useState<string | null>(null);
 
   const grouped = useMemo(() => {
     const all = DOMAINS.map((d) => {
