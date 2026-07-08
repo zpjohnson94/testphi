@@ -104,3 +104,15 @@ export function useFinalizeDailySession() {
   });
 }
 
+export function useResetDemo() {
+  const fn = useServerFn(resetDemoAccount);
+  const qc = useQueryClient();
+  return useMutation<FreeState>({
+    mutationFn: () => fn(),
+    onSuccess: (next) => {
+      qc.setQueryData(freeStateKey, next);
+      qc.removeQueries({ queryKey: ["daily-question"] });
+    },
+  });
+}
+
