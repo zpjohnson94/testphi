@@ -313,12 +313,33 @@ function CompleteContent({ prev, next, session, onExit }: ContentProps) {
 
         {/* 3. Domain Progress */}
         <section className="space-y-3">
-          {diffs.map((diff, i) => (
-            <SectionFade key={diff.domainId} show={step >= domainsStart + i}>
-              <DomainRow diff={diff} momentumActive={next.lastSession!.momentumAfter > 0 && diff.actualGain > diff.baseGain} />
-            </SectionFade>
-          ))}
+          {diffs.map((diff, i) => {
+            const isBonusReady =
+              !diff.nowInitialized && diff.newAnswered >= SCORING.THRESHOLD_QUESTIONS;
+            return (
+              <SectionFade key={diff.domainId} show={step >= domainsStart + i}>
+                {isBonusReady ? (
+                  <UnlockReadyCard
+                    domainName={
+                      domainById(diff.domainId)?.label.split(" · ").slice(1).join(" · ") ??
+                      diff.domainId
+                    }
+                    onOpen={() => setBonusDomainId(diff.domainId)}
+                  />
+                ) : (
+                  <DomainRow
+                    diff={diff}
+                    momentumActive={
+                      next.lastSession!.momentumAfter > 0 && diff.actualGain > diff.baseGain
+                    }
+                  />
+                )}
+              </SectionFade>
+            );
+          })}
         </section>
+
+
 
 
         {/* 4. Momentum (conditional) */}
