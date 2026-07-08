@@ -530,19 +530,39 @@ function DomainRow({
           <div className="h-full" style={{ width: `${pct}%`, background: "var(--volt)" }} />
         </div>
       ) : (
-        <div className="mt-3 flex gap-1.5">
-          {Array.from({ length: SCORING.THRESHOLD_QUESTIONS }).map((_, i) => {
-            const filled = i < maskShown;
-            return (
-              <div
-                key={i}
-                className="flex-1 h-2.5 rounded-full transition-colors"
-                style={{ background: filled ? "var(--volt)" : "rgba(246,240,250,0.12)" }}
-              />
-            );
-          })}
+        <div>
+          <div className="mt-3 flex gap-1.5">
+            {Array.from({ length: SCORING.THRESHOLD_QUESTIONS }).map((_, i) => {
+              const filled = i < maskShown;
+              const isNewThisSession = i >= diff.prevAnswered && i < maskShown;
+              return (
+                <div
+                  key={i}
+                  className="flex-1 h-2.5 rounded-full"
+                  style={{
+                    background: filled
+                      ? isNewThisSession
+                        ? "var(--spark)"
+                        : "var(--volt)"
+                      : "rgba(246,240,250,0.12)",
+                    transition: "background-color 300ms ease, transform 400ms cubic-bezier(0.34, 1.56, 0.64, 1)",
+                    transform: isNewThisSession ? "scaleY(1.15)" : "scaleY(1)",
+                    boxShadow: isNewThisSession ? "0 0 12px rgba(255,140,60,0.55)" : undefined,
+                  }}
+                />
+              );
+            })}
+          </div>
+          <div
+            className="mt-2 text-[11px] font-bold uppercase tracking-wider"
+            style={{ color: "rgba(246,240,250,0.6)" }}
+          >
+            <span style={{ color: "var(--lavender)" }}>{Math.min(maskShown, SCORING.THRESHOLD_QUESTIONS)}</span>
+            <span>/{SCORING.THRESHOLD_QUESTIONS} questions to calibration</span>
+          </div>
         </div>
       )}
+
 
       {justUnlocked && (
         <div
