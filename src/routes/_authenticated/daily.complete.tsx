@@ -186,6 +186,7 @@ function CompleteContent({ prev, next, session, onExit }: ContentProps) {
     (session.streakIncreased ? 1 : 0) +
     1; /* finish */
   const [step, setStep] = useState(0);
+  const [bonusDomainId, setBonusDomainId] = useState<string | null>(null);
   useEffect(() => {
     if (step >= totalSteps) return;
     const delay = step === 0 ? 200 : 550;
