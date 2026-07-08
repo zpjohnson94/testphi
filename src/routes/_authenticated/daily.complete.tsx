@@ -50,16 +50,35 @@ function DailyComplete() {
       },
       onError: async (err: any) => {
         const msg = String(err?.message ?? err ?? "");
-        // Retry once for the grade-not-yet-committed race.
-        if (!isRetry && /Session incomplete/i.test(msg)) {
-          await new Promise((r) => setTimeout(r, 500));
-          runFinalize(true);
-          return;
+        const m = msg.match(/Session incomplete:\s*(\d+)\/5/i);
+        if (m) {
+          const answered = parseInt(m[1], 10);
+          // User landed here with fewer than 5 attempts persisted (e.g. reset
+          // mid-session, direct nav). Route back rather than loop on "Wrapping up…".
+          if (answered < 5) {
+            if (answered === 0) {
+              navigate({ to: "/home" as any, replace: true });
+            } else {
+              navigate({
+                to: "/daily/question/$n" as any,
+                params: { n: String(answered + 1) } as any,
+                replace: true,
+              });
+            }
+            return;
+          }
+          // 5/5 but grade write not yet visible: retry once.
+          if (!isRetry) {
+            await new Promise((r) => setTimeout(r, 500));
+            runFinalize(true);
+            return;
+          }
         }
         setErrorMsg(msg || "Something went wrong finalizing your session.");
       },
     });
   };
+
 
   useEffect(() => {
     if (submittedRef.current) return;
