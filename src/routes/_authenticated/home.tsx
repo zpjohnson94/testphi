@@ -52,6 +52,8 @@ function HomePage() {
   const name = (state?.name || "champ").split(" ")[0];
   const calibrated = state ? isCalibrated(state) : false;
   const [momentumOpen, setMomentumOpen] = useState(false);
+  const resetDemo = useResetDemo();
+  const isDev = import.meta.env.DEV;
 
 
   return (
