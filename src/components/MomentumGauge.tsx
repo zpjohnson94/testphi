@@ -104,13 +104,10 @@ export function MomentumGauge({ needle, size = 180, animate = true, delayMs = 0 
           fill={stage.face}
           stroke="rgba(0,0,0,0.4)"
         />
-        {/* Active arc */}
+        {/* Active arc — filled band that traces the gauge face */}
         <path
-          d={describeArc(cx, cy, r - 4, -90, -90 + (shown / 10) * 180)}
-          stroke={stage.arc}
-          strokeWidth={4}
-          fill="none"
-          strokeLinecap="round"
+          d={describeRingArc(cx, cy, r, r - 2, -90, -90 + (shown / 10) * 180)}
+          fill={stage.arc}
         />
         {ticks}
         {/* Needle */}
