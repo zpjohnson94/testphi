@@ -352,6 +352,13 @@ function HomePage() {
 
         </main>
       </div>
+
+      <BonusUnlockModal
+        open={!!bonusDomainId}
+        domainId={bonusDomainId}
+        domainLabel={bonusDomainId ? (domainById(bonusDomainId)?.label ?? "") : ""}
+        onClose={() => setBonusDomainId(null)}
+      />
     </FreeShell>
   );
 }
