@@ -64,7 +64,7 @@ export function PredictedScore({
           }}
         >
           <Info className="size-3" />
-          Low confidence
+          Still calibrating
         </button>
       )}
       {open && !calibrated && (
