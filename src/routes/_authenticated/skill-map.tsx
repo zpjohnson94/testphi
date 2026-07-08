@@ -212,6 +212,13 @@ function SkillMap() {
         onClose={() => setShowModal(false)}
         title="Power Up to drill specific domains"
       />
+
+      <BonusUnlockModal
+        open={!!bonusDomainId}
+        domainId={bonusDomainId}
+        domainLabel={bonusDomainId ? (domainById(bonusDomainId)?.label ?? "") : ""}
+        onClose={() => setBonusDomainId(null)}
+      />
     </FreeShell>
   );
 }
