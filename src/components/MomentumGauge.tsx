@@ -1,6 +1,4 @@
 import { useEffect, useState } from "react";
-import { Info } from "lucide-react";
-
 
 interface MomentumGaugeProps {
   needle: number;        // 0..10
@@ -87,10 +85,10 @@ export function MomentumGauge({ needle, size = 180, animate = true, delayMs = 0 
   }
 
   const multiplier = 1 + shown * 0.05;
-  const [open, setOpen] = useState(false);
+  
 
   return (
-    <div className="relative inline-flex flex-col items-center" style={{ width: w }}>
+    <div className="inline-flex flex-col items-center" style={{ width: w }}>
       <svg
         width={w}
         height={h + 6}
@@ -145,31 +143,7 @@ export function MomentumGauge({ needle, size = 180, animate = true, delayMs = 0 
         <span className="text-xs font-bold" style={{ color: "rgba(246,240,250,0.6)" }}>
           x momentum
         </span>
-        <button
-          type="button"
-          onClick={() => setOpen((v) => !v)}
-          onMouseEnter={() => setOpen(true)}
-          onMouseLeave={() => setOpen(false)}
-          className="inline-flex rounded-full p-1"
-          style={{ color: "rgba(246,240,250,0.55)" }}
-          aria-label="What is momentum?"
-        >
-          <Info className="size-3.5" />
-        </button>
       </div>
-      {open && (
-        <div
-          className="absolute z-40 left-1/2 -translate-x-1/2 top-full mt-2 w-64 sm:w-72 rounded-xl p-3 text-xs leading-relaxed"
-          style={{
-            background: "rgba(20,12,40,0.97)",
-            border: "1px solid rgba(168,85,247,0.5)",
-            color: "rgba(246,240,250,0.92)",
-            boxShadow: "0 8px 24px rgba(0,0,0,0.5)",
-          }}
-        >
-          Momentum rewards consistency. Complete a full Daily 5 session to raise it by 1; each level adds +0.05 to your mastery multiplier. Miss a day and it decays by 1.
-        </div>
-      )}
       <style>{`
         @keyframes momentumPulse {
           0%, 100% { filter: drop-shadow(0 0 10px ${stage.glow}); }
@@ -191,9 +165,10 @@ function polarToCartesian(cx: number, cy: number, r: number, angleDeg: number) {
 }
 
 function describeArc(cx: number, cy: number, r: number, startAngle: number, endAngle: number) {
-  // Treat angles relative to top (12 o'clock) the same way as in the needle math.
-  const start = polarToCartesian(cx, cy, r, endAngle + 90);
-  const end = polarToCartesian(cx, cy, r, startAngle + 90);
+  // Needle-space angles: -90 = left, 0 = top, 90 = right.
+  // Draw the active arc left-to-right along the top semicircle.
+  const start = polarToCartesian(cx, cy, r, startAngle);
+  const end = polarToCartesian(cx, cy, r, endAngle);
   const largeArc = endAngle - startAngle <= 180 ? "0" : "1";
   return `M ${start.x} ${start.y} A ${r} ${r} 0 ${largeArc} 0 ${end.x} ${end.y}`;
 }
