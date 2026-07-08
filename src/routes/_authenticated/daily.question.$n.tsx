@@ -19,9 +19,11 @@ function DailyQuestion() {
 
   const { data: served, isLoading } = useServeDailyQuestion(idx);
   const grade = useGradeDailyAnswer();
+  const prefetchAll = usePrefetchDailySet();
 
   const [selected, setSelected] = useState<number | null>(null);
   const [submitted, setSubmitted] = useState(false);
+  const [graded, setGraded] = useState(false);
   const [correctPos, setCorrectPos] = useState<number | null>(null);
   const [isCorrect, setIsCorrect] = useState<boolean>(false);
   const [showModal, setShowModal] = useState(false);
