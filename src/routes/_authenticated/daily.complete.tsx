@@ -217,7 +217,7 @@ function CompleteContent({ prev, next, session, onExit }: ContentProps) {
               style={{ background: "var(--violet-deep)", border: "1.5px solid rgba(168,85,247,0.4)" }}
             >
               <div className="text-[11px] font-bold uppercase tracking-[0.18em]" style={{ color: "var(--volt)" }}>
-                {wasCalibrated ? "Predicted SAT score" : "Predicted SAT score · low confidence"}
+                PREDICTED SAT SCORE
               </div>
               <div className="mt-3 flex justify-center">
                 <PredictedScore
