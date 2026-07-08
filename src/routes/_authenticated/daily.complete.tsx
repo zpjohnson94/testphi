@@ -263,8 +263,8 @@ function CompleteContent({ prev, next, session, onExit }: ContentProps) {
                     }`,
                   }}
                 >
-                  {session.delta > 0 ? "+" : ""}
-                  {session.delta} points{session.delta > 0 ? "!" : ""}
+                  {session.delta >= 0 ? "+" : ""}
+                  {session.delta} points{session.delta >= 0 ? "!" : ""}
                 </div>
                 {!calibrated && session.delta === 0 && (
                   <div
