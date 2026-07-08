@@ -177,20 +177,43 @@ function HomePage() {
             {/* Five circle indicators */}
             <div className="mt-5 flex items-center gap-3 justify-center">
               {Array.from({ length: 5 }).map((_, i) => {
-                const filled = i < answeredCount;
+                const result = done ? lastSession?.results?.[i] : undefined;
+                const answered = i < answeredCount;
+                const correct = result?.correct === true;
+                const incorrect = answered && result?.correct === false;
+                const bg = correct
+                  ? "var(--volt)"
+                  : incorrect
+                    ? "var(--destructive)"
+                    : "transparent";
+                const border = correct
+                  ? "var(--volt)"
+                  : incorrect
+                    ? "var(--destructive)"
+                    : "rgba(246,240,250,0.25)";
+                const glow = correct
+                  ? "0 0 14px rgba(184,255,0,0.45)"
+                  : incorrect
+                    ? "0 0 14px rgba(255,77,109,0.45)"
+                    : undefined;
                 return (
                   <div
                     key={i}
                     className="size-10 rounded-full flex items-center justify-center transition-all"
                     style={{
-                      background: filled ? "var(--volt)" : "transparent",
-                      border: `2.5px solid ${filled ? "var(--volt)" : "rgba(246,240,250,0.25)"}`,
-                      boxShadow: filled ? "0 0 14px rgba(184,255,0,0.45)" : undefined,
+                      background: bg,
+                      border: `2.5px solid ${border}`,
+                      boxShadow: glow,
                     }}
                   >
-                    {filled && (
+                    {correct && (
                       <span className="font-extrabold text-sm" style={{ color: "var(--ink)" }}>
                         ✓
+                      </span>
+                    )}
+                    {incorrect && (
+                      <span className="font-extrabold text-sm" style={{ color: "var(--lavender)" }}>
+                        ✕
                       </span>
                     )}
                   </div>
