@@ -56,6 +56,7 @@ import {
   serveDailySetBatch,
   gradeDailyAnswer,
   finalizeDailySession,
+  resetDemoAccount,
   type ServedQuestion,
   type GradeResult,
 } from "./dailyAttempt.functions";
