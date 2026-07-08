@@ -100,6 +100,7 @@ function DailyQuestion() {
     if (submitted || !served) return;
     setSelected(choiceIdx);
     setSubmitted(true);
+    setGraded(false);
     sfx.tap();
     const elapsedMs = Date.now() - startRef.current;
     try {
@@ -110,11 +111,13 @@ function DailyQuestion() {
       });
       setIsCorrect(result.isCorrect);
       setCorrectPos(result.correctPosition);
+      setGraded(true);
       if (result.isCorrect) fireBolts(choiceIdx);
     } catch {
       // Roll back on failure so the user can retry.
       setSubmitted(false);
       setSelected(null);
+      setGraded(false);
     }
   };
 
@@ -136,7 +139,7 @@ function DailyQuestion() {
     );
   }
 
-  const revealCorrect = submitted && correctPos !== null;
+  const revealCorrect = graded && correctPos !== null;
 
   return (
     <div className="topo-bg topo-dim min-h-screen">
