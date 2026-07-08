@@ -87,9 +87,10 @@ export function MomentumGauge({ needle, size = 180, animate = true, delayMs = 0 
   }
 
   const multiplier = 1 + shown * 0.05;
+  const [open, setOpen] = useState(false);
 
   return (
-    <div className="inline-flex flex-col items-center" style={{ width: w }}>
+    <div className="relative inline-flex flex-col items-center" style={{ width: w }}>
       <svg
         width={w}
         height={h + 6}
@@ -134,7 +135,7 @@ export function MomentumGauge({ needle, size = 180, animate = true, delayMs = 0 
           <circle cx={cx} cy={cy} r={2.5} fill="#0b0b0b" />
         </g>
       </svg>
-      <div className="-mt-1 flex items-baseline gap-1">
+      <div className="-mt-1 flex items-center gap-1">
         <span
           className="score-num text-2xl tabular-nums"
           style={{ color: stage.needle }}
@@ -144,7 +145,31 @@ export function MomentumGauge({ needle, size = 180, animate = true, delayMs = 0 
         <span className="text-xs font-bold" style={{ color: "rgba(246,240,250,0.6)" }}>
           x momentum
         </span>
+        <button
+          type="button"
+          onClick={() => setOpen((v) => !v)}
+          onMouseEnter={() => setOpen(true)}
+          onMouseLeave={() => setOpen(false)}
+          className="inline-flex rounded-full p-1"
+          style={{ color: "rgba(246,240,250,0.55)" }}
+          aria-label="What is momentum?"
+        >
+          <Info className="size-3.5" />
+        </button>
       </div>
+      {open && (
+        <div
+          className="absolute z-40 left-1/2 -translate-x-1/2 top-full mt-2 w-64 sm:w-72 rounded-xl p-3 text-xs leading-relaxed"
+          style={{
+            background: "rgba(20,12,40,0.97)",
+            border: "1px solid rgba(168,85,247,0.5)",
+            color: "rgba(246,240,250,0.92)",
+            boxShadow: "0 8px 24px rgba(0,0,0,0.5)",
+          }}
+        >
+          Momentum rewards consistency. Complete a full Daily 5 session to raise it by 1; each level adds +0.05 to your mastery multiplier. Miss a day and it decays by 1.
+        </div>
+      )}
       <style>{`
         @keyframes momentumPulse {
           0%, 100% { filter: drop-shadow(0 0 10px ${stage.glow}); }
