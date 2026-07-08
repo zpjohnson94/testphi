@@ -271,7 +271,7 @@ function CompleteContent({ prev, next, session, onExit }: ContentProps) {
                     className="text-[11px] leading-snug max-w-xs"
                     style={{ color: "rgba(246,240,250,0.6)" }}
                   >
-                    Your score won't budge until all 8 domains are calibrated — keep going to unlock live point changes.
+                    Your score won't budge until all 8 domains are calibrated. Keep going to unlock live point changes!
                   </div>
                 )}
               </div>
