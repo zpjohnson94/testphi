@@ -120,6 +120,17 @@ function SkillMap() {
                     const parts = d.label.split(" · ");
                     const section = parts[0];
                     const name = parts.slice(1).join(" · ");
+                    // Bonus-ready: replace the mastery card entirely with the
+                    // chartreuse "unlock ready" card.
+                    if (d.bonusReady) {
+                      return (
+                        <UnlockReadyCard
+                          key={d.id}
+                          domainName={name}
+                          onOpen={() => setBonusDomainId(d.id)}
+                        />
+                      );
+                    }
                     return (
                       <div
                         key={d.id}
@@ -172,16 +183,9 @@ function SkillMap() {
                             </div>
                             <div
                               className="mt-2 text-[11px] font-bold uppercase tracking-wider flex items-center gap-1.5"
-                              style={{ color: d.bonusReady ? "var(--spark)" : "rgba(246,240,250,0.55)" }}
+                              style={{ color: "rgba(246,240,250,0.55)" }}
                             >
-                              {d.bonusReady ? (
-                                <>
-                                  <Sparkles className="size-3.5" />
-                                  Bonus round ready · {d.bonusStep}/3
-                                </>
-                              ) : (
-                                <>{d.answered} / {SCORING.THRESHOLD_QUESTIONS} questions to calibration</>
-                              )}
+                              {d.answered} / {SCORING.THRESHOLD_QUESTIONS} questions to calibration
                             </div>
                           </div>
                         )}
