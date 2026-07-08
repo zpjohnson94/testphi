@@ -381,6 +381,13 @@ function CompleteContent({ prev, next, session, onExit }: ContentProps) {
           </button>
         </SectionFade>
       </main>
+
+      <BonusUnlockModal
+        open={!!bonusDomainId}
+        domainId={bonusDomainId}
+        domainLabel={bonusDomainId ? (domainById(bonusDomainId)?.label ?? "") : ""}
+        onClose={() => setBonusDomainId(null)}
+      />
     </div>
   );
 }
