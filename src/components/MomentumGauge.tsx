@@ -104,13 +104,10 @@ export function MomentumGauge({ needle, size = 180, animate = true, delayMs = 0 
           fill={stage.face}
           stroke="rgba(0,0,0,0.4)"
         />
-        {/* Active arc */}
+        {/* Active arc — filled band that traces the gauge face */}
         <path
-          d={describeArc(cx, cy, r - 4, -90, -90 + (shown / 10) * 180)}
-          stroke={stage.arc}
-          strokeWidth={4}
-          fill="none"
-          strokeLinecap="round"
+          d={describeRingArc(cx, cy, r, r - 2, -90, -90 + (shown / 10) * 180)}
+          fill={stage.arc}
         />
         {ticks}
         {/* Needle */}
@@ -171,4 +168,26 @@ function describeArc(cx: number, cy: number, r: number, startAngle: number, endA
   const end = polarToCartesian(cx, cy, r, endAngle);
   const largeArc = endAngle - startAngle <= 180 ? "0" : "1";
   return `M ${start.x} ${start.y} A ${r} ${r} 0 ${largeArc} 0 ${end.x} ${end.y}`;
+}
+
+function describeRingArc(
+  cx: number,
+  cy: number,
+  outerR: number,
+  innerR: number,
+  startAngle: number,
+  endAngle: number,
+) {
+  const startOuter = polarToCartesian(cx, cy, outerR, startAngle);
+  const endOuter = polarToCartesian(cx, cy, outerR, endAngle);
+  const startInner = polarToCartesian(cx, cy, innerR, startAngle);
+  const endInner = polarToCartesian(cx, cy, innerR, endAngle);
+  const largeArc = endAngle - startAngle <= 180 ? "0" : "1";
+  return [
+    `M ${startOuter.x} ${startOuter.y}`,
+    `A ${outerR} ${outerR} 0 ${largeArc} 1 ${endOuter.x} ${endOuter.y}`,
+    `L ${endInner.x} ${endInner.y}`,
+    `A ${innerR} ${innerR} 0 ${largeArc} 0 ${startInner.x} ${startInner.y}`,
+    "Z",
+  ].join(" ");
 }
