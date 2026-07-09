@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Flame, X, Sparkles } from "lucide-react";
+import { Flame, X, Sparkles, Info } from "lucide-react";
 import {
   domainById,
   DOMAINS,
@@ -15,6 +15,7 @@ import { MomentumGauge } from "@/components/MomentumGauge";
 import { FreeShell } from "@/components/FreeShell";
 import { UnlockReadyCard } from "@/components/UnlockReadyCard";
 import { BonusUnlockModal } from "@/components/BonusUnlockModal";
+import { MissedReviewModal } from "@/components/MissedReviewModal";
 
 export const Route = createFileRoute("/_authenticated/daily/complete")({
   head: () => ({ meta: [{ title: "Session complete — TestPhi" }] }),
