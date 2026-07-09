@@ -187,21 +187,28 @@ export function ChestReveal({ domainName, masteryPct, onDone }: Props) {
             }}
           />
           <div className="relative">
-            <div className="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-[0.18em]" style={{ color: "var(--volt)" }}>
-              ✨ Mastery unlocked ✨
+            <div className="text-[11px] font-bold uppercase tracking-[0.18em]" style={{ color: "var(--volt)" }}>
+              Your mastery score is calibrated.
             </div>
             <h2 className="mt-3 display text-2xl text-[var(--lavender)]">{domainName}</h2>
             <div className="mt-6">
-              <PredictedScore
-                score={Math.round(masteryPct)}
-                calibrated
-                animateFrom={0}
-                sizeClass="text-[72px]"
-              />
-              <div className="mt-1 text-xs font-bold uppercase tracking-widest" style={{ color: "rgba(246,240,250,0.6)" }}>
+              <div
+                className="score-num text-[72px] leading-none"
+                style={{ color: "var(--volt)", textShadow: "0 0 24px rgba(184,255,0,0.5)" }}
+              >
+                <AnimatedPct target={Math.round(masteryPct)} />%
+              </div>
+              <div className="mt-4 h-4 rounded-full overflow-hidden" style={{ background: "rgba(246,240,250,0.1)", border: "1px solid rgba(184,255,0,0.25)" }}>
+                <div
+                  className="mastery-swirl-fill h-full rounded-full transition-all duration-[1400ms] ease-out"
+                  style={{ width: `${Math.max(0, Math.min(100, Math.round(masteryPct)))}%` }}
+                />
+              </div>
+              <div className="mt-2 text-xs font-bold uppercase tracking-widest" style={{ color: "rgba(246,240,250,0.6)" }}>
                 Mastery
               </div>
             </div>
+
             <button onClick={onDone} className="btn-volt w-full mt-8 py-4 rounded-2xl text-base">
               Continue
             </button>
