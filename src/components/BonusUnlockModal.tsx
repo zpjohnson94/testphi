@@ -134,11 +134,14 @@ export function BonusUnlockModal({ open, domainId, domainLabel, onClose }: Props
             }}
           >
             <div className="text-[11px] font-bold uppercase tracking-[0.18em]" style={{ color: "var(--volt)" }}>
-              Bonus round
+              UNLOCK YOUR MASTERY SCORE
             </div>
             <h2 className="mt-3 display text-2xl text-[var(--lavender)]">{domainName}</h2>
-            <p className="mt-4 text-sm leading-relaxed" style={{ color: "rgba(246,240,250,0.85)" }}>
-              {domainName} is nearly calibrated. Answer 3 more questions — Easy, Medium, and Hard — and you'll unlock your mastery score. You'll keep improving your mastery score over time after you unlock it. Time matters.
+            <p className="mt-4 text-sm leading-relaxed whitespace-pre-line" style={{ color: "rgba(246,240,250,0.85)" }}>
+              Answer 3 more questions (1 easy, 1 medium, 1 hard) and you'll unlock your mastery score for this domain.
+
+
+              You'll keep improving your mastery score over time after you unlock it.
             </p>
             <button
               onClick={beginRound}
