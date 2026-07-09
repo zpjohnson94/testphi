@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { X, ChevronLeft, ChevronRight, Check } from "lucide-react";
+import { X, ChevronLeft, ChevronRight, Check, HelpCircle } from "lucide-react";
 import { useServeDailyQuestion } from "@/lib/useFree";
+import { PowerUpModal } from "./PowerUpModal";
 
 export interface MissedQuestionRef {
   slot: number;
