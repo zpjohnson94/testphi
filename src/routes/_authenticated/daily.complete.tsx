@@ -302,7 +302,7 @@ function CompleteContent({ prev, next, session, onExit }: ContentProps) {
               <button
                 className="rounded-xl px-4 py-2 text-sm font-bold"
                 style={{ background: "rgba(74,6,136,0.5)", color: "var(--lavender)", border: "1px solid rgba(168,85,247,0.5)" }}
-                onClick={() => {/* review flow placeholder */}}
+                onClick={() => setReviewOpen(true)}
               >
                 Review →
               </button>
