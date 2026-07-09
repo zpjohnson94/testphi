@@ -91,14 +91,14 @@ function DailyComplete() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [freeState]);
 
-  // Safety net: if the mutation neither resolves nor errors within 10s,
+  // Safety net: if the mutation neither resolves nor errors within 20s,
   // surface an escape hatch so the user isn't frozen on "Wrapping up…".
   useEffect(() => {
     if (next || errorMsg) {
       setStuck(false);
       return;
     }
-    const t = setTimeout(() => setStuck(true), 10_000);
+    const t = setTimeout(() => setStuck(true), 20_000);
     return () => clearTimeout(t);
   }, [next, errorMsg, prev]);
 
