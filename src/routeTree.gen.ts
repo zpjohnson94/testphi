@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TestChestRouteImport } from './routes/test-chest'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as PrivacyRouteImport } from './routes/privacy'
@@ -34,6 +35,11 @@ import { Route as AuthenticatedDailyCompleteRouteImport } from './routes/_authen
 import { Route as ApiPublicHooksGenerateDailySetsRouteImport } from './routes/api/public/hooks/generate-daily-sets'
 import { Route as AuthenticatedDailyQuestionNRouteImport } from './routes/_authenticated/daily.question.$n'
 
+const TestChestRoute = TestChestRouteImport.update({
+  id: '/test-chest',
+  path: '/test-chest',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
   path: '/signup',
@@ -167,6 +173,7 @@ export interface FileRoutesByFullPath {
   '/privacy': typeof PrivacyRoute
   '/profile': typeof ProfileRoute
   '/signup': typeof SignupRoute
+  '/test-chest': typeof TestChestRoute
   '/account': typeof AuthenticatedAccountRoute
   '/home': typeof AuthenticatedHomeRoute
   '/skill-map': typeof AuthenticatedSkillMapRoute
@@ -192,6 +199,7 @@ export interface FileRoutesByTo {
   '/privacy': typeof PrivacyRoute
   '/profile': typeof ProfileRoute
   '/signup': typeof SignupRoute
+  '/test-chest': typeof TestChestRoute
   '/account': typeof AuthenticatedAccountRoute
   '/home': typeof AuthenticatedHomeRoute
   '/skill-map': typeof AuthenticatedSkillMapRoute
@@ -219,6 +227,7 @@ export interface FileRoutesById {
   '/privacy': typeof PrivacyRoute
   '/profile': typeof ProfileRoute
   '/signup': typeof SignupRoute
+  '/test-chest': typeof TestChestRoute
   '/_authenticated/account': typeof AuthenticatedAccountRoute
   '/_authenticated/home': typeof AuthenticatedHomeRoute
   '/_authenticated/skill-map': typeof AuthenticatedSkillMapRoute
@@ -246,6 +255,7 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/profile'
     | '/signup'
+    | '/test-chest'
     | '/account'
     | '/home'
     | '/skill-map'
@@ -271,6 +281,7 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/profile'
     | '/signup'
+    | '/test-chest'
     | '/account'
     | '/home'
     | '/skill-map'
@@ -297,6 +308,7 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/profile'
     | '/signup'
+    | '/test-chest'
     | '/_authenticated/account'
     | '/_authenticated/home'
     | '/_authenticated/skill-map'
@@ -324,6 +336,7 @@ export interface RootRouteChildren {
   PrivacyRoute: typeof PrivacyRoute
   ProfileRoute: typeof ProfileRoute
   SignupRoute: typeof SignupRoute
+  TestChestRoute: typeof TestChestRoute
   DiagnosticAvatarRoute: typeof DiagnosticAvatarRoute
   DiagnosticResultsRoute: typeof DiagnosticResultsRoute
   DiagnosticResultsPreviewRoute: typeof DiagnosticResultsPreviewRoute
@@ -338,6 +351,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/test-chest': {
+      id: '/test-chest'
+      path: '/test-chest'
+      fullPath: '/test-chest'
+      preLoaderRoute: typeof TestChestRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/signup': {
       id: '/signup'
       path: '/signup'
@@ -538,6 +558,7 @@ const rootRouteChildren: RootRouteChildren = {
   PrivacyRoute: PrivacyRoute,
   ProfileRoute: ProfileRoute,
   SignupRoute: SignupRoute,
+  TestChestRoute: TestChestRoute,
   DiagnosticAvatarRoute: DiagnosticAvatarRoute,
   DiagnosticResultsRoute: DiagnosticResultsRoute,
   DiagnosticResultsPreviewRoute: DiagnosticResultsPreviewRoute,
@@ -552,3 +573,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
