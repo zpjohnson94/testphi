@@ -525,10 +525,13 @@ function DomainRow({
 
   const deltaSign = diff.newMastery >= diff.prevMastery ? "+" : "";
   const deltaPct = nowInit && wasInit ? `${deltaSign}${(diff.newMastery - diff.prevMastery).toFixed(1)}%` : "";
+  const [tipOpen, setTipOpen] = useState(false);
+  const momentumMult = diff.baseGain !== 0 ? diff.actualGain / diff.baseGain : 1;
+  const positiveDelta = diff.newMastery - diff.prevMastery >= 0;
 
   return (
     <div
-      className="rounded-2xl p-4"
+      className="relative rounded-2xl p-4"
       style={{
         background: "#1a1230",
         border: justUnlocked ? "1.5px solid var(--volt)" : "1px solid rgba(246,240,250,0.1)",
@@ -557,17 +560,13 @@ function DomainRow({
               {deltaPct && (
                 <DeltaBadge
                   delta={diff.newMastery - diff.prevMastery}
-                  baseGain={diff.baseGain}
-                  actualGain={diff.actualGain}
-                  momentumMult={
-                    diff.baseGain !== 0 ? diff.actualGain / diff.baseGain : 1
-                  }
-                  correct={diff.newMastery >= diff.prevMastery}
+                  onToggle={() => setTipOpen((v) => !v)}
                 />
               )}
             </>
           ) : null}
         </div>
+
       </div>
 
       {nowInit ? (
