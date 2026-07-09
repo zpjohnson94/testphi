@@ -1,8 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { serveBonusRound, submitBonusRound, type BonusServedRound } from "./bonusRound.functions";
+import { serveBonusRound, submitBonusRound, type BonusServedRound, type BonusSubmitResult } from "./bonusRound.functions";
 import { freeStateKey } from "./useFree";
-import type { FreeState } from "./freeUser";
 
 export function useServeBonusRound(domainId: string | null) {
   const fn = useServerFn(serveBonusRound);
@@ -27,10 +26,10 @@ export interface BonusSubmitAnswer {
 export function useSubmitBonusRound() {
   const fn = useServerFn(submitBonusRound);
   const qc = useQueryClient();
-  return useMutation<FreeState, Error, { domainId: string; answers: BonusSubmitAnswer[] }>({
+  return useMutation<BonusSubmitResult, Error, { domainId: string; answers: BonusSubmitAnswer[] }>({
     mutationFn: (payload) => fn({ data: payload }),
-    onSuccess: (next) => {
-      qc.setQueryData(freeStateKey, next);
+    onSuccess: ({ state }) => {
+      qc.setQueryData(freeStateKey, state);
     },
   });
 }

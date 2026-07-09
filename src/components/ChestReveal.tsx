@@ -28,6 +28,7 @@ function AnimatedPct({ target }: { target: number }) {
 interface Props {
   domainName: string;
   masteryPct: number;
+  bonusSummary?: { correct: number; total: number; domainAnswered: number } | null;
   onDone: () => void;
 }
 
@@ -42,7 +43,7 @@ interface Sand {
   born: number;
 }
 
-export function ChestReveal({ domainName, masteryPct, onDone }: Props) {
+export function ChestReveal({ domainName, masteryPct, bonusSummary, onDone }: Props) {
   const [taps, setTaps] = useState(0);
   const [opened, setOpened] = useState(false);
   const [flash, setFlash] = useState(false);
@@ -172,7 +173,13 @@ export function ChestReveal({ domainName, masteryPct, onDone }: Props) {
 
           <div className="text-center">
             <div
-              className="display text-2xl uppercase tracking-[0.18em]"
+              className="text-[11px] font-bold uppercase tracking-[0.18em]"
+              style={{ color: "var(--volt)" }}
+            >
+              Your mastery score is calibrated.
+            </div>
+            <div
+              className="display text-2xl uppercase tracking-[0.18em] mt-2"
               style={{ color: "var(--volt)", textShadow: "0 0 22px rgba(184,255,0,0.7)" }}
             >
               Tap to unlock!
@@ -228,6 +235,26 @@ export function ChestReveal({ domainName, masteryPct, onDone }: Props) {
               <div className="mt-2 text-xs font-bold uppercase tracking-widest" style={{ color: "rgba(246,240,250,0.6)" }}>
                 Mastery
               </div>
+            </div>
+
+            <div className="mt-6 text-sm leading-relaxed" style={{ color: "rgba(246,240,250,0.85)" }}>
+              {bonusSummary ? (
+                <>
+                  <p>
+                    You got {bonusSummary.correct} out of {bonusSummary.total} bonus questions correct, and have answered {bonusSummary.domainAnswered} total {domainName} questions.
+                  </p>
+                  <p className="mt-3">
+                    Your mastery score combines your correct answers, how quickly you answered correctly, and the difficulty of those questions.
+                  </p>
+                  <p className="mt-3">
+                    Keep practicing — your score will improve over time, and consistency is the key to mastery.
+                  </p>
+                </>
+              ) : (
+                <p>
+                  Your mastery score combines your correct answers, how quickly you answered correctly, and the difficulty of those questions. Keep practicing — your score will improve over time, and consistency is the key to mastery.
+                </p>
+              )}
             </div>
 
             <button onClick={onDone} className="btn-volt w-full mt-8 py-4 rounded-2xl text-base">

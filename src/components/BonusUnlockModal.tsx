@@ -22,6 +22,7 @@ export function BonusUnlockModal({ open, domainId, domainLabel, onClose }: Props
   const [selected, setSelected] = useState<number | null>(null);
   const [answers, setAnswers] = useState<BonusSubmitAnswer[]>([]);
   const [masteryPct, setMasteryPct] = useState<number>(0);
+  const [bonusSummary, setBonusSummary] = useState<{ correct: number; total: number; domainAnswered: number } | null>(null);
   const startRef = useRef(Date.now());
   const { data: round, isLoading, error } = useServeBonusRound(open ? domainId : null);
   const submit = useSubmitBonusRound();
@@ -35,6 +36,7 @@ export function BonusUnlockModal({ open, domainId, domainLabel, onClose }: Props
       setSelected(null);
       setAnswers([]);
       setMasteryPct(0);
+      setBonusSummary(null);
     }
   }, [open]);
 
@@ -79,8 +81,9 @@ export function BonusUnlockModal({ open, domainId, domainLabel, onClose }: Props
             domainId: domainId!,
             answers: allAnswers,
           });
-          const m = result.domainStats[domainId!]?.mastery ?? 0;
+          const m = result.state.domainStats[domainId!]?.mastery ?? 0;
           setMasteryPct(m);
+          setBonusSummary(result.bonusSummary);
           setPhase("chest");
         } catch (e) {
           console.error("bonus submit failed", e);
@@ -216,6 +219,7 @@ export function BonusUnlockModal({ open, domainId, domainLabel, onClose }: Props
         <ChestReveal
           domainName={domainName}
           masteryPct={masteryPct}
+          bonusSummary={bonusSummary}
           onDone={onClose}
         />
       )}

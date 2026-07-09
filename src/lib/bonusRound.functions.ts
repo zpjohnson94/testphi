@@ -208,6 +208,15 @@ export interface BonusSubmitPayload {
   }>;
 }
 
+export interface BonusSubmitResult {
+  state: FreeState;
+  bonusSummary: {
+    correct: number;
+    total: number;
+    domainAnswered: number;
+  };
+}
+
 // Deterministic PRNG from a seed string so shuffle can be reproduced on submit.
 function seededShuffle(seed: string): number[] {
   let h = 2166136261;
@@ -277,7 +286,7 @@ export const submitBonusRound = createServerFn({ method: "POST" })
       })).length(3),
     }).parse(raw),
   )
-  .handler(async ({ data, context }): Promise<FreeState> => {
+  .handler(async ({ data, context }): Promise<BonusSubmitResult> => {
     // Grade each answer server-side.
     const { data: rows } = await context.supabase
       .from("questions")
@@ -344,5 +353,14 @@ export const submitBonusRound = createServerFn({ method: "POST" })
     }
 
     await persistFreeState(context, next);
-    return next;
+
+    const correctCount = results.filter((r) => r.correct).length;
+    return {
+      state: next,
+      bonusSummary: {
+        correct: correctCount,
+        total: results.length,
+        domainAnswered: next.domainStats[data.domainId]?.answered ?? 0,
+      },
+    };
   });
