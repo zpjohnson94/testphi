@@ -208,6 +208,15 @@ export interface BonusSubmitPayload {
   }>;
 }
 
+export interface BonusSubmitResult {
+  state: FreeState;
+  bonusSummary: {
+    correct: number;
+    total: number;
+    domainAnswered: number;
+  };
+}
+
 // Deterministic PRNG from a seed string so shuffle can be reproduced on submit.
 function seededShuffle(seed: string): number[] {
   let h = 2166136261;
