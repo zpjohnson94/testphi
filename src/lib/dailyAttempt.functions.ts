@@ -105,6 +105,21 @@ async function loadFreeState(ctx: { supabase: any; userId: string }): Promise<Fr
       bonusStep: Math.max(0, Math.min(3, row.bonus_step || 0)) as 0 | 1 | 2 | 3,
     };
   }
+  // Compute predicted overall so `prev.overall` reflects the same formula
+  // applySession will use for `next.overall`. Otherwise session.delta shows
+  // phantom points during the pre-calibration phase.
+  const allInit = DOMAINS.every((d) => s.domainStats[d.id]?.initialized);
+  if (allInit) {
+    let total = 0;
+    for (const d of DOMAINS) {
+      const m = Math.max(0, Math.min(100, s.domainStats[d.id].mastery)) / 100;
+      total += 50 + 150 * Math.pow(m, 1.4);
+    }
+    s.overall = Math.max(400, Math.min(1600, Math.round(total / 10) * 10));
+  } else {
+    s.overall = s.diagnosticScore || 800;
+  }
+  for (const d of DOMAINS) s.domainScores[d.id] = s.domainStats[d.id].mastery;
   return s;
 }
 
