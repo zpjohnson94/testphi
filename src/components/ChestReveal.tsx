@@ -237,6 +237,45 @@ export function ChestReveal({ domainName, masteryPct, bonusSummary, onDone }: Pr
               </div>
             </div>
 
+            {bonusSummary && (
+              <div className="mt-6">
+                <div className="flex items-center gap-3 justify-center">
+                  {Array.from({ length: bonusSummary.total || 3 }).map((_, i) => {
+                    const r = bonusSummary.results?.[i];
+                    const correct = r === true;
+                    const incorrect = r === false;
+                    const bg = correct ? "var(--volt)" : incorrect ? "var(--destructive)" : "transparent";
+                    const border = correct ? "var(--volt)" : incorrect ? "var(--destructive)" : "rgba(246,240,250,0.25)";
+                    const glow = correct
+                      ? "0 0 14px rgba(184,255,0,0.45)"
+                      : incorrect
+                        ? "0 0 14px rgba(255,77,109,0.45)"
+                        : undefined;
+                    return (
+                      <div
+                        key={i}
+                        className="size-10 rounded-full flex items-center justify-center transition-all"
+                        style={{ background: bg, border: `2.5px solid ${border}`, boxShadow: glow }}
+                      >
+                        {correct && (
+                          <span className="font-extrabold text-sm" style={{ color: "var(--ink)" }}>✓</span>
+                        )}
+                        {incorrect && (
+                          <span className="font-extrabold text-sm" style={{ color: "var(--lavender)" }}>✕</span>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+                <div
+                  className="mt-3 text-xs font-bold uppercase tracking-widest text-center"
+                  style={{ color: "rgba(246,240,250,0.75)" }}
+                >
+                  {(bonusSummary.domainCorrect ?? bonusSummary.correct)}/{bonusSummary.domainAnswered} total questions correct for this domain
+                </div>
+              </div>
+            )}
+
             <div className="mt-6 text-sm leading-relaxed text-left space-y-4" style={{ color: "rgba(246,240,250,0.85)" }}>
               <div>
                 <p className="font-bold text-volt">What is mastery?</p>
