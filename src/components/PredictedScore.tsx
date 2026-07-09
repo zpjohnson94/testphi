@@ -54,8 +54,6 @@ export function PredictedScore({
         <button
           type="button"
           onClick={() => setOpen((v) => !v)}
-          onMouseEnter={() => setOpen(true)}
-          onMouseLeave={() => setOpen(false)}
           className="mt-1.5 inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider"
           style={{
             background: "rgba(246,240,250,0.08)",

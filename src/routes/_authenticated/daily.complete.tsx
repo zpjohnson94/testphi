@@ -645,13 +645,21 @@ function DeltaBadge({
   correct: boolean;
 }) {
   const [open, setOpen] = useState(false);
+  const btnRef = useRef<HTMLButtonElement | null>(null);
+  const [pos, setPos] = useState<{ top: number; left: number } | null>(null);
   const positive = delta >= 0;
   const bg = positive ? "var(--volt)" : "var(--destructive)";
   const fg = positive ? "var(--ink)" : "var(--lavender)";
   const sign = positive ? "+" : "";
   const rounded = `${sign}${Math.abs(delta) < 10 ? delta.toFixed(1) : Math.round(delta)}`;
 
-  const showTooltip = baseGain !== 0 && Math.abs(momentumMult - 1) > 0.001;
+  useEffect(() => {
+    if (!open || !btnRef.current) return;
+    const r = btnRef.current.getBoundingClientRect();
+    const width = 256;
+    const left = Math.min(window.innerWidth - width - 12, Math.max(12, r.right - width));
+    setPos({ top: r.bottom + 8, left });
+  }, [open]);
 
   return (
     <div className="relative flex items-center gap-1">
@@ -671,50 +679,50 @@ function DeltaBadge({
       >
         {rounded}%
       </div>
-      {showTooltip && (
+      <button
+        ref={btnRef}
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        aria-label="How this was calculated"
+        className="size-5 rounded-full inline-flex items-center justify-center"
+        style={{ background: "rgba(246,240,250,0.08)", border: "1px solid rgba(246,240,250,0.2)", color: "var(--lavender)" }}
+      >
+        <Info className="size-3" />
+      </button>
+      {open && (
         <>
-          <button
-            type="button"
-            onClick={() => setOpen((v) => !v)}
-            onMouseEnter={() => setOpen(true)}
-            onMouseLeave={() => setOpen(false)}
-            aria-label="How this was calculated"
-            className="size-5 rounded-full inline-flex items-center justify-center"
-            style={{ background: "rgba(246,240,250,0.08)", border: "1px solid rgba(246,240,250,0.2)", color: "var(--lavender)" }}
+          <div className="fixed inset-0 z-[90]" onClick={() => setOpen(false)} />
+          <div
+            className="fixed z-[100] w-64 rounded-xl p-3 text-[11px] leading-relaxed"
+            style={{
+              top: pos?.top ?? -9999,
+              left: pos?.left ?? -9999,
+              background: "rgba(20,12,40,0.98)",
+              border: "1px solid rgba(168,85,247,0.5)",
+              color: "var(--lavender)",
+              boxShadow: "0 8px 24px rgba(0,0,0,0.5)",
+            }}
           >
-            <Info className="size-3" />
-          </button>
-          {open && (
-            <div
-              className="absolute z-30 right-0 top-full mt-2 w-64 rounded-xl p-3 text-[11px] leading-relaxed"
-              style={{
-                background: "rgba(20,12,40,0.98)",
-                border: "1px solid rgba(168,85,247,0.5)",
-                color: "var(--lavender)",
-                boxShadow: "0 8px 24px rgba(0,0,0,0.5)",
-              }}
-            >
-              <div className="font-bold uppercase tracking-wider mb-1.5" style={{ color: "var(--volt)" }}>
-                Score change breakdown
+            <div className="font-bold uppercase tracking-wider mb-1.5" style={{ color: "var(--volt)" }}>
+              Score change breakdown
+            </div>
+            <div className="space-y-1">
+              <div>
+                <span style={{ color: "rgba(246,240,250,0.6)" }}>Base {correct ? "gain" : "loss"}:</span>{" "}
+                <span className="tabular-nums font-bold">{baseGain >= 0 ? "+" : ""}{baseGain.toFixed(1)}%</span>
               </div>
-              <div className="space-y-1">
-                <div>
-                  <span style={{ color: "rgba(246,240,250,0.6)" }}>Base {correct ? "gain" : "loss"}:</span>{" "}
-                  <span className="tabular-nums font-bold">{baseGain >= 0 ? "+" : ""}{baseGain.toFixed(1)}%</span>
-                </div>
-                <div>
-                  <span style={{ color: "rgba(246,240,250,0.6)" }}>Momentum multiplier:</span>{" "}
-                  <span className="tabular-nums font-bold">×{momentumMult.toFixed(2)}</span>
-                </div>
-                <div className="pt-1 border-t" style={{ borderColor: "rgba(246,240,250,0.12)" }}>
-                  <span style={{ color: "rgba(246,240,250,0.6)" }}>Total:</span>{" "}
-                  <span className="tabular-nums font-bold" style={{ color: positive ? "var(--volt)" : "var(--destructive)" }}>
-                    {actualGain >= 0 ? "+" : ""}{actualGain.toFixed(1)}%
-                  </span>
-                </div>
+              <div>
+                <span style={{ color: "rgba(246,240,250,0.6)" }}>Momentum multiplier:</span>{" "}
+                <span className="tabular-nums font-bold">×{momentumMult.toFixed(2)}</span>
+              </div>
+              <div className="pt-1 border-t" style={{ borderColor: "rgba(246,240,250,0.12)" }}>
+                <span style={{ color: "rgba(246,240,250,0.6)" }}>Total:</span>{" "}
+                <span className="tabular-nums font-bold" style={{ color: positive ? "var(--volt)" : "var(--destructive)" }}>
+                  {actualGain >= 0 ? "+" : ""}{actualGain.toFixed(1)}%
+                </span>
               </div>
             </div>
-          )}
+          </div>
         </>
       )}
     </div>
