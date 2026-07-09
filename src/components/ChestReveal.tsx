@@ -237,6 +237,26 @@ export function ChestReveal({ domainName, masteryPct, bonusSummary, onDone }: Pr
               </div>
             </div>
 
+            <div className="mt-6 text-sm leading-relaxed" style={{ color: "rgba(246,240,250,0.85)" }}>
+              {bonusSummary ? (
+                <>
+                  <p>
+                    You got {bonusSummary.correct} out of {bonusSummary.total} bonus questions correct, and have answered {bonusSummary.domainAnswered} total {domainName} questions.
+                  </p>
+                  <p className="mt-3">
+                    Your mastery score combines your correct answers, how quickly you answered correctly, and the difficulty of those questions.
+                  </p>
+                  <p className="mt-3">
+                    Keep practicing — your score will improve over time, and consistency is the key to mastery.
+                  </p>
+                </>
+              ) : (
+                <p>
+                  Your mastery score combines your correct answers, how quickly you answered correctly, and the difficulty of those questions. Keep practicing — your score will improve over time, and consistency is the key to mastery.
+                </p>
+              )}
+            </div>
+
             <button onClick={onDone} className="btn-volt w-full mt-8 py-4 rounded-2xl text-base">
               Continue
             </button>
