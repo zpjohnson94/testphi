@@ -16,6 +16,7 @@ interface Props {
 
 export function MissedReviewModal({ open, missed, onClose }: Props) {
   const [idx, setIdx] = useState(0);
+  const [showPowerUp, setShowPowerUp] = useState(false);
   if (!open || missed.length === 0) return null;
   const current = missed[Math.min(idx, missed.length - 1)];
 
