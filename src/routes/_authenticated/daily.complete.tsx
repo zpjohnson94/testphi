@@ -525,10 +525,13 @@ function DomainRow({
 
   const deltaSign = diff.newMastery >= diff.prevMastery ? "+" : "";
   const deltaPct = nowInit && wasInit ? `${deltaSign}${(diff.newMastery - diff.prevMastery).toFixed(1)}%` : "";
+  const [tipOpen, setTipOpen] = useState(false);
+  const momentumMult = diff.baseGain !== 0 ? diff.actualGain / diff.baseGain : 1;
+  const positiveDelta = diff.newMastery - diff.prevMastery >= 0;
 
   return (
     <div
-      className="rounded-2xl p-4"
+      className="relative rounded-2xl p-4"
       style={{
         background: "#1a1230",
         border: justUnlocked ? "1.5px solid var(--volt)" : "1px solid rgba(246,240,250,0.1)",
@@ -557,17 +560,13 @@ function DomainRow({
               {deltaPct && (
                 <DeltaBadge
                   delta={diff.newMastery - diff.prevMastery}
-                  baseGain={diff.baseGain}
-                  actualGain={diff.actualGain}
-                  momentumMult={
-                    diff.baseGain !== 0 ? diff.actualGain / diff.baseGain : 1
-                  }
-                  correct={diff.newMastery >= diff.prevMastery}
+                  onToggle={() => setTipOpen((v) => !v)}
                 />
               )}
             </>
           ) : null}
         </div>
+
       </div>
 
       {nowInit ? (
@@ -627,98 +626,41 @@ function DomainRow({
         </div>
       )}
 
-    </div>
-  );
-}
-
-function DeltaBadge({
-  delta,
-  baseGain,
-  actualGain,
-  momentumMult,
-  correct,
-}: {
-  delta: number;
-  baseGain: number;
-  actualGain: number;
-  momentumMult: number;
-  correct: boolean;
-}) {
-  const [open, setOpen] = useState(false);
-  const btnRef = useRef<HTMLButtonElement | null>(null);
-  const [pos, setPos] = useState<{ top: number; left: number } | null>(null);
-  const positive = delta >= 0;
-  const bg = positive ? "var(--volt)" : "var(--destructive)";
-  const fg = positive ? "var(--ink)" : "var(--lavender)";
-  const sign = positive ? "+" : "";
-  const rounded = `${sign}${Math.abs(delta) < 10 ? delta.toFixed(1) : Math.round(delta)}`;
-
-  useEffect(() => {
-    if (!open || !btnRef.current) return;
-    const r = btnRef.current.getBoundingClientRect();
-    const width = 256;
-    const left = Math.min(window.innerWidth - width - 12, Math.max(12, r.right - width));
-    setPos({ top: r.bottom + 8, left });
-  }, [open]);
-
-  return (
-    <div className="relative flex items-center gap-1">
-      <div
-        className="score-num tabular-nums flex items-center justify-center rounded-full"
-        style={{
-          background: bg,
-          color: fg,
-          minWidth: 44,
-          height: 28,
-          padding: "0 8px",
-          fontSize: 12,
-          fontWeight: 800,
-          boxShadow: `0 0 12px -2px ${bg}`,
-        }}
-        aria-label={`${rounded}%`}
-      >
-        {rounded}%
-      </div>
-      <button
-        ref={btnRef}
-        type="button"
-        onClick={() => setOpen((v) => !v)}
-        aria-label="How this was calculated"
-        className="size-5 rounded-full inline-flex items-center justify-center"
-        style={{ background: "rgba(246,240,250,0.08)", border: "1px solid rgba(246,240,250,0.2)", color: "var(--lavender)" }}
-      >
-        <Info className="size-3" />
-      </button>
-      {open && (
+      {tipOpen && (
         <>
-          <div className="fixed inset-0 z-[90]" onClick={() => setOpen(false)} />
           <div
-            className="fixed z-[100] w-64 rounded-xl p-3 text-[11px] leading-relaxed"
+            className="fixed inset-0 z-[90]"
+            onClick={() => setTipOpen(false)}
+          />
+          <div
+            className="absolute inset-0 z-[100] rounded-2xl p-4 flex flex-col justify-center text-[12px] leading-relaxed"
+            onClick={(e) => {
+              e.stopPropagation();
+              setTipOpen(false);
+            }}
             style={{
-              top: pos?.top ?? -9999,
-              left: pos?.left ?? -9999,
               background: "rgba(20,12,40,0.98)",
-              border: "1px solid rgba(168,85,247,0.5)",
+              border: "1px solid rgba(168,85,247,0.6)",
               color: "var(--lavender)",
               boxShadow: "0 8px 24px rgba(0,0,0,0.5)",
             }}
           >
-            <div className="font-bold uppercase tracking-wider mb-1.5" style={{ color: "var(--volt)" }}>
+            <div className="font-bold uppercase tracking-wider mb-2 text-[10px]" style={{ color: "var(--volt)" }}>
               Score change breakdown
             </div>
             <div className="space-y-1">
               <div>
-                <span style={{ color: "rgba(246,240,250,0.6)" }}>Base {correct ? "gain" : "loss"}:</span>{" "}
-                <span className="tabular-nums font-bold">{baseGain >= 0 ? "+" : ""}{baseGain.toFixed(1)}%</span>
+                <span style={{ color: "rgba(246,240,250,0.6)" }}>Base {positiveDelta ? "gain" : "loss"}:</span>{" "}
+                <span className="tabular-nums font-bold">{diff.baseGain >= 0 ? "+" : ""}{diff.baseGain.toFixed(1)}%</span>
               </div>
               <div>
                 <span style={{ color: "rgba(246,240,250,0.6)" }}>Momentum multiplier:</span>{" "}
                 <span className="tabular-nums font-bold">×{momentumMult.toFixed(2)}</span>
               </div>
-              <div className="pt-1 border-t" style={{ borderColor: "rgba(246,240,250,0.12)" }}>
+              <div className="pt-1 border-t" style={{ borderColor: "rgba(246,240,250,0.15)" }}>
                 <span style={{ color: "rgba(246,240,250,0.6)" }}>Total:</span>{" "}
-                <span className="tabular-nums font-bold" style={{ color: positive ? "var(--volt)" : "var(--destructive)" }}>
-                  {actualGain >= 0 ? "+" : ""}{actualGain.toFixed(1)}%
+                <span className="tabular-nums font-bold" style={{ color: positiveDelta ? "var(--volt)" : "var(--destructive)" }}>
+                  {diff.actualGain >= 0 ? "+" : ""}{diff.actualGain.toFixed(1)}%
                 </span>
               </div>
             </div>
@@ -726,6 +668,44 @@ function DeltaBadge({
         </>
       )}
     </div>
+  );
+}
+
+function DeltaBadge({
+  delta,
+  onToggle,
+}: {
+  delta: number;
+  onToggle: () => void;
+}) {
+  const positive = delta >= 0;
+  const bg = positive ? "var(--volt)" : "var(--destructive)";
+  const fg = positive ? "var(--ink)" : "var(--lavender)";
+  const sign = positive ? "+" : "";
+  const rounded = `${sign}${Math.abs(delta) < 10 ? delta.toFixed(1) : Math.round(delta)}`;
+
+  return (
+    <button
+      type="button"
+      onClick={(e) => {
+        e.stopPropagation();
+        onToggle();
+      }}
+      className="score-num tabular-nums flex items-center justify-center rounded-full"
+      style={{
+        background: bg,
+        color: fg,
+        minWidth: 44,
+        height: 28,
+        padding: "0 8px",
+        fontSize: 12,
+        fontWeight: 800,
+        boxShadow: `0 0 12px -2px ${bg}`,
+      }}
+      aria-label={`${rounded}% — tap for breakdown`}
+    >
+      {rounded}%
+    </button>
   );
 }
 
