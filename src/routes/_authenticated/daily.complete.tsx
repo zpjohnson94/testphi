@@ -548,21 +548,22 @@ function DomainRow({
           </span>
           <span className="text-sm font-bold text-[var(--lavender)] truncate">{name}</span>
         </div>
-        <div className="flex items-baseline gap-2 shrink-0">
+        <div className="flex items-center gap-2 shrink-0">
           {nowInit ? (
             <>
               <span className="score-num text-base tabular-nums text-[var(--lavender)]">
                 {Math.round(pct)}%
               </span>
               {deltaPct && (
-                <span
-                  className="text-xs font-bold tabular-nums"
-                  style={{
-                    color: diff.newMastery >= diff.prevMastery ? "var(--volt)" : "var(--destructive)",
-                  }}
-                >
-                  {deltaPct}
-                </span>
+                <DeltaBadge
+                  delta={diff.newMastery - diff.prevMastery}
+                  baseGain={diff.baseGain}
+                  actualGain={diff.actualGain}
+                  momentumMult={
+                    diff.baseGain !== 0 ? diff.actualGain / diff.baseGain : 1
+                  }
+                  correct={diff.newMastery >= diff.prevMastery}
+                />
               )}
             </>
           ) : null}
