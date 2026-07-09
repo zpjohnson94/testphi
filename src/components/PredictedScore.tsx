@@ -69,15 +69,25 @@ export function PredictedScore({
       )}
       {open && !calibrated && (
         <div
-          className="absolute z-40 left-0 top-full mt-2 w-64 sm:w-72 rounded-xl p-3 text-xs leading-relaxed"
-          style={{
-            background: "rgba(20,12,40,0.97)",
-            border: "1px solid rgba(168,85,247,0.5)",
-            color: "rgba(246,240,250,0.92)",
-            boxShadow: "0 8px 24px rgba(0,0,0,0.5)",
-          }}
+          className="fixed inset-0 z-[100] flex items-center justify-center p-6"
+          style={{ background: "rgba(0,0,0,0.6)" }}
+          onClick={() => setOpen(false)}
         >
-          This score is based only on your diagnostic. Unlock your mastery score in all 8 domains and we'll have enough data to give you a higher-confidence prediction.
+          <div
+            className="w-full max-w-sm rounded-2xl p-5 text-sm leading-relaxed"
+            style={{
+              background: "rgba(20,12,40,0.98)",
+              border: "1px solid rgba(168,85,247,0.5)",
+              color: "rgba(246,240,250,0.92)",
+              boxShadow: "0 12px 40px rgba(0,0,0,0.6)",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="text-[11px] font-bold uppercase tracking-wider mb-2" style={{ color: "var(--volt)" }}>
+              Still calibrating
+            </div>
+            This score is based only on your diagnostic. Unlock your mastery score in all 8 domains and we'll have enough data to give you a higher-confidence prediction.
+          </div>
         </div>
       )}
     </div>

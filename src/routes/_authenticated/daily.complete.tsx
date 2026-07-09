@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Flame, X, Sparkles } from "lucide-react";
+import { Flame, X, Sparkles, Info } from "lucide-react";
 import {
   domainById,
   DOMAINS,
@@ -15,6 +15,7 @@ import { MomentumGauge } from "@/components/MomentumGauge";
 import { FreeShell } from "@/components/FreeShell";
 import { UnlockReadyCard } from "@/components/UnlockReadyCard";
 import { BonusUnlockModal } from "@/components/BonusUnlockModal";
+import { MissedReviewModal } from "@/components/MissedReviewModal";
 
 export const Route = createFileRoute("/_authenticated/daily/complete")({
   head: () => ({ meta: [{ title: "Session complete — TestPhi" }] }),
@@ -187,6 +188,7 @@ function CompleteContent({ prev, next, session, onExit }: ContentProps) {
     1; /* finish */
   const [step, setStep] = useState(0);
   const [bonusDomainId, setBonusDomainId] = useState<string | null>(null);
+  const [reviewOpen, setReviewOpen] = useState(false);
   useEffect(() => {
     if (step >= totalSteps) return;
     const delay = step === 0 ? 200 : 550;
@@ -242,34 +244,39 @@ function CompleteContent({ prev, next, session, onExit }: ContentProps) {
                 />
               </div>
               <div className="mt-3 flex flex-col items-center gap-2">
-                <div
-                  className="inline-flex items-center rounded-full px-3 py-1.5 text-sm font-extrabold"
-                  style={{
-                    background:
-                      session.delta > 0
-                        ? "rgba(184,255,0,0.15)"
-                        : session.delta < 0
-                          ? "rgba(255,77,109,0.15)"
-                          : "rgba(246,240,250,0.08)",
-                    color:
-                      session.delta > 0
-                        ? "var(--volt)"
-                        : session.delta < 0
-                          ? "var(--destructive)"
-                          : "var(--lavender)",
-                    border: `1px solid ${
-                      session.delta > 0
-                        ? "var(--volt)"
-                        : session.delta < 0
-                          ? "var(--destructive)"
-                          : "rgba(246,240,250,0.25)"
-                    }`,
-                  }}
-                >
-                  {session.delta >= 0 ? "+" : ""}
-                  {session.delta} points{session.delta >= 0 ? "!" : ""}
-                </div>
-                {!calibrated && session.delta === 0 && (
+                {(() => {
+                  const displayDelta = calibrated ? session.delta : 0;
+                  return (
+                    <div
+                      className="inline-flex items-center rounded-full px-3 py-1.5 text-sm font-extrabold"
+                      style={{
+                        background:
+                          displayDelta > 0
+                            ? "rgba(184,255,0,0.15)"
+                            : displayDelta < 0
+                              ? "rgba(255,77,109,0.15)"
+                              : "rgba(246,240,250,0.08)",
+                        color:
+                          displayDelta > 0
+                            ? "var(--volt)"
+                            : displayDelta < 0
+                              ? "var(--destructive)"
+                              : "var(--lavender)",
+                        border: `1px solid ${
+                          displayDelta > 0
+                            ? "var(--volt)"
+                            : displayDelta < 0
+                              ? "var(--destructive)"
+                              : "rgba(246,240,250,0.25)"
+                        }`,
+                      }}
+                    >
+                      {displayDelta >= 0 ? "+" : ""}
+                      {displayDelta} points{displayDelta > 0 ? "!" : ""}
+                    </div>
+                  );
+                })()}
+                {!calibrated && (
                   <div
                     className="text-[11px] leading-snug max-w-xs"
                     style={{ color: "rgba(246,240,250,0.6)" }}
@@ -295,7 +302,7 @@ function CompleteContent({ prev, next, session, onExit }: ContentProps) {
               <button
                 className="rounded-xl px-4 py-2 text-sm font-bold"
                 style={{ background: "rgba(74,6,136,0.5)", color: "var(--lavender)", border: "1px solid rgba(168,85,247,0.5)" }}
-                onClick={() => {/* review flow placeholder */}}
+                onClick={() => setReviewOpen(true)}
               >
                 Review →
               </button>
@@ -387,6 +394,12 @@ function CompleteContent({ prev, next, session, onExit }: ContentProps) {
         domainId={bonusDomainId}
         domainLabel={bonusDomainId ? (domainById(bonusDomainId)?.label ?? "") : ""}
         onClose={() => setBonusDomainId(null)}
+      />
+
+      <MissedReviewModal
+        open={reviewOpen}
+        missed={missed.map((r) => ({ slot: r.n }))}
+        onClose={() => setReviewOpen(false)}
       />
     </div>
   );
@@ -535,21 +548,22 @@ function DomainRow({
           </span>
           <span className="text-sm font-bold text-[var(--lavender)] truncate">{name}</span>
         </div>
-        <div className="flex items-baseline gap-2 shrink-0">
+        <div className="flex items-center gap-2 shrink-0">
           {nowInit ? (
             <>
               <span className="score-num text-base tabular-nums text-[var(--lavender)]">
                 {Math.round(pct)}%
               </span>
               {deltaPct && (
-                <span
-                  className="text-xs font-bold tabular-nums"
-                  style={{
-                    color: diff.newMastery >= diff.prevMastery ? "var(--volt)" : "var(--destructive)",
-                  }}
-                >
-                  {deltaPct}
-                </span>
+                <DeltaBadge
+                  delta={diff.newMastery - diff.prevMastery}
+                  baseGain={diff.baseGain}
+                  actualGain={diff.actualGain}
+                  momentumMult={
+                    diff.baseGain !== 0 ? diff.actualGain / diff.baseGain : 1
+                  }
+                  correct={diff.newMastery >= diff.prevMastery}
+                />
               )}
             </>
           ) : null}
@@ -613,12 +627,95 @@ function DomainRow({
         </div>
       )}
 
-      {momentumActive && nowInit && wasInit && diff.baseGain > 0 && (
-        <div className="mt-2 text-[11px] font-medium" style={{ color: "rgba(246,240,250,0.65)" }}>
-          +{diff.baseGain.toFixed(1)}% ×{" "}
-          {(diff.actualGain / Math.max(0.0001, diff.baseGain)).toFixed(2)}x = +
-          {diff.actualGain.toFixed(1)}%
-        </div>
+    </div>
+  );
+}
+
+function DeltaBadge({
+  delta,
+  baseGain,
+  actualGain,
+  momentumMult,
+  correct,
+}: {
+  delta: number;
+  baseGain: number;
+  actualGain: number;
+  momentumMult: number;
+  correct: boolean;
+}) {
+  const [open, setOpen] = useState(false);
+  const positive = delta >= 0;
+  const bg = positive ? "var(--volt)" : "var(--destructive)";
+  const fg = positive ? "var(--ink)" : "var(--lavender)";
+  const sign = positive ? "+" : "";
+  const rounded = `${sign}${Math.abs(delta) < 10 ? delta.toFixed(1) : Math.round(delta)}`;
+
+  const showTooltip = baseGain !== 0 && Math.abs(momentumMult - 1) > 0.001;
+
+  return (
+    <div className="relative flex items-center gap-1">
+      <div
+        className="score-num tabular-nums flex items-center justify-center rounded-full"
+        style={{
+          background: bg,
+          color: fg,
+          minWidth: 44,
+          height: 28,
+          padding: "0 8px",
+          fontSize: 12,
+          fontWeight: 800,
+          boxShadow: `0 0 12px -2px ${bg}`,
+        }}
+        aria-label={`${rounded}%`}
+      >
+        {rounded}%
+      </div>
+      {showTooltip && (
+        <>
+          <button
+            type="button"
+            onClick={() => setOpen((v) => !v)}
+            onMouseEnter={() => setOpen(true)}
+            onMouseLeave={() => setOpen(false)}
+            aria-label="How this was calculated"
+            className="size-5 rounded-full inline-flex items-center justify-center"
+            style={{ background: "rgba(246,240,250,0.08)", border: "1px solid rgba(246,240,250,0.2)", color: "var(--lavender)" }}
+          >
+            <Info className="size-3" />
+          </button>
+          {open && (
+            <div
+              className="absolute z-30 right-0 top-full mt-2 w-64 rounded-xl p-3 text-[11px] leading-relaxed"
+              style={{
+                background: "rgba(20,12,40,0.98)",
+                border: "1px solid rgba(168,85,247,0.5)",
+                color: "var(--lavender)",
+                boxShadow: "0 8px 24px rgba(0,0,0,0.5)",
+              }}
+            >
+              <div className="font-bold uppercase tracking-wider mb-1.5" style={{ color: "var(--volt)" }}>
+                Score change breakdown
+              </div>
+              <div className="space-y-1">
+                <div>
+                  <span style={{ color: "rgba(246,240,250,0.6)" }}>Base {correct ? "gain" : "loss"}:</span>{" "}
+                  <span className="tabular-nums font-bold">{baseGain >= 0 ? "+" : ""}{baseGain.toFixed(1)}%</span>
+                </div>
+                <div>
+                  <span style={{ color: "rgba(246,240,250,0.6)" }}>Momentum multiplier:</span>{" "}
+                  <span className="tabular-nums font-bold">×{momentumMult.toFixed(2)}</span>
+                </div>
+                <div className="pt-1 border-t" style={{ borderColor: "rgba(246,240,250,0.12)" }}>
+                  <span style={{ color: "rgba(246,240,250,0.6)" }}>Total:</span>{" "}
+                  <span className="tabular-nums font-bold" style={{ color: positive ? "var(--volt)" : "var(--destructive)" }}>
+                    {actualGain >= 0 ? "+" : ""}{actualGain.toFixed(1)}%
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
+        </>
       )}
     </div>
   );
