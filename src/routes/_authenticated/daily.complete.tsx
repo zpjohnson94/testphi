@@ -395,6 +395,12 @@ function CompleteContent({ prev, next, session, onExit }: ContentProps) {
         domainLabel={bonusDomainId ? (domainById(bonusDomainId)?.label ?? "") : ""}
         onClose={() => setBonusDomainId(null)}
       />
+
+      <MissedReviewModal
+        open={reviewOpen}
+        missed={missed.map((r) => ({ slot: r.n }))}
+        onClose={() => setReviewOpen(false)}
+      />
     </div>
   );
 }
