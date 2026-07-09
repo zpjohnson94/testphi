@@ -21,7 +21,8 @@ function AnimatedPct({ target }: { target: number }) {
   return <>{n}</>;
 }
 
-import { sfx } from "@/lib/sfx";
+
+
 
 
 interface Props {
