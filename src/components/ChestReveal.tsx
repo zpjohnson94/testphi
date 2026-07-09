@@ -156,10 +156,8 @@ export function ChestReveal({ domainName, masteryPct, onDone }: Props) {
             >
               Tap to unlock!
             </div>
-            <div className="mt-2 text-xs font-bold uppercase tracking-widest" style={{ color: "rgba(246,240,250,0.7)" }}>
-              {taps} / {TAPS_TO_UNLOCK}
-            </div>
           </div>
+
         </div>
       )}
 
