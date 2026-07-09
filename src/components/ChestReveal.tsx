@@ -173,7 +173,13 @@ export function ChestReveal({ domainName, masteryPct, bonusSummary, onDone }: Pr
 
           <div className="text-center">
             <div
-              className="display text-2xl uppercase tracking-[0.18em]"
+              className="text-[11px] font-bold uppercase tracking-[0.18em]"
+              style={{ color: "var(--volt)" }}
+            >
+              Your mastery score is calibrated.
+            </div>
+            <div
+              className="display text-2xl uppercase tracking-[0.18em] mt-2"
               style={{ color: "var(--volt)", textShadow: "0 0 22px rgba(184,255,0,0.7)" }}
             >
               Tap to unlock!
