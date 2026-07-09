@@ -2,7 +2,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import chestImg from "@/assets/chest-buried.png";
 import { sfx } from "@/lib/sfx";
-import { PredictedScore } from "@/components/PredictedScore";
+
 
 interface Props {
   domainName: string;
