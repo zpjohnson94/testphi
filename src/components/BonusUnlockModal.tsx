@@ -81,8 +81,9 @@ export function BonusUnlockModal({ open, domainId, domainLabel, onClose }: Props
             domainId: domainId!,
             answers: allAnswers,
           });
-          const m = result.domainStats[domainId!]?.mastery ?? 0;
+          const m = result.state.domainStats[domainId!]?.mastery ?? 0;
           setMasteryPct(m);
+          setBonusSummary(result.bonusSummary);
           setPhase("chest");
         } catch (e) {
           console.error("bonus submit failed", e);
