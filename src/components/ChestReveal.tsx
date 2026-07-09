@@ -250,7 +250,7 @@ export function ChestReveal({ domainName, masteryPct, bonusSummary, onDone }: Pr
                 <p className="font-bold text-volt">Keep practicing!</p>
                 <p>Your score will improve over time, and consistency is the key to mastery.</p>
                 <div className="mt-2 text-xs italic opacity-80">
-                  The only way to achieve 100% is to practice consistently. Practice is the key to mastery.
+                  {"\n"}
                 </div>
               </div>
             </div>
