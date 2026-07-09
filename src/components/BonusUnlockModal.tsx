@@ -145,7 +145,7 @@ export function BonusUnlockModal({ open, domainId, domainLabel, onClose }: Props
               disabled={!round}
               className="btn-volt w-full mt-7 py-4 rounded-2xl text-base disabled:opacity-60"
             >
-              Begin
+              Begin!
             </button>
           </div>
         </div>
