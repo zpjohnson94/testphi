@@ -214,6 +214,8 @@ export interface BonusSubmitResult {
     correct: number;
     total: number;
     domainAnswered: number;
+    domainCorrect: number;
+    results: boolean[];
   };
 }
 
