@@ -219,6 +219,7 @@ export function BonusUnlockModal({ open, domainId, domainLabel, onClose }: Props
         <ChestReveal
           domainName={domainName}
           masteryPct={masteryPct}
+          bonusSummary={bonusSummary}
           onDone={onClose}
         />
       )}
