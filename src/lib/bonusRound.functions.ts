@@ -286,7 +286,7 @@ export const submitBonusRound = createServerFn({ method: "POST" })
       })).length(3),
     }).parse(raw),
   )
-  .handler(async ({ data, context }): Promise<FreeState> => {
+  .handler(async ({ data, context }): Promise<BonusSubmitResult> => {
     // Grade each answer server-side.
     const { data: rows } = await context.supabase
       .from("questions")
@@ -353,5 +353,14 @@ export const submitBonusRound = createServerFn({ method: "POST" })
     }
 
     await persistFreeState(context, next);
-    return next;
+
+    const correctCount = results.filter((r) => r.correct).length;
+    return {
+      state: next,
+      bonusSummary: {
+        correct: correctCount,
+        total: results.length,
+        domainAnswered: next.domainStats[data.domainId]?.answered ?? 0,
+      },
+    };
   });
