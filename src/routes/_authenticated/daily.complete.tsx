@@ -91,14 +91,14 @@ function DailyComplete() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [freeState]);
 
-  // Safety net: if the mutation neither resolves nor errors within 10s,
+  // Safety net: if the mutation neither resolves nor errors within 20s,
   // surface an escape hatch so the user isn't frozen on "Wrapping up…".
   useEffect(() => {
     if (next || errorMsg) {
       setStuck(false);
       return;
     }
-    const t = setTimeout(() => setStuck(true), 10_000);
+    const t = setTimeout(() => setStuck(true), 20_000);
     return () => clearTimeout(t);
   }, [next, errorMsg, prev]);
 
@@ -141,8 +141,31 @@ function DailyComplete() {
 
   if (!next || !prev || !next.lastSession) {
     return (
-      <div className="topo-bg min-h-screen flex items-center justify-center text-[var(--lavender)]/70 text-sm">
-        Wrapping up your session…
+      <div className="topo-bg min-h-screen flex flex-col items-center justify-center px-6 text-[var(--lavender)]/70">
+        <div className="relative size-16 mb-5">
+          <svg className="size-full -rotate-90" viewBox="0 0 48 48" aria-hidden="true">
+            <circle
+              cx="24"
+              cy="24"
+              r="20"
+              fill="none"
+              stroke="rgba(246,240,250,0.12)"
+              strokeWidth="5"
+            />
+            <circle
+              cx="24"
+              cy="24"
+              r="20"
+              fill="none"
+              stroke="var(--volt)"
+              strokeWidth="5"
+              strokeLinecap="round"
+              strokeDasharray="80 125"
+              className="animate-[spin_1.2s_linear_infinite]"
+            />
+          </svg>
+        </div>
+        <div className="text-sm font-medium">Wrapping up your session…</div>
       </div>
     );
   }
