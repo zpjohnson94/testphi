@@ -138,10 +138,7 @@ export function BonusUnlockModal({ open, domainId, domainLabel, onClose }: Props
             </div>
             <h2 className="mt-3 display text-2xl text-[var(--lavender)]">{domainName}</h2>
             <p className="mt-4 text-sm leading-relaxed whitespace-pre-line" style={{ color: "rgba(246,240,250,0.85)" }}>
-              Answer 3 more questions (1 easy, 1 medium, 1 hard) and you'll unlock your mastery score for this domain.
-
-
-              You'll keep improving your mastery score over time after you unlock it.
+              {`Answer 3 more questions (1 easy, 1 medium, 1 hard) and you'll unlock your mastery score for this domain.\u00a0\n\n\nYou'll keep improving your mastery score over time after you unlock it.`}
             </p>
             <button
               onClick={beginRound}
