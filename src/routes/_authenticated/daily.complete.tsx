@@ -244,34 +244,39 @@ function CompleteContent({ prev, next, session, onExit }: ContentProps) {
                 />
               </div>
               <div className="mt-3 flex flex-col items-center gap-2">
-                <div
-                  className="inline-flex items-center rounded-full px-3 py-1.5 text-sm font-extrabold"
-                  style={{
-                    background:
-                      session.delta > 0
-                        ? "rgba(184,255,0,0.15)"
-                        : session.delta < 0
-                          ? "rgba(255,77,109,0.15)"
-                          : "rgba(246,240,250,0.08)",
-                    color:
-                      session.delta > 0
-                        ? "var(--volt)"
-                        : session.delta < 0
-                          ? "var(--destructive)"
-                          : "var(--lavender)",
-                    border: `1px solid ${
-                      session.delta > 0
-                        ? "var(--volt)"
-                        : session.delta < 0
-                          ? "var(--destructive)"
-                          : "rgba(246,240,250,0.25)"
-                    }`,
-                  }}
-                >
-                  {session.delta >= 0 ? "+" : ""}
-                  {session.delta} points{session.delta >= 0 ? "!" : ""}
-                </div>
-                {!calibrated && session.delta === 0 && (
+                {(() => {
+                  const displayDelta = calibrated ? session.delta : 0;
+                  return (
+                    <div
+                      className="inline-flex items-center rounded-full px-3 py-1.5 text-sm font-extrabold"
+                      style={{
+                        background:
+                          displayDelta > 0
+                            ? "rgba(184,255,0,0.15)"
+                            : displayDelta < 0
+                              ? "rgba(255,77,109,0.15)"
+                              : "rgba(246,240,250,0.08)",
+                        color:
+                          displayDelta > 0
+                            ? "var(--volt)"
+                            : displayDelta < 0
+                              ? "var(--destructive)"
+                              : "var(--lavender)",
+                        border: `1px solid ${
+                          displayDelta > 0
+                            ? "var(--volt)"
+                            : displayDelta < 0
+                              ? "var(--destructive)"
+                              : "rgba(246,240,250,0.25)"
+                        }`,
+                      }}
+                    >
+                      {displayDelta >= 0 ? "+" : ""}
+                      {displayDelta} points{displayDelta > 0 ? "!" : ""}
+                    </div>
+                  );
+                })()}
+                {!calibrated && (
                   <div
                     className="text-[11px] leading-snug max-w-xs"
                     style={{ color: "rgba(246,240,250,0.6)" }}
