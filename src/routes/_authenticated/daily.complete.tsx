@@ -626,6 +626,47 @@ function DomainRow({
         </div>
       )}
 
+      {tipOpen && (
+        <>
+          <div
+            className="fixed inset-0 z-[90]"
+            onClick={() => setTipOpen(false)}
+          />
+          <div
+            className="absolute inset-0 z-[100] rounded-2xl p-4 flex flex-col justify-center text-[12px] leading-relaxed"
+            onClick={(e) => {
+              e.stopPropagation();
+              setTipOpen(false);
+            }}
+            style={{
+              background: "rgba(20,12,40,0.98)",
+              border: "1px solid rgba(168,85,247,0.6)",
+              color: "var(--lavender)",
+              boxShadow: "0 8px 24px rgba(0,0,0,0.5)",
+            }}
+          >
+            <div className="font-bold uppercase tracking-wider mb-2 text-[10px]" style={{ color: "var(--volt)" }}>
+              Score change breakdown
+            </div>
+            <div className="space-y-1">
+              <div>
+                <span style={{ color: "rgba(246,240,250,0.6)" }}>Base {positiveDelta ? "gain" : "loss"}:</span>{" "}
+                <span className="tabular-nums font-bold">{diff.baseGain >= 0 ? "+" : ""}{diff.baseGain.toFixed(1)}%</span>
+              </div>
+              <div>
+                <span style={{ color: "rgba(246,240,250,0.6)" }}>Momentum multiplier:</span>{" "}
+                <span className="tabular-nums font-bold">×{momentumMult.toFixed(2)}</span>
+              </div>
+              <div className="pt-1 border-t" style={{ borderColor: "rgba(246,240,250,0.15)" }}>
+                <span style={{ color: "rgba(246,240,250,0.6)" }}>Total:</span>{" "}
+                <span className="tabular-nums font-bold" style={{ color: positiveDelta ? "var(--volt)" : "var(--destructive)" }}>
+                  {diff.actualGain >= 0 ? "+" : ""}{diff.actualGain.toFixed(1)}%
+                </span>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }
