@@ -62,6 +62,18 @@ export function MissedReviewModal({ open, missed, onClose }: Props) {
               <ChevronLeft className="size-4" /> Prev
             </button>
             <button
+              onClick={() => setShowPowerUp(true)}
+              aria-label="Answer explanation"
+              className="h-10 w-10 rounded-xl flex items-center justify-center pulse-soft"
+              style={{
+                background: "var(--violet-deep)",
+                color: "var(--lavender)",
+                border: "2px solid var(--neon)",
+              }}
+            >
+              <HelpCircle className="size-5" />
+            </button>
+            <button
               disabled={idx >= missed.length - 1}
               onClick={() => setIdx((i) => Math.min(missed.length - 1, i + 1))}
               className="flex items-center gap-1 px-3 py-2 rounded-xl text-sm font-bold disabled:opacity-40"
@@ -71,7 +83,26 @@ export function MissedReviewModal({ open, missed, onClose }: Props) {
             </button>
           </div>
         )}
+
+        {missed.length === 1 && (
+          <div className="mt-5 flex items-center justify-center">
+            <button
+              onClick={() => setShowPowerUp(true)}
+              aria-label="Answer explanation"
+              className="h-10 w-10 rounded-xl flex items-center justify-center pulse-soft"
+              style={{
+                background: "var(--violet-deep)",
+                color: "var(--lavender)",
+                border: "2px solid var(--neon)",
+              }}
+            >
+              <HelpCircle className="size-5" />
+            </button>
+          </div>
+        )}
       </div>
+
+      <PowerUpModal open={showPowerUp} onClose={() => setShowPowerUp(false)} />
     </div>
   );
 }
