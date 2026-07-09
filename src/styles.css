@@ -244,17 +244,29 @@
 }
 
 /* --- Bonus round unlock card motion --- */
-@keyframes unlock-vibrate {
-  0%, 100% { transform: translate(0, 0) rotate(0deg); }
-  20% { transform: translate(-0.6px, 0.4px) rotate(-0.35deg); }
-  40% { transform: translate(0.6px, -0.4px) rotate(0.35deg); }
-  60% { transform: translate(-0.4px, 0.6px) rotate(-0.25deg); }
-  80% { transform: translate(0.4px, -0.6px) rotate(0.25deg); }
+@keyframes unlock-pulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 30px -8px rgba(184,255,0,0.55), 0 6px 0 0 #6e9c00;
+  }
+  50% {
+    transform: scale(1.025);
+    box-shadow: 0 0 55px -4px rgba(184,255,0,0.9), 0 6px 0 0 #6e9c00;
+  }
 }
-@keyframes electric-flow {
-  0%   { stroke-dashoffset: 0; opacity: 0.85; }
-  50%  { opacity: 1; }
-  100% { stroke-dashoffset: -220; opacity: 0.85; }
+.unlock-pulse { animation: unlock-pulse 1.4s ease-in-out infinite; transform-origin: center; }
+
+@keyframes electric-flicker {
+  0%, 100% { opacity: 0; }
+  6% { opacity: 1; }
+  9% { opacity: 0.2; }
+  14% { opacity: 0.95; }
+  18% { opacity: 0; }
+  40% { opacity: 0; }
+  44% { opacity: 0.85; }
+  47% { opacity: 0.1; }
+  52% { opacity: 1; }
+  56% { opacity: 0; }
 }
 @keyframes chest-pulse {
   0%, 100% { transform: scale(1); }
@@ -275,5 +287,5 @@
   100% { transform: translate(var(--dx), var(--dy)) scale(0.6); opacity: 0; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .unlock-vibrate, .chest-pulse, .chest-shake { animation: none !important; }
+  .unlock-pulse, .chest-pulse, .chest-shake { animation: none !important; }
 }
