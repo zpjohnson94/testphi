@@ -22,7 +22,7 @@ export function BonusUnlockModal({ open, domainId, domainLabel, onClose }: Props
   const [selected, setSelected] = useState<number | null>(null);
   const [answers, setAnswers] = useState<BonusSubmitAnswer[]>([]);
   const [masteryPct, setMasteryPct] = useState<number>(0);
-  const [bonusSummary, setBonusSummary] = useState<{ correct: number; total: number; domainAnswered: number } | null>(null);
+  const [bonusSummary, setBonusSummary] = useState<{ correct: number; total: number; domainAnswered: number; domainCorrect: number; results: boolean[] } | null>(null);
   const startRef = useRef(Date.now());
   const { data: round, isLoading, error } = useServeBonusRound(open ? domainId : null);
   const submit = useSubmitBonusRound();

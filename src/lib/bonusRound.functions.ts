@@ -214,6 +214,8 @@ export interface BonusSubmitResult {
     correct: number;
     total: number;
     domainAnswered: number;
+    domainCorrect: number;
+    results: boolean[];
   };
 }
 
@@ -355,12 +357,23 @@ export const submitBonusRound = createServerFn({ method: "POST" })
     await persistFreeState(context, next);
 
     const correctCount = results.filter((r) => r.correct).length;
+
+    // Total correct answers in this domain so far (all-time)
+    const { count: domainCorrectCount } = await context.supabase
+      .from("answers")
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", context.userId)
+      .eq("domain_id", data.domainId)
+      .eq("correct", true);
+
     return {
       state: next,
       bonusSummary: {
         correct: correctCount,
         total: results.length,
         domainAnswered: next.domainStats[data.domainId]?.answered ?? 0,
+        domainCorrect: domainCorrectCount ?? correctCount,
+        results: results.map((r) => r.correct),
       },
     };
   });
