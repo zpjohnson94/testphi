@@ -522,6 +522,17 @@ export function applySession(prev: FreeState, results: SessionResult[]): FreeSta
     actualByDomain[r.domainId] = (actualByDomain[r.domainId] ?? 0) + actual;
   }
 
+  // Clamp newly-initialized domains to the initial mastery ceiling so the
+  // first score revealed on unlock never exceeds 90%.
+  for (const d of DOMAINS) {
+    const p = pre[d.id];
+    const s = next.domainStats[d.id];
+    if (!p.initialized && s.initialized) {
+      s.mastery = Math.min(s.mastery, SCORING.MASTERY_INIT_CEIL);
+    }
+  }
+
+
   // Streak
   const td = todayISO();
   const streakBefore = next.streak;
