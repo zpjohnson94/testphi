@@ -28,7 +28,7 @@ function AnimatedPct({ target }: { target: number }) {
 interface Props {
   domainName: string;
   masteryPct: number;
-  bonusSummary?: { correct: number; total: number; domainAnswered: number } | null;
+  bonusSummary?: { correct: number; total: number; domainAnswered: number; domainCorrect?: number; results?: boolean[] } | null;
   onDone: () => void;
 }
 
