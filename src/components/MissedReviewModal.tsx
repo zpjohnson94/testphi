@@ -134,22 +134,36 @@ function QuestionReview({ slot }: { slot: number }) {
           const isCorrect = i === correctPos;
           const isSelected = i === selectedPos;
           const bg = isCorrect
-            ? "rgba(184,255,0,0.15)"
+            ? "rgba(184,255,0,0.22)"
             : isSelected
-              ? "rgba(255,77,109,0.15)"
+              ? "rgba(255,77,109,0.22)"
               : "rgba(246,240,250,0.05)";
           const border = isCorrect
-            ? "1.5px solid var(--volt)"
+            ? "2px solid var(--volt)"
             : isSelected
-              ? "1.5px solid var(--destructive)"
+              ? "2px solid var(--destructive)"
               : "1px solid rgba(246,240,250,0.12)";
+          const label = isCorrect && isSelected
+            ? "Correct (your answer)"
+            : isCorrect
+              ? "Correct answer"
+              : isSelected
+                ? "Your answer"
+                : null;
           return (
             <div
               key={i}
               className="rounded-xl p-3 text-sm flex items-start gap-2"
               style={{ background: bg, border }}
             >
-              <div className="flex-1 whitespace-pre-wrap">{c}</div>
+              <div className="flex-1 whitespace-pre-wrap">
+                {c}
+                {label && (
+                  <div className="mt-1 text-[10px] font-bold uppercase tracking-wider" style={{ color: isCorrect ? "var(--volt)" : "var(--destructive)" }}>
+                    {label}
+                  </div>
+                )}
+              </div>
               {isCorrect && <Check className="size-4 shrink-0" style={{ color: "var(--volt)" }} />}
               {isSelected && !isCorrect && <X className="size-4 shrink-0" style={{ color: "var(--destructive)" }} />}
             </div>
