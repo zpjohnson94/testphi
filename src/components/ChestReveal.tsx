@@ -3,6 +3,26 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import chestImg from "@/assets/chest-buried.png";
 import { sfx } from "@/lib/sfx";
 
+function AnimatedPct({ target }: { target: number }) {
+  const [n, setN] = useState(0);
+  useEffect(() => {
+    const start = performance.now();
+    const dur = 1400;
+    let raf = 0;
+    const tick = (t: number) => {
+      const k = Math.min(1, (t - start) / dur);
+      const eased = 1 - Math.pow(1 - k, 3);
+      setN(Math.round(target * eased));
+      if (k < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [target]);
+  return <>{n}</>;
+}
+
+import { sfx } from "@/lib/sfx";
+
 
 interface Props {
   domainName: string;
