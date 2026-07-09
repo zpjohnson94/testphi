@@ -43,7 +43,7 @@ interface Sand {
   born: number;
 }
 
-export function ChestReveal({ domainName, masteryPct, onDone }: Props) {
+export function ChestReveal({ domainName, masteryPct, bonusSummary, onDone }: Props) {
   const [taps, setTaps] = useState(0);
   const [opened, setOpened] = useState(false);
   const [flash, setFlash] = useState(false);
