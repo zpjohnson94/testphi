@@ -237,24 +237,22 @@ export function ChestReveal({ domainName, masteryPct, bonusSummary, onDone }: Pr
               </div>
             </div>
 
-            <div className="mt-6 text-sm leading-relaxed" style={{ color: "rgba(246,240,250,0.85)" }}>
-              {bonusSummary ? (
-                <>
-                  <p>
-                    You got {bonusSummary.correct} out of {bonusSummary.total} bonus questions correct, and have answered {bonusSummary.domainAnswered} total {domainName} questions.
-                  </p>
-                  <p className="mt-3">
-                    Your mastery score combines your correct answers, how quickly you answered correctly, and the difficulty of those questions.
-                  </p>
-                  <p className="mt-3">
-                    Keep practicing — your score will improve over time, and consistency is the key to mastery.
-                  </p>
-                </>
-              ) : (
-                <p>
-                  Your mastery score combines your correct answers, how quickly you answered correctly, and the difficulty of those questions. Keep practicing — your score will improve over time, and consistency is the key to mastery.
-                </p>
-              )}
+            <div className="mt-6 text-sm leading-relaxed text-left space-y-4" style={{ color: "rgba(246,240,250,0.85)" }}>
+              <div>
+                <p className="font-bold text-volt">What is mastery?</p>
+                <p>Mastery is how to track your strength within a domain. When mastery increases, so does your overall predicted score.</p>
+              </div>
+              <div>
+                <p className="font-bold text-volt">How is mastery calculated?</p>
+                <p>Your mastery score is calculated based on correctness, speed, and question difficulty,</p>
+              </div>
+              <div>
+                <p className="font-bold text-volt">Keep practicing!</p>
+                <p>Your score will improve over time, and consistency is the key to mastery.</p>
+                <div className="mt-2 text-xs italic opacity-80">
+                  The only way to achieve 100% is to practice consistently. Practice is the key to mastery.
+                </div>
+              </div>
             </div>
 
             <button onClick={onDone} className="btn-volt w-full mt-8 py-4 rounded-2xl text-base">
