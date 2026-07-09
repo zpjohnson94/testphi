@@ -158,11 +158,11 @@ function SkillMap() {
                         {d.initialized ? (
                           <div
                             className="mt-4 h-2 rounded-full overflow-hidden"
-                            style={{ background: "rgba(0,0,0,0.3)" }}
+                            style={{ background: "rgba(0,0,0,0.3)", border: "1px solid rgba(184,255,0,0.25)" }}
                           >
                             <div
-                              className="h-full transition-all duration-700"
-                              style={{ width: `${d.mastery}%`, background: color }}
+                              className="mastery-swirl-fill h-full rounded-full transition-all duration-700"
+                              style={{ width: `${d.mastery}%` }}
                             />
                           </div>
                         ) : (
