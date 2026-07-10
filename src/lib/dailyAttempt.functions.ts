@@ -553,3 +553,52 @@ export const resetDemoAccount = createServerFn({ method: "POST" })
       .eq("user_id", uid);
     return loadFreeState(context);
   });
+
+// ---------- resetDailyToday (dev helper) ----------
+// Wipes only today's Daily 5 progress so the user can retake today. Deletes
+// today's daily_attempts, today's daily sessions and their answers, and
+// clears last_daily_date if it matches today so the flow re-serves cleanly.
+// Mastery/momentum gains already applied for today are NOT rolled back.
+
+export const resetDailyToday = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }): Promise<FreeState> => {
+    const uid = context.userId;
+    const today = new Date().toISOString().slice(0, 10);
+    const startOfDay = `${today}T00:00:00.000Z`;
+    const endOfDay = `${today}T23:59:59.999Z`;
+
+    await context.supabase
+      .from("daily_attempts")
+      .delete()
+      .eq("user_id", uid)
+      .eq("set_date", today);
+
+    const { data: todaysSessions } = await context.supabase
+      .from("sessions")
+      .select("id")
+      .eq("user_id", uid)
+      .eq("kind", "daily")
+      .gte("started_at", startOfDay)
+      .lte("started_at", endOfDay);
+    const sessionIds = (todaysSessions ?? []).map((r: { id: string }) => r.id);
+    if (sessionIds.length) {
+      await context.supabase.from("answers").delete().in("session_id", sessionIds);
+      await context.supabase.from("sessions").delete().in("id", sessionIds);
+    }
+
+    const { data: scoring } = await context.supabase
+      .from("user_scoring_state")
+      .select("last_daily_date")
+      .eq("user_id", uid)
+      .maybeSingle();
+    if (scoring?.last_daily_date === today) {
+      await context.supabase
+        .from("user_scoring_state")
+        .update({ last_daily_date: null })
+        .eq("user_id", uid);
+    }
+
+    return loadFreeState(context);
+  });
+
