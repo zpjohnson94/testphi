@@ -142,26 +142,25 @@ function DailyComplete() {
   if (!next || !prev || !next.lastSession) {
     return (
       <div className="topo-bg min-h-screen flex flex-col items-center justify-center px-6 text-[var(--lavender)]/70">
-        <div className="relative size-16 mb-5">
-          <svg className="size-full -rotate-90" viewBox="0 0 48 48" aria-hidden="true">
+        <div className="relative size-14 mb-5" aria-hidden="true">
+          <svg className="size-full animate-[spin_0.9s_linear_infinite]" viewBox="0 0 50 50">
             <circle
-              cx="24"
-              cy="24"
+              cx="25"
+              cy="25"
               r="20"
               fill="none"
               stroke="rgba(246,240,250,0.12)"
               strokeWidth="5"
             />
             <circle
-              cx="24"
-              cy="24"
+              cx="25"
+              cy="25"
               r="20"
               fill="none"
               stroke="var(--volt)"
               strokeWidth="5"
               strokeLinecap="round"
-              strokeDasharray="80 125"
-              className="animate-[spin_1.2s_linear_infinite]"
+              strokeDasharray="94 32"
             />
           </svg>
         </div>
