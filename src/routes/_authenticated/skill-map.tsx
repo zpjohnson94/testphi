@@ -137,26 +137,29 @@ function SkillMap() {
                         className="w-full rounded-2xl p-5"
                         style={{
                           background: d.initialized && Math.round(d.mastery) === 100
-                            ? "linear-gradient(135deg, rgba(255,215,0,0.12), rgba(255,165,0,0.06))"
+                            ? "linear-gradient(135deg, #FFD700 0%, #FFA500 100%)"
                             : "#1a1230",
                           border: d.initialized && Math.round(d.mastery) === 100
-                            ? "2px solid #FFD700"
+                            ? "2px solid #B8860B"
                             : `1.5px solid ${color}`,
                           boxShadow: d.initialized && Math.round(d.mastery) === 100
-                            ? "0 0 30px -8px rgba(255, 215, 0, 0.55), inset 0 0 24px rgba(255, 215, 0, 0.08)"
+                            ? "0 0 40px -4px rgba(255, 215, 0, 0.7), inset 0 0 0 1px rgba(255, 255, 255, 0.35)"
                             : undefined,
                         }}
                       >
                         <div className="flex items-start justify-between gap-3">
                           <div className="min-w-0 flex-1 text-left">
                             <DomainPill section={section} />
-                            <div className="mt-2 display text-lg text-[var(--lavender)] leading-tight">
+                            <div
+                              className="mt-2 display text-lg leading-tight"
+                              style={{ color: d.initialized && Math.round(d.mastery) === 100 ? "#1a1230" : "var(--lavender)" }}
+                            >
                               {name}
                             </div>
                           </div>
                           <div
                             className="score-num text-lg tabular-nums shrink-0"
-                            style={{ color: d.initialized && Math.round(d.mastery) === 100 ? "#FFD700" : color }}
+                            style={{ color: d.initialized && Math.round(d.mastery) === 100 ? "#1a1230" : color }}
                           >
                             {d.initialized ? `${Math.round(d.mastery)}%` : ""}
                           </div>
@@ -165,11 +168,14 @@ function SkillMap() {
                         {d.initialized ? (
                           <div
                             className="mt-4 h-2 rounded-full overflow-hidden"
-                            style={{ background: "rgba(0,0,0,0.3)", border: `1px solid ${d.initialized && Math.round(d.mastery) === 100 ? "#FFD700" : `color-mix(in srgb, ${color}, transparent 75%)`}` }}
+                            style={{
+                              background: d.initialized && Math.round(d.mastery) === 100 ? "rgba(26,18,48,0.25)" : "rgba(0,0,0,0.3)",
+                              border: `1px solid ${d.initialized && Math.round(d.mastery) === 100 ? "#1a1230" : `color-mix(in srgb, ${color}, transparent 75%)`}`,
+                            }}
                           >
                             <div
                               className="mastery-swirl-fill h-full rounded-full transition-all duration-700"
-                              style={{ width: `${d.mastery}%`, ["--swirl-color" as any]: d.initialized && Math.round(d.mastery) === 100 ? "#FFD700" : color }}
+                              style={{ width: `${d.mastery}%`, ["--swirl-color" as any]: d.initialized && Math.round(d.mastery) === 100 ? "#1a1230" : color }}
                             />
                           </div>
                         ) : (
@@ -199,7 +205,12 @@ function SkillMap() {
 
                         <button
                           onClick={() => setShowModal(true)}
-                          className="mt-4 w-full btn-volt py-3 text-sm font-bold text-center"
+                          className="mt-4 w-full py-3 text-sm font-bold text-center rounded-2xl"
+                          style={{
+                            background: d.initialized && Math.round(d.mastery) === 100 ? "#1a1230" : "var(--volt)",
+                            color: d.initialized && Math.round(d.mastery) === 100 ? "var(--volt)" : "var(--ink)",
+                            boxShadow: d.initialized && Math.round(d.mastery) === 100 ? "0 4px 0 0 #0f0a1c" : "var(--shadow-pop)",
+                          }}
                         >
                           Drill this domain
                         </button>
