@@ -150,13 +150,16 @@ function SkillMap() {
                         <div className="flex items-start justify-between gap-3">
                           <div className="min-w-0 flex-1 text-left">
                             <DomainPill section={section} />
-                            <div className="mt-2 display text-lg text-[var(--lavender)] leading-tight">
+                            <div
+                              className="mt-2 display text-lg leading-tight"
+                              style={{ color: d.initialized && Math.round(d.mastery) === 100 ? "#1a1230" : "var(--lavender)" }}
+                            >
                               {name}
                             </div>
                           </div>
                           <div
                             className="score-num text-lg tabular-nums shrink-0"
-                            style={{ color: d.initialized && Math.round(d.mastery) === 100 ? "#FFD700" : color }}
+                            style={{ color: d.initialized && Math.round(d.mastery) === 100 ? "#1a1230" : color }}
                           >
                             {d.initialized ? `${Math.round(d.mastery)}%` : ""}
                           </div>
@@ -165,11 +168,14 @@ function SkillMap() {
                         {d.initialized ? (
                           <div
                             className="mt-4 h-2 rounded-full overflow-hidden"
-                            style={{ background: "rgba(0,0,0,0.3)", border: `1px solid ${d.initialized && Math.round(d.mastery) === 100 ? "#FFD700" : `color-mix(in srgb, ${color}, transparent 75%)`}` }}
+                            style={{
+                              background: d.initialized && Math.round(d.mastery) === 100 ? "rgba(26,18,48,0.25)" : "rgba(0,0,0,0.3)",
+                              border: `1px solid ${d.initialized && Math.round(d.mastery) === 100 ? "#1a1230" : `color-mix(in srgb, ${color}, transparent 75%)`}`,
+                            }}
                           >
                             <div
                               className="mastery-swirl-fill h-full rounded-full transition-all duration-700"
-                              style={{ width: `${d.mastery}%`, ["--swirl-color" as any]: d.initialized && Math.round(d.mastery) === 100 ? "#FFD700" : color }}
+                              style={{ width: `${d.mastery}%`, ["--swirl-color" as any]: d.initialized && Math.round(d.mastery) === 100 ? "#1a1230" : color }}
                             />
                           </div>
                         ) : (
