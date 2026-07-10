@@ -120,7 +120,8 @@ function QuestionReview({ slot }: { slot: number }) {
       qc.invalidateQueries({ queryKey: servedQuestionKey(slot) });
       refetch();
     }
-  }, [slot]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [slot, data?.alreadyAnswered, qc, refetch]);
 
   if (isLoading) {
     return <div className="text-sm opacity-70">Loading question…</div>;
