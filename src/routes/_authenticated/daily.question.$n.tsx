@@ -116,6 +116,19 @@ function DailyQuestion() {
       setCorrectPos(result.correctPosition);
       setGraded(true);
       if (result.isCorrect) fireBolts(choiceIdx);
+
+      // Update the cache so the review modal on the complete screen can read
+      // the answered positions without a separate refetch.
+      qc.setQueryData<ServedQuestion>(servedQuestionKey(idx), (old) => {
+        if (!old) return old;
+        return {
+          ...old,
+          alreadyAnswered: true,
+          selectedPosition: choiceIdx,
+          isCorrect: result.isCorrect,
+          correctPosition: result.correctPosition,
+        };
+      });
     } catch {
       // Roll back on failure so the user can retry.
       setSubmitted(false);
