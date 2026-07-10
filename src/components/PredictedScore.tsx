@@ -36,8 +36,22 @@ export function PredictedScore({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [score]);
 
-  const color = calibrated ? "var(--volt)" : "rgba(184,255,0,0.55)";
-  const subColor = calibrated ? "rgba(184,255,0,0.6)" : "rgba(184,255,0,0.3)";
+  const isGold = theme === "gold";
+  const color = isGold
+    ? "var(--ink)"
+    : calibrated
+      ? "var(--volt)"
+      : "rgba(184,255,0,0.55)";
+  const subColor = isGold
+    ? "rgba(29,41,0,0.65)"
+    : calibrated
+      ? "rgba(184,255,0,0.6)"
+      : "rgba(184,255,0,0.3)";
+  const textShadow = isGold
+    ? "0 0 18px rgba(255,255,255,0.45)"
+    : calibrated
+      ? "0 0 24px rgba(184,255,0,0.35)"
+      : undefined;
 
   return (
     <div className="relative">
