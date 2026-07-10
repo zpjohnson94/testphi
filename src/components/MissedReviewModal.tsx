@@ -183,11 +183,6 @@ function QuestionReview({ slot }: { slot: number }) {
           );
         })}
       </div>
-      {selectedPos >= 0 && (
-        <div className="mt-3 text-xs" style={{ color: "rgba(246,240,250,0.65)" }}>
-          {selectedPos === correctPos ? "You answered correctly." : "Your answer is marked in red; the correct answer is highlighted in green."}
-        </div>
-      )}
     </div>
   );
 }
