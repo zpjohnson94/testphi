@@ -136,6 +136,10 @@ function DailyQuestion() {
           correctPosition: result.correctPosition,
         };
       });
+
+      // On Q5, kick off the finalize call in the background so the
+      // /daily/complete interstitial has little or nothing to wait on.
+      if (isLast) prewarmFinalize();
     } catch {
       // Roll back on failure so the user can retry.
       setSubmitted(false);
