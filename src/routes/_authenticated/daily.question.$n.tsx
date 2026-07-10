@@ -32,6 +32,10 @@ function DailyQuestion() {
   const [correctPos, setCorrectPos] = useState<number | null>(null);
   const [isCorrect, setIsCorrect] = useState<boolean>(false);
   const [showModal, setShowModal] = useState(false);
+  const [diagAvatar, setDiagAvatar] = useState(() => defaultDiag());
+  useEffect(() => {
+    setDiagAvatar(loadDiag());
+  }, []);
   const streak = freeState?.streak ?? 0;
   const startRef = useRef(Date.now());
   const choiceRefs = useRef<(HTMLButtonElement | null)[]>([]);
