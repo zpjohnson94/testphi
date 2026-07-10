@@ -702,7 +702,7 @@ function DomainRow({
             {showCeilingNote && (
               <div className="mt-3 pt-3 border-t" style={{ borderColor: "rgba(246,240,250,0.15)" }}>
                 <div className="text-[11px] leading-relaxed" style={{ color: "rgba(246,240,250,0.75)" }}>
-                  You answered correctly, but your mastery is already high enough that only hard questions can push it higher right now. Easy and medium questions still help maintain your current level.
+                  You answered correctly, but the higher your mastery, the harder the questions need to be to improve your score further. Correct answers at any difficulty still help maintain your current level.
                 </div>
               </div>
             )}
