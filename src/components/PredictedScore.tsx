@@ -58,7 +58,7 @@ export function PredictedScore({
       <div className="flex items-end gap-1.5">
         <div
           className={`score-num ${sizeClass} leading-none`}
-          style={{ color, textShadow: calibrated ? "0 0 24px rgba(184,255,0,0.35)" : undefined }}
+          style={{ color, textShadow }}
         >
           {shown}
         </div>
