@@ -492,10 +492,14 @@ function DomainRow({
   diff,
   results,
   momentumActive,
+  isOpen,
+  onToggle,
 }: {
   diff: DomainDiff;
   results: SessionResult[];
   momentumActive: boolean;
+  isOpen: boolean;
+  onToggle: () => void;
 }) {
   const d = domainById(diff.domainId);
   if (!d) return null;
