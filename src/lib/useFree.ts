@@ -59,6 +59,7 @@ import {
   gradeDailyAnswer,
   finalizeDailySession,
   resetDemoAccount,
+  resetDailyToday,
   type ServedQuestion,
   type GradeResult,
 } from "./dailyAttempt.functions";
@@ -118,6 +119,20 @@ export function useResetDemo() {
     },
   });
 }
+
+export function useResetDailyToday() {
+  const fn = useServerFn(resetDailyToday);
+  const qc = useQueryClient();
+  return useMutation<FreeState>({
+    mutationFn: () => fn(),
+    onSuccess: (next) => {
+      qc.setQueryData(freeStateKey, next);
+      qc.removeQueries({ queryKey: ["daily-question"] });
+      qc.invalidateQueries({ queryKey: freeStateKey });
+    },
+  });
+}
+
 
 type DevPatch = {
   plan?: "free" | "powerup";

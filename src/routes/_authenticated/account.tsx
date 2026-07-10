@@ -1,9 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Zap, Pencil, Check, X, Wrench, Lock, Unlock } from "lucide-react";
 import { FreeShell } from "@/components/FreeShell";
 import { Avatar, ANIMALS, COLOR_SWATCHES, ACCESSORIES, type AvatarConfig, type AnimalId, type AccessoryId } from "@/components/Avatar";
-import { useFreeState, useUpdateProfile, useResetDemo, useDevPatchState } from "@/lib/useFree";
+import { useFreeState, useUpdateProfile, useResetDemo, useResetDailyToday, useDevPatchState } from "@/lib/useFree";
 import { useHydration, useStore, updateAvatar } from "@/lib/store";
 import { sfx } from "@/lib/sfx";
 import { DOMAINS, SCORING, type FreeState } from "@/lib/freeUser";
@@ -247,22 +247,9 @@ function FieldRow({
 // ============================= Developer Menu =============================
 
 function DeveloperMenu({ state }: { state: FreeState }) {
-  const [enabled, setEnabled] = useState(false);
   const dev = useDevPatchState();
   const resetDemo = useResetDemo();
-
-  useEffect(() => {
-    try {
-      const stored = localStorage.getItem("dev-mode-enabled");
-      if (stored !== null) setEnabled(JSON.parse(stored));
-    } catch {}
-  }, []);
-
-  useEffect(() => {
-    try {
-      localStorage.setItem("dev-mode-enabled", JSON.stringify(enabled));
-    } catch {}
-  }, [enabled]);
+  const resetDaily = useResetDailyToday();
 
   const [momentum, setMomentum] = useState(state.momentumNeedle);
   const [masteryDraft, setMasteryDraft] = useState<Record<string, number>>(() => {
@@ -280,30 +267,14 @@ function DeveloperMenu({ state }: { state: FreeState }) {
 
   return (
     <div className="rounded-3xl overflow-hidden" style={{ background: "rgba(255,77,109,0.06)", border: "1.5px dashed rgba(255,77,109,0.55)" }}>
-      <button
-        type="button"
-        onClick={() => setEnabled((v) => !v)}
-        className="w-full flex items-center justify-between px-5 py-4"
-      >
-        <div className="flex items-center gap-2">
-          <Wrench className="size-4" style={{ color: "var(--destructive)" }} />
-          <span className="display text-base" style={{ color: "var(--destructive)" }}>Developer mode</span>
-        </div>
-        <span
-          role="switch"
-          aria-checked={enabled}
-          className="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full transition-colors"
-          style={{ background: enabled ? "var(--volt)" : "rgba(246,240,250,0.15)" }}
-        >
-          <span
-            className="pointer-events-none absolute top-0.5 left-0.5 size-5 rounded-full bg-white shadow transition-transform duration-200 ease-in-out"
-            style={{ transform: enabled ? "translateX(20px)" : "translateX(0)" }}
-          />
-        </span>
-      </button>
+      <div className="flex items-center gap-2 px-5 py-4">
+        <Wrench className="size-4" style={{ color: "var(--destructive)" }} />
+        <span className="display text-base" style={{ color: "var(--destructive)" }}>Developer mode</span>
+      </div>
 
-      {enabled && (
-        <div className="px-5 pb-5 space-y-5 border-t" style={{ borderColor: "rgba(255,77,109,0.25)" }}>
+      <div className="px-5 pb-5 space-y-5 border-t" style={{ borderColor: "rgba(255,77,109,0.25)" }}>
+
+
           {/* Plan */}
           <section className="pt-4">
             <div className="text-[11px] font-bold uppercase tracking-widest mb-2" style={{ color: "rgba(246,240,250,0.6)" }}>Plan</div>
@@ -461,9 +432,27 @@ function DeveloperMenu({ state }: { state: FreeState }) {
             >
               {resetDemo.isPending ? "Resetting…" : "Reset demo account"}
             </button>
+            <button
+              type="button"
+              onClick={() => {
+                if (resetDaily.isPending) return;
+                if (confirm("Reset today's Daily 5? This clears today's answered questions so you can retake Daily 5. Mastery and momentum already earned today are kept.")) {
+                  resetDaily.mutate();
+                }
+              }}
+              disabled={resetDaily.isPending}
+              className="w-full mt-2 text-[11px] font-bold uppercase tracking-[0.18em] rounded-full px-4 py-3 disabled:opacity-50"
+              style={{
+                background: "rgba(184,255,0,0.12)",
+                border: "1px dashed rgba(184,255,0,0.6)",
+                color: "var(--volt)",
+              }}
+            >
+              {resetDaily.isPending ? "Resetting…" : "Reset today's Daily 5"}
+            </button>
           </section>
         </div>
-      )}
     </div>
+
   );
 }
