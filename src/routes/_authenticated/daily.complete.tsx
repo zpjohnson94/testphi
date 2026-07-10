@@ -6,8 +6,10 @@ import {
   DOMAINS,
   SCORING,
   isCalibrated,
+  type DomainDiff,
   type FreeState,
   type LastSession,
+  type SessionResult,
 } from "@/lib/freeUser";
 import { useFinalizeDailySession, useFreeState } from "@/lib/useFree";
 import { PredictedScore } from "@/components/PredictedScore";
@@ -359,6 +361,7 @@ function CompleteContent({ prev, next, session, onExit }: ContentProps) {
                 ) : (
                   <DomainRow
                     diff={diff}
+                    results={session.results}
                     momentumActive={
                       next.lastSession!.momentumAfter > 0 && diff.actualGain > diff.baseGain
                     }
@@ -493,9 +496,11 @@ function CalibrationMilestone({ prevScore, newScore }: { prevScore: number; newS
 
 function DomainRow({
   diff,
+  results,
   momentumActive,
 }: {
-  diff: ReturnType<() => FreeState["lastSession"]> extends infer T ? any : never;
+  diff: DomainDiff;
+  results: SessionResult[];
   momentumActive: boolean;
 }) {
   const d = domainById(diff.domainId);
@@ -550,6 +555,10 @@ function DomainRow({
   const [tipOpen, setTipOpen] = useState(false);
   const momentumMult = diff.baseGain !== 0 ? diff.actualGain / diff.baseGain : 1;
   const positiveDelta = diff.newMastery - diff.prevMastery >= 0;
+  const hasCorrectAnswer = results.some(
+    (r) => r.domainId === diff.domainId && r.correct,
+  );
+  const showCeilingNote = hasCorrectAnswer && Math.abs(diff.actualGain) < 0.05;
 
   return (
     <div
@@ -655,12 +664,14 @@ function DomainRow({
             onClick={() => setTipOpen(false)}
           />
           <div
-            className="absolute inset-0 z-[100] rounded-2xl p-4 flex flex-col justify-center text-[12px] leading-relaxed"
+            className="absolute top-0 left-0 right-0 z-[100] rounded-2xl p-4 text-[12px] leading-relaxed"
             onClick={(e) => {
               e.stopPropagation();
               setTipOpen(false);
             }}
             style={{
+              minHeight: "100%",
+              height: "auto",
               background: "rgba(20,12,40,0.98)",
               border: "1px solid rgba(168,85,247,0.6)",
               color: "var(--lavender)",
@@ -686,6 +697,13 @@ function DomainRow({
                 </span>
               </div>
             </div>
+            {showCeilingNote && (
+              <div className="mt-3 pt-3 border-t" style={{ borderColor: "rgba(246,240,250,0.15)" }}>
+                <div className="text-[11px] leading-relaxed" style={{ color: "rgba(246,240,250,0.75)" }}>
+                  You answered correctly, but your mastery is already high enough that only hard questions can push it higher right now. Easy and medium questions still help maintain your current level.
+                </div>
+              </div>
+            )}
           </div>
         </>
       )}
