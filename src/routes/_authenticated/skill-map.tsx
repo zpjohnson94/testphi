@@ -136,8 +136,15 @@ function SkillMap() {
                         key={d.id}
                         className="w-full rounded-2xl p-5"
                         style={{
-                          background: "#1a1230",
-                          border: `1.5px solid ${color}`,
+                          background: d.initialized && Math.round(d.mastery) === 100
+                            ? "linear-gradient(135deg, rgba(255,215,0,0.12), rgba(255,165,0,0.06))"
+                            : "#1a1230",
+                          border: d.initialized && Math.round(d.mastery) === 100
+                            ? "2px solid #FFD700"
+                            : `1.5px solid ${color}`,
+                          boxShadow: d.initialized && Math.round(d.mastery) === 100
+                            ? "0 0 30px -8px rgba(255, 215, 0, 0.55), inset 0 0 24px rgba(255, 215, 0, 0.08)"
+                            : undefined,
                         }}
                       >
                         <div className="flex items-start justify-between gap-3">
@@ -149,7 +156,7 @@ function SkillMap() {
                           </div>
                           <div
                             className="score-num text-lg tabular-nums shrink-0"
-                            style={{ color }}
+                            style={{ color: d.initialized && Math.round(d.mastery) === 100 ? "#FFD700" : color }}
                           >
                             {d.initialized ? `${Math.round(d.mastery)}%` : ""}
                           </div>
@@ -158,11 +165,11 @@ function SkillMap() {
                         {d.initialized ? (
                           <div
                             className="mt-4 h-2 rounded-full overflow-hidden"
-                            style={{ background: "rgba(0,0,0,0.3)", border: `1px solid color-mix(in srgb, ${color}, transparent 75%)` }}
+                            style={{ background: "rgba(0,0,0,0.3)", border: `1px solid ${d.initialized && Math.round(d.mastery) === 100 ? "#FFD700" : `color-mix(in srgb, ${color}, transparent 75%)`}` }}
                           >
                             <div
                               className="mastery-swirl-fill h-full rounded-full transition-all duration-700"
-                              style={{ width: `${d.mastery}%`, ["--swirl-color" as any]: color }}
+                              style={{ width: `${d.mastery}%`, ["--swirl-color" as any]: d.initialized && Math.round(d.mastery) === 100 ? "#FFD700" : color }}
                             />
                           </div>
                         ) : (
