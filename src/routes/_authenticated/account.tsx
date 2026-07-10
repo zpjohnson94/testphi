@@ -279,12 +279,12 @@ function DeveloperMenu({ state }: { state: FreeState }) {
         <span
           role="switch"
           aria-checked={enabled}
-          className="relative w-11 h-6 rounded-full transition-colors"
+          className="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full transition-colors"
           style={{ background: enabled ? "var(--volt)" : "rgba(246,240,250,0.15)" }}
         >
           <span
-            className="absolute top-0.5 size-5 rounded-full bg-white transition-transform"
-            style={{ transform: enabled ? "translateX(22px)" : "translateX(2px)" }}
+            className="pointer-events-none absolute top-0.5 left-0.5 size-5 rounded-full bg-white shadow transition-transform duration-200 ease-in-out"
+            style={{ transform: enabled ? "translateX(20px)" : "translateX(0)" }}
           />
         </span>
       </button>
