@@ -72,7 +72,7 @@ function DailyComplete() {
           }
           // 5/5 but grade write not yet visible: retry once.
           if (!isRetry) {
-            await new Promise((r) => setTimeout(r, 500));
+            await new Promise((r) => setTimeout(r, 150));
             runFinalize(true);
             return;
           }
