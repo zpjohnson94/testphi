@@ -591,7 +591,7 @@ function DomainRow({
               {deltaPct && (
                 <DeltaBadge
                   delta={diff.newMastery - diff.prevMastery}
-                  onToggle={() => setTipOpen((v) => !v)}
+                  onToggle={onToggle}
                 />
               )}
             </>
