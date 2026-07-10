@@ -55,6 +55,7 @@ function HomePage() {
   const monthDelta = lastSession?.delta ?? 0;
   const name = (state?.name || "champ").split(" ")[0];
   const calibrated = state ? isCalibrated(state) : false;
+  const isPerfect = (state?.overall ?? 800) === 1600;
   const [momentumOpen, setMomentumOpen] = useState(false);
   const [bonusDomainId, setBonusDomainId] = useState<string | null>(null);
 
@@ -88,17 +89,21 @@ function HomePage() {
         <main className="mx-auto max-w-2xl px-5 pt-8 pb-10 space-y-6">
           {/* Profile box — mirrors landing page hero card */}
           <section
-            className="rounded-3xl p-4 sm:p-7 backdrop-blur-md"
-            style={{
-              background: "color-mix(in oklab, var(--violet-deep) 45%, transparent)",
-              border: "1.5px solid var(--neon)",
-            }}
+            className={`rounded-3xl p-4 sm:p-7 backdrop-blur-md ${isPerfect ? "gold-shine" : ""}`}
+            style={
+              isPerfect
+                ? undefined
+                : {
+                    background: "color-mix(in oklab, var(--violet-deep) 45%, transparent)",
+                    border: "1.5px solid var(--neon)",
+                  }
+            }
           >
             <div className="flex items-start justify-between gap-3 sm:gap-4">
               <div className="text-left min-w-0">
                 <div
                   className="text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.18em] whitespace-pre-line"
-                  style={{ color: "var(--volt)" }}
+                  style={{ color: isPerfect ? "var(--ink)" : "var(--volt)" }}
                 >
                   {`Hey ${name}!\nYour predicted SAT score`}
                 </div>
@@ -107,6 +112,7 @@ function HomePage() {
                     score={state?.overall ?? 800}
                     calibrated={calibrated}
                     animateFrom={800}
+                    theme={isPerfect ? "gold" : "default"}
                   />
                 </div>
                 {monthDelta !== 0 && (
