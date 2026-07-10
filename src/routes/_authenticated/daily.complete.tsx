@@ -111,7 +111,7 @@ function DailyComplete() {
           </div>
           <div className="mt-5 flex gap-2">
             <button
-              onClick={() => runFinalize(false)}
+              onClick={runRetry}
               className="btn-volt flex-1 py-3 rounded-xl text-sm"
             >
               Retry
