@@ -96,6 +96,56 @@ export function useGradeDailyAnswer() {
   });
 }
 
+export const dailyFinalizeKey = (dateISO: string) =>
+  ["daily-finalize", dateISO] as const;
+
+function todayISO() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+// Kick off finalize as soon as Q5 is graded. The result is cached under
+// dailyFinalizeKey(today); the /daily/complete screen consumes it via
+// useDailyFinalizeResult and skips its own network round-trip.
+export function usePrewarmDailyFinalize() {
+  const fn = useServerFn(finalizeDailySession);
+  const qc = useQueryClient();
+  return () => {
+    const key = dailyFinalizeKey(todayISO());
+    return qc
+      .fetchQuery<FreeState>({
+        queryKey: key,
+        queryFn: async () => {
+          const next = await fn();
+          qc.setQueryData(freeStateKey, next);
+          return next;
+        },
+        staleTime: 5 * 60_000,
+        retry: false,
+      })
+      .catch(() => {
+        // Swallow — the /complete screen will surface the error on read.
+      });
+  };
+}
+
+export function useDailyFinalizeResult() {
+  const fn = useServerFn(finalizeDailySession);
+  const qc = useQueryClient();
+  return useQuery<FreeState>({
+    queryKey: dailyFinalizeKey(todayISO()),
+    queryFn: async () => {
+      const next = await fn();
+      qc.setQueryData(freeStateKey, next);
+      return next;
+    },
+    staleTime: 5 * 60_000,
+    retry: false,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
+  });
+}
+
 export function useFinalizeDailySession() {
   const fn = useServerFn(finalizeDailySession);
   const qc = useQueryClient();
@@ -103,6 +153,7 @@ export function useFinalizeDailySession() {
     mutationFn: () => fn(),
     onSuccess: (next) => {
       qc.setQueryData(freeStateKey, next);
+      qc.setQueryData(dailyFinalizeKey(todayISO()), next);
     },
   });
 }
