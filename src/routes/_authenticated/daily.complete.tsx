@@ -213,7 +213,7 @@ function CompleteContent({ prev, next, session, onExit }: ContentProps) {
   const [reviewOpen, setReviewOpen] = useState(false);
   useEffect(() => {
     if (step >= totalSteps) return;
-    const delay = step === 0 ? 200 : 550;
+    const delay = step === 0 ? 60 : 260;
     const t = setTimeout(() => setStep((s) => s + 1), delay);
     return () => clearTimeout(t);
   }, [step, totalSteps]);
