@@ -432,9 +432,27 @@ function DeveloperMenu({ state }: { state: FreeState }) {
             >
               {resetDemo.isPending ? "Resetting…" : "Reset demo account"}
             </button>
+            <button
+              type="button"
+              onClick={() => {
+                if (resetDaily.isPending) return;
+                if (confirm("Reset today's Daily 5? This clears today's answered questions so you can retake Daily 5. Mastery and momentum already earned today are kept.")) {
+                  resetDaily.mutate();
+                }
+              }}
+              disabled={resetDaily.isPending}
+              className="w-full mt-2 text-[11px] font-bold uppercase tracking-[0.18em] rounded-full px-4 py-3 disabled:opacity-50"
+              style={{
+                background: "rgba(184,255,0,0.12)",
+                border: "1px dashed rgba(184,255,0,0.6)",
+                color: "var(--volt)",
+              }}
+            >
+              {resetDaily.isPending ? "Resetting…" : "Reset today's Daily 5"}
+            </button>
           </section>
         </div>
-      )}
     </div>
+
   );
 }
