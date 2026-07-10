@@ -361,6 +361,7 @@ function CompleteContent({ prev, next, session, onExit }: ContentProps) {
                 ) : (
                   <DomainRow
                     diff={diff}
+                    results={session.results}
                     momentumActive={
                       next.lastSession!.momentumAfter > 0 && diff.actualGain > diff.baseGain
                     }
