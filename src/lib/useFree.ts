@@ -59,6 +59,7 @@ import {
   gradeDailyAnswer,
   finalizeDailySession,
   resetDemoAccount,
+  resetDailyToday,
   type ServedQuestion,
   type GradeResult,
 } from "./dailyAttempt.functions";
