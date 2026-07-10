@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { X, ChevronLeft, ChevronRight, Check, HelpCircle } from "lucide-react";
-import { useServeDailyQuestion } from "@/lib/useFree";
+import { useServeDailyQuestion, servedQuestionKey } from "@/lib/useFree";
 import { PowerUpModal } from "./PowerUpModal";
 
 export interface MissedQuestionRef {
@@ -108,7 +109,19 @@ export function MissedReviewModal({ open, missed, onClose }: Props) {
 }
 
 function QuestionReview({ slot }: { slot: number }) {
-  const { data, isLoading, error } = useServeDailyQuestion(slot);
+  const { data, isLoading, error, refetch } = useServeDailyQuestion(slot);
+  const qc = useQueryClient();
+
+  useEffect(() => {
+    // The question cache may hold the un-answered prefetch from the session.
+    // Refetch once when the review opens so the server-stored selected/correct
+    // positions are available for highlighting.
+    if (!data?.alreadyAnswered) {
+      qc.invalidateQueries({ queryKey: servedQuestionKey(slot) });
+      refetch();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [slot, data?.alreadyAnswered, qc, refetch]);
 
   if (isLoading) {
     return <div className="text-sm opacity-70">Loading question…</div>;

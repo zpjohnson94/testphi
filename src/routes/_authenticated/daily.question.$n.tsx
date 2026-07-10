@@ -1,7 +1,9 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { Flame, ArrowRight, HelpCircle } from "lucide-react";
-import { useFreeState, useServeDailyQuestion, useGradeDailyAnswer, usePrefetchDailySet } from "@/lib/useFree";
+import { useFreeState, useServeDailyQuestion, useGradeDailyAnswer, usePrefetchDailySet, servedQuestionKey } from "@/lib/useFree";
+import { type ServedQuestion } from "@/lib/dailyAttempt.functions";
 import { PowerUpModal } from "@/components/PowerUpModal";
 import { sfx } from "@/lib/sfx";
 
@@ -20,6 +22,7 @@ function DailyQuestion() {
   const { data: served, isLoading } = useServeDailyQuestion(idx);
   const grade = useGradeDailyAnswer();
   const prefetchAll = usePrefetchDailySet();
+  const qc = useQueryClient();
 
   const [selected, setSelected] = useState<number | null>(null);
   const [submitted, setSubmitted] = useState(false);
@@ -113,6 +116,19 @@ function DailyQuestion() {
       setCorrectPos(result.correctPosition);
       setGraded(true);
       if (result.isCorrect) fireBolts(choiceIdx);
+
+      // Update the cache so the review modal on the complete screen can read
+      // the answered positions without a separate refetch.
+      qc.setQueryData<ServedQuestion>(servedQuestionKey(idx), (old) => {
+        if (!old) return old;
+        return {
+          ...old,
+          alreadyAnswered: true,
+          selectedPosition: choiceIdx,
+          isCorrect: result.isCorrect,
+          correctPosition: result.correctPosition,
+        };
+      });
     } catch {
       // Roll back on failure so the user can retry.
       setSubmitted(false);
