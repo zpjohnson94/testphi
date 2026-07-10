@@ -137,13 +137,13 @@ function SkillMap() {
                         className="w-full rounded-2xl p-5"
                         style={{
                           background: d.initialized && Math.round(d.mastery) === 100
-                            ? "linear-gradient(135deg, rgba(255,215,0,0.12), rgba(255,165,0,0.06))"
+                            ? "linear-gradient(135deg, #FFD700 0%, #FFA500 100%)"
                             : "#1a1230",
                           border: d.initialized && Math.round(d.mastery) === 100
-                            ? "2px solid #FFD700"
+                            ? "2px solid #B8860B"
                             : `1.5px solid ${color}`,
                           boxShadow: d.initialized && Math.round(d.mastery) === 100
-                            ? "0 0 30px -8px rgba(255, 215, 0, 0.55), inset 0 0 24px rgba(255, 215, 0, 0.08)"
+                            ? "0 0 40px -4px rgba(255, 215, 0, 0.7), inset 0 0 0 1px rgba(255, 255, 255, 0.35)"
                             : undefined,
                         }}
                       >
