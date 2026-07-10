@@ -154,9 +154,11 @@ function DailyQuestion() {
   const progressPct = (idx / 5) * 100;
 
   if (!served) {
+    const avatarId = (diagAvatar.avatarId in AVATAR_IMAGES ? diagAvatar.avatarId : "fox") as AvatarId;
     return (
-      <div className="topo-bg topo-dim min-h-screen flex items-center justify-center text-[var(--lavender)]/70 text-sm">
-        {isLoading ? "Loading today's questions…" : "Daily set unavailable."}
+      <div className="topo-bg topo-dim min-h-screen flex flex-col items-center justify-center gap-4 text-[var(--lavender)]/70 text-sm">
+        <DiagAvatar id={avatarId} color={diagAvatar.color || "#B8FF00"} size={88} />
+        <span>{isLoading ? "Loading today's questions…" : "Daily set unavailable."}</span>
       </div>
     );
   }
