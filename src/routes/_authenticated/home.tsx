@@ -112,6 +112,7 @@ function HomePage() {
                     score={state?.overall ?? 800}
                     calibrated={calibrated}
                     animateFrom={800}
+                    theme={isPerfect ? "gold" : "default"}
                   />
                 </div>
                 {monthDelta !== 0 && (
