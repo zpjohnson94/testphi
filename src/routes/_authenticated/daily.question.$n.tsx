@@ -5,6 +5,8 @@ import { Flame, ArrowRight, HelpCircle } from "lucide-react";
 import { useFreeState, useServeDailyQuestion, useGradeDailyAnswer, usePrefetchDailySet, servedQuestionKey } from "@/lib/useFree";
 import { type ServedQuestion } from "@/lib/dailyAttempt.functions";
 import { PowerUpModal } from "@/components/PowerUpModal";
+import { DiagAvatar, AVATAR_IMAGES, type AvatarId } from "@/components/DiagAvatar";
+import { loadDiag, defaultDiag } from "@/lib/diagnostic";
 import { sfx } from "@/lib/sfx";
 
 export const Route = createFileRoute("/_authenticated/daily/question/$n")({
