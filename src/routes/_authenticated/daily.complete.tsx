@@ -567,6 +567,8 @@ function DomainRow({
         background: "#1a1230",
         border: justUnlocked ? "1.5px solid var(--volt)" : "1px solid rgba(246,240,250,0.1)",
         boxShadow: justUnlocked ? "0 0 40px -10px rgba(184,255,0,0.55)" : undefined,
+        minHeight: tipOpen ? (showCeilingNote ? 260 : 200) : undefined,
+        zIndex: tipOpen ? 100 : undefined,
       }}
     >
       <div className="flex items-center justify-between gap-3">
