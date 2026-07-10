@@ -661,7 +661,7 @@ function DomainRow({
         <>
           <div
             className="fixed inset-0 z-[90]"
-            onClick={() => setTipOpen(false)}
+            onClick={onToggle}
           />
           <div
             className="absolute top-0 left-0 right-0 z-[100] rounded-2xl p-4 text-[12px] leading-relaxed"
