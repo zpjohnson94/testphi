@@ -1,16 +1,18 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
-import { Zap, Pencil, Check, X } from "lucide-react";
+import { useMemo, useState } from "react";
+import { Zap, Pencil, Check, X, Wrench, Lock, Unlock } from "lucide-react";
 import { FreeShell } from "@/components/FreeShell";
 import { Avatar, ANIMALS, COLOR_SWATCHES, ACCESSORIES, type AvatarConfig, type AnimalId, type AccessoryId } from "@/components/Avatar";
-import { useFreeState, useUpdateProfile } from "@/lib/useFree";
+import { useFreeState, useUpdateProfile, useResetDemo, useDevPatchState } from "@/lib/useFree";
 import { useHydration, useStore, updateAvatar } from "@/lib/store";
 import { sfx } from "@/lib/sfx";
+import { DOMAINS, SCORING, type FreeState } from "@/lib/freeUser";
 
 export const Route = createFileRoute("/_authenticated/account")({
   head: () => ({ meta: [{ title: "Account — TestPhi" }] }),
   component: AccountPage,
 });
+
 
 function AccountPage() {
   useHydration();
