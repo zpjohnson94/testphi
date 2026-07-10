@@ -205,7 +205,12 @@ function SkillMap() {
 
                         <button
                           onClick={() => setShowModal(true)}
-                          className="mt-4 w-full btn-volt py-3 text-sm font-bold text-center"
+                          className="mt-4 w-full py-3 text-sm font-bold text-center rounded-2xl"
+                          style={{
+                            background: d.initialized && Math.round(d.mastery) === 100 ? "#1a1230" : "var(--volt)",
+                            color: d.initialized && Math.round(d.mastery) === 100 ? "var(--volt)" : "var(--ink)",
+                            boxShadow: d.initialized && Math.round(d.mastery) === 100 ? "0 4px 0 0 #0f0a1c" : "var(--shadow-pop)",
+                          }}
                         >
                           Drill this domain
                         </button>
