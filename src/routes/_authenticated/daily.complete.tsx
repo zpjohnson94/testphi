@@ -355,6 +355,10 @@ function CompleteContent({ prev, next, session, onExit }: ContentProps) {
                     momentumActive={
                       next.lastSession!.momentumAfter > 0 && diff.actualGain > diff.baseGain
                     }
+                    isOpen={openDomainId === diff.domainId}
+                    onToggle={() =>
+                      setOpenDomainId((cur) => (cur === diff.domainId ? null : diff.domainId))
+                    }
                   />
                 )}
               </SectionFade>
