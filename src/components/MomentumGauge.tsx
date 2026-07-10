@@ -230,6 +230,14 @@ export function MomentumGauge({ needle, size = 180, animate = true, delayMs = 0 
           0%, 100% { opacity: 0.2; }
           50% { opacity: 1; }
         }
+        @keyframes scorePulse {
+          0%, 100% { transform: scale(${1 + intensity * 0.12}); filter: drop-shadow(0 0 ${6 + intensity * 14}px ${stage.glow}); }
+          50% { transform: scale(${1 + intensity * 0.18}); filter: drop-shadow(0 0 ${6 + intensity * 22}px ${stage.glow}); }
+        }
+        @keyframes scoreFlicker {
+          0%, 100% { opacity: 1; transform: scale(${1 + intensity * 0.12}); }
+          50% { opacity: 0.85; transform: scale(${1 + intensity * 0.2}); }
+        }
       `}</style>
     </div>
   );
