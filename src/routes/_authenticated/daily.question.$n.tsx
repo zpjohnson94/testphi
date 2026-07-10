@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Flame, ArrowRight, HelpCircle } from "lucide-react";
-import { useFreeState, useServeDailyQuestion, useGradeDailyAnswer, usePrefetchDailySet, servedQuestionKey } from "@/lib/useFree";
+import { useFreeState, useServeDailyQuestion, useGradeDailyAnswer, usePrefetchDailySet, servedQuestionKey, usePrewarmDailyFinalize } from "@/lib/useFree";
 import { type ServedQuestion } from "@/lib/dailyAttempt.functions";
 import { PowerUpModal } from "@/components/PowerUpModal";
 import { DiagAvatar, AVATAR_IMAGES, type AvatarId } from "@/components/DiagAvatar";
@@ -24,6 +24,7 @@ function DailyQuestion() {
   const { data: served, isLoading } = useServeDailyQuestion(idx);
   const grade = useGradeDailyAnswer();
   const prefetchAll = usePrefetchDailySet();
+  const prewarmFinalize = usePrewarmDailyFinalize();
   const qc = useQueryClient();
 
   const [selected, setSelected] = useState<number | null>(null);
@@ -135,6 +136,10 @@ function DailyQuestion() {
           correctPosition: result.correctPosition,
         };
       });
+
+      // On Q5, kick off the finalize call in the background so the
+      // /daily/complete interstitial has little or nothing to wait on.
+      if (isLast) prewarmFinalize();
     } catch {
       // Roll back on failure so the user can retry.
       setSubmitted(false);

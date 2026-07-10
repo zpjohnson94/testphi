@@ -434,21 +434,24 @@ export const finalizeDailySession = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<FreeState> => {
     const today = new Date().toISOString().slice(0, 10);
-    const set = await getTodayDailySet();
 
-    const { data: rows } = await context.supabase
-      .from("daily_attempts")
-      .select("slot, question_id, is_correct, elapsed_ms, answered_at")
-      .eq("user_id", context.userId)
-      .eq("set_date", today)
-      .order("slot", { ascending: true });
+    // Parallelize the 3 independent reads: today's set (cacheable), the
+    // user's daily_attempts, and the full FreeState (3 sub-queries).
+    const [set, attemptsRes, prev] = await Promise.all([
+      getTodayDailySet(),
+      context.supabase
+        .from("daily_attempts")
+        .select("slot, question_id, is_correct, elapsed_ms, answered_at")
+        .eq("user_id", context.userId)
+        .eq("set_date", today)
+        .order("slot", { ascending: true }),
+      loadFreeState(context),
+    ]);
 
-    const answered = (rows ?? []).filter((r: any) => r.answered_at != null);
+    const answered = (attemptsRes.data ?? []).filter((r: any) => r.answered_at != null);
     if (answered.length < 5) {
       throw new Error(`Session incomplete: ${answered.length}/5 answered`);
     }
-
-    const prev = await loadFreeState(context);
 
     // Derive SessionResult[] from attempts + today's question meta.
     // `isBonus` is computed against the pre-session mastery state, mirroring
@@ -479,14 +482,17 @@ export const finalizeDailySession = createServerFn({ method: "POST" })
 
     const next = applySessionPure(prev, results);
 
-    // Cold layer: session + answers.
-    const { data: sessionRow } = await context.supabase
+    // Persist mastery/scoring in parallel with the cold-layer session insert.
+    // The response only needs `next`, so the answers insert can chain off the
+    // session insert without blocking the return.
+    const nowIso = new Date().toISOString();
+    const sessionInsert = context.supabase
       .from("sessions")
       .insert({
         user_id: context.userId,
         kind: "daily",
-        started_at: new Date().toISOString(),
-        completed_at: new Date().toISOString(),
+        started_at: nowIso,
+        completed_at: nowIso,
         prev_overall: prev.overall,
         new_overall: next.overall,
         delta: next.overall - prev.overall,
@@ -496,23 +502,24 @@ export const finalizeDailySession = createServerFn({ method: "POST" })
         streak_after: next.streak,
       })
       .select("id")
-      .single();
+      .single()
+      .then(async ({ data: sessionRow }) => {
+        if (!sessionRow?.id) return;
+        const answerRows = results.map((r) => ({
+          session_id: sessionRow.id,
+          user_id: context.userId,
+          question_id: r.questionId ?? String(r.n),
+          domain_id: r.domainId,
+          difficulty: r.difficulty,
+          correct: r.correct,
+          elapsed_seconds: r.elapsedSeconds,
+          is_bonus: !!r.isBonus,
+        }));
+        await context.supabase.from("answers").insert(answerRows);
+      });
 
-    if (sessionRow?.id) {
-      const answerRows = results.map((r) => ({
-        session_id: sessionRow.id,
-        user_id: context.userId,
-        question_id: r.questionId ?? String(r.n),
-        domain_id: r.domainId,
-        difficulty: r.difficulty,
-        correct: r.correct,
-        elapsed_seconds: r.elapsedSeconds,
-        is_bonus: !!r.isBonus,
-      }));
-      await context.supabase.from("answers").insert(answerRows);
-    }
-
-    await persistFreeState(context, next);
+    // Await both so failures still surface, but they run concurrently.
+    await Promise.all([persistFreeState(context, next), sessionInsert]);
     return next;
   });
 
