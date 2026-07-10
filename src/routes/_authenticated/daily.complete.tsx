@@ -202,6 +202,7 @@ function CompleteContent({ prev, next, session, onExit }: ContentProps) {
   const [step, setStep] = useState(0);
   const [bonusDomainId, setBonusDomainId] = useState<string | null>(null);
   const [reviewOpen, setReviewOpen] = useState(false);
+  const [openDomainId, setOpenDomainId] = useState<string | null>(null);
   useEffect(() => {
     if (step >= totalSteps) return;
     const delay = step === 0 ? 40 : 120;
