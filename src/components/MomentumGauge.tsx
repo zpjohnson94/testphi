@@ -188,7 +188,18 @@ export function MomentumGauge({ needle, size = 180, animate = true, delayMs = 0 
       <div className="-mt-1 flex items-center gap-1">
         <span
           className="score-num text-2xl tabular-nums"
-          style={{ color: stage.needle }}
+          style={{
+            color: stage.needle,
+            display: "inline-block",
+            transform: `scale(${1 + intensity * 0.12})`,
+            transformOrigin: "center",
+            filter: `drop-shadow(0 0 ${6 + intensity * 14}px ${stage.glow})`,
+            animation: superElectric
+              ? "scoreFlicker 0.28s steps(2) infinite"
+              : stage.pulse
+                ? "scorePulse 2.4s ease-in-out infinite"
+                : undefined,
+          }}
         >
           {multiplier.toFixed(2)}
         </span>
