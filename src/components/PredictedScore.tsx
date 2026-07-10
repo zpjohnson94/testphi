@@ -6,6 +6,7 @@ interface PredictedScoreProps {
   calibrated: boolean;
   animateFrom?: number;
   sizeClass?: string; // tailwind size class for the digits
+  theme?: "gold" | "default";
 }
 
 export function PredictedScore({
@@ -13,6 +14,7 @@ export function PredictedScore({
   calibrated,
   animateFrom = 800,
   sizeClass = "text-[56px] sm:text-[96px]",
+  theme = "default",
 }: PredictedScoreProps) {
   const [shown, setShown] = useState(animateFrom);
   const [open, setOpen] = useState(false);
