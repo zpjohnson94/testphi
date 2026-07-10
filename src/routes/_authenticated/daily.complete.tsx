@@ -550,7 +550,7 @@ function DomainRow({
 
   const deltaSign = diff.newMastery >= diff.prevMastery ? "+" : "";
   const deltaPct = nowInit && wasInit ? `${deltaSign}${(diff.newMastery - diff.prevMastery).toFixed(1)}%` : "";
-  const [tipOpen, setTipOpen] = useState(false);
+  const tipOpen = isOpen;
   const momentumMult = diff.baseGain !== 0 ? diff.actualGain / diff.baseGain : 1;
   const positiveDelta = diff.newMastery - diff.prevMastery >= 0;
   const hasCorrectAnswer = results.some(
