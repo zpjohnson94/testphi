@@ -202,6 +202,7 @@ function CompleteContent({ prev, next, session, onExit }: ContentProps) {
   const [step, setStep] = useState(0);
   const [bonusDomainId, setBonusDomainId] = useState<string | null>(null);
   const [reviewOpen, setReviewOpen] = useState(false);
+  const [openDomainId, setOpenDomainId] = useState<string | null>(null);
   useEffect(() => {
     if (step >= totalSteps) return;
     const delay = step === 0 ? 40 : 120;
@@ -354,6 +355,10 @@ function CompleteContent({ prev, next, session, onExit }: ContentProps) {
                     momentumActive={
                       next.lastSession!.momentumAfter > 0 && diff.actualGain > diff.baseGain
                     }
+                    isOpen={openDomainId === diff.domainId}
+                    onToggle={() =>
+                      setOpenDomainId((cur) => (cur === diff.domainId ? null : diff.domainId))
+                    }
                   />
                 )}
               </SectionFade>
@@ -487,10 +492,14 @@ function DomainRow({
   diff,
   results,
   momentumActive,
+  isOpen,
+  onToggle,
 }: {
   diff: DomainDiff;
   results: SessionResult[];
   momentumActive: boolean;
+  isOpen: boolean;
+  onToggle: () => void;
 }) {
   const d = domainById(diff.domainId);
   if (!d) return null;
@@ -541,7 +550,7 @@ function DomainRow({
 
   const deltaSign = diff.newMastery >= diff.prevMastery ? "+" : "";
   const deltaPct = nowInit && wasInit ? `${deltaSign}${(diff.newMastery - diff.prevMastery).toFixed(1)}%` : "";
-  const [tipOpen, setTipOpen] = useState(false);
+  const tipOpen = isOpen;
   const momentumMult = diff.baseGain !== 0 ? diff.actualGain / diff.baseGain : 1;
   const positiveDelta = diff.newMastery - diff.prevMastery >= 0;
   const hasCorrectAnswer = results.some(
@@ -582,7 +591,7 @@ function DomainRow({
               {deltaPct && (
                 <DeltaBadge
                   delta={diff.newMastery - diff.prevMastery}
-                  onToggle={() => setTipOpen((v) => !v)}
+                  onToggle={onToggle}
                 />
               )}
             </>
@@ -652,13 +661,13 @@ function DomainRow({
         <>
           <div
             className="fixed inset-0 z-[90]"
-            onClick={() => setTipOpen(false)}
+            onClick={onToggle}
           />
           <div
             className="absolute top-0 left-0 right-0 z-[100] rounded-2xl p-4 text-[12px] leading-relaxed"
             onClick={(e) => {
               e.stopPropagation();
-              setTipOpen(false);
+              onToggle();
             }}
             style={{
               minHeight: "100%",
@@ -677,10 +686,12 @@ function DomainRow({
                 <span style={{ color: "rgba(246,240,250,0.6)" }}>Base {positiveDelta ? "gain" : "loss"}:</span>{" "}
                 <span className="tabular-nums font-bold">{diff.baseGain >= 0 ? "+" : ""}{diff.baseGain.toFixed(1)}%</span>
               </div>
-              <div>
-                <span style={{ color: "rgba(246,240,250,0.6)" }}>Momentum multiplier:</span>{" "}
-                <span className="tabular-nums font-bold">×{momentumMult.toFixed(2)}</span>
-              </div>
+              {positiveDelta && (
+                <div>
+                  <span style={{ color: "rgba(246,240,250,0.6)" }}>Momentum multiplier:</span>{" "}
+                  <span className="tabular-nums font-bold">×{momentumMult.toFixed(2)}</span>
+                </div>
+              )}
               <div className="pt-1 border-t" style={{ borderColor: "rgba(246,240,250,0.15)" }}>
                 <span style={{ color: "rgba(246,240,250,0.6)" }}>Total:</span>{" "}
                 <span className="tabular-nums font-bold" style={{ color: positiveDelta ? "var(--volt)" : "var(--destructive)" }}>
