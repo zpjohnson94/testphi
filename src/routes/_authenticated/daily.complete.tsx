@@ -6,8 +6,10 @@ import {
   DOMAINS,
   SCORING,
   isCalibrated,
+  type DomainDiff,
   type FreeState,
   type LastSession,
+  type SessionResult,
 } from "@/lib/freeUser";
 import { useFinalizeDailySession, useFreeState } from "@/lib/useFree";
 import { PredictedScore } from "@/components/PredictedScore";
