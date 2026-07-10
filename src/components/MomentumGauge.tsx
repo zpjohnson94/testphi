@@ -138,7 +138,7 @@ export function MomentumGauge({ needle, size = 180, animate = true, delayMs = 0 
           {multiplier.toFixed(2)}
         </span>
         <span className="text-xs font-bold" style={{ color: "rgba(246,240,250,0.6)" }}>
-          x momentum
+          x multiplier
         </span>
       </div>
       <style>{`
