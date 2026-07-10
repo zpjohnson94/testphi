@@ -86,8 +86,8 @@ export function MomentumGauge({ needle, size = 180, animate = true, delayMs = 0 
 
   const multiplier = 1 + shown * 0.05;
   const intensity = Math.min(1, shown / 10); // 0..1
-  const electric = shown >= 7;
-  const superElectric = shown >= 9;
+  const electric = shown >= 10;
+  const superElectric = shown >= 10;
 
   return (
     <div className="inline-flex flex-col items-center" style={{ width: w }}>
