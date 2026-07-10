@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Zap, Pencil, Check, X, Wrench, Lock, Unlock } from "lucide-react";
 import { FreeShell } from "@/components/FreeShell";
 import { Avatar, ANIMALS, COLOR_SWATCHES, ACCESSORIES, type AvatarConfig, type AnimalId, type AccessoryId } from "@/components/Avatar";
@@ -250,6 +250,19 @@ function DeveloperMenu({ state }: { state: FreeState }) {
   const [enabled, setEnabled] = useState(false);
   const dev = useDevPatchState();
   const resetDemo = useResetDemo();
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem("dev-mode-enabled");
+      if (stored !== null) setEnabled(JSON.parse(stored));
+    } catch {}
+  }, []);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem("dev-mode-enabled", JSON.stringify(enabled));
+    } catch {}
+  }, [enabled]);
 
   const [momentum, setMomentum] = useState(state.momentumNeedle);
   const [masteryDraft, setMasteryDraft] = useState<Record<string, number>>(() => {
