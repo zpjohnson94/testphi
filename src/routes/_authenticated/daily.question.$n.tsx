@@ -5,6 +5,8 @@ import { Flame, ArrowRight, HelpCircle } from "lucide-react";
 import { useFreeState, useServeDailyQuestion, useGradeDailyAnswer, usePrefetchDailySet, servedQuestionKey } from "@/lib/useFree";
 import { type ServedQuestion } from "@/lib/dailyAttempt.functions";
 import { PowerUpModal } from "@/components/PowerUpModal";
+import { DiagAvatar, AVATAR_IMAGES, type AvatarId } from "@/components/DiagAvatar";
+import { loadDiag, defaultDiag } from "@/lib/diagnostic";
 import { sfx } from "@/lib/sfx";
 
 export const Route = createFileRoute("/_authenticated/daily/question/$n")({
@@ -30,6 +32,10 @@ function DailyQuestion() {
   const [correctPos, setCorrectPos] = useState<number | null>(null);
   const [isCorrect, setIsCorrect] = useState<boolean>(false);
   const [showModal, setShowModal] = useState(false);
+  const [diagAvatar, setDiagAvatar] = useState(() => defaultDiag());
+  useEffect(() => {
+    setDiagAvatar(loadDiag());
+  }, []);
   const streak = freeState?.streak ?? 0;
   const startRef = useRef(Date.now());
   const choiceRefs = useRef<(HTMLButtonElement | null)[]>([]);
@@ -148,9 +154,11 @@ function DailyQuestion() {
   const progressPct = (idx / 5) * 100;
 
   if (!served) {
+    const avatarId = (diagAvatar.avatarId in AVATAR_IMAGES ? diagAvatar.avatarId : "fox") as AvatarId;
     return (
-      <div className="topo-bg topo-dim min-h-screen flex items-center justify-center text-[var(--lavender)]/70 text-sm">
-        {isLoading ? "Loading today's questions…" : "Daily set unavailable."}
+      <div className="topo-bg topo-dim min-h-screen flex flex-col items-center justify-center gap-4 text-[var(--lavender)]/70 text-sm">
+        <DiagAvatar id={avatarId} color={diagAvatar.color || "#B8FF00"} size={88} />
+        <span>{isLoading ? "Loading today's questions…" : "Daily set unavailable."}</span>
       </div>
     );
   }
