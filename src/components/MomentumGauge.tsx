@@ -85,7 +85,9 @@ export function MomentumGauge({ needle, size = 180, animate = true, delayMs = 0 
   }
 
   const multiplier = 1 + shown * 0.05;
-  
+  const intensity = Math.min(1, shown / 10); // 0..1
+  const electric = shown >= 7;
+  const superElectric = shown >= 9;
 
   return (
     <div className="inline-flex flex-col items-center" style={{ width: w }}>
@@ -94,22 +96,75 @@ export function MomentumGauge({ needle, size = 180, animate = true, delayMs = 0 
         height={h + 6}
         viewBox={`0 0 ${w} ${h + 6}`}
         style={{
-          filter: stage.glow !== "transparent" ? `drop-shadow(0 0 14px ${stage.glow})` : undefined,
+          filter: stage.glow !== "transparent" ? `drop-shadow(0 0 ${10 + intensity * 18}px ${stage.glow})` : undefined,
           animation: stage.pulse ? "momentumPulse 2.4s ease-in-out infinite" : undefined,
         }}
       >
+        <defs>
+          <linearGradient id="mg-fill" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stopColor={stage.arc} stopOpacity={0.35} />
+            <stop offset="100%" stopColor={stage.needle} stopOpacity={0.95} />
+          </linearGradient>
+          <radialGradient id="mg-shine" cx="50%" cy="100%" r="90%">
+            <stop offset="0%" stopColor={stage.needle} stopOpacity={0.55} />
+            <stop offset="60%" stopColor={stage.arc} stopOpacity={0.15} />
+            <stop offset="100%" stopColor={stage.arc} stopOpacity={0} />
+          </radialGradient>
+        </defs>
         {/* Gauge face */}
         <path
           d={`M ${cx - r} ${cy} A ${r} ${r} 0 0 1 ${cx + r} ${cy} L ${cx + r - 2} ${cy} A ${r - 2} ${r - 2} 0 0 0 ${cx - r + 2} ${cy} Z`}
           fill={stage.face}
           stroke="rgba(0,0,0,0.4)"
         />
-        {/* Active arc — filled band that traces the gauge face */}
+        {/* Filled wedge — from left edge up to needle angle */}
+        <path
+          d={describeRingArc(cx, cy, r - 3, 6, -90, -90 + (shown / 10) * 180)}
+          fill="url(#mg-fill)"
+          style={{
+            animation: superElectric ? "electricFlicker 0.28s steps(2) infinite" : undefined,
+          }}
+        />
+        {electric && (
+          <path
+            d={describeRingArc(cx, cy, r - 3, 6, -90, -90 + (shown / 10) * 180)}
+            fill="url(#mg-shine)"
+            style={{ mixBlendMode: "screen", animation: "electricSweep 1.6s linear infinite" }}
+          />
+        )}
+        {/* Outer active arc (bright rim) */}
         <path
           d={describeRingArc(cx, cy, r, r - 2, -90, -90 + (shown / 10) * 180)}
           fill={stage.arc}
         />
         {ticks}
+        {/* Lightning bolts at max intensity */}
+        {superElectric && (
+          <g style={{ animation: "boltFlash 0.4s steps(2) infinite" }}>
+            {[0, 1, 2].map((i) => {
+              const a = -80 + (i * 80);
+              const ra = (a * Math.PI) / 180;
+              const x1 = cx + Math.sin(ra) * (r - 20);
+              const y1 = cy - Math.cos(ra) * (r - 20);
+              const x2 = cx + Math.sin(ra) * (r - 4);
+              const y2 = cy - Math.cos(ra) * (r - 4);
+              const mx = (x1 + x2) / 2 + (i % 2 === 0 ? 4 : -4);
+              const my = (y1 + y2) / 2;
+              return (
+                <polyline
+                  key={i}
+                  points={`${x1},${y1} ${mx},${my} ${x2},${y2}`}
+                  fill="none"
+                  stroke={stage.needle}
+                  strokeWidth={1.5}
+                  strokeLinecap="round"
+                  style={{ filter: `drop-shadow(0 0 4px ${stage.needle})` }}
+                />
+              );
+            })}
+          </g>
+        )}
+
         {/* Needle */}
         <g
           style={{
