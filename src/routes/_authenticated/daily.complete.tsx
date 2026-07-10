@@ -555,6 +555,10 @@ function DomainRow({
   const [tipOpen, setTipOpen] = useState(false);
   const momentumMult = diff.baseGain !== 0 ? diff.actualGain / diff.baseGain : 1;
   const positiveDelta = diff.newMastery - diff.prevMastery >= 0;
+  const hasCorrectAnswer = results.some(
+    (r) => r.domainId === diff.domainId && r.correct,
+  );
+  const showCeilingNote = hasCorrectAnswer && Math.abs(diff.actualGain) < 0.05;
 
   return (
     <div
