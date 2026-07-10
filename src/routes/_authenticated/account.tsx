@@ -186,11 +186,14 @@ function AccountPage() {
               <Pencil className="size-4" /> Customize avatar
             </button>
           )}
+
+          <DeveloperMenu state={free} />
         </div>
       </div>
     </FreeShell>
   );
 }
+
 
 function FieldRow({
   label, value, placeholder, type = "text", editing, draft, setDraft, onStart, onSave, onCancel,
