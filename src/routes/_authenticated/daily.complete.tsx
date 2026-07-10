@@ -686,10 +686,12 @@ function DomainRow({
                 <span style={{ color: "rgba(246,240,250,0.6)" }}>Base {positiveDelta ? "gain" : "loss"}:</span>{" "}
                 <span className="tabular-nums font-bold">{diff.baseGain >= 0 ? "+" : ""}{diff.baseGain.toFixed(1)}%</span>
               </div>
-              <div>
-                <span style={{ color: "rgba(246,240,250,0.6)" }}>Momentum multiplier:</span>{" "}
-                <span className="tabular-nums font-bold">×{momentumMult.toFixed(2)}</span>
-              </div>
+              {positiveDelta && (
+                <div>
+                  <span style={{ color: "rgba(246,240,250,0.6)" }}>Momentum multiplier:</span>{" "}
+                  <span className="tabular-nums font-bold">×{momentumMult.toFixed(2)}</span>
+                </div>
+              )}
               <div className="pt-1 border-t" style={{ borderColor: "rgba(246,240,250,0.15)" }}>
                 <span style={{ color: "rgba(246,240,250,0.6)" }}>Total:</span>{" "}
                 <span className="tabular-nums font-bold" style={{ color: positiveDelta ? "var(--volt)" : "var(--destructive)" }}>
