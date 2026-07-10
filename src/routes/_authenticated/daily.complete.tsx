@@ -11,7 +11,7 @@ import {
   type LastSession,
   type SessionResult,
 } from "@/lib/freeUser";
-import { useFinalizeDailySession, useFreeState } from "@/lib/useFree";
+import { useDailyFinalizeResult, useFreeState } from "@/lib/useFree";
 import { PredictedScore } from "@/components/PredictedScore";
 import { MomentumGauge } from "@/components/MomentumGauge";
 import { FreeShell } from "@/components/FreeShell";
