@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Zap, Pencil, Check, X, Wrench, Lock, Unlock } from "lucide-react";
 import { FreeShell } from "@/components/FreeShell";
 import { Avatar, ANIMALS, COLOR_SWATCHES, ACCESSORIES, type AvatarConfig, type AnimalId, type AccessoryId } from "@/components/Avatar";
-import { useFreeState, useUpdateProfile, useResetDemo, useDevPatchState } from "@/lib/useFree";
+import { useFreeState, useUpdateProfile, useResetDemo, useResetDailyToday, useDevPatchState } from "@/lib/useFree";
 import { useHydration, useStore, updateAvatar } from "@/lib/store";
 import { sfx } from "@/lib/sfx";
 import { DOMAINS, SCORING, type FreeState } from "@/lib/freeUser";
