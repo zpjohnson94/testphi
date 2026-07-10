@@ -57,8 +57,6 @@ function HomePage() {
   const calibrated = state ? isCalibrated(state) : false;
   const [momentumOpen, setMomentumOpen] = useState(false);
   const [bonusDomainId, setBonusDomainId] = useState<string | null>(null);
-  const resetDemo = useResetDemo();
-  const isDev = import.meta.env.DEV;
 
   const bonusReadyDomains = useMemo(() => {
     if (!state) return [] as { id: string; name: string; label: string }[];
