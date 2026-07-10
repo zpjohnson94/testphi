@@ -496,9 +496,11 @@ function CalibrationMilestone({ prevScore, newScore }: { prevScore: number; newS
 
 function DomainRow({
   diff,
+  results,
   momentumActive,
 }: {
-  diff: ReturnType<() => FreeState["lastSession"]> extends infer T ? any : never;
+  diff: DomainDiff;
+  results: SessionResult[];
   momentumActive: boolean;
 }) {
   const d = domainById(diff.domainId);
