@@ -109,7 +109,18 @@ export function MissedReviewModal({ open, missed, onClose }: Props) {
 }
 
 function QuestionReview({ slot }: { slot: number }) {
-  const { data, isLoading, error } = useServeDailyQuestion(slot);
+  const { data, isLoading, error, refetch } = useServeDailyQuestion(slot);
+  const qc = useQueryClient();
+
+  useEffect(() => {
+    // The question cache may hold the un-answered prefetch from the session.
+    // Refetch once when the review opens so the server-stored selected/correct
+    // positions are available for highlighting.
+    if (!data?.alreadyAnswered) {
+      qc.invalidateQueries({ queryKey: servedQuestionKey(slot) });
+      refetch();
+    }
+  }, [slot]);
 
   if (isLoading) {
     return <div className="text-sm opacity-70">Loading question…</div>;
