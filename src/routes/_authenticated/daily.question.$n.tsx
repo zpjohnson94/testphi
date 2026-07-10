@@ -24,6 +24,7 @@ function DailyQuestion() {
   const { data: served, isLoading } = useServeDailyQuestion(idx);
   const grade = useGradeDailyAnswer();
   const prefetchAll = usePrefetchDailySet();
+  const prewarmFinalize = usePrewarmDailyFinalize();
   const qc = useQueryClient();
 
   const [selected, setSelected] = useState<number | null>(null);
