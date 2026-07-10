@@ -33,67 +33,56 @@ const NO_MISS_LINES = [
 function DailyComplete() {
   const navigate = useNavigate();
   const { data: freeState } = useFreeState();
-  const finalize = useFinalizeDailySession();
+  const finalize = useDailyFinalizeResult();
   const [prev, setPrev] = useState<FreeState | null>(null);
-  const [next, setNext] = useState<FreeState | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [stuck, setStuck] = useState(false);
-  const submittedRef = useRef(false);
+  const prevCapturedRef = useRef(false);
 
-  const runFinalize = (isRetry = false) => {
-    if (!freeState) return;
-    if (!isRetry) setPrev(freeState);
-    setErrorMsg(null);
-    setStuck(false);
-    finalize.mutate(undefined, {
-      onSuccess: (after) => {
-        if (!after || !after.lastSession) {
-          setErrorMsg("Session finalized but no summary was returned. Try again from Home.");
-          return;
-        }
-        setNext(after);
-      },
-      onError: async (err: any) => {
-        const msg = String(err?.message ?? err ?? "");
-        const m = msg.match(/Session incomplete:\s*(\d+)\/5/i);
-        if (m) {
-          const answered = parseInt(m[1], 10);
-          // User landed here with fewer than 5 attempts persisted (e.g. reset
-          // mid-session, direct nav). Route back rather than loop on "Wrapping up…".
-          if (answered < 5) {
-            if (answered === 0) {
-              navigate({ to: "/home" as any, replace: true });
-            } else {
-              navigate({
-                to: "/daily/question/$n" as any,
-                params: { n: String(answered + 1) } as any,
-                replace: true,
-              });
-            }
-            return;
-          }
-          // 5/5 but grade write not yet visible: retry once.
-          if (!isRetry) {
-            await new Promise((r) => setTimeout(r, 150));
-            runFinalize(true);
-            return;
-          }
-        }
-        setErrorMsg(msg || "Something went wrong finalizing your session.");
-      },
-    });
-  };
+  const next = finalize.data ?? null;
 
-
+  // Capture the pre-session FreeState snapshot the first time we have it, so
+  // deltas render against the right baseline even if the prewarmed finalize
+  // has already updated the freeState cache.
   useEffect(() => {
-    if (submittedRef.current) return;
+    if (prevCapturedRef.current) return;
     if (!freeState) return;
-    submittedRef.current = true;
-    runFinalize(false);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    prevCapturedRef.current = true;
+    setPrev(freeState);
   }, [freeState]);
 
-  // Safety net: if the mutation neither resolves nor errors within 20s,
+  // Handle errors coming out of the finalize query.
+  useEffect(() => {
+    const err = finalize.error as any;
+    if (!err) {
+      setErrorMsg(null);
+      return;
+    }
+    const msg = String(err?.message ?? err ?? "");
+    const m = msg.match(/Session incomplete:\s*(\d+)\/5/i);
+    if (m) {
+      const answered = parseInt(m[1], 10);
+      if (answered === 0) {
+        navigate({ to: "/home" as any, replace: true });
+      } else {
+        navigate({
+          to: "/daily/question/$n" as any,
+          params: { n: String(answered + 1) } as any,
+          replace: true,
+        });
+      }
+      return;
+    }
+    setErrorMsg(msg || "Something went wrong finalizing your session.");
+  }, [finalize.error, navigate]);
+
+  const runRetry = () => {
+    setErrorMsg(null);
+    setStuck(false);
+    finalize.refetch();
+  };
+
+  // Safety net: if the query neither resolves nor errors within 20s,
   // surface an escape hatch so the user isn't frozen on "Wrapping up…".
   useEffect(() => {
     if (next || errorMsg) {
