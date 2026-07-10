@@ -2,18 +2,18 @@
 // Config has three parts the user can customize: animal, color, accessory.
 
 import type { CSSProperties } from "react";
-import bear from "@/assets/avatars/bear.webp";
-import bunny from "@/assets/avatars/bunny.webp";
-import croc from "@/assets/avatars/croc.webp";
-import eagle from "@/assets/avatars/eagle.webp";
-import frog from "@/assets/avatars/frog.webp";
-import koala from "@/assets/avatars/koala.webp";
-import lion from "@/assets/avatars/lion.webp";
-import panda from "@/assets/avatars/panda.webp";
-import penguin from "@/assets/avatars/penguin.webp";
-import pig from "@/assets/avatars/pig.webp";
-import shiba from "@/assets/avatars/shiba.webp";
-import tiger from "@/assets/avatars/tiger.webp";
+import bear from "@/assets/avatars/bear.png";
+import bunny from "@/assets/avatars/bunny.png";
+import croc from "@/assets/avatars/croc.png";
+import eagle from "@/assets/avatars/eagle.png";
+import frog from "@/assets/avatars/frog.png";
+import koala from "@/assets/avatars/koala.png";
+import lion from "@/assets/avatars/lion.png";
+import panda from "@/assets/avatars/panda.png";
+import penguin from "@/assets/avatars/penguin.png";
+import pig from "@/assets/avatars/pig.png";
+import shiba from "@/assets/avatars/shiba.png";
+import tiger from "@/assets/avatars/tiger.png";
 
 export type AnimalId =
   | "bear" | "bunny" | "croc" | "eagle" | "frog" | "koala"
