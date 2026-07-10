@@ -15,7 +15,7 @@ function visualStage(n: number) {
   if (n <= 5) {
     return { face: "#241e16", arc: "#a76a1a", needle: "#ffb74d", glow: "rgba(255,167,38,0.35)", pulse: false, vibrate: false };
   }
-  if (n <= 8) {
+  if (n <= 9) {
     return { face: "#2a210b", arc: "#e0a020", needle: "#ffd54f", glow: "rgba(255,213,79,0.55)", pulse: true, vibrate: false };
   }
   return { face: "#1c2a2e", arc: "#80f0ff", needle: "#e8fbff", glow: "rgba(184,255,255,0.7)", pulse: true, vibrate: true };
@@ -86,8 +86,8 @@ export function MomentumGauge({ needle, size = 180, animate = true, delayMs = 0 
 
   const multiplier = 1 + shown * 0.05;
   const intensity = Math.min(1, shown / 10); // 0..1
-  const electric = shown >= 7;
-  const superElectric = shown >= 9;
+  const electric = shown >= 10;
+  const superElectric = shown >= 10;
 
   return (
     <div className="inline-flex flex-col items-center" style={{ width: w }}>
