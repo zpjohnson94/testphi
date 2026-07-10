@@ -667,7 +667,7 @@ function DomainRow({
             className="absolute top-0 left-0 right-0 z-[100] rounded-2xl p-4 text-[12px] leading-relaxed"
             onClick={(e) => {
               e.stopPropagation();
-              setTipOpen(false);
+              onToggle();
             }}
             style={{
               minHeight: "100%",
