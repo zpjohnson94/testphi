@@ -55,6 +55,7 @@ function HomePage() {
   const monthDelta = lastSession?.delta ?? 0;
   const name = (state?.name || "champ").split(" ")[0];
   const calibrated = state ? isCalibrated(state) : false;
+  const isPerfect = (state?.overall ?? 800) === 1600;
   const [momentumOpen, setMomentumOpen] = useState(false);
   const [bonusDomainId, setBonusDomainId] = useState<string | null>(null);
 
