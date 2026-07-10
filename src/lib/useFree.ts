@@ -119,4 +119,23 @@ export function useResetDemo() {
   });
 }
 
+type DevPatch = {
+  plan?: "free" | "powerup";
+  momentumNeedle?: number;
+  domainMastery?: { domainId: string; mastery: number }[];
+  domainLock?: { domainId: string; locked: boolean; answered?: number }[];
+};
+
+export function useDevPatchState() {
+  const fn = useServerFn(devPatchState);
+  const qc = useQueryClient();
+  return useMutation<FreeState, Error, DevPatch>({
+    mutationFn: (patch) => fn({ data: patch }),
+    onSuccess: (next) => {
+      qc.setQueryData(freeStateKey, next);
+    },
+  });
+}
+
+
 
