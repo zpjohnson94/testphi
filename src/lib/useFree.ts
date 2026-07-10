@@ -3,10 +3,12 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import {
   applySessionFn,
+  devPatchState,
   getFreeState,
   migrateAnonymousDiagnostic,
   updateProfile,
 } from "./free.functions";
+
 
 import type { FreeState, SessionResult } from "./freeUser";
 import type { DiagState } from "./diagnostic";
@@ -116,5 +118,24 @@ export function useResetDemo() {
     },
   });
 }
+
+type DevPatch = {
+  plan?: "free" | "powerup";
+  momentumNeedle?: number;
+  domainMastery?: { domainId: string; mastery: number }[];
+  domainLock?: { domainId: string; locked: boolean; answered?: number }[];
+};
+
+export function useDevPatchState() {
+  const fn = useServerFn(devPatchState);
+  const qc = useQueryClient();
+  return useMutation<FreeState, Error, DevPatch>({
+    mutationFn: (patch) => fn({ data: patch }),
+    onSuccess: (next) => {
+      qc.setQueryData(freeStateKey, next);
+    },
+  });
+}
+
 
 

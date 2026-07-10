@@ -381,3 +381,80 @@ export const updateProfile = createServerFn({ method: "POST" })
     await context.supabase.from("profiles").update(patch).eq("id", context.userId);
     return { ok: true };
   });
+
+// ---------- Dev-only patch (manual overrides from Account > Developer) ----------
+
+const devPatchSchema = z.object({
+  plan: z.enum(["free", "powerup"]).optional(),
+  momentumNeedle: z.number().min(0).max(10).optional(),
+  domainMastery: z
+    .array(z.object({ domainId: z.string(), mastery: z.number().min(0).max(100) }))
+    .optional(),
+  domainLock: z
+    .array(
+      z.object({
+        domainId: z.string(),
+        locked: z.boolean(),
+        answered: z.number().int().min(0).max(SCORING.THRESHOLD_QUESTIONS).optional(),
+      }),
+    )
+    .optional(),
+});
+
+export const devPatchState = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((raw: unknown) => devPatchSchema.parse(raw))
+  .handler(async ({ data, context }) => {
+    const state = await loadState(context);
+
+    if (data.plan) {
+      state.plan = data.plan;
+      await context.supabase
+        .from("profiles")
+        .update({ plan: data.plan })
+        .eq("id", context.userId);
+    }
+
+    if (data.momentumNeedle !== undefined) {
+      state.momentumNeedle = Math.round(data.momentumNeedle);
+      state.lastMomentumDateISO = todayISO();
+    }
+
+    if (data.domainMastery) {
+      for (const m of data.domainMastery) {
+        const stat = state.domainStats[m.domainId];
+        if (!stat) continue;
+        stat.mastery = m.mastery;
+        stat.initialized = true;
+        if (stat.answered < SCORING.THRESHOLD_QUESTIONS) {
+          stat.answered = SCORING.THRESHOLD_QUESTIONS;
+        }
+        stat.lastAnsweredISO = todayISO();
+      }
+    }
+
+    if (data.domainLock) {
+      for (const l of data.domainLock) {
+        const stat = state.domainStats[l.domainId];
+        if (!stat) continue;
+        if (l.locked) {
+          stat.initialized = false;
+          stat.mastery = 0;
+          stat.batch = [];
+          stat.bonusStep = 0;
+          const cap = SCORING.THRESHOLD_QUESTIONS - 1;
+          const target = l.answered !== undefined ? Math.min(l.answered, cap) : Math.min(stat.answered, cap);
+          stat.answered = Math.max(0, target);
+        } else {
+          stat.initialized = true;
+          stat.answered = Math.max(stat.answered, SCORING.THRESHOLD_QUESTIONS);
+          if (stat.mastery <= 0) stat.mastery = 50;
+          stat.lastAnsweredISO = todayISO();
+        }
+      }
+    }
+
+    syncSnapshots(state);
+    await persistState(context, state);
+    return state;
+  });
