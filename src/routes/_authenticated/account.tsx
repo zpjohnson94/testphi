@@ -272,8 +272,8 @@ function DeveloperMenu({ state }: { state: FreeState }) {
         <span className="display text-base" style={{ color: "var(--destructive)" }}>Developer mode</span>
       </div>
 
-      {(() => null)()}
       <div className="px-5 pb-5 space-y-5 border-t" style={{ borderColor: "rgba(255,77,109,0.25)" }}>
+
 
           {/* Plan */}
           <section className="pt-4">
