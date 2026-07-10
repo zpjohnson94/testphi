@@ -243,3 +243,214 @@ function FieldRow({
     </div>
   );
 }
+
+// ============================= Developer Menu =============================
+
+function DeveloperMenu({ state }: { state: FreeState }) {
+  const [enabled, setEnabled] = useState(false);
+  const dev = useDevPatchState();
+  const resetDemo = useResetDemo();
+
+  const [momentum, setMomentum] = useState(state.momentumNeedle);
+  const [masteryDraft, setMasteryDraft] = useState<Record<string, number>>(() => {
+    const m: Record<string, number> = {};
+    for (const d of DOMAINS) m[d.id] = Math.round(state.domainStats[d.id]?.mastery ?? 0);
+    return m;
+  });
+
+  const domainRows = useMemo(() => DOMAINS.map((d) => {
+    const st = state.domainStats[d.id];
+    const locked = !st?.initialized;
+    const remaining = Math.max(0, SCORING.THRESHOLD_QUESTIONS - (st?.answered ?? 0));
+    return { ...d, locked, answered: st?.answered ?? 0, remaining };
+  }), [state]);
+
+  return (
+    <div className="rounded-3xl overflow-hidden" style={{ background: "rgba(255,77,109,0.06)", border: "1.5px dashed rgba(255,77,109,0.55)" }}>
+      <button
+        type="button"
+        onClick={() => setEnabled((v) => !v)}
+        className="w-full flex items-center justify-between px-5 py-4"
+      >
+        <div className="flex items-center gap-2">
+          <Wrench className="size-4" style={{ color: "var(--destructive)" }} />
+          <span className="display text-base" style={{ color: "var(--destructive)" }}>Developer mode</span>
+        </div>
+        <span
+          role="switch"
+          aria-checked={enabled}
+          className="relative w-11 h-6 rounded-full transition-colors"
+          style={{ background: enabled ? "var(--volt)" : "rgba(246,240,250,0.15)" }}
+        >
+          <span
+            className="absolute top-0.5 size-5 rounded-full bg-white transition-transform"
+            style={{ transform: enabled ? "translateX(22px)" : "translateX(2px)" }}
+          />
+        </span>
+      </button>
+
+      {enabled && (
+        <div className="px-5 pb-5 space-y-5 border-t" style={{ borderColor: "rgba(255,77,109,0.25)" }}>
+          {/* Plan */}
+          <section className="pt-4">
+            <div className="text-[11px] font-bold uppercase tracking-widest mb-2" style={{ color: "rgba(246,240,250,0.6)" }}>Plan</div>
+            <div className="grid grid-cols-2 gap-2">
+              {(["free", "powerup"] as const).map((p) => {
+                const active = state.plan === p;
+                return (
+                  <button
+                    key={p}
+                    onClick={() => dev.mutate({ plan: p })}
+                    disabled={dev.isPending}
+                    className="rounded-xl py-2 text-xs font-bold uppercase tracking-wider disabled:opacity-50"
+                    style={{
+                      background: active ? "var(--volt)" : "rgba(246,240,250,0.05)",
+                      color: active ? "var(--ink)" : "var(--lavender)",
+                      border: active ? "1px solid var(--volt)" : "1px solid rgba(246,240,250,0.15)",
+                    }}
+                  >
+                    {p === "free" ? "Free" : "Power Up"}
+                  </button>
+                );
+              })}
+            </div>
+          </section>
+
+          {/* Momentum */}
+          <section>
+            <div className="flex items-center justify-between mb-2">
+              <div className="text-[11px] font-bold uppercase tracking-widest" style={{ color: "rgba(246,240,250,0.6)" }}>Momentum needle</div>
+              <div className="text-xs tabular-nums" style={{ color: "var(--lavender)" }}>
+                {momentum} / 10 · ×{(1 + 0.05 * momentum).toFixed(2)}
+              </div>
+            </div>
+            <input
+              type="range" min={0} max={10} step={1}
+              value={momentum}
+              onChange={(e) => setMomentum(Number(e.target.value))}
+              className="w-full"
+            />
+            <button
+              onClick={() => dev.mutate({ momentumNeedle: momentum })}
+              disabled={dev.isPending || momentum === state.momentumNeedle}
+              className="mt-2 w-full rounded-xl py-2 text-xs font-bold disabled:opacity-40"
+              style={{ background: "rgba(184,255,0,0.15)", color: "var(--volt)", border: "1px solid rgba(184,255,0,0.4)" }}
+            >
+              Set momentum
+            </button>
+          </section>
+
+          {/* Domain mastery + lock */}
+          <section>
+            <div className="text-[11px] font-bold uppercase tracking-widest mb-2" style={{ color: "rgba(246,240,250,0.6)" }}>Domains</div>
+            <div className="space-y-2">
+              {domainRows.map((d) => {
+                const val = masteryDraft[d.id];
+                return (
+                  <div key={d.id} className="rounded-xl p-3" style={{ background: "rgba(0,0,0,0.25)", border: "1px solid rgba(246,240,250,0.08)" }}>
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="text-xs font-bold truncate" style={{ color: "var(--lavender)" }}>{d.label}</div>
+                      <div className="flex items-center gap-1">
+                        {d.locked ? (
+                          <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider" style={{ color: "var(--destructive)" }}>
+                            <Lock className="size-3" /> Locked · {d.remaining} left
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider" style={{ color: "var(--volt)" }}>
+                            <Unlock className="size-3" /> Unlocked
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="mt-2 flex items-center gap-2">
+                      <input
+                        type="range" min={0} max={100} step={1}
+                        value={val}
+                        onChange={(e) => setMasteryDraft((s) => ({ ...s, [d.id]: Number(e.target.value) }))}
+                        className="flex-1"
+                      />
+                      <span className="text-xs tabular-nums w-10 text-right" style={{ color: "var(--lavender)" }}>{val}%</span>
+                      <button
+                        onClick={() => dev.mutate({ domainMastery: [{ domainId: d.id, mastery: val }] })}
+                        disabled={dev.isPending}
+                        className="rounded-lg px-2 py-1 text-[10px] font-bold uppercase tracking-wider disabled:opacity-40"
+                        style={{ background: "var(--volt)", color: "var(--ink)" }}
+                      >
+                        Set
+                      </button>
+                    </div>
+
+                    <div className="mt-2 flex items-center gap-2">
+                      {d.locked ? (
+                        <>
+                          <label className="text-[10px] uppercase tracking-wider" style={{ color: "rgba(246,240,250,0.5)" }}>
+                            Answered
+                          </label>
+                          <input
+                            type="number"
+                            min={0}
+                            max={SCORING.THRESHOLD_QUESTIONS - 1}
+                            value={d.answered}
+                            onChange={(e) => {
+                              const answered = Math.max(0, Math.min(SCORING.THRESHOLD_QUESTIONS - 1, Number(e.target.value) || 0));
+                              dev.mutate({ domainLock: [{ domainId: d.id, locked: true, answered }] });
+                            }}
+                            className="w-14 rounded-md px-2 py-1 text-xs"
+                            style={{ background: "rgba(0,0,0,0.4)", color: "var(--lavender)", border: "1px solid rgba(246,240,250,0.15)" }}
+                          />
+                          <span className="text-[10px]" style={{ color: "rgba(246,240,250,0.5)" }}>
+                            of {SCORING.THRESHOLD_QUESTIONS}
+                          </span>
+                          <button
+                            onClick={() => dev.mutate({ domainLock: [{ domainId: d.id, locked: false }] })}
+                            disabled={dev.isPending}
+                            className="ml-auto rounded-lg px-2 py-1 text-[10px] font-bold uppercase tracking-wider disabled:opacity-40"
+                            style={{ background: "rgba(184,255,0,0.15)", color: "var(--volt)", border: "1px solid rgba(184,255,0,0.4)" }}
+                          >
+                            Unlock
+                          </button>
+                        </>
+                      ) : (
+                        <button
+                          onClick={() => dev.mutate({ domainLock: [{ domainId: d.id, locked: true, answered: 0 }] })}
+                          disabled={dev.isPending}
+                          className="ml-auto rounded-lg px-2 py-1 text-[10px] font-bold uppercase tracking-wider disabled:opacity-40"
+                          style={{ background: "rgba(255,77,109,0.15)", color: "var(--destructive)", border: "1px solid rgba(255,77,109,0.4)" }}
+                        >
+                          Lock
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+
+          {/* Reset */}
+          <section>
+            <button
+              type="button"
+              onClick={() => {
+                if (resetDemo.isPending) return;
+                if (confirm("Reset demo account? This wipes all Daily 5 progress, sessions, streak, and mastery for your account.")) {
+                  resetDemo.mutate();
+                }
+              }}
+              disabled={resetDemo.isPending}
+              className="w-full text-[11px] font-bold uppercase tracking-[0.18em] rounded-full px-4 py-3 disabled:opacity-50"
+              style={{
+                background: "rgba(255,77,109,0.12)",
+                border: "1px dashed rgba(255,77,109,0.6)",
+                color: "var(--destructive)",
+              }}
+            >
+              {resetDemo.isPending ? "Resetting…" : "Reset demo account"}
+            </button>
+          </section>
+        </div>
+      )}
+    </div>
+  );
+}
