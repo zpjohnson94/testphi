@@ -206,6 +206,19 @@ export function MomentumGauge({ needle, size = 180, animate = true, delayMs = 0 
           50% { transform: rotate(0.6deg); }
           100% { transform: rotate(-0.6deg); }
         }
+        @keyframes electricFlicker {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.75; }
+        }
+        @keyframes electricSweep {
+          0% { opacity: 0.2; transform: translateX(-2px); }
+          50% { opacity: 0.9; transform: translateX(2px); }
+          100% { opacity: 0.2; transform: translateX(-2px); }
+        }
+        @keyframes boltFlash {
+          0%, 100% { opacity: 0.2; }
+          50% { opacity: 1; }
+        }
       `}</style>
     </div>
   );
