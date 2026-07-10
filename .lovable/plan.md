@@ -1,80 +1,58 @@
-# Bonus Round Unlock Card + Chest Reveal
+## Why it feels slow today
 
-## Important note before building
+The `/daily/complete` screen shows the spinner until one big server call — `finalizeDailySession` — resolves. That call:
 
-The spec says "Bonus round question selection … is already handled server-side — don't touch that logic." In the current codebase this is only half-true:
+1. Runs `loadFreeState` (3 DB reads) — serially before anything else
+2. Then fetches today's `daily_attempts` (4th DB read)
+3. Then loads today's daily set
+4. Then inserts a `sessions` row
+5. Then inserts 5 `answers` rows
+6. Then does 2 upserts to persist scoring + mastery
 
-- `isBonusQuestionFor` / `nextBonusDifficulty` exist in `src/lib/freeUser.ts`.
-- BUT bonus questions are only served **inline inside the Daily 5 slot flow** (`dailyAttempt.functions.ts` → `serveDailyQuestion(slot)` → returns bonus flag when the domain crosses threshold during that slot). There is no standalone "serve me 3 bonus questions for domain X, on demand" server function today.
+Only *after* all of that does the UI unblock. On top of that, the reveal animation itself adds ~2s of staggered fades (260ms × ~8 sections) before the "Finish Session" button appears.
 
-So to build the modal that serves Easy → Medium → Hard for a specific domain outside the Daily 5, one of these has to be true:
+And critically: none of this starts until the user taps "Next" on Q5 and lands on `/daily/complete`. The network round-trip is entirely on the critical path.
 
-**Option A (recommended, smaller):** Add a thin new server function `serveBonusRoundForDomain(domainId)` that returns the 3 fixed-order questions (E/M/H) using the existing bank + selection helpers, plus `gradeBonusAnswer` that writes attempts identical to the Daily 5 grader but flagged `is_bonus`. Mastery init still happens automatically in `applyOneResult` when `bonusStep >= 3`. No scoring logic changes.
+## Plan
 
-**Option B:** Keep the current inline behavior — the "unlock ready" card just deep-links the user back into the next Daily 5 where the bonus questions are auto-injected. Simpler, but the spec's "3 more questions — Easy, Medium, and Hard" modal isn't literally the Daily 5.
+### 1. Prewarm finalize on Q5 grade (biggest win)
 
-I'll assume **Option A** unless you say otherwise.
+In `daily.question.$n.tsx`, as soon as Q5 is graded successfully, kick off `finalizeDailySession` in the background and stash the promise/result on the query cache (e.g. under a `["dailyFinalize", today]` key). The `/daily/complete` route reads from that key instead of firing its own mutation. By the time the user reads the correct/incorrect feedback for Q5 and taps Next, the finalize call is usually already done — the interstitial either flashes or skips entirely.
 
-## Scope
+Guardrails:
+- If the user refreshes `/daily/complete` directly (no cached promise), fall back to today's existing behavior of firing the mutation on mount.
+- Keep `submittedRef` idempotency so we never double-finalize.
 
-UI/UX only. No changes to scoring, mastery init, momentum, or streak logic.
+### 2. Parallelize server work inside `finalizeDailySession`
 
-## Files touched
+In `src/lib/dailyAttempt.functions.ts`:
+- Run `loadFreeState`, the `daily_attempts` fetch, and `getTodayDailySet()` concurrently with `Promise.all` instead of serially.
+- After computing `next`, run the 3 writes concurrently: `sessions` insert (needed for its id), then in parallel the `answers` insert and `persistFreeState` upserts.
+- Return the `FreeState` response as soon as `persistFreeState` resolves; treat the `answers` insert as fire-and-forget (nothing in the UI reads it in this session — the review modal reads from the client cache of served questions). If we want strict durability, still `await` it but in parallel with persistFreeState.
 
-### New
+Expected: ~30–50% reduction in server time (from ~4 serial round-trips to ~2).
 
-- `src/components/UnlockReadyCard.tsx` — chartreuse vibrating card with electric texture, tappable.
-- `src/components/BonusUnlockModal.tsx` — the 5-screen modal (Start → Q1 → Q2 → Q3 → Chest).
-- `src/components/ChestReveal.tsx` — chest illustration + tap-to-crack interaction + mastery reveal.
-- `src/assets/chest-buried.png` — new illustration (imagegen, same art style as avatars).
-- `src/lib/bonusRound.functions.ts` — `serveBonusRound({domainId})` returns 3 fixed-order questions; `gradeBonusAnswer(...)` writes attempts with `is_bonus=true`. Both are auth-gated `createServerFn`s that reuse existing selection/grade helpers.
-- `src/lib/useBonusRound.ts` — `useServeBonusRound(domainId)`, `useGradeBonusAnswer()`.
+### 3. Trim the reveal choreography
 
-### Edited
+In `daily.complete.tsx` `CompleteContent`:
+- Drop the per-step delay from 260ms → 120ms.
+- Reveal all domain rows together instead of one-per-step (they're the bulk of the steps).
+- Show the "Finish Session" button as soon as the last conditional section (momentum/streak) has faded in, not on an extra timer beat.
 
-- `src/routes/_authenticated/skill-map.tsx` — for each domain where `!initialized && answered >= THRESHOLD && bonusStep < 3`, replace the mastery box with `<UnlockReadyCard />`. Tapping opens `<BonusUnlockModal />`.
-- `src/routes/_authenticated/daily.complete.tsx` — in `DomainRow`, when a domain became bonus-ready this session (`diff.bonusUnlockedThisSession && !diff.nowInitialized`), render `<UnlockReadyCard />` in place of the progress-bar block.
-- `src/routes/_authenticated/home.tsx` — if any domain is bonus-ready, show a compact list of `<UnlockReadyCard />`s above the Daily 5 card.
-- `src/styles.css` — 2 keyframes: `unlock-vibrate` (subtle continuous shake) and `electric-flow` (SVG stroke-dashoffset loop for the lightning texture).
+This shaves ~1.5s off perceived wait even when finalize is instant.
 
-## Key visual/interaction details
+### 4. Better placeholder while we wait
 
-### UnlockReadyCard
-- Full-bleed chartreuse (`var(--volt)` = `#B8FF00`) background.
-- Continuous `unlock-vibrate` (~0.35° rotate + 1px translate, 90ms loop, `prefers-reduced-motion: reduce` disables).
-- SVG overlay: two jagged polylines with `stroke-dasharray` animated on `stroke-dashoffset` to give the flowing lightning look. Uses `mix-blend-mode: overlay` for the "across the surface" wash.
-- Copy: **"{Domain Name} Mastery score ready to unlock"** + tiny "Tap to begin →" affordance.
+While the (now hopefully brief) call is still pending, replace the generic spinner with an optimistic scaffold: predicted score frame with a subtle shimmer, and the missed-count card computed from the local cache of served questions (we already know which of the 5 are correct client-side). If finalize resolves in under ~150ms, skip the scaffold entirely to avoid a flash.
 
-### BonusUnlockModal
-- Full-screen sheet, chartreuse-tinted backdrop.
-- **Screen 1 (Start):** spec copy verbatim + single "Begin" button.
-- **Screens 2–4 (Questions):** renders the same visual shell as `daily.question.$n.tsx` (lavender card, choices, timer). Extracts the question card into a reusable `<QuestionCard />` component — or inlines the JSX for now with a note. Timer starts on mount, elapsedMs sent to `gradeBonusAnswer`.
-- Auto-advances to next screen 800ms after grade returns.
-- **Screen 5 (Chest):** described below.
+### Technical notes
 
-### ChestReveal
-- Full-screen dark backdrop with a chartreuse radial glow at the bottom.
-- Chest illustration half-buried in sand (`chest-buried.png`), centered.
-- Idle: gentle scale pulse 1.0 ↔ 1.04 at 2.4s ease-in-out.
-- "TAP to unlock!" text below.
-- On each tap (up to 12):
-  - Emit 6–10 sand particles from base of chest, fly outward + fall with gravity, fade after 700ms.
-  - Chest shakes: amplitude grows linearly with tap count (2° → 12° rotation range, 60ms period).
-  - sfx.tap() on each.
-- Tap 12: chest scales up + rotates, screen flashes chartreuse (full-viewport `background: var(--volt)` opacity 0→1→0 over 500ms), then reveal the initialized mastery % using the existing `CalibrationMilestone`-style celebration (reuse styling: chartreuse border + radial pulse + big `PredictedScore`-style number). "Continue" button closes modal and refetches free state so the domain box now shows the initialized mastery.
+- Files touched: `src/routes/_authenticated/daily.question.$n.tsx` (prewarm), `src/routes/_authenticated/daily.complete.tsx` (read prewarmed result, reveal timing, optimistic scaffold), `src/lib/dailyAttempt.functions.ts` (parallelize), and a small helper in `src/lib/useFree.ts` for the shared cache key.
+- No schema or RLS changes.
+- No behavior change to grading correctness or persisted state — same writes, just concurrent and started sooner.
+- Error handling stays the same: existing retry/"stuck after 20s" fallback UI still applies if the prewarmed call fails.
 
-## Data flow
+### Out of scope
 
-1. Modal mounts → `useServeBonusRound(domainId)` fetches all 3 questions.
-2. User answers each → `gradeBonusAnswer({attemptId, selectedPosition, elapsedMs})` → server writes attempt row with `is_bonus=true`. Server does NOT eagerly initialize mastery on Q3 — it stays the responsibility of `applySession` / whichever aggregator already handles it (need to confirm during implementation; may add a small `finalizeBonusRound({domainId})` that runs the same `applyOneResult` loop as Daily 5 finalize but scoped to bonus attempts, so mastery init fires deterministically before the chest reveal).
-3. After finalize, refetch `freeState`; the newly initialized mastery is what the chest reveals.
-
-## Out of scope
-
-- Any change to scoring formulas, momentum, streak.
-- Analytics events (can add later if desired).
-- Sound design beyond existing `sfx.tap()`.
-
-## Open question for you
-
-Confirm **Option A** (new small server function for standalone bonus round) vs **Option B** (just deep-link into Daily 5). Option A matches the spec literally; Option B ships faster but the modal would only cover the "not calibrated yet" card + chest, and the 3 questions would still happen inside the regular Daily 5.
+- Restructuring finalize into per-question incremental aggregation (bigger refactor; the wins above should be enough).
+- Changing the visual design of the complete screen.
