@@ -3,7 +3,7 @@ import { Home, Grid3x3, User2 } from "lucide-react";
 
 export function FreeShell({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen pb-24">
+    <div className="min-h-screen">
       {children}
       <FreeBottomNav />
     </div>
