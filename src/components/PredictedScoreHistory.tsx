@@ -172,10 +172,12 @@ export function PredictedScoreHistory({ state }: { state: FreeState }) {
               dataKey="ts"
               type="number"
               domain={["dataMin", "dataMax"]}
+              ticks={points.map((p) => p.ts)}
               tickFormatter={fmtShort}
               tick={{ fill: "rgba(246,240,250,0.55)", fontSize: 10 }}
               axisLine={{ stroke: "rgba(246,240,250,0.15)" }}
               tickLine={false}
+              interval="preserveStartEnd"
               minTickGap={28}
             />
             <YAxis
