@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SignupRouteImport } from './routes/signup'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as PlansRouteImport } from './routes/plans'
@@ -25,6 +26,8 @@ import { Route as LearnMathRouteImport } from './routes/learn.math'
 import { Route as DiagnosticResultsPreviewRouteImport } from './routes/diagnostic.results-preview'
 import { Route as DiagnosticResultsRouteImport } from './routes/diagnostic.results'
 import { Route as DiagnosticAvatarRouteImport } from './routes/diagnostic.avatar'
+import { Route as AuthForgotRouteImport } from './routes/auth.forgot'
+import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
 import { Route as AuthenticatedSkillMapRouteImport } from './routes/_authenticated/skill-map'
 import { Route as AuthenticatedHomeRouteImport } from './routes/_authenticated/home'
 import { Route as AuthenticatedAccountRouteImport } from './routes/_authenticated/account'
@@ -37,6 +40,11 @@ import { Route as AuthenticatedDailyQuestionNRouteImport } from './routes/_authe
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
   path: '/signup',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProfileRoute = ProfileRouteImport.update({
@@ -114,6 +122,16 @@ const DiagnosticAvatarRoute = DiagnosticAvatarRouteImport.update({
   path: '/diagnostic/avatar',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthForgotRoute = AuthForgotRouteImport.update({
+  id: '/forgot',
+  path: '/forgot',
+  getParentRoute: () => AuthRoute,
+} as any)
+const AuthCallbackRoute = AuthCallbackRouteImport.update({
+  id: '/callback',
+  path: '/callback',
+  getParentRoute: () => AuthRoute,
+} as any)
 const AuthenticatedSkillMapRoute = AuthenticatedSkillMapRouteImport.update({
   id: '/skill-map',
   path: '/skill-map',
@@ -160,16 +178,19 @@ const AuthenticatedDailyQuestionNRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/auth': typeof AuthRoute
+  '/auth': typeof AuthRouteWithChildren
   '/coming-soon': typeof ComingSoonRoute
   '/dashboard': typeof DashboardRoute
   '/plans': typeof PlansRoute
   '/privacy': typeof PrivacyRoute
   '/profile': typeof ProfileRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
   '/account': typeof AuthenticatedAccountRoute
   '/home': typeof AuthenticatedHomeRoute
   '/skill-map': typeof AuthenticatedSkillMapRoute
+  '/auth/callback': typeof AuthCallbackRoute
+  '/auth/forgot': typeof AuthForgotRoute
   '/diagnostic/avatar': typeof DiagnosticAvatarRoute
   '/diagnostic/results': typeof DiagnosticResultsRoute
   '/diagnostic/results-preview': typeof DiagnosticResultsPreviewRoute
@@ -185,16 +206,19 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/auth': typeof AuthRoute
+  '/auth': typeof AuthRouteWithChildren
   '/coming-soon': typeof ComingSoonRoute
   '/dashboard': typeof DashboardRoute
   '/plans': typeof PlansRoute
   '/privacy': typeof PrivacyRoute
   '/profile': typeof ProfileRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
   '/account': typeof AuthenticatedAccountRoute
   '/home': typeof AuthenticatedHomeRoute
   '/skill-map': typeof AuthenticatedSkillMapRoute
+  '/auth/callback': typeof AuthCallbackRoute
+  '/auth/forgot': typeof AuthForgotRoute
   '/diagnostic/avatar': typeof DiagnosticAvatarRoute
   '/diagnostic/results': typeof DiagnosticResultsRoute
   '/diagnostic/results-preview': typeof DiagnosticResultsPreviewRoute
@@ -212,16 +236,19 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
-  '/auth': typeof AuthRoute
+  '/auth': typeof AuthRouteWithChildren
   '/coming-soon': typeof ComingSoonRoute
   '/dashboard': typeof DashboardRoute
   '/plans': typeof PlansRoute
   '/privacy': typeof PrivacyRoute
   '/profile': typeof ProfileRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
   '/_authenticated/account': typeof AuthenticatedAccountRoute
   '/_authenticated/home': typeof AuthenticatedHomeRoute
   '/_authenticated/skill-map': typeof AuthenticatedSkillMapRoute
+  '/auth/callback': typeof AuthCallbackRoute
+  '/auth/forgot': typeof AuthForgotRoute
   '/diagnostic/avatar': typeof DiagnosticAvatarRoute
   '/diagnostic/results': typeof DiagnosticResultsRoute
   '/diagnostic/results-preview': typeof DiagnosticResultsPreviewRoute
@@ -245,10 +272,13 @@ export interface FileRouteTypes {
     | '/plans'
     | '/privacy'
     | '/profile'
+    | '/reset-password'
     | '/signup'
     | '/account'
     | '/home'
     | '/skill-map'
+    | '/auth/callback'
+    | '/auth/forgot'
     | '/diagnostic/avatar'
     | '/diagnostic/results'
     | '/diagnostic/results-preview'
@@ -270,10 +300,13 @@ export interface FileRouteTypes {
     | '/plans'
     | '/privacy'
     | '/profile'
+    | '/reset-password'
     | '/signup'
     | '/account'
     | '/home'
     | '/skill-map'
+    | '/auth/callback'
+    | '/auth/forgot'
     | '/diagnostic/avatar'
     | '/diagnostic/results'
     | '/diagnostic/results-preview'
@@ -296,10 +329,13 @@ export interface FileRouteTypes {
     | '/plans'
     | '/privacy'
     | '/profile'
+    | '/reset-password'
     | '/signup'
     | '/_authenticated/account'
     | '/_authenticated/home'
     | '/_authenticated/skill-map'
+    | '/auth/callback'
+    | '/auth/forgot'
     | '/diagnostic/avatar'
     | '/diagnostic/results'
     | '/diagnostic/results-preview'
@@ -317,12 +353,13 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
-  AuthRoute: typeof AuthRoute
+  AuthRoute: typeof AuthRouteWithChildren
   ComingSoonRoute: typeof ComingSoonRoute
   DashboardRoute: typeof DashboardRoute
   PlansRoute: typeof PlansRoute
   PrivacyRoute: typeof PrivacyRoute
   ProfileRoute: typeof ProfileRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
   SignupRoute: typeof SignupRoute
   DiagnosticAvatarRoute: typeof DiagnosticAvatarRoute
   DiagnosticResultsRoute: typeof DiagnosticResultsRoute
@@ -343,6 +380,13 @@ declare module '@tanstack/react-router' {
       path: '/signup'
       fullPath: '/signup'
       preLoaderRoute: typeof SignupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/profile': {
@@ -450,6 +494,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DiagnosticAvatarRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/auth/forgot': {
+      id: '/auth/forgot'
+      path: '/forgot'
+      fullPath: '/auth/forgot'
+      preLoaderRoute: typeof AuthForgotRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/auth/callback': {
+      id: '/auth/callback'
+      path: '/callback'
+      fullPath: '/auth/callback'
+      preLoaderRoute: typeof AuthCallbackRouteImport
+      parentRoute: typeof AuthRoute
+    }
     '/_authenticated/skill-map': {
       id: '/_authenticated/skill-map'
       path: '/skill-map'
@@ -528,15 +586,28 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
 const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
+interface AuthRouteChildren {
+  AuthCallbackRoute: typeof AuthCallbackRoute
+  AuthForgotRoute: typeof AuthForgotRoute
+}
+
+const AuthRouteChildren: AuthRouteChildren = {
+  AuthCallbackRoute: AuthCallbackRoute,
+  AuthForgotRoute: AuthForgotRoute,
+}
+
+const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
-  AuthRoute: AuthRoute,
+  AuthRoute: AuthRouteWithChildren,
   ComingSoonRoute: ComingSoonRoute,
   DashboardRoute: DashboardRoute,
   PlansRoute: PlansRoute,
   PrivacyRoute: PrivacyRoute,
   ProfileRoute: ProfileRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
   SignupRoute: SignupRoute,
   DiagnosticAvatarRoute: DiagnosticAvatarRoute,
   DiagnosticResultsRoute: DiagnosticResultsRoute,
@@ -552,13 +623,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

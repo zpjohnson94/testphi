@@ -1,58 +1,64 @@
-## Why it feels slow today
+## Problem
 
-The `/daily/complete` screen shows the spinner until one big server call — `finalizeDailySession` — resolves. That call:
+The current signup flow doesn't create real accounts:
 
-1. Runs `loadFreeState` (3 DB reads) — serially before anything else
-2. Then fetches today's `daily_attempts` (4th DB read)
-3. Then loads today's daily set
-4. Then inserts a `sessions` row
-5. Then inserts 5 `answers` rows
-6. Then does 2 upserts to persist scoring + mastery
-
-Only *after* all of that does the UI unblock. On top of that, the reveal animation itself adds ~2s of staggered fades (260ms × ~8 sections) before the "Finish Session" button appears.
-
-And critically: none of this starts until the user taps "Next" on Q5 and lands on `/daily/complete`. The network round-trip is entirely on the critical path.
+- `/signup` collects name+email into the `signups` marketing table but never calls Supabase auth. The "account" doesn't exist.
+- After `/signup → /plans`, "Continue with Free" routes to `/home`, which is protected — the user is bounced to `/auth` and asked for their email again (magic link).
+- No Google option anywhere, despite Lovable Cloud defaults.
 
 ## Plan
 
-### 1. Prewarm finalize on Q5 grade (biggest win)
+### 1. `/signup` becomes real account creation
 
-In `daily.question.$n.tsx`, as soon as Q5 is graded successfully, kick off `finalizeDailySession` in the background and stash the promise/result on the query cache (e.g. under a `["dailyFinalize", today]` key). The `/daily/complete` route reads from that key instead of firing its own mutation. By the time the user reads the correct/incorrect feedback for Q5 and taps Next, the finalize call is usually already done — the interstitial either flashes or skips entirely.
+Rewrite `src/routes/signup.tsx` with:
+- Name, email, password fields (zod-validated: email format, password ≥ 8 chars).
+- "Continue with Google" button using `lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin + "/auth/callback" })`.
+- On email submit: `supabase.auth.signUp({ email, password, options: { data: { name }, emailRedirectTo: window.location.origin + "/auth/callback" } })`.
+- Keep the existing `submitSignup` call so marketing capture still happens (fire-and-forget after auth succeeds).
+- On success (session returned immediately, since email confirmation is currently off): navigate to `/plans`.
+- If Supabase is configured to require email confirmation later, show a "check your email" state instead.
+- Link at bottom: "Already have an account? Sign in" → `/auth`.
 
-Guardrails:
-- If the user refreshes `/daily/complete` directly (no cached promise), fall back to today's existing behavior of firing the mutation on mount.
-- Keep `submittedRef` idempotency so we never double-finalize.
+The existing `handle_new_user` DB trigger already creates the `profiles` row from `raw_user_meta_data.name`, so no schema work is needed.
 
-### 2. Parallelize server work inside `finalizeDailySession`
+### 2. Add a public `/auth/callback` route
 
-In `src/lib/dailyAttempt.functions.ts`:
-- Run `loadFreeState`, the `daily_attempts` fetch, and `getTodayDailySet()` concurrently with `Promise.all` instead of serially.
-- After computing `next`, run the 3 writes concurrently: `sessions` insert (needed for its id), then in parallel the `answers` insert and `persistFreeState` upserts.
-- Return the `FreeState` response as soon as `persistFreeState` resolves; treat the `answers` insert as fire-and-forget (nothing in the UI reads it in this session — the review modal reads from the client cache of served questions). If we want strict durability, still `await` it but in parallel with persistFreeState.
+New file `src/routes/auth.callback.tsx`:
+- Public route (SSR off) that waits for `supabase.auth.getSession()` / `onAuthStateChange`.
+- Once a session exists, navigate to `/plans` for brand-new users or `/home` for returning users. We can detect "new" by whether `sessionStorage` has a `post_signup_pending` flag set on `/signup` submit; otherwise default to `/home`.
+- Renders a minimal "Signing you in…" spinner.
 
-Expected: ~30–50% reduction in server time (from ~4 serial round-trips to ~2).
+This is the OAuth `redirect_uri` target and satisfies the rule that OAuth must not return directly into a protected route.
 
-### 3. Trim the reveal choreography
+### 3. `/auth` becomes sign-in only
 
-In `daily.complete.tsx` `CompleteContent`:
-- Drop the per-step delay from 260ms → 120ms.
-- Reveal all domain rows together instead of one-per-step (they're the bulk of the steps).
-- Show the "Finish Session" button as soon as the last conditional section (momentum/streak) has faded in, not on an extra timer beat.
+Rewrite `src/routes/auth.tsx`:
+- Email + password sign-in form (`supabase.auth.signInWithPassword`).
+- "Continue with Google" button (same `lovable.auth.signInWithOAuth` call).
+- Small "Forgot password?" link → `/auth/forgot` (new minimal route that calls `resetPasswordForEmail` with `redirectTo: origin + "/reset-password"`).
+- New `/reset-password` route that reads the recovery token and calls `supabase.auth.updateUser({ password })`.
+- Keep the existing "Preview as demo user" button.
+- Remove the magic-link flow (superseded by password + Google) unless you'd rather keep it — say the word and I'll leave it as a third option.
 
-This shaves ~1.5s off perceived wait even when finalize is instant.
+### 4. Enable Google provider
 
-### 4. Better placeholder while we wait
+Call `supabase--configure_social_auth` with `providers: ["google"]` in the same change so first click doesn't error with "Unsupported provider". Email/password stays enabled.
 
-While the (now hopefully brief) call is still pending, replace the generic spinner with an optimistic scaffold: predicted score frame with a subtle shimmer, and the missed-count card computed from the local cache of served questions (we already know which of the 5 are correct client-side). If finalize resolves in under ~150ms, skip the scaffold entirely to avoid a flash.
+### 5. Plans routing stays as-is
 
-### Technical notes
+`/plans` "Continue with Free" → `/home` now works because the user has a real session. Power Up still goes to `/coming-soon`.
 
-- Files touched: `src/routes/_authenticated/daily.question.$n.tsx` (prewarm), `src/routes/_authenticated/daily.complete.tsx` (read prewarmed result, reveal timing, optimistic scaffold), `src/lib/dailyAttempt.functions.ts` (parallelize), and a small helper in `src/lib/useFree.ts` for the shared cache key.
-- No schema or RLS changes.
-- No behavior change to grading correctness or persisted state — same writes, just concurrent and started sooner.
-- Error handling stays the same: existing retry/"stuck after 20s" fallback UI still applies if the prewarmed call fails.
+## Files
 
-### Out of scope
+- edit `src/routes/signup.tsx` — real signup form
+- edit `src/routes/auth.tsx` — password + Google sign-in
+- new `src/routes/auth.callback.tsx` — OAuth landing
+- new `src/routes/auth.forgot.tsx` — request reset email
+- new `src/routes/reset-password.tsx` — set new password
+- call `supabase--configure_social_auth` for Google
 
-- Restructuring finalize into per-question incremental aggregation (bigger refactor; the wins above should be enough).
-- Changing the visual design of the complete screen.
+## Out of scope
+
+- Email confirmation / verification UX (assumes current auto-confirm setting; happy to add if you want it required).
+- Password strength meter, CAPTCHA, rate limiting.
+- Migrating the `signups` marketing table into `profiles` — kept separate as today.
