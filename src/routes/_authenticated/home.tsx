@@ -164,6 +164,7 @@ function HomePage() {
                 <div className="score-num text-2xl sm:text-3xl text-[var(--lavender)]">{mathScore}</div>
               </div>
             </div>
+            {state && <PredictedScoreHistory state={state} />}
           </section>
 
           {/* Bonus round unlock cards (one per domain that's ready) */}
