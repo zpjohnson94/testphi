@@ -325,10 +325,13 @@ function HomePage() {
                     boxShadow: "0 8px 24px rgba(0,0,0,0.5)",
                   }}
                 >
+                  <div className="text-[11px] font-bold uppercase tracking-wider mb-2" style={{ color: "var(--volt)" }}>
+                    Momentum
+                  </div>
                   Momentum rewards consistency. Complete the Daily 5 to raise it by 1. Miss a day and it decays by 1.
                   <br />
                   <br />
-                  Higher momentum means higher gains for correct answers. Each level adds +0.05 to your mastery multiplier. 
+                  Higher momentum means higher gains for correct answers. Each level adds +0.05 to your mastery multiplier.
                 </div>
               )}
             </div>
