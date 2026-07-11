@@ -104,7 +104,7 @@ function HomePage() {
                 <div
                   className="display text-2xl text-[var(--lavender)] whitespace-pre-line"
                 >
-                  {`Hey ${name}!\nYour predicted SAT score`}
+                  {`Hey ${name}!\nYour predicted score:`}
                 </div>
                 <div className="mt-2 sm:mt-3">
                   <PredictedScore
