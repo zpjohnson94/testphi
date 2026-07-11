@@ -277,67 +277,36 @@ function HomePage() {
             )}
           </section>
 
-          {/* Momentum card — matches Daily 5 design */}
-          <section
-            className="rounded-3xl p-6 backdrop-blur-md flex flex-col relative"
-            style={{
-              background: "color-mix(in oklab, var(--violet-deep) 45%, transparent)",
-              border: "2px solid var(--neon)",
-            }}
-          >
-            <div className="absolute top-3 right-3 z-10">
-              <button
-                type="button"
-                onClick={() => setMomentumOpen((v) => !v)}
-                onMouseEnter={() => setMomentumOpen(true)}
-                onMouseLeave={() => setMomentumOpen(false)}
-                className="inline-flex rounded-full p-1"
-                style={{ color: "rgba(246,240,250,0.55)" }}
-                aria-label="What is momentum?"
-              >
-                <Info className="size-3.5" />
-              </button>
-              {momentumOpen && (
-                <div
-                  className="absolute z-40 right-0 top-full mt-2 w-64 sm:w-72 rounded-xl p-3 text-xs leading-relaxed"
-                  style={{
-                    background: "rgba(20,12,40,0.97)",
-                    border: "1px solid rgba(168,85,247,0.5)",
-                    color: "rgba(246,240,250,0.92)",
-                    boxShadow: "0 8px 24px rgba(0,0,0,0.5)",
-                  }}
-                >
-                  Momentum rewards consistency. Complete a full Daily 5 session to raise it by 1; each level adds +0.05 to your mastery multiplier. Miss a day and it decays by 1.
-                </div>
-              )}
-            </div>
-
-            <div className="relative mb-1 flex items-center gap-1.5 w-full justify-start">
+          {/* Momentum + Streak row */}
+          <div className="grid gap-4 sm:grid-cols-[auto,1fr] items-center justify-items-center">
+            <div
+              className="rounded-3xl p-4 flex flex-col items-center"
+              style={{
+                background: "rgba(0,0,0,0.35)",
+                border: "1px solid rgba(246,240,250,0.1)",
+              }}
+            >
               <div
-                className="display text-2xl text-[var(--lavender)] mt-1 text-left"
+                className="text-[10px] font-bold uppercase tracking-[0.18em] mb-1"
+                style={{ color: "rgba(246,240,250,0.65)" }}
               >
                 Momentum
               </div>
-            </div>
-            <div className="flex justify-center w-full">
               <MomentumGauge needle={state?.momentumNeedle ?? 0} size={180} />
             </div>
-          </section>
-
-          {/* Streak card */}
-          <section
-            className="rounded-3xl p-4 backdrop-blur-md flex items-center justify-center gap-3"
-            style={{
-              background: "color-mix(in oklab, var(--violet-deep) 45%, transparent)",
-              border: "2px solid rgba(255,230,0,0.35)",
-            }}
-          >
-            <Flame className="size-5" style={{ color: "var(--spark)" }} />
-            <span className="display text-xl tabular-nums text-[var(--lavender)]">{streak}</span>
-            <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: "rgba(246,240,250,0.7)" }}>
-              day streak
-            </span>
-          </section>
+            <div className="flex flex-col items-center gap-2">
+              <div
+                className="flex items-center gap-2 rounded-full px-4 py-2"
+                style={{ background: "rgba(255,230,0,0.12)", border: "1px solid rgba(255,230,0,0.35)" }}
+              >
+                <Flame className="size-4" style={{ color: "var(--spark)" }} />
+                <span className="display text-base tabular-nums text-[var(--lavender)]">{streak}</span>
+                <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: "rgba(246,240,250,0.7)" }}>
+                  day streak
+                </span>
+              </div>
+            </div>
+          </div>
 
         </main>
       </div>
