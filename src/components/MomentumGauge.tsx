@@ -165,23 +165,6 @@ export function MomentumGauge({ needle, size = 180, animate = true, delayMs = 0 
           </g>
         )}
 
-        {/* Centered counter */}
-        <text
-          x={cx}
-          y={cy - r * 0.5}
-          textAnchor="middle"
-          dominantBaseline="central"
-          fontSize={Math.max(18, Math.round(r * 0.42))}
-          fontWeight={700}
-          fill={stage.needle}
-          style={{
-            textAnchor: "middle",
-            filter: `drop-shadow(0 0 ${6 + intensity * 14}px ${stage.glow})`,
-          }}
-        >
-          {Math.max(1, Math.round(shown))}
-        </text>
-
         {/* Needle */}
         <g
           style={{
@@ -201,6 +184,25 @@ export function MomentumGauge({ needle, size = 180, animate = true, delayMs = 0 
           <circle cx={cx} cy={cy} r={5} fill={stage.needle} />
           <circle cx={cx} cy={cy} r={2.5} fill="#0b0b0b" />
         </g>
+
+        {/* Centered counter — top layer */}
+        <text
+          x={cx}
+          y={cy - r * 0.5}
+          textAnchor="middle"
+          dominantBaseline="central"
+          fontSize={Math.max(18, Math.round(r * 0.42))}
+          fontWeight={800}
+          fill={stage.needle}
+          style={{
+            textAnchor: "middle",
+            fontFamily: "var(--font-display)",
+            letterSpacing: "-0.03em",
+            filter: `drop-shadow(0 0 ${6 + intensity * 14}px ${stage.glow})`,
+          }}
+        >
+          {Math.max(1, Math.round(shown))}
+        </text>
       </svg>
       <div className="-mt-1 flex items-center gap-1">
         <span
