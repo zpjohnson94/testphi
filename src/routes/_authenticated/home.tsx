@@ -5,6 +5,7 @@ import { FreeShell } from "@/components/FreeShell";
 import { Logo } from "@/components/Logo";
 import { Avatar, defaultAvatar } from "@/components/Avatar";
 import { PredictedScore } from "@/components/PredictedScore";
+import { PredictedScoreHistory } from "@/components/PredictedScoreHistory";
 import { MomentumGauge } from "@/components/MomentumGauge";
 import { UnlockReadyCard } from "@/components/UnlockReadyCard";
 import { BonusUnlockModal } from "@/components/BonusUnlockModal";
@@ -163,6 +164,7 @@ function HomePage() {
                 <div className="score-num text-2xl sm:text-3xl text-[var(--lavender)]">{mathScore}</div>
               </div>
             </div>
+            {state && <PredictedScoreHistory state={state} />}
           </section>
 
           {/* Bonus round unlock cards (one per domain that's ready) */}
