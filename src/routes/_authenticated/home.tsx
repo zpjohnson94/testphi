@@ -58,6 +58,23 @@ function HomePage() {
   const calibrated = state ? isCalibrated(state) : false;
   const isPerfect = (state?.overall ?? 800) === 1600;
   const [momentumOpen, setMomentumOpen] = useState(false);
+  const momentumRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    if (!momentumOpen) return;
+    const handleTap = (e: MouseEvent | TouchEvent) => {
+      const target = e.target as Node;
+      if (momentumRef.current && !momentumRef.current.contains(target)) {
+        setMomentumOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleTap);
+    document.addEventListener("touchstart", handleTap);
+    return () => {
+      document.removeEventListener("mousedown", handleTap);
+      document.removeEventListener("touchstart", handleTap);
+    };
+  }, [momentumOpen]);
 
   
   const [bonusDomainId, setBonusDomainId] = useState<string | null>(null);
