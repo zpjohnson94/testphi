@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { Flame } from "lucide-react";
+import { Flame, Info } from "lucide-react";
 import { FreeShell } from "@/components/FreeShell";
 import { Logo } from "@/components/Logo";
 import { Avatar, defaultAvatar } from "@/components/Avatar";
@@ -57,6 +57,8 @@ function HomePage() {
   const name = (state?.name || "champ").split(" ")[0];
   const calibrated = state ? isCalibrated(state) : false;
   const isPerfect = (state?.overall ?? 800) === 1600;
+  const [momentumOpen, setMomentumOpen] = useState(false);
+
   
   const [bonusDomainId, setBonusDomainId] = useState<string | null>(null);
 
