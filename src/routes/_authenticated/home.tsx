@@ -192,10 +192,10 @@ function HomePage() {
                   className="text-[11px] font-bold uppercase tracking-[0.18em]"
                   style={{ color: done ? "var(--neon)" : "var(--volt)" }}
                 >
-                  Daily 5
+                  {" "}
                 </div>
                 <div className="display text-2xl text-[var(--lavender)] mt-1">
-                  {done ? "Daily 5 complete." : "5 questions to keep your streak."}
+                  {done ? "Daily 5 complete." : "Complete the Daily 5 and build your momentum"}
                 </div>
                 {done && (
                   <div className="text-sm font-semibold mt-1" style={{ color: "var(--neon)" }}>
