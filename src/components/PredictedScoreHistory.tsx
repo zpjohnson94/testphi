@@ -165,15 +165,6 @@ export function PredictedScoreHistory({ state }: { state: FreeState }) {
 
   return (
     <div className="mt-4">
-      <div className="flex items-baseline justify-between mb-2">
-        <div
-          className="text-[10px] font-bold uppercase tracking-widest"
-          style={{ color: "rgba(246,240,250,0.6)" }}
-        >
-          Score history
-        </div>
-      </div>
-
       <div className="h-40 sm:h-48 -ml-2">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={points} margin={{ top: 6, right: 8, left: 0, bottom: 0 }}>
