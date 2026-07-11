@@ -165,6 +165,23 @@ export function MomentumGauge({ needle, size = 180, animate = true, delayMs = 0 
           </g>
         )}
 
+        {/* Centered counter */}
+        <text
+          x={cx}
+          y={cy - r * 0.52}
+          textAnchor="middle"
+          dominantBaseline="middle"
+          fontSize={Math.max(18, Math.round(r * 0.42))}
+          fontWeight={700}
+          fill={stage.needle}
+          style={{
+            filter: `drop-shadow(0 0 ${6 + intensity * 14}px ${stage.glow})`,
+            animation: superElectric ? "scoreFlicker 0.28s steps(2) infinite" : undefined,
+          }}
+        >
+          {Math.max(1, Math.round(shown))}
+        </text>
+
         {/* Needle */}
         <g
           style={{
