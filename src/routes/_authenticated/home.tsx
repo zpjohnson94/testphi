@@ -298,6 +298,7 @@ function HomePage() {
 
           {/* Momentum module */}
           <section
+            ref={momentumRef}
             className="rounded-3xl p-6 backdrop-blur-md flex flex-col relative"
             style={{
               background: "color-mix(in oklab, var(--violet-deep) 45%, transparent)",
