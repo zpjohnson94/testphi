@@ -615,7 +615,7 @@ export function bonusStepOf(s: FreeState, domainId: string): number {
 
 
 
-// ---------- Mastery → category (for Skill Map) ----------
+// ---------- Mastery → category (for Domains) ----------
 
 export type Tier = "weak" | "developing" | "strong" | "locked";
 
