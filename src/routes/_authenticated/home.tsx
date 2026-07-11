@@ -299,7 +299,7 @@ function HomePage() {
           >
             <div className="relative mb-1 flex items-center gap-1.5">
               <div
-                className="text-[11px] font-bold uppercase tracking-[0.18em]"
+                className="display text-2xl text-[var(--lavender)] mt-1"
                 style={{ color: done ? "var(--neon)" : "var(--volt)" }}
               >
                 Momentum
