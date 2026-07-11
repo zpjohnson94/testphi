@@ -180,18 +180,17 @@ function HomePage() {
 
           {/* Daily 5 card */}
           <section
-            className="rounded-3xl p-6 backdrop-blur-md"
+            className={`rounded-3xl p-6 backdrop-blur-md ${!done ? "daily-pulse" : ""}`}
             style={{
               background: "color-mix(in oklab, var(--violet-deep) 45%, transparent)",
-              border: `2px solid ${done ? "var(--volt)" : "var(--neon)"}`,
-              boxShadow: done ? "0 0 60px -10px rgba(184,255,0,0.4)" : undefined,
+              border: `2px solid ${done ? "var(--neon)" : "var(--volt)"}`,
             }}
           >
             <div className="flex items-center justify-between">
               <div>
                 <div
                   className="text-[11px] font-bold uppercase tracking-[0.18em]"
-                  style={{ color: done ? "var(--volt)" : "var(--neon)" }}
+                  style={{ color: done ? "var(--neon)" : "var(--volt)" }}
                 >
                   Daily 5
                 </div>
@@ -199,7 +198,7 @@ function HomePage() {
                   {done ? "Daily 5 complete." : "5 questions to keep your streak."}
                 </div>
                 {done && (
-                  <div className="text-sm font-semibold mt-1" style={{ color: "var(--volt)" }}>
+                  <div className="text-sm font-semibold mt-1" style={{ color: "var(--neon)" }}>
                     Nice work!
                   </div>
                 )}
