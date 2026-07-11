@@ -101,10 +101,11 @@ function HomePage() {
           >
             <div className="flex items-start justify-between gap-3 sm:gap-4">
               <div className="text-left min-w-0">
-                <div
-                  className="display text-2xl text-[var(--lavender)] whitespace-pre-line"
-                >
-                  {`Hey ${name}!\nYour predicted score:`}
+                <div className="display text-[56px] sm:text-[96px] leading-none text-[var(--lavender)]">
+                  {`Hey ${name}!`}
+                </div>
+                <div className="display text-2xl text-[var(--lavender)]">
+                  Your predicted score:
                 </div>
                 <div className="mt-2 sm:mt-3">
                   <PredictedScore
