@@ -198,7 +198,7 @@ export function MomentumGauge({ needle, size = 180, animate = true, delayMs = 0 
             textAnchor: "middle",
             fontFamily: "var(--font-display)",
             letterSpacing: "-0.03em",
-            filter: `drop-shadow(0 0 ${6 + intensity * 14}px ${stage.glow})`,
+            filter: `drop-shadow(0 1px 2px rgba(0,0,0,0.65)) drop-shadow(0 0 ${6 + intensity * 14}px ${stage.glow})`,
           }}
         >
           {Math.max(1, Math.round(shown))}
