@@ -54,7 +54,17 @@ function DailyQuestion() {
     setGraded(false);
     setCorrectPos(null);
     setIsCorrect(false);
+    setElapsedMs(0);
   }, [idx]);
+
+  // Tick the count-up timer while the question is unanswered.
+  useEffect(() => {
+    if (submitted) return;
+    const id = window.setInterval(() => {
+      setElapsedMs(Date.now() - startRef.current);
+    }, 250);
+    return () => window.clearInterval(id);
+  }, [submitted, idx]);
 
   // Prefetch all 5 questions on entry (slot 1) so subsequent slots are instant.
   const prefetchedRef = useRef(false);
