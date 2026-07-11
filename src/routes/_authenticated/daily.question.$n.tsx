@@ -203,10 +203,17 @@ function DailyQuestion() {
           </div>
           <div
             className="flex items-center gap-1.5 rounded-full px-3 py-1.5 shrink-0"
-            style={{ background: "rgba(255,230,0,0.12)", border: "1px solid rgba(255,230,0,0.3)" }}
+            style={{ background: "rgba(184,255,0,0.12)", border: "1px solid rgba(184,255,0,0.35)" }}
           >
-            <Flame className="size-4" style={{ color: "var(--spark)" }} />
-            <span className="display text-sm tabular-nums text-[var(--lavender)]">{streak}</span>
+            <Timer className="size-4" style={{ color: "var(--volt)" }} />
+            <span className="display text-sm tabular-nums text-[var(--lavender)]">
+              {(() => {
+                const s = Math.floor(elapsedMs / 1000);
+                const m = Math.floor(s / 60);
+                const r = s % 60;
+                return `${m}:${r.toString().padStart(2, "0")}`;
+              })()}
+            </span>
           </div>
         </div>
       </header>
