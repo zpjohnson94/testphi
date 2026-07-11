@@ -93,7 +93,7 @@ function HomePage() {
 
   return (
     <FreeShell>
-      <div className="topo-bg min-h-screen">
+      <div className="topo-bg">
         <header
           className="sticky top-0 z-30 backdrop-blur"
           style={{ background: "rgba(29,41,0,0.85)", borderBottom: "1px solid rgba(246,240,250,0.08)" }}
