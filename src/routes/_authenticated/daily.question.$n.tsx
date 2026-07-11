@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { Flame, ArrowRight, HelpCircle } from "lucide-react";
+import { Timer, ArrowRight, HelpCircle } from "lucide-react";
 import { useFreeState, useServeDailyQuestion, useGradeDailyAnswer, usePrefetchDailySet, servedQuestionKey, usePrewarmDailyFinalize } from "@/lib/useFree";
 import { type ServedQuestion } from "@/lib/dailyAttempt.functions";
 import { PowerUpModal } from "@/components/PowerUpModal";
@@ -37,7 +37,7 @@ function DailyQuestion() {
   useEffect(() => {
     setDiagAvatar(loadDiag());
   }, []);
-  const streak = freeState?.streak ?? 0;
+  const [elapsedMs, setElapsedMs] = useState(0);
   const startRef = useRef(Date.now());
   const choiceRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const progressRef = useRef<HTMLDivElement | null>(null);
@@ -54,7 +54,17 @@ function DailyQuestion() {
     setGraded(false);
     setCorrectPos(null);
     setIsCorrect(false);
+    setElapsedMs(0);
   }, [idx]);
+
+  // Tick the count-up timer while the question is unanswered.
+  useEffect(() => {
+    if (submitted) return;
+    const id = window.setInterval(() => {
+      setElapsedMs(Date.now() - startRef.current);
+    }, 250);
+    return () => window.clearInterval(id);
+  }, [submitted, idx]);
 
   // Prefetch all 5 questions on entry (slot 1) so subsequent slots are instant.
   const prefetchedRef = useRef(false);
@@ -203,10 +213,17 @@ function DailyQuestion() {
           </div>
           <div
             className="flex items-center gap-1.5 rounded-full px-3 py-1.5 shrink-0"
-            style={{ background: "rgba(255,230,0,0.12)", border: "1px solid rgba(255,230,0,0.3)" }}
+            style={{ background: "rgba(184,255,0,0.12)", border: "1px solid rgba(184,255,0,0.35)" }}
           >
-            <Flame className="size-4" style={{ color: "var(--spark)" }} />
-            <span className="display text-sm tabular-nums text-[var(--lavender)]">{streak}</span>
+            <Timer className="size-4" style={{ color: "var(--volt)" }} />
+            <span className="display text-sm tabular-nums text-[var(--lavender)]">
+              {(() => {
+                const s = Math.floor(elapsedMs / 1000);
+                const m = Math.floor(s / 60);
+                const r = s % 60;
+                return `${m}:${r.toString().padStart(2, "0")}`;
+              })()}
+            </span>
           </div>
         </div>
       </header>
