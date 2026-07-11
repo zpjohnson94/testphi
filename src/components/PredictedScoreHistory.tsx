@@ -148,18 +148,18 @@ export function PredictedScoreHistory({ state }: { state: FreeState }) {
 
   const hasHistory = points.length > 1;
 
-  // Adaptive Y range.
+  // Y-axis max sits ~25% above the user's top score, capped at 1600.
   const { yMin, yMax } = useMemo(() => {
     const vals = points.map((p) => p.score);
     const lo = Math.min(...vals);
     const hi = Math.max(...vals);
     if (lo === hi) {
-      return { yMin: Math.max(400, lo - 40), yMax: Math.min(1600, hi + 40) };
+      return { yMin: Math.max(400, lo - 40), yMax: Math.min(1600, niceCeil(hi * 1.25, 20)) };
     }
     const pad = Math.max(20, Math.round((hi - lo) * 0.1));
     return {
       yMin: Math.max(400, niceFloor(lo - pad, 20)),
-      yMax: Math.min(1600, niceCeil(hi + pad, 20)),
+      yMax: Math.min(1600, niceCeil(hi * 1.25, 20)),
     };
   }, [points]);
 
