@@ -37,7 +37,7 @@ function DailyQuestion() {
   useEffect(() => {
     setDiagAvatar(loadDiag());
   }, []);
-  const streak = freeState?.streak ?? 0;
+  const [elapsedMs, setElapsedMs] = useState(0);
   const startRef = useRef(Date.now());
   const choiceRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const progressRef = useRef<HTMLDivElement | null>(null);
