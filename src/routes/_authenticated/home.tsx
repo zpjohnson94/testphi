@@ -101,7 +101,7 @@ function HomePage() {
           >
             <div className="flex items-start justify-between gap-3 sm:gap-4">
               <div className="text-left min-w-0">
-                <div className="display text-[56px] sm:text-[96px] leading-none text-[var(--lavender)]">
+                <div className="display text-lg sm:text-2xl text-[var(--lavender)]">
                   {`Hey ${name}!`}
                 </div>
                 <div className="display text-2xl text-[var(--lavender)]">
