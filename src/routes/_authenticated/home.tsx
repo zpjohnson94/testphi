@@ -291,18 +291,13 @@ function HomePage() {
 
           {/* Momentum card — matches Daily 5 design */}
           <section
-            className="rounded-3xl p-6 backdrop-blur-md flex flex-col"
+            className="rounded-3xl p-6 backdrop-blur-md flex flex-col relative"
             style={{
               background: "color-mix(in oklab, var(--violet-deep) 45%, transparent)",
               border: "2px solid var(--neon)",
             }}
           >
-            <div className="relative mb-1 flex items-center gap-1.5 w-full justify-start">
-              <div
-                className="display text-2xl text-[var(--lavender)] mt-1 text-left"
-              >
-                Momentum
-              </div>
+            <div className="absolute top-3 right-3 z-10">
               <button
                 type="button"
                 onClick={() => setMomentumOpen((v) => !v)}
@@ -316,7 +311,7 @@ function HomePage() {
               </button>
               {momentumOpen && (
                 <div
-                  className="absolute z-40 left-1/2 -translate-x-1/2 top-full mt-2 w-64 sm:w-72 rounded-xl p-3 text-xs leading-relaxed"
+                  className="absolute z-40 right-0 top-full mt-2 w-64 sm:w-72 rounded-xl p-3 text-xs leading-relaxed"
                   style={{
                     background: "rgba(20,12,40,0.97)",
                     border: "1px solid rgba(168,85,247,0.5)",
@@ -327,6 +322,14 @@ function HomePage() {
                   Momentum rewards consistency. Complete a full Daily 5 session to raise it by 1; each level adds +0.05 to your mastery multiplier. Miss a day and it decays by 1.
                 </div>
               )}
+            </div>
+
+            <div className="relative mb-1 flex items-center gap-1.5 w-full justify-start">
+              <div
+                className="display text-2xl text-[var(--lavender)] mt-1 text-left"
+              >
+                Momentum
+              </div>
             </div>
             <div className="flex justify-center w-full">
               <MomentumGauge needle={state?.momentumNeedle ?? 0} size={180} />
