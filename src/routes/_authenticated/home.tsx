@@ -180,9 +180,9 @@ function HomePage() {
 
           {/* Daily 5 card */}
           <section
-            className="rounded-3xl p-6"
+            className="rounded-3xl p-6 backdrop-blur-md"
             style={{
-              background: "var(--violet-deep)",
+              background: "color-mix(in oklab, var(--violet-deep) 45%, transparent)",
               border: `2px solid ${done ? "var(--volt)" : "var(--neon)"}`,
               boxShadow: done ? "0 0 60px -10px rgba(184,255,0,0.4)" : undefined,
             }}
@@ -211,8 +211,10 @@ function HomePage() {
               {Array.from({ length: 5 }).map((_, i) => {
                 const result = done ? lastSession?.results?.[i] : undefined;
                 const answered = i < answeredCount;
-                const correct = result?.correct === true;
-                const incorrect = answered && result?.correct === false;
+                const hasResult = result !== undefined;
+                const incorrect = hasResult && result?.correct === false;
+                // When done but result data is missing, still render the circle as filled/correct.
+                const correct = hasResult ? result?.correct === true : answered;
                 const bg = correct
                   ? "var(--volt)"
                   : incorrect
@@ -274,19 +276,32 @@ function HomePage() {
             )}
           </section>
 
-          {/* Momentum + Streak row */}
-          <div className="grid gap-4 sm:grid-cols-[auto,1fr] items-center justify-items-center">
-          <div
-            className="rounded-3xl p-4 flex flex-col items-center"
+          {/* Streak pill */}
+          <div className="flex justify-center">
+            <div
+              className="flex items-center gap-2 rounded-full px-4 py-2"
+              style={{ background: "rgba(255,230,0,0.12)", border: "1px solid rgba(255,230,0,0.35)" }}
+            >
+              <Flame className="size-4" style={{ color: "var(--spark)" }} />
+              <span className="display text-base tabular-nums text-[var(--lavender)]">{streak}</span>
+              <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: "rgba(246,240,250,0.7)" }}>
+                day streak
+              </span>
+            </div>
+          </div>
+
+          {/* Momentum card — matches Daily 5 design */}
+          <section
+            className="rounded-3xl p-6 backdrop-blur-md flex flex-col items-center"
             style={{
-              background: "rgba(0,0,0,0.35)",
-              border: "1px solid rgba(246,240,250,0.1)",
+              background: "color-mix(in oklab, var(--violet-deep) 45%, transparent)",
+              border: "2px solid var(--neon)",
             }}
           >
             <div className="relative mb-1 flex items-center gap-1.5">
               <div
-                className="text-[10px] font-bold uppercase tracking-[0.18em]"
-                style={{ color: "rgba(246,240,250,0.65)" }}
+                className="text-[11px] font-bold uppercase tracking-[0.18em]"
+                style={{ color: "var(--neon)" }}
               >
                 Momentum
               </div>
@@ -316,20 +331,7 @@ function HomePage() {
               )}
             </div>
             <MomentumGauge needle={state?.momentumNeedle ?? 0} size={180} />
-          </div>
-            <div className="flex flex-col items-center gap-2">
-              <div
-                className="flex items-center gap-2 rounded-full px-4 py-2"
-                style={{ background: "rgba(255,230,0,0.12)", border: "1px solid rgba(255,230,0,0.35)" }}
-              >
-                <Flame className="size-4" style={{ color: "var(--spark)" }} />
-                <span className="display text-base tabular-nums text-[var(--lavender)]">{streak}</span>
-                <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: "rgba(246,240,250,0.7)" }}>
-                  day streak
-                </span>
-              </div>
-            </div>
-          </div>
+          </section>
 
 
         </main>
