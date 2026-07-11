@@ -1,5 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
+import { Lock } from "lucide-react";
+
 
 import { FreeShell } from "@/components/FreeShell";
 import { Logo } from "@/components/Logo";
@@ -157,12 +159,16 @@ function Domains() {
                               {name}
                             </div>
                           </div>
-                          <div
-                            className="score-num text-lg tabular-nums shrink-0"
-                            style={{ color: d.initialized && Math.round(d.mastery) === 100 ? "#1a1230" : color }}
-                          >
-                            {d.initialized ? `${Math.round(d.mastery)}%` : ""}
-                          </div>
+                          {d.initialized ? (
+                            <div
+                              className="score-num text-lg tabular-nums shrink-0"
+                              style={{ color: Math.round(d.mastery) === 100 ? "#1a1230" : color }}
+                            >
+                              {`${Math.round(d.mastery)}%`}
+                            </div>
+                          ) : (
+                            <Lock className="size-5 shrink-0" style={{ color: "rgba(246,240,250,0.55)" }} />
+                          )}
                         </div>
 
                         {d.initialized ? (
