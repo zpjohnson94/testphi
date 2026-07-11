@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Flame, Info } from "lucide-react";
 import { FreeShell } from "@/components/FreeShell";
 import { Logo } from "@/components/Logo";
@@ -58,6 +58,23 @@ function HomePage() {
   const calibrated = state ? isCalibrated(state) : false;
   const isPerfect = (state?.overall ?? 800) === 1600;
   const [momentumOpen, setMomentumOpen] = useState(false);
+  const momentumRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    if (!momentumOpen) return;
+    const handleTap = (e: MouseEvent | TouchEvent) => {
+      const target = e.target as Node;
+      if (momentumRef.current && !momentumRef.current.contains(target)) {
+        setMomentumOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleTap);
+    document.addEventListener("touchstart", handleTap);
+    return () => {
+      document.removeEventListener("mousedown", handleTap);
+      document.removeEventListener("touchstart", handleTap);
+    };
+  }, [momentumOpen]);
 
   
   const [bonusDomainId, setBonusDomainId] = useState<string | null>(null);
@@ -281,6 +298,7 @@ function HomePage() {
 
           {/* Momentum module */}
           <section
+            ref={momentumRef}
             className="rounded-3xl p-6 backdrop-blur-md flex flex-col relative"
             style={{
               background: "color-mix(in oklab, var(--violet-deep) 45%, transparent)",
