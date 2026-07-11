@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { Flame } from "lucide-react";
+import { Flame, Info } from "lucide-react";
 import { FreeShell } from "@/components/FreeShell";
 import { Logo } from "@/components/Logo";
 import { Avatar, defaultAvatar } from "@/components/Avatar";
@@ -57,6 +57,8 @@ function HomePage() {
   const name = (state?.name || "champ").split(" ")[0];
   const calibrated = state ? isCalibrated(state) : false;
   const isPerfect = (state?.overall ?? 800) === 1600;
+  const [momentumOpen, setMomentumOpen] = useState(false);
+
   
   const [bonusDomainId, setBonusDomainId] = useState<string | null>(null);
 
@@ -277,23 +279,55 @@ function HomePage() {
             )}
           </section>
 
-          {/* Momentum + Streak module */}
+          {/* Momentum module */}
           <section
-            className="rounded-3xl p-6 backdrop-blur-md flex flex-col items-center"
+            className="rounded-3xl p-6 backdrop-blur-md flex flex-col relative"
             style={{
               background: "color-mix(in oklab, var(--violet-deep) 45%, transparent)",
               border: "2px solid var(--neon)",
             }}
           >
-            <div
-              className="text-[10px] font-bold uppercase tracking-[0.18em] mb-1"
-              style={{ color: "rgba(246,240,250,0.65)" }}
-            >
-              Momentum
+            <div className="absolute top-3 right-3 z-10">
+              <button
+                type="button"
+                onClick={() => setMomentumOpen((v) => !v)}
+                onMouseEnter={() => setMomentumOpen(true)}
+                onMouseLeave={() => setMomentumOpen(false)}
+                className="inline-flex rounded-full p-1"
+                style={{ color: "rgba(246,240,250,0.55)" }}
+                aria-label="What is momentum?"
+              >
+                <Info className="size-3.5" />
+              </button>
+              {momentumOpen && (
+                <div
+                  className="absolute z-40 right-0 top-full mt-2 w-64 sm:w-72 rounded-xl p-3 text-xs leading-relaxed"
+                  style={{
+                    background: "rgba(20,12,40,0.97)",
+                    border: "1px solid rgba(168,85,247,0.5)",
+                    color: "rgba(246,240,250,0.92)",
+                    boxShadow: "0 8px 24px rgba(0,0,0,0.5)",
+                  }}
+                >
+                  Momentum rewards consistency. Complete a full Daily 5 session to raise it by 1; each level adds +0.05 to your mastery multiplier. Miss a day and it decays by 1.
+                </div>
+              )}
             </div>
-            <MomentumGauge needle={state?.momentumNeedle ?? 0} size={180} />
+
+            <div className="relative mb-1 flex items-center gap-1.5 w-full justify-start">
+              <div className="display text-2xl text-[var(--lavender)] mt-1 text-left">
+                Momentum
+              </div>
+            </div>
+            <div className="flex justify-center w-full">
+              <MomentumGauge needle={state?.momentumNeedle ?? 0} size={180} />
+            </div>
+          </section>
+
+          {/* Streak pill */}
+          <div className="flex items-center justify-center">
             <div
-              className="mt-3 flex items-center gap-2 rounded-full px-4 py-2"
+              className="flex items-center gap-2 rounded-full px-4 py-2"
               style={{ background: "rgba(255,230,0,0.12)", border: "1px solid rgba(255,230,0,0.35)" }}
             >
               <Flame className="size-4" style={{ color: "var(--spark)" }} />
@@ -302,7 +336,7 @@ function HomePage() {
                 day streak
               </span>
             </div>
-          </section>
+          </div>
 
         </main>
       </div>
