@@ -300,7 +300,7 @@ function HomePage() {
             <div className="relative mb-1 flex items-center gap-1.5">
               <div
                 className="text-[11px] font-bold uppercase tracking-[0.18em]"
-                style={{ color: "var(--neon)" }}
+                style={{ color: done ? "var(--neon)" : "var(--volt)" }}
               >
                 Momentum
               </div>
