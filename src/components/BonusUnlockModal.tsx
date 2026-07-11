@@ -114,7 +114,7 @@ export function BonusUnlockModal({ open, domainId, domainLabel, onClose }: Props
       {/* Loading / error */}
       {isLoading && phase === "intro" && (
         <div className="flex-1 flex items-center justify-center text-[var(--lavender)]/70 text-sm">
-          Preparing your bonus round…
+          Getting your questions ready. Good luck!
         </div>
       )}
       {error && (
