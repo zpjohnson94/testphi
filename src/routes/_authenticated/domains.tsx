@@ -19,8 +19,8 @@ import { BonusUnlockModal } from "@/components/BonusUnlockModal";
 
 
 export const Route = createFileRoute("/_authenticated/domains")({
-  head: () => ({ meta: [{ title: "Skill Map — TestPhi" }] }),
-  component: SkillMap,
+  head: () => ({ meta: [{ title: "Domains — TestPhi" }] }),
+  component: Domains,
 });
 
 function DomainPill({ section }: { section: string }) {
