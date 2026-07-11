@@ -291,8 +291,6 @@ function HomePage() {
               <button
                 type="button"
                 onClick={() => setMomentumOpen((v) => !v)}
-                onMouseEnter={() => setMomentumOpen(true)}
-                onMouseLeave={() => setMomentumOpen(false)}
                 className="inline-flex rounded-full p-1"
                 style={{ color: "rgba(246,240,250,0.55)" }}
                 aria-label="What is momentum?"
