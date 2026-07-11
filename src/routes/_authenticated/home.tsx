@@ -316,7 +316,7 @@ function HomePage() {
 
             <div className="relative mb-1 flex items-center gap-1.5 w-full justify-start">
               <div className="display text-2xl text-[var(--lavender)] mt-1 text-left">
-                Momentum
+                Momentum multiplies your progress
               </div>
             </div>
             <div className="flex justify-center w-full">
