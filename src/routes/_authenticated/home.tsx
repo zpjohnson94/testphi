@@ -310,7 +310,6 @@ function HomePage() {
                   Momentum rewards consistency. Complete the Daily 5 to raise it by 1. Miss a day and it decays by 1.
                   <br />
                   <br />
-                  <br />
                   Higher momentum means higher gains for correct answers. Each level adds +0.05 to your mastery multiplier. 
                 </div>
               )}
