@@ -102,8 +102,7 @@ function HomePage() {
             <div className="flex items-start justify-between gap-3 sm:gap-4">
               <div className="text-left min-w-0">
                 <div
-                  className="text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.18em] whitespace-pre-line"
-                  style={{ color: isPerfect ? "var(--ink)" : "var(--volt)" }}
+                  className="display text-2xl text-[var(--lavender)] whitespace-pre-line"
                 >
                   {`Hey ${name}!\nYour predicted SAT score`}
                 </div>
