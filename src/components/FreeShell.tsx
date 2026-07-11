@@ -14,7 +14,7 @@ function FreeBottomNav() {
   const { pathname } = useLocation();
   const items = [
     { to: "/home", label: "Home", Icon: Home },
-    { to: "/skill-map", label: "Skill Map", Icon: Grid3x3 },
+    { to: "/domains", label: "Domains", Icon: Grid3x3 },
     { to: "/account", label: "Account", Icon: User2 },
   ] as const;
 

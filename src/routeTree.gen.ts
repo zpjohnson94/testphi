@@ -28,8 +28,8 @@ import { Route as DiagnosticResultsRouteImport } from './routes/diagnostic.resul
 import { Route as DiagnosticAvatarRouteImport } from './routes/diagnostic.avatar'
 import { Route as AuthForgotRouteImport } from './routes/auth.forgot'
 import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
-import { Route as AuthenticatedSkillMapRouteImport } from './routes/_authenticated/skill-map'
 import { Route as AuthenticatedHomeRouteImport } from './routes/_authenticated/home'
+import { Route as AuthenticatedDomainsRouteImport } from './routes/_authenticated/domains'
 import { Route as AuthenticatedAccountRouteImport } from './routes/_authenticated/account'
 import { Route as DiagnosticQuestionNRouteImport } from './routes/diagnostic.question.$n'
 import { Route as ApiPublicEnsureDemoUserRouteImport } from './routes/api/public/ensure-demo-user'
@@ -132,14 +132,14 @@ const AuthCallbackRoute = AuthCallbackRouteImport.update({
   path: '/callback',
   getParentRoute: () => AuthRoute,
 } as any)
-const AuthenticatedSkillMapRoute = AuthenticatedSkillMapRouteImport.update({
-  id: '/skill-map',
-  path: '/skill-map',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
 const AuthenticatedHomeRoute = AuthenticatedHomeRouteImport.update({
   id: '/home',
   path: '/home',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedDomainsRoute = AuthenticatedDomainsRouteImport.update({
+  id: '/domains',
+  path: '/domains',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedAccountRoute = AuthenticatedAccountRouteImport.update({
@@ -187,8 +187,8 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
   '/account': typeof AuthenticatedAccountRoute
+  '/domains': typeof AuthenticatedDomainsRoute
   '/home': typeof AuthenticatedHomeRoute
-  '/skill-map': typeof AuthenticatedSkillMapRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/forgot': typeof AuthForgotRoute
   '/diagnostic/avatar': typeof DiagnosticAvatarRoute
@@ -215,8 +215,8 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
   '/account': typeof AuthenticatedAccountRoute
+  '/domains': typeof AuthenticatedDomainsRoute
   '/home': typeof AuthenticatedHomeRoute
-  '/skill-map': typeof AuthenticatedSkillMapRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/forgot': typeof AuthForgotRoute
   '/diagnostic/avatar': typeof DiagnosticAvatarRoute
@@ -245,8 +245,8 @@ export interface FileRoutesById {
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
   '/_authenticated/account': typeof AuthenticatedAccountRoute
+  '/_authenticated/domains': typeof AuthenticatedDomainsRoute
   '/_authenticated/home': typeof AuthenticatedHomeRoute
-  '/_authenticated/skill-map': typeof AuthenticatedSkillMapRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/forgot': typeof AuthForgotRoute
   '/diagnostic/avatar': typeof DiagnosticAvatarRoute
@@ -275,8 +275,8 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/signup'
     | '/account'
+    | '/domains'
     | '/home'
-    | '/skill-map'
     | '/auth/callback'
     | '/auth/forgot'
     | '/diagnostic/avatar'
@@ -303,8 +303,8 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/signup'
     | '/account'
+    | '/domains'
     | '/home'
-    | '/skill-map'
     | '/auth/callback'
     | '/auth/forgot'
     | '/diagnostic/avatar'
@@ -332,8 +332,8 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/signup'
     | '/_authenticated/account'
+    | '/_authenticated/domains'
     | '/_authenticated/home'
-    | '/_authenticated/skill-map'
     | '/auth/callback'
     | '/auth/forgot'
     | '/diagnostic/avatar'
@@ -508,18 +508,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthCallbackRouteImport
       parentRoute: typeof AuthRoute
     }
-    '/_authenticated/skill-map': {
-      id: '/_authenticated/skill-map'
-      path: '/skill-map'
-      fullPath: '/skill-map'
-      preLoaderRoute: typeof AuthenticatedSkillMapRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
     '/_authenticated/home': {
       id: '/_authenticated/home'
       path: '/home'
       fullPath: '/home'
       preLoaderRoute: typeof AuthenticatedHomeRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/domains': {
+      id: '/_authenticated/domains'
+      path: '/domains'
+      fullPath: '/domains'
+      preLoaderRoute: typeof AuthenticatedDomainsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/account': {
@@ -569,16 +569,16 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAccountRoute: typeof AuthenticatedAccountRoute
+  AuthenticatedDomainsRoute: typeof AuthenticatedDomainsRoute
   AuthenticatedHomeRoute: typeof AuthenticatedHomeRoute
-  AuthenticatedSkillMapRoute: typeof AuthenticatedSkillMapRoute
   AuthenticatedDailyCompleteRoute: typeof AuthenticatedDailyCompleteRoute
   AuthenticatedDailyQuestionNRoute: typeof AuthenticatedDailyQuestionNRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAccountRoute: AuthenticatedAccountRoute,
+  AuthenticatedDomainsRoute: AuthenticatedDomainsRoute,
   AuthenticatedHomeRoute: AuthenticatedHomeRoute,
-  AuthenticatedSkillMapRoute: AuthenticatedSkillMapRoute,
   AuthenticatedDailyCompleteRoute: AuthenticatedDailyCompleteRoute,
   AuthenticatedDailyQuestionNRoute: AuthenticatedDailyQuestionNRoute,
 }

@@ -18,7 +18,7 @@ import { UnlockReadyCard } from "@/components/UnlockReadyCard";
 import { BonusUnlockModal } from "@/components/BonusUnlockModal";
 
 
-export const Route = createFileRoute("/_authenticated/skill-map")({
+export const Route = createFileRoute("/_authenticated/domains")({
   head: () => ({ meta: [{ title: "Skill Map — TestPhi" }] }),
   component: SkillMap,
 });
@@ -38,7 +38,7 @@ function DomainPill({ section }: { section: string }) {
   );
 }
 
-function SkillMap() {
+function Domains() {
   const { data: state } = useFreeState();
   const [showModal, setShowModal] = useState(false);
   const [bonusDomainId, setBonusDomainId] = useState<string | null>(null);
@@ -88,7 +88,7 @@ function SkillMap() {
               <br />
             </div>
             <h1 className="mt-1 display text-3xl text-[var(--lavender)]">
-              Skill map
+              Domains
             </h1>
             <p className="mt-2 text-sm font-medium" style={{ color: "rgba(246,240,250,0.7)" }}>
               Review your level of mastery over 8 SAT domains, sorted from weakest to strongest.
