@@ -291,16 +291,15 @@ function HomePage() {
 
           {/* Momentum card — matches Daily 5 design */}
           <section
-            className="rounded-3xl p-6 backdrop-blur-md flex flex-col items-center"
+            className="rounded-3xl p-6 backdrop-blur-md flex flex-col"
             style={{
               background: "color-mix(in oklab, var(--violet-deep) 45%, transparent)",
               border: "2px solid var(--neon)",
             }}
           >
-            <div className="relative mb-1 flex items-center gap-1.5">
+            <div className="relative mb-1 flex items-center gap-1.5 w-full justify-start">
               <div
-                className="display text-2xl text-[var(--lavender)] mt-1"
-                style={{ color: done ? "var(--neon)" : "var(--volt)" }}
+                className="display text-2xl text-[var(--lavender)] mt-1 text-left"
               >
                 Momentum
               </div>
@@ -329,7 +328,9 @@ function HomePage() {
                 </div>
               )}
             </div>
-            <MomentumGauge needle={state?.momentumNeedle ?? 0} size={180} />
+            <div className="flex justify-center w-full">
+              <MomentumGauge needle={state?.momentumNeedle ?? 0} size={180} />
+            </div>
           </section>
 
 
