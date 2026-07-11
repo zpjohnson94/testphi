@@ -324,6 +324,20 @@ function HomePage() {
             </div>
           </section>
 
+          {/* Streak card */}
+          <section
+            className="rounded-3xl p-4 backdrop-blur-md flex items-center justify-center gap-3"
+            style={{
+              background: "color-mix(in oklab, var(--violet-deep) 45%, transparent)",
+              border: "2px solid rgba(255,230,0,0.35)",
+            }}
+          >
+            <Flame className="size-5" style={{ color: "var(--spark)" }} />
+            <span className="display text-xl tabular-nums text-[var(--lavender)]">{streak}</span>
+            <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: "rgba(246,240,250,0.7)" }}>
+              day streak
+            </span>
+          </section>
 
         </main>
       </div>
