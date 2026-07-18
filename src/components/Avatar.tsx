@@ -130,7 +130,7 @@ export function Avatar({ config, size = 96, className = "", style, animate = fal
           aria-hidden
           style={{
             position: "absolute",
-            top: `-${Math.round(size * 0.06)}px`,
+            top: `-${Math.round(size * 0.02)}px`,
             left: "50%",
             transform: "translateX(-50%) rotate(-8deg)",
             fontSize: Math.round(size * 0.5),
