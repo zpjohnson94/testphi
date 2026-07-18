@@ -1,10 +1,11 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { Timer, ArrowRight, HelpCircle } from "lucide-react";
+import { Timer, ArrowRight, HelpCircle, Flag } from "lucide-react";
 import { useFreeState, useServeDailyQuestion, useGradeDailyAnswer, usePrefetchDailySet, servedQuestionKey, usePrewarmDailyFinalize } from "@/lib/useFree";
 import { type ServedQuestion } from "@/lib/dailyAttempt.functions";
 import { PowerUpModal } from "@/components/PowerUpModal";
+import { QuestionReportModal } from "@/components/QuestionReportModal";
 import { Avatar, defaultAvatar } from "@/components/Avatar";
 import { useStore } from "@/lib/store";
 import { sfx } from "@/lib/sfx";
