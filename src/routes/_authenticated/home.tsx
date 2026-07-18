@@ -4,7 +4,7 @@ import { Flame, Info } from "lucide-react";
 import { FreeShell } from "@/components/FreeShell";
 import { Logo } from "@/components/Logo";
 import { Avatar } from "@/components/Avatar";
-import { useStore } from "@/lib/store";
+import { useStore, useHydration } from "@/lib/store";
 import { PredictedScore } from "@/components/PredictedScore";
 import { PredictedScoreHistory } from "@/components/PredictedScoreHistory";
 import { MomentumGauge } from "@/components/MomentumGauge";
