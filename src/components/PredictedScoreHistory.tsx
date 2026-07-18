@@ -20,7 +20,6 @@ type Pt = {
   date: string;      // ISO YYYY-MM-DD
   ts: number;        // epoch for X axis
   score: number;
-  projected: boolean;
   pre: number | null;   // pre-calibration line value
   post: number | null;  // post-calibration line value
 };
@@ -56,7 +55,11 @@ function decayScore(prev: number, idleDays: number, baselineFloor: number): numb
   if (idleDays <= SCORING.DECAY_GRACE_DAYS) return prev;
   const weeks = (idleDays - SCORING.DECAY_GRACE_DAYS) / 7;
   const dropped = prev * (1 - (SCORING.DECAY_PER_WEEK / 100) * weeks);
-  return Math.max(baselineFloor, Math.round(dropped));
+  return Math.max(baselineFloor, Math.round(dropped / 10) * 10);
+}
+
+function roundTo10(n: number): number {
+  return Math.round(n / 10) * 10;
 }
 
 function niceCeil(n: number, step: number) {
