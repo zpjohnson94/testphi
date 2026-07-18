@@ -155,7 +155,7 @@ function HomePage() {
                 className="shrink-0 size-16 sm:size-20 rounded-2xl flex items-center justify-center"
                 style={{ background: "rgba(184,255,0,0.15)", border: "2px solid var(--volt)" }}
               >
-                <Avatar config={{ ...defaultAvatar(), accessory: "crown" }} size={56} animate />
+                <Avatar config={avatar} size={56} animate />
               </div>
             </div>
             <div className="mt-3 sm:mt-5 grid grid-cols-2 gap-2 sm:gap-3 text-left">
