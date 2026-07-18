@@ -5,8 +5,8 @@ import { Timer, ArrowRight, HelpCircle } from "lucide-react";
 import { useFreeState, useServeDailyQuestion, useGradeDailyAnswer, usePrefetchDailySet, servedQuestionKey, usePrewarmDailyFinalize } from "@/lib/useFree";
 import { type ServedQuestion } from "@/lib/dailyAttempt.functions";
 import { PowerUpModal } from "@/components/PowerUpModal";
-import { DiagAvatar, AVATAR_IMAGES, type AvatarId } from "@/components/DiagAvatar";
-import { loadDiag, defaultDiag } from "@/lib/diagnostic";
+import { Avatar, defaultAvatar } from "@/components/Avatar";
+import { useStore } from "@/lib/store";
 import { sfx } from "@/lib/sfx";
 
 export const Route = createFileRoute("/_authenticated/daily/question/$n")({
@@ -33,10 +33,7 @@ function DailyQuestion() {
   const [correctPos, setCorrectPos] = useState<number | null>(null);
   const [isCorrect, setIsCorrect] = useState<boolean>(false);
   const [showModal, setShowModal] = useState(false);
-  const [diagAvatar, setDiagAvatar] = useState(() => defaultDiag());
-  useEffect(() => {
-    setDiagAvatar(loadDiag());
-  }, []);
+  const storeAvatar = useStore((s) => s.avatar);
   const [elapsedMs, setElapsedMs] = useState(0);
   const startRef = useRef(Date.now());
   const choiceRefs = useRef<(HTMLButtonElement | null)[]>([]);
@@ -169,10 +166,10 @@ function DailyQuestion() {
   const progressPct = (idx / 5) * 100;
 
   if (!served) {
-    const avatarId = (diagAvatar.avatarId in AVATAR_IMAGES ? diagAvatar.avatarId : "fox") as AvatarId;
+    const avatarCfg = storeAvatar ?? defaultAvatar();
     return (
       <div className="topo-bg topo-dim min-h-screen flex flex-col items-center justify-center gap-4 text-[var(--lavender)]/70 text-sm">
-        <DiagAvatar id={avatarId} color={diagAvatar.color || "#B8FF00"} size={88} />
+        <Avatar config={avatarCfg} size={88} animate />
         <span>{isLoading ? "Loading today's questions…" : "Daily set unavailable."}</span>
       </div>
     );
