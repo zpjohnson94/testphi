@@ -92,7 +92,6 @@ function LessonRunner({ ctx }: { ctx: LessonContext }) {
       finishLesson({ nodeId: ctx.nodeId, correctCount, xp });
       if (correctCount === ctx.questions.length) {
         sfx.levelUp();
-        unlockAccessory("halo");
       }
       setPhase("results");
     }

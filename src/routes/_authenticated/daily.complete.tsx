@@ -12,6 +12,7 @@ import {
   type SessionResult,
 } from "@/lib/freeUser";
 import { useDailyFinalizeResult, useFreeState } from "@/lib/useFree";
+import { evaluateAccessoryUnlocks } from "@/lib/accessoryUnlocks";
 import { PredictedScore } from "@/components/PredictedScore";
 import { MomentumGauge } from "@/components/MomentumGauge";
 import { FreeShell } from "@/components/FreeShell";
@@ -50,6 +51,16 @@ function DailyComplete() {
     prevCapturedRef.current = true;
     setPrev(freeState);
   }, [freeState]);
+
+  // Evaluate accessory unlocks once we have both the pre-session baseline
+  // and the finalized post-session state.
+  const unlocksEvaluatedRef = useRef(false);
+  useEffect(() => {
+    if (unlocksEvaluatedRef.current) return;
+    if (!next) return;
+    unlocksEvaluatedRef.current = true;
+    evaluateAccessoryUnlocks(prev, next);
+  }, [prev, next]);
 
   // Handle errors coming out of the finalize query.
   useEffect(() => {

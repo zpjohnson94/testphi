@@ -12,8 +12,9 @@ import shiba from "@/assets/avatars/shiba.png";
 export type AnimalId = "bear" | "eagle" | "frog" | "panda" | "pig" | "shiba";
 
 export type AccessoryId =
-  | "none" | "party" | "crown" | "tophat" | "grad"
-  | "halo" | "headphones" | "flower" | "wizard" | "chef" | "cowboy";
+  | "none" | "tophat" | "brain" | "crown" | "grad" | "cap"
+  | "star" | "flower" | "fire" | "poop" | "goggles" | "bolt"
+  | "ice" | "bulb" | "disco";
 
 const ANIMAL_IMAGES: Record<AnimalId, string> = {
   bear, eagle, frog, panda, pig, shiba,
@@ -41,30 +42,38 @@ export const COLOR_SWATCHES = [
 
 const ACCESSORY_EMOJI: Record<AccessoryId, string> = {
   none: "",
-  crown: "👑",
-  party: "🥳",
   tophat: "🎩",
+  brain: "🧠",
+  crown: "👑",
   grad: "🎓",
-  halo: "😇",
-  headphones: "🎧",
+  cap: "🧢",
+  star: "⭐",
   flower: "🌸",
-  wizard: "🧙",
-  chef: "🧑‍🍳",
-  cowboy: "🤠",
+  fire: "🔥",
+  poop: "💩",
+  goggles: "🥽",
+  bolt: "⚡",
+  ice: "🧊",
+  bulb: "💡",
+  disco: "🪩",
 };
 
 export const ACCESSORIES: { id: AccessoryId; name: string; unlock: string }[] = [
   { id: "none", name: "None", unlock: "Default" },
-  { id: "crown", name: "Crown", unlock: "#1 weekly leaderboard" },
-  { id: "party", name: "Party hat", unlock: "3-day streak" },
-  { id: "tophat", name: "Top hat", unlock: "Complete 5 lessons" },
-  { id: "grad", name: "Graduation cap", unlock: "Predicted 1400+" },
-  { id: "halo", name: "Halo", unlock: "Perfect practice session" },
-  { id: "headphones", name: "Headphones", unlock: "7-day streak" },
-  { id: "flower", name: "Flower crown", unlock: "Complete 10 lessons" },
-  { id: "wizard", name: "Wizard hat", unlock: "Reach Diamond tier" },
-  { id: "chef", name: "Chef's hat", unlock: "Hidden" },
-  { id: "cowboy", name: "Cowboy hat", unlock: "Hidden" },
+  { id: "cap", name: "Baseball cap", unlock: "Complete the Daily 5 for the first time" },
+  { id: "tophat", name: "Top hat", unlock: "Reach a 1200+ predicted score" },
+  { id: "brain", name: "Brain", unlock: "Reach a 1400+ predicted score" },
+  { id: "crown", name: "Crown", unlock: "Reach a 1600 predicted score" },
+  { id: "grad", name: "Graduation cap", unlock: "Unlock mastery for every domain" },
+  { id: "star", name: "Gold star", unlock: "Reach 100% mastery in a domain" },
+  { id: "flower", name: "Flower", unlock: "Answer 50 questions" },
+  { id: "bolt", name: "Lightning bolt", unlock: "Answer 100 questions" },
+  { id: "fire", name: "Fire", unlock: "Reach a momentum score of 10" },
+  { id: "ice", name: "Ice cube", unlock: "Lose a momentum point" },
+  { id: "goggles", name: "Goggles", unlock: "Hit a 5-day streak" },
+  { id: "bulb", name: "Lightbulb", unlock: "Answer every Daily 5 question correctly" },
+  { id: "poop", name: "Poop", unlock: "Miss every Daily 5 question" },
+  { id: "disco", name: "Disco ball", unlock: "Raise your predicted score by 100+" },
 ];
 
 interface AvatarProps {
