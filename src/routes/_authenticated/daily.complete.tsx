@@ -12,6 +12,7 @@ import {
   type SessionResult,
 } from "@/lib/freeUser";
 import { useDailyFinalizeResult, useFreeState } from "@/lib/useFree";
+import { evaluateAccessoryUnlocks } from "@/lib/accessoryUnlocks";
 import { PredictedScore } from "@/components/PredictedScore";
 import { MomentumGauge } from "@/components/MomentumGauge";
 import { FreeShell } from "@/components/FreeShell";
