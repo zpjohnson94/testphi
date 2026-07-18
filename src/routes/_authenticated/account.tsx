@@ -125,7 +125,7 @@ function AccountPage() {
               <div className="mt-3 flex justify-center"><Avatar config={avatarDraft} size={112} animate /></div>
 
               <div className="mt-4 text-xs font-bold uppercase tracking-widest" style={{ color: "#5a4a72" }}>Animal</div>
-              <div className="mt-2 grid grid-cols-6 gap-2">
+              <div className="mt-2 grid grid-cols-3 gap-2">
                 {ANIMALS.map((a) => (
                   <button key={a.id} onClick={() => setAvatarDraft({ ...avatarDraft, animal: a.id as AnimalId })} className="aspect-square rounded-2xl flex items-center justify-center" style={{
                     background: avatarDraft.animal === a.id ? "var(--violet-deep)" : "rgba(74,6,136,0.06)",

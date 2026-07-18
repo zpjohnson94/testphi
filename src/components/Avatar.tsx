@@ -3,28 +3,20 @@
 
 import type { CSSProperties } from "react";
 import bear from "@/assets/avatars/bear.png";
-import bunny from "@/assets/avatars/bunny.png";
-import croc from "@/assets/avatars/croc.png";
 import eagle from "@/assets/avatars/eagle.png";
 import frog from "@/assets/avatars/frog.png";
-import koala from "@/assets/avatars/koala.png";
-import lion from "@/assets/avatars/lion.png";
 import panda from "@/assets/avatars/panda.png";
-import penguin from "@/assets/avatars/penguin.png";
 import pig from "@/assets/avatars/pig.png";
 import shiba from "@/assets/avatars/shiba.png";
-import tiger from "@/assets/avatars/tiger.png";
 
-export type AnimalId =
-  | "bear" | "bunny" | "croc" | "eagle" | "frog" | "koala"
-  | "lion" | "panda" | "penguin" | "pig" | "shiba" | "tiger";
+export type AnimalId = "bear" | "eagle" | "frog" | "panda" | "pig" | "shiba";
 
 export type AccessoryId =
   | "none" | "party" | "crown" | "tophat" | "grad"
   | "halo" | "headphones" | "flower" | "wizard" | "chef" | "cowboy";
 
 const ANIMAL_IMAGES: Record<AnimalId, string> = {
-  bear, bunny, croc, eagle, frog, koala, lion, panda, penguin, pig, shiba, tiger,
+  bear, eagle, frog, panda, pig, shiba,
 };
 
 export interface AvatarConfig {
@@ -35,17 +27,11 @@ export interface AvatarConfig {
 
 export const ANIMALS: { id: AnimalId; name: string; emoji: string }[] = [
   { id: "bear", name: "Bear", emoji: "🐻" },
-  { id: "bunny", name: "Bunny", emoji: "🐰" },
-  { id: "croc", name: "Croc", emoji: "🐊" },
   { id: "eagle", name: "Eagle", emoji: "🦅" },
   { id: "frog", name: "Frog", emoji: "🐸" },
-  { id: "koala", name: "Koala", emoji: "🐨" },
-  { id: "lion", name: "Lion", emoji: "🦁" },
   { id: "panda", name: "Panda", emoji: "🐼" },
-  { id: "penguin", name: "Penguin", emoji: "🐧" },
   { id: "pig", name: "Pig", emoji: "🐷" },
   { id: "shiba", name: "Shiba", emoji: "🐕" },
-  { id: "tiger", name: "Tiger", emoji: "🐯" },
 ];
 
 export const COLOR_SWATCHES = [
@@ -129,8 +115,8 @@ export function Avatar({ config, size = 96, className = "", style, animate = fal
           height={size}
           draggable={false}
           style={{
-            width: "88%",
-            height: "88%",
+            width: "115%",
+            height: "115%",
             objectFit: "contain",
             transformOrigin: "50% 70%",
             animation: animate ? "blob-idle 3.2s ease-in-out infinite" : undefined,

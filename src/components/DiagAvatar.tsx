@@ -2,36 +2,22 @@
 // over a circular disc whose fill color is user-customizable.
 import bear from "@/assets/avatars/bear.png";
 import frog from "@/assets/avatars/frog.png";
-import lion from "@/assets/avatars/lion.png";
 import panda from "@/assets/avatars/panda.png";
 import eagle from "@/assets/avatars/eagle.png";
-import croc from "@/assets/avatars/croc.png";
-import koala from "@/assets/avatars/koala.png";
-import bunny from "@/assets/avatars/bunny.png";
-import tiger from "@/assets/avatars/tiger.png";
-import penguin from "@/assets/avatars/penguin.png";
 import shiba from "@/assets/avatars/shiba.png";
 import pig from "@/assets/avatars/pig.png";
 
-export type AvatarId =
-  | "bear" | "frog" | "lion" | "panda" | "eagle" | "croc"
-  | "koala" | "bunny" | "tiger" | "penguin" | "shiba" | "pig";
+export type AvatarId = "bear" | "frog" | "panda" | "eagle" | "shiba" | "pig";
 
 export const AVATAR_IMAGES: Record<AvatarId, string> = {
-  bear, frog, lion, panda, eagle, croc, koala, bunny, tiger, penguin, shiba, pig,
+  bear, frog, panda, eagle, shiba, pig,
 };
 
 export const AVATAR_OPTIONS: { id: AvatarId; name: string }[] = [
   { id: "bear", name: "Bear" },
   { id: "frog", name: "Frog" },
-  { id: "lion", name: "Lion" },
   { id: "panda", name: "Panda" },
   { id: "eagle", name: "Eagle" },
-  { id: "croc", name: "Croc" },
-  { id: "koala", name: "Koala" },
-  { id: "bunny", name: "Bunny" },
-  { id: "tiger", name: "Tiger" },
-  { id: "penguin", name: "Penguin" },
   { id: "shiba", name: "Shiba" },
   { id: "pig", name: "Pig" },
 ];
@@ -66,8 +52,8 @@ export function DiagAvatar({ id, color, size = 96, ringWidth }: Props) {
         alt=""
         draggable={false}
         style={{
-          width: `calc(100% - ${pad * 2}px)`,
-          height: `calc(100% - ${pad * 2}px)`,
+          width: `calc(115% - ${pad * 2}px)`,
+          height: `calc(115% - ${pad * 2}px)`,
           objectFit: "contain",
           display: "block",
           userSelect: "none",
