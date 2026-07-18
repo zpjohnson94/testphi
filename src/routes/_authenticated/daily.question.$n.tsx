@@ -34,6 +34,7 @@ function DailyQuestion() {
   const [correctPos, setCorrectPos] = useState<number | null>(null);
   const [isCorrect, setIsCorrect] = useState<boolean>(false);
   const [showModal, setShowModal] = useState(false);
+  const [reportOpen, setReportOpen] = useState(false);
   const storeAvatar = useStore((s) => s.avatar);
   const [elapsedMs, setElapsedMs] = useState(0);
   const startRef = useRef(Date.now());
