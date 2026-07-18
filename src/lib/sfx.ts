@@ -25,12 +25,28 @@ function tone(freq: number, duration: number, type: OscillatorType = "sine", gai
 }
 
 export const sfx = {
-  correct() { tone(660, 0.1, "triangle", 0.18); tone(990, 0.18, "triangle", 0.16, 0.08); },
-  wrong() { tone(220, 0.18, "sawtooth", 0.12); tone(160, 0.22, "sawtooth", 0.1, 0.08); },
+  async resume() {
+    const c = getCtx();
+    if (c && c.state === "suspended") {
+      try { await c.resume(); } catch {}
+    }
+  },
+  correct() {
+    // Pleasant major-chord sparkle aligned with the green answer pop.
+    tone(880, 0.12, "sine", 0.14);
+    tone(1109, 0.14, "sine", 0.12, 0.06);
+    tone(1319, 0.2, "sine", 0.12, 0.12);
+    tone(1760, 0.28, "triangle", 0.08, 0.18);
+  },
+  wrong() {
+    // Subtle low buzz paired with the red shake moment.
+    tone(185, 0.08, "sawtooth", 0.08);
+    tone(140, 0.2, "sawtooth", 0.06, 0.06);
+  },
   levelUp() {
     tone(523, 0.1, "triangle", 0.18);
     tone(659, 0.1, "triangle", 0.18, 0.1);
-    tone(784, 0.18, "triangle", 0.18, 0.2);
+    tone(784, 0.1, "triangle", 0.18, 0.2);
     tone(1047, 0.3, "triangle", 0.2, 0.32);
   },
   tap() { tone(440, 0.05, "sine", 0.08); },

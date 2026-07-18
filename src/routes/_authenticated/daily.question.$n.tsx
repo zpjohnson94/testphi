@@ -126,10 +126,16 @@ function DailyQuestion() {
         selectedPosition: choiceIdx,
         elapsedMs,
       });
+      await sfx.resume();
       setIsCorrect(result.isCorrect);
       setCorrectPos(result.correctPosition);
       setGraded(true);
-      if (result.isCorrect) fireBolts(choiceIdx);
+      if (result.isCorrect) {
+        sfx.correct();
+        fireBolts(choiceIdx);
+      } else {
+        sfx.wrong();
+      }
 
       // Update the cache so the review modal on the complete screen can read
       // the answered positions without a separate refetch.
