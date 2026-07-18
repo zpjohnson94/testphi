@@ -160,6 +160,36 @@ export type Database = {
         }
         Relationships: []
       }
+      question_reports: {
+        Row: {
+          created_at: string
+          details: string | null
+          id: string
+          question_id: string
+          reason: string | null
+          slot: number | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          details?: string | null
+          id?: string
+          question_id: string
+          reason?: string | null
+          slot?: number | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          details?: string | null
+          id?: string
+          question_id?: string
+          reason?: string | null
+          slot?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       questions: {
         Row: {
           created_at: string
