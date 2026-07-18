@@ -216,6 +216,17 @@ export function unlockAccessory(id: AccessoryId) {
   setState((s) => s.unlockedAccessories.includes(id) ? s : { ...s, unlockedAccessories: [...s.unlockedAccessories, id] });
 }
 
+export function unlockAccessories(ids: AccessoryId[]) {
+  setState((s) => {
+    const set = new Set<AccessoryId>(s.unlockedAccessories);
+    let changed = false;
+    for (const id of ids) {
+      if (!set.has(id)) { set.add(id); changed = true; }
+    }
+    return changed ? { ...s, unlockedAccessories: Array.from(set) } : s;
+  });
+}
+
 // --- Helpers ---
 
 export function weakestSkill(state: State): { id: string; name: string; mastery: number } | null {
