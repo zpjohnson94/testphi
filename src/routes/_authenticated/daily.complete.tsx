@@ -52,6 +52,16 @@ function DailyComplete() {
     setPrev(freeState);
   }, [freeState]);
 
+  // Evaluate accessory unlocks once we have both the pre-session baseline
+  // and the finalized post-session state.
+  const unlocksEvaluatedRef = useRef(false);
+  useEffect(() => {
+    if (unlocksEvaluatedRef.current) return;
+    if (!next) return;
+    unlocksEvaluatedRef.current = true;
+    evaluateAccessoryUnlocks(prev, next);
+  }, [prev, next]);
+
   // Handle errors coming out of the finalize query.
   useEffect(() => {
     const err = finalize.error as any;
