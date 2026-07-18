@@ -388,6 +388,13 @@ function DailyQuestion() {
 
       <PowerUpModal open={showModal} onClose={() => setShowModal(false)} />
 
+      <QuestionReportModal
+        open={reportOpen}
+        onClose={() => setReportOpen(false)}
+        questionId={served.questionId}
+        slot={idx}
+      />
+
       <style>{`
         @keyframes bolt-fly {
           0%   { transform: translate(var(--sx), var(--sy)) rotate(var(--r0)) scale(0.4); opacity: 0; }
