@@ -15,13 +15,15 @@ export const reportQuestion = createServerFn({ method: "POST" })
       .parse(raw)
   )
   .handler(async ({ data, context }) => {
-    const { error } = await context.supabase.from("question_reports").insert({
-      user_id: context.userId,
-      question_id: data.questionId,
-      slot: data.slot ?? null,
-      reason: data.reason ?? null,
-      details: data.details ?? null,
-    });
+    const { error } = await (context.supabase as any)
+      .from("question_reports")
+      .insert({
+        user_id: context.userId,
+        question_id: data.questionId,
+        slot: data.slot ?? null,
+        reason: data.reason ?? null,
+        details: data.details ?? null,
+      } as any);
 
     if (error) {
       throw new Error(error.message);
