@@ -238,11 +238,24 @@ function DailyQuestion() {
           className="rounded-2xl p-6 sm:p-8 animate-fade-up"
           style={{ background: "var(--lavender)", color: "var(--ink)" }}
         >
-          <div
-            className="inline-block rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-[0.18em]"
-            style={{ background: "rgba(74,6,136,0.12)", color: "var(--violet-deep)" }}
-          >
-            {served.domainLabel}
+          <div className="flex items-start justify-between gap-3">
+            <div
+              className="inline-block rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-[0.18em]"
+              style={{ background: "rgba(74,6,136,0.12)", color: "var(--violet-deep)" }}
+            >
+              {served.domainLabel}
+            </div>
+            <button
+              onClick={() => setReportOpen(true)}
+              aria-label="Report question"
+              className="flex items-center gap-1.5 opacity-70 hover:opacity-100 transition-opacity"
+              style={{ color: "var(--violet-deep)" }}
+            >
+              <Flag className="size-4" />
+              <span className="hidden sm:inline text-[11px] font-bold uppercase tracking-wider">
+                Report
+              </span>
+            </button>
           </div>
 
           {served.passage && (
