@@ -49,10 +49,12 @@ export function QuestionReportModal({ open, onClose, questionId, slot }: Props) 
     setError(null);
     try {
       await submit({
-        questionId,
-        slot,
-        reason,
-        details: details.trim() || undefined,
+        data: {
+          questionId,
+          slot,
+          reason,
+          details: details.trim() || undefined,
+        },
       });
       setStatus("sent");
     } catch (e: any) {
