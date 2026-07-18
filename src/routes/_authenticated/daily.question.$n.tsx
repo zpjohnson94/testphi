@@ -166,10 +166,10 @@ function DailyQuestion() {
   const progressPct = (idx / 5) * 100;
 
   if (!served) {
-    const avatarId = (diagAvatar.avatarId in AVATAR_IMAGES ? diagAvatar.avatarId : "fox") as AvatarId;
+    const avatarCfg = storeAvatar ?? defaultAvatar();
     return (
       <div className="topo-bg topo-dim min-h-screen flex flex-col items-center justify-center gap-4 text-[var(--lavender)]/70 text-sm">
-        <DiagAvatar id={avatarId} color={diagAvatar.color || "#B8FF00"} size={88} />
+        <Avatar config={avatarCfg} size={88} animate />
         <span>{isLoading ? "Loading today's questions…" : "Daily set unavailable."}</span>
       </div>
     );
