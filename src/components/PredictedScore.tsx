@@ -28,7 +28,7 @@ export function PredictedScore({
     const tick = (now: number) => {
       const k = Math.min(1, (now - t0) / dur);
       const eased = 1 - Math.pow(1 - k, 3);
-      setShown(Math.round(start + (end - start) * eased));
+      setShown(Math.round((start + (end - start) * eased) / 10) * 10);
       if (k < 1) raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);

@@ -20,7 +20,6 @@ type Pt = {
   date: string;      // ISO YYYY-MM-DD
   ts: number;        // epoch for X axis
   score: number;
-  projected: boolean;
   pre: number | null;   // pre-calibration line value
   post: number | null;  // post-calibration line value
 };
@@ -56,7 +55,11 @@ function decayScore(prev: number, idleDays: number, baselineFloor: number): numb
   if (idleDays <= SCORING.DECAY_GRACE_DAYS) return prev;
   const weeks = (idleDays - SCORING.DECAY_GRACE_DAYS) / 7;
   const dropped = prev * (1 - (SCORING.DECAY_PER_WEEK / 100) * weeks);
-  return Math.max(baselineFloor, Math.round(dropped));
+  return Math.max(baselineFloor, Math.round(dropped / 10) * 10);
+}
+
+function roundTo10(n: number): number {
+  return Math.round(n / 10) * 10;
 }
 
 function niceCeil(n: number, step: number) {
@@ -92,7 +95,7 @@ export function PredictedScoreHistory({ state }: { state: FreeState }) {
       const n = sessionDays.length;
       sessionDays.forEach((d, i) => {
         const t = n === 1 ? 1 : (i + 1) / n;
-        perSessionScore.set(d, Math.round(start + (end - start) * t));
+        perSessionScore.set(d, roundTo10(start + (end - start) * t));
       });
     }
 
@@ -107,22 +110,17 @@ export function PredictedScoreHistory({ state }: { state: FreeState }) {
     for (let i = 0; i <= totalDays; i++) {
       const date = isoAddDays(diagDate, i);
       let score: number;
-      let projected: boolean;
 
       if (date === diagDate) {
-        score = start;
-        projected = false;
+        score = roundTo10(start);
       } else if (sessionSet.has(date)) {
-        score = perSessionScore.get(date) ?? prev;
-        projected = false;
+        score = roundTo10(perSessionScore.get(date) ?? prev);
         lastSessionDay = date;
       } else if (date === today) {
-        score = end;
-        projected = false;
+        score = roundTo10(end);
       } else {
         const idle = daysBetween(lastSessionDay, date);
-        score = decayScore(prev, idle, baselineFloor);
-        projected = true;
+        score = roundTo10(decayScore(prev, idle, baselineFloor));
       }
 
       const solid = !!calDate && date >= calDate;
@@ -130,7 +128,6 @@ export function PredictedScoreHistory({ state }: { state: FreeState }) {
         date,
         ts: new Date(date + "T00:00:00").getTime(),
         score,
-        projected,
         pre: solid ? null : score,
         post: solid ? score : null,
       });
@@ -196,9 +193,8 @@ export function PredictedScoreHistory({ state }: { state: FreeState }) {
                 color: "rgba(246,240,250,0.95)",
               }}
               labelFormatter={(v) => fmtShort(Number(v))}
-              formatter={(val: number, _n, item: any) => {
-                const p: Pt = item?.payload;
-                return [`${val}${p?.projected ? " (projected)" : ""}`, "Score"];
+              formatter={(val: number) => {
+                return [`${val}`, "Score"];
               }}
             />
             {/* Pre-calibration: dashed muted */}
