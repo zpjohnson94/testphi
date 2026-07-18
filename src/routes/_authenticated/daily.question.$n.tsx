@@ -5,8 +5,8 @@ import { Timer, ArrowRight, HelpCircle } from "lucide-react";
 import { useFreeState, useServeDailyQuestion, useGradeDailyAnswer, usePrefetchDailySet, servedQuestionKey, usePrewarmDailyFinalize } from "@/lib/useFree";
 import { type ServedQuestion } from "@/lib/dailyAttempt.functions";
 import { PowerUpModal } from "@/components/PowerUpModal";
-import { DiagAvatar, AVATAR_IMAGES, type AvatarId } from "@/components/DiagAvatar";
-import { loadDiag, defaultDiag } from "@/lib/diagnostic";
+import { Avatar, defaultAvatar } from "@/components/Avatar";
+import { useStore } from "@/lib/store";
 import { sfx } from "@/lib/sfx";
 
 export const Route = createFileRoute("/_authenticated/daily/question/$n")({
