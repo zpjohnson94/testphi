@@ -3,7 +3,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Flame, Info } from "lucide-react";
 import { FreeShell } from "@/components/FreeShell";
 import { Logo } from "@/components/Logo";
-import { Avatar, defaultAvatar } from "@/components/Avatar";
+import { Avatar } from "@/components/Avatar";
+import { useStore, useHydration } from "@/lib/store";
 import { PredictedScore } from "@/components/PredictedScore";
 import { PredictedScoreHistory } from "@/components/PredictedScoreHistory";
 import { MomentumGauge } from "@/components/MomentumGauge";
@@ -26,7 +27,9 @@ export const Route = createFileRoute("/_authenticated/home")({
 
 function HomePage() {
   const navigate = useNavigate();
+  useHydration();
   const { data: state } = useFreeState();
+  const avatar = useStore((s) => s.avatar);
   const overall = state?.overall ?? 800;
   const streak = state?.streak ?? 0;
   const done = state ? hasCompletedToday(state) : false;
@@ -154,7 +157,7 @@ function HomePage() {
                 className="shrink-0 size-16 sm:size-20 rounded-2xl flex items-center justify-center"
                 style={{ background: "rgba(184,255,0,0.15)", border: "2px solid var(--volt)" }}
               >
-                <Avatar config={{ ...defaultAvatar(), accessory: "crown" }} size={56} animate />
+                <Avatar config={avatar} size={56} animate />
               </div>
             </div>
             <div className="mt-3 sm:mt-5 grid grid-cols-2 gap-2 sm:gap-3 text-left">
