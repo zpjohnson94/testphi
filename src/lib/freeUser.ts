@@ -23,7 +23,7 @@ export const SCORING = {
   MASTERY_FLOOR: 0,
   MASTERY_CEIL: 100,
   DIFF_WEIGHTS: { 1: 1, 2: 2, 3: 3 } as Record<Difficulty, number>,
-  BASE_GAIN: { 1: 1.5, 2: 2.5, 3: 4.0 } as Record<Difficulty, number>,
+  BASE_GAIN: { 1: 1.0, 2: 2.0, 3: 3.0 } as Record<Difficulty, number>,
   BASE_LOSS: { 1: 3.0, 2: 2.0, 3: 1.0 } as Record<Difficulty, number>,
   // null = no cap / no floor
   GAIN_CEILING: { 1: 50, 2: 85, 3: null } as Record<Difficulty, number | null>,
