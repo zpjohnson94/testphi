@@ -195,10 +195,10 @@ function defaultState(): FreeState {
 
 // ---------- Predicted Score ----------
 
-// Domain Score = 50 + 150 × (mastery/100)^1.4 → 50..200.
+// Domain Score = 50 + 150 × (mastery/100) → 50..200. (v2: linear)
 function domainScore(masteryPct: number): number {
   const m = Math.max(0, Math.min(100, masteryPct)) / 100;
-  return 50 + 150 * Math.pow(m, 1.4);
+  return 50 + 150 * m;
 }
 
 function computePredicted(state: FreeState): number {
