@@ -23,7 +23,7 @@ export const SCORING = {
   MASTERY_FLOOR: 0,
   MASTERY_CEIL: 100,
   DIFF_WEIGHTS: { 1: 1, 2: 2, 3: 3 } as Record<Difficulty, number>,
-  BASE_GAIN: { 1: 1.5, 2: 2.5, 3: 4.0 } as Record<Difficulty, number>,
+  BASE_GAIN: { 1: 1.0, 2: 2.0, 3: 3.0 } as Record<Difficulty, number>,
   BASE_LOSS: { 1: 3.0, 2: 2.0, 3: 1.0 } as Record<Difficulty, number>,
   // null = no cap / no floor
   GAIN_CEILING: { 1: 50, 2: 85, 3: null } as Record<Difficulty, number | null>,
@@ -195,10 +195,10 @@ function defaultState(): FreeState {
 
 // ---------- Predicted Score ----------
 
-// Domain Score = 50 + 150 × (mastery/100)^1.4 → 50..200.
+// Domain Score = 50 + 150 × (mastery/100) → 50..200. (v2: linear)
 function domainScore(masteryPct: number): number {
   const m = Math.max(0, Math.min(100, masteryPct)) / 100;
-  return 50 + 150 * Math.pow(m, 1.4);
+  return 50 + 150 * m;
 }
 
 function computePredicted(state: FreeState): number {
@@ -447,7 +447,10 @@ function deltaFor(
   }
   const floor = SCORING.LOSS_FLOOR[difficulty];
   if (floor !== null && mastery <= floor) return 0;
-  return -SCORING.BASE_LOSS[difficulty] * tf;
+  // v2: losses scale with mastery — 0.5x at 0% mastery, 1.5x at 100%.
+  const m = Math.max(0, Math.min(1, mastery / 100));
+  const lossScale = 0.5 + (1 - Math.sqrt(1 - m));
+  return -SCORING.BASE_LOSS[difficulty] * tf * lossScale;
 }
 
 // Apply a single answered question to the state. Returns base + actual gain
