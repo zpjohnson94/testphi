@@ -447,7 +447,10 @@ function deltaFor(
   }
   const floor = SCORING.LOSS_FLOOR[difficulty];
   if (floor !== null && mastery <= floor) return 0;
-  return -SCORING.BASE_LOSS[difficulty] * tf;
+  // v2: losses scale with mastery — 0.5x at 0% mastery, 1.5x at 100%.
+  const m = Math.max(0, Math.min(1, mastery / 100));
+  const lossScale = 0.5 + (1 - Math.sqrt(1 - m));
+  return -SCORING.BASE_LOSS[difficulty] * tf * lossScale;
 }
 
 // Apply a single answered question to the state. Returns base + actual gain
