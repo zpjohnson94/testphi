@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { Zap, Pencil, Check, X, Wrench, Lock, Unlock } from "lucide-react";
 import { FreeShell } from "@/components/FreeShell";
