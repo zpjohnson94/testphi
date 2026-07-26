@@ -19,6 +19,8 @@ import {
   sectionScore,
 } from "@/lib/freeUser";
 import { useFreeState } from "@/lib/useFree";
+import { useBattleStatus, usePrefetchBattleBundle } from "@/lib/useBattle";
+import { Swords } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/home")({
   head: () => ({ meta: [{ title: "Home — TestPhi" }] }),
