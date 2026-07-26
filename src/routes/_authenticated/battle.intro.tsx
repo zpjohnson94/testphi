@@ -135,11 +135,6 @@ function BattleIntro() {
           </div>
         </div>
 
-        {bundle.firstEver && (
-          <div className="mt-6 max-w-md text-center text-sm text-[var(--lavender)]/70">
-            Battle Mode just launched — come back tomorrow to race today's runs.
-          </div>
-        )}
 
         <div className="mt-10 h-28 flex items-center justify-center">
           {countdown !== null && countdown > 0 && (
