@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Flame, Info, Target } from "lucide-react";
+import { Flame, Info } from "lucide-react";
 import { FreeShell } from "@/components/FreeShell";
 import { Logo } from "@/components/Logo";
 import { Avatar } from "@/components/Avatar";
@@ -8,7 +8,7 @@ import { useStore, useHydration } from "@/lib/store";
 import { PredictedScore } from "@/components/PredictedScore";
 import { PredictedScoreHistory } from "@/components/PredictedScoreHistory";
 import { MomentumGauge } from "@/components/MomentumGauge";
-import { UnlockReadyCard } from "@/components/UnlockReadyCard";
+import { UnlockReadyCard, BoltMark } from "@/components/UnlockReadyCard";
 import { BonusUnlockModal } from "@/components/BonusUnlockModal";
 import {
   hasCompletedToday,
@@ -217,9 +217,9 @@ function HomePage() {
             <div className="flex items-center gap-3">
               <div
                 className="shrink-0 size-11 rounded-2xl flex items-center justify-center"
-                style={{ background: "rgba(184,255,0,0.15)", border: "1.5px solid var(--volt)" }}
+                style={{ background: "rgba(184,255,0,0.15)", border: "1.5px solid var(--volt)", color: "var(--volt)" }}
               >
-                <Target className="size-5" style={{ color: "var(--volt)" }} />
+                <BoltMark size={22} />
               </div>
               <div className="display text-2xl text-[var(--lavender)]">Daily 5</div>
             </div>

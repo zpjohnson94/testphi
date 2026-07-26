@@ -8,7 +8,7 @@ interface Props {
 }
 
 // Lightning bolt mark inspired by the site logo (bolt inside a broken ring).
-function BoltMark({ size = 22 }: { size?: number }) {
+export function BoltMark({ size = 22 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 64 64" aria-hidden fill="none">
       {/* broken ring */}
