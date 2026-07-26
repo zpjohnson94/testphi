@@ -19,6 +19,8 @@ import {
   sectionScore,
 } from "@/lib/freeUser";
 import { useFreeState } from "@/lib/useFree";
+import { useBattleStatus, usePrefetchBattleBundle } from "@/lib/useBattle";
+import { Swords } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/home")({
   head: () => ({ meta: [{ title: "Home — TestPhi" }] }),
@@ -29,6 +31,8 @@ function HomePage() {
   const navigate = useNavigate();
   useHydration();
   const { data: state } = useFreeState();
+  const { data: battleStatus } = useBattleStatus();
+  const prefetchBattle = usePrefetchBattleBundle();
   const avatar = useStore((s) => s.avatar);
   const overall = state?.overall ?? 800;
   const streak = state?.streak ?? 0;
@@ -299,7 +303,54 @@ function HomePage() {
             )}
           </section>
 
+          {/* Battle Mode module */}
+          <section
+            className="rounded-3xl p-6 backdrop-blur-md"
+            style={{
+              background: "color-mix(in oklab, var(--violet-deep) 45%, transparent)",
+              border: "2px solid var(--neon)",
+            }}
+          >
+            <div className="flex items-start gap-3">
+              <div
+                className="shrink-0 size-11 rounded-2xl flex items-center justify-center"
+                style={{ background: "rgba(184,255,0,0.15)", border: "1.5px solid var(--volt)" }}
+              >
+                <Swords className="size-5" style={{ color: "var(--volt)" }} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="display text-2xl text-[var(--lavender)]">Battle Mode</div>
+                <div
+                  className="text-sm font-semibold mt-1"
+                  style={{ color: "rgba(246,240,250,0.7)" }}
+                >
+                  Go head-to-head with a random opponent to see who can answer more questions correctly in 2 minutes
+                </div>
+              </div>
+            </div>
+            {battleStatus?.alreadyCompleted ? (
+              <div
+                className="mt-5 w-full py-3.5 text-center text-sm font-bold rounded-2xl"
+                style={{
+                  border: "1.5px solid rgba(246,240,250,0.25)",
+                  color: "rgba(246,240,250,0.75)",
+                }}
+              >
+                Come back tomorrow · {battleStatus.totalWins ?? 0} total wins
+              </div>
+            ) : (
+              <button
+                onMouseEnter={() => prefetchBattle()}
+                onClick={() => navigate({ to: "/battle/intro" as any })}
+                className="btn-volt mt-5 w-full py-4 text-base rounded-2xl"
+              >
+                Battle!
+              </button>
+            )}
+          </section>
+
           {/* Momentum module */}
+
           <section
             ref={momentumRef}
             className="rounded-3xl p-6 backdrop-blur-md flex flex-col relative"

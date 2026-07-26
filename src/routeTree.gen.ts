@@ -34,7 +34,11 @@ import { Route as AuthenticatedAccountRouteImport } from './routes/_authenticate
 import { Route as DiagnosticQuestionNRouteImport } from './routes/diagnostic.question.$n'
 import { Route as ApiPublicEnsureDemoUserRouteImport } from './routes/api/public/ensure-demo-user'
 import { Route as AuthenticatedDailyCompleteRouteImport } from './routes/_authenticated/daily.complete'
+import { Route as AuthenticatedBattleResultsRouteImport } from './routes/_authenticated/battle.results'
+import { Route as AuthenticatedBattlePlayRouteImport } from './routes/_authenticated/battle.play'
+import { Route as AuthenticatedBattleIntroRouteImport } from './routes/_authenticated/battle.intro'
 import { Route as ApiPublicHooksGenerateDailySetsRouteImport } from './routes/api/public/hooks/generate-daily-sets'
+import { Route as ApiPublicHooksGenerateBattleSetsRouteImport } from './routes/api/public/hooks/generate-battle-sets'
 import { Route as AuthenticatedDailyQuestionNRouteImport } from './routes/_authenticated/daily.question.$n'
 
 const SignupRoute = SignupRouteImport.update({
@@ -163,10 +167,33 @@ const AuthenticatedDailyCompleteRoute =
     path: '/daily/complete',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedBattleResultsRoute =
+  AuthenticatedBattleResultsRouteImport.update({
+    id: '/battle/results',
+    path: '/battle/results',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedBattlePlayRoute = AuthenticatedBattlePlayRouteImport.update({
+  id: '/battle/play',
+  path: '/battle/play',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedBattleIntroRoute =
+  AuthenticatedBattleIntroRouteImport.update({
+    id: '/battle/intro',
+    path: '/battle/intro',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const ApiPublicHooksGenerateDailySetsRoute =
   ApiPublicHooksGenerateDailySetsRouteImport.update({
     id: '/api/public/hooks/generate-daily-sets',
     path: '/api/public/hooks/generate-daily-sets',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicHooksGenerateBattleSetsRoute =
+  ApiPublicHooksGenerateBattleSetsRouteImport.update({
+    id: '/api/public/hooks/generate-battle-sets',
+    path: '/api/public/hooks/generate-battle-sets',
     getParentRoute: () => rootRouteImport,
   } as any)
 const AuthenticatedDailyQuestionNRoute =
@@ -198,10 +225,14 @@ export interface FileRoutesByFullPath {
   '/learn/reading-writing': typeof LearnReadingWritingRoute
   '/lesson/$nodeId': typeof LessonNodeIdRoute
   '/diagnostic/': typeof DiagnosticIndexRoute
+  '/battle/intro': typeof AuthenticatedBattleIntroRoute
+  '/battle/play': typeof AuthenticatedBattlePlayRoute
+  '/battle/results': typeof AuthenticatedBattleResultsRoute
   '/daily/complete': typeof AuthenticatedDailyCompleteRoute
   '/api/public/ensure-demo-user': typeof ApiPublicEnsureDemoUserRoute
   '/diagnostic/question/$n': typeof DiagnosticQuestionNRoute
   '/daily/question/$n': typeof AuthenticatedDailyQuestionNRoute
+  '/api/public/hooks/generate-battle-sets': typeof ApiPublicHooksGenerateBattleSetsRoute
   '/api/public/hooks/generate-daily-sets': typeof ApiPublicHooksGenerateDailySetsRoute
 }
 export interface FileRoutesByTo {
@@ -226,10 +257,14 @@ export interface FileRoutesByTo {
   '/learn/reading-writing': typeof LearnReadingWritingRoute
   '/lesson/$nodeId': typeof LessonNodeIdRoute
   '/diagnostic': typeof DiagnosticIndexRoute
+  '/battle/intro': typeof AuthenticatedBattleIntroRoute
+  '/battle/play': typeof AuthenticatedBattlePlayRoute
+  '/battle/results': typeof AuthenticatedBattleResultsRoute
   '/daily/complete': typeof AuthenticatedDailyCompleteRoute
   '/api/public/ensure-demo-user': typeof ApiPublicEnsureDemoUserRoute
   '/diagnostic/question/$n': typeof DiagnosticQuestionNRoute
   '/daily/question/$n': typeof AuthenticatedDailyQuestionNRoute
+  '/api/public/hooks/generate-battle-sets': typeof ApiPublicHooksGenerateBattleSetsRoute
   '/api/public/hooks/generate-daily-sets': typeof ApiPublicHooksGenerateDailySetsRoute
 }
 export interface FileRoutesById {
@@ -256,10 +291,14 @@ export interface FileRoutesById {
   '/learn/reading-writing': typeof LearnReadingWritingRoute
   '/lesson/$nodeId': typeof LessonNodeIdRoute
   '/diagnostic/': typeof DiagnosticIndexRoute
+  '/_authenticated/battle/intro': typeof AuthenticatedBattleIntroRoute
+  '/_authenticated/battle/play': typeof AuthenticatedBattlePlayRoute
+  '/_authenticated/battle/results': typeof AuthenticatedBattleResultsRoute
   '/_authenticated/daily/complete': typeof AuthenticatedDailyCompleteRoute
   '/api/public/ensure-demo-user': typeof ApiPublicEnsureDemoUserRoute
   '/diagnostic/question/$n': typeof DiagnosticQuestionNRoute
   '/_authenticated/daily/question/$n': typeof AuthenticatedDailyQuestionNRoute
+  '/api/public/hooks/generate-battle-sets': typeof ApiPublicHooksGenerateBattleSetsRoute
   '/api/public/hooks/generate-daily-sets': typeof ApiPublicHooksGenerateDailySetsRoute
 }
 export interface FileRouteTypes {
@@ -286,10 +325,14 @@ export interface FileRouteTypes {
     | '/learn/reading-writing'
     | '/lesson/$nodeId'
     | '/diagnostic/'
+    | '/battle/intro'
+    | '/battle/play'
+    | '/battle/results'
     | '/daily/complete'
     | '/api/public/ensure-demo-user'
     | '/diagnostic/question/$n'
     | '/daily/question/$n'
+    | '/api/public/hooks/generate-battle-sets'
     | '/api/public/hooks/generate-daily-sets'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -314,10 +357,14 @@ export interface FileRouteTypes {
     | '/learn/reading-writing'
     | '/lesson/$nodeId'
     | '/diagnostic'
+    | '/battle/intro'
+    | '/battle/play'
+    | '/battle/results'
     | '/daily/complete'
     | '/api/public/ensure-demo-user'
     | '/diagnostic/question/$n'
     | '/daily/question/$n'
+    | '/api/public/hooks/generate-battle-sets'
     | '/api/public/hooks/generate-daily-sets'
   id:
     | '__root__'
@@ -343,10 +390,14 @@ export interface FileRouteTypes {
     | '/learn/reading-writing'
     | '/lesson/$nodeId'
     | '/diagnostic/'
+    | '/_authenticated/battle/intro'
+    | '/_authenticated/battle/play'
+    | '/_authenticated/battle/results'
     | '/_authenticated/daily/complete'
     | '/api/public/ensure-demo-user'
     | '/diagnostic/question/$n'
     | '/_authenticated/daily/question/$n'
+    | '/api/public/hooks/generate-battle-sets'
     | '/api/public/hooks/generate-daily-sets'
   fileRoutesById: FileRoutesById
 }
@@ -370,6 +421,7 @@ export interface RootRouteChildren {
   DiagnosticIndexRoute: typeof DiagnosticIndexRoute
   ApiPublicEnsureDemoUserRoute: typeof ApiPublicEnsureDemoUserRoute
   DiagnosticQuestionNRoute: typeof DiagnosticQuestionNRoute
+  ApiPublicHooksGenerateBattleSetsRoute: typeof ApiPublicHooksGenerateBattleSetsRoute
   ApiPublicHooksGenerateDailySetsRoute: typeof ApiPublicHooksGenerateDailySetsRoute
 }
 
@@ -550,11 +602,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDailyCompleteRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/battle/results': {
+      id: '/_authenticated/battle/results'
+      path: '/battle/results'
+      fullPath: '/battle/results'
+      preLoaderRoute: typeof AuthenticatedBattleResultsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/battle/play': {
+      id: '/_authenticated/battle/play'
+      path: '/battle/play'
+      fullPath: '/battle/play'
+      preLoaderRoute: typeof AuthenticatedBattlePlayRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/battle/intro': {
+      id: '/_authenticated/battle/intro'
+      path: '/battle/intro'
+      fullPath: '/battle/intro'
+      preLoaderRoute: typeof AuthenticatedBattleIntroRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/api/public/hooks/generate-daily-sets': {
       id: '/api/public/hooks/generate-daily-sets'
       path: '/api/public/hooks/generate-daily-sets'
       fullPath: '/api/public/hooks/generate-daily-sets'
       preLoaderRoute: typeof ApiPublicHooksGenerateDailySetsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/hooks/generate-battle-sets': {
+      id: '/api/public/hooks/generate-battle-sets'
+      path: '/api/public/hooks/generate-battle-sets'
+      fullPath: '/api/public/hooks/generate-battle-sets'
+      preLoaderRoute: typeof ApiPublicHooksGenerateBattleSetsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/daily/question/$n': {
@@ -571,6 +651,9 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAccountRoute: typeof AuthenticatedAccountRoute
   AuthenticatedDomainsRoute: typeof AuthenticatedDomainsRoute
   AuthenticatedHomeRoute: typeof AuthenticatedHomeRoute
+  AuthenticatedBattleIntroRoute: typeof AuthenticatedBattleIntroRoute
+  AuthenticatedBattlePlayRoute: typeof AuthenticatedBattlePlayRoute
+  AuthenticatedBattleResultsRoute: typeof AuthenticatedBattleResultsRoute
   AuthenticatedDailyCompleteRoute: typeof AuthenticatedDailyCompleteRoute
   AuthenticatedDailyQuestionNRoute: typeof AuthenticatedDailyQuestionNRoute
 }
@@ -579,6 +662,9 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAccountRoute: AuthenticatedAccountRoute,
   AuthenticatedDomainsRoute: AuthenticatedDomainsRoute,
   AuthenticatedHomeRoute: AuthenticatedHomeRoute,
+  AuthenticatedBattleIntroRoute: AuthenticatedBattleIntroRoute,
+  AuthenticatedBattlePlayRoute: AuthenticatedBattlePlayRoute,
+  AuthenticatedBattleResultsRoute: AuthenticatedBattleResultsRoute,
   AuthenticatedDailyCompleteRoute: AuthenticatedDailyCompleteRoute,
   AuthenticatedDailyQuestionNRoute: AuthenticatedDailyQuestionNRoute,
 }
@@ -618,6 +704,7 @@ const rootRouteChildren: RootRouteChildren = {
   DiagnosticIndexRoute: DiagnosticIndexRoute,
   ApiPublicEnsureDemoUserRoute: ApiPublicEnsureDemoUserRoute,
   DiagnosticQuestionNRoute: DiagnosticQuestionNRoute,
+  ApiPublicHooksGenerateBattleSetsRoute: ApiPublicHooksGenerateBattleSetsRoute,
   ApiPublicHooksGenerateDailySetsRoute: ApiPublicHooksGenerateDailySetsRoute,
 }
 export const routeTree = rootRouteImport
