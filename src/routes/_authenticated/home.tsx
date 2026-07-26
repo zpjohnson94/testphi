@@ -328,6 +328,16 @@ function HomePage() {
             >
               Go head-to-head with a random opponent to see who can answer more questions correctly in 2 minutes
             </div>
+            <div className="flex items-center justify-center gap-4 mt-4">
+              <Avatar config={avatar} size={56} animate />
+              <div className="display text-lg text-[var(--lavender)]">vs.</div>
+              <div
+                className="shrink-0 size-16 sm:size-20 rounded-full flex items-center justify-center"
+                style={{ background: "rgba(184,255,0,0.15)", border: "2px solid var(--volt)" }}
+              >
+                <span className="display text-2xl text-[var(--volt)]">?</span>
+              </div>
+            </div>
             {battleStatus?.alreadyCompleted ? (
               <div
                 className="mt-5 w-full py-3.5 text-center text-sm font-bold rounded-2xl"
