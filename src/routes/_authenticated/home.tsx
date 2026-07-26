@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Flame, Info } from "lucide-react";
+import { Flame, Info, Target } from "lucide-react";
 import { FreeShell } from "@/components/FreeShell";
 import { Logo } from "@/components/Logo";
 import { Avatar } from "@/components/Avatar";
@@ -214,24 +214,26 @@ function HomePage() {
               border: `2px solid ${done ? "var(--neon)" : "var(--volt)"}`,
             }}
           >
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="display text-2xl text-[var(--lavender)]">
-                  Daily 5
-                </div>
-                <div
-                  className="text-sm font-semibold mt-1"
-                  style={{ color: done ? "var(--neon)" : "rgba(246,240,250,0.7)" }}
-                >
-                  {done ? "Daily 5 complete." : "Complete 5 questions every day to build momentum"}
-                </div>
-                {done && (
-                  <div className="text-sm font-semibold mt-1" style={{ color: "var(--neon)" }}>
-                    Nice work!
-                  </div>
-                )}
+            <div className="flex items-center gap-3">
+              <div
+                className="shrink-0 size-11 rounded-2xl flex items-center justify-center"
+                style={{ background: "rgba(184,255,0,0.15)", border: "1.5px solid var(--volt)" }}
+              >
+                <Target className="size-5" style={{ color: "var(--volt)" }} />
               </div>
+              <div className="display text-2xl text-[var(--lavender)]">Daily 5</div>
             </div>
+            <div
+              className="text-sm font-semibold mt-1 text-left"
+              style={{ color: done ? "var(--neon)" : "rgba(246,240,250,0.7)" }}
+            >
+              {done ? "Daily 5 complete." : "Complete 5 questions every day to build momentum"}
+            </div>
+            {done && (
+              <div className="text-sm font-semibold mt-1" style={{ color: "var(--neon)" }}>
+                Nice work!
+              </div>
+            )}
 
             {/* Five circle indicators */}
             <div className="mt-5 flex items-center gap-3 justify-center">
