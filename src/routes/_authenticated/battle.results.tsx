@@ -2,6 +2,9 @@ import { createFileRoute, useNavigate, useSearch } from "@tanstack/react-router"
 import { useState } from "react";
 import { Trophy, Share2 } from "lucide-react";
 import { FreeShell } from "@/components/FreeShell";
+import { Avatar, defaultAvatar, ANIMALS, COLOR_SWATCHES, type AvatarConfig } from "@/components/Avatar";
+import { useStore } from "@/lib/store";
+import { useFreeState } from "@/lib/useFree";
 
 type BattleResultSearch = {
   rank?: number | string;
@@ -10,6 +13,11 @@ type BattleResultSearch = {
   wrong?: number;
   wins?: number;
   alert?: string;
+  opponentName?: string;
+  opponentAnimalSeed?: number | string;
+  opponentColorSeed?: number | string;
+  opponentCorrect?: number | string;
+  opponentWrong?: number | string;
 };
 
 export const Route = createFileRoute("/_authenticated/battle/results")({
@@ -21,9 +29,21 @@ export const Route = createFileRoute("/_authenticated/battle/results")({
     wrong: s.wrong == null ? 0 : Number(s.wrong),
     wins: s.wins == null ? 0 : Number(s.wins),
     alert: (s.alert as string) ?? "",
+    opponentName: (s.opponentName as string) ?? "Opponent",
+    opponentAnimalSeed: s.opponentAnimalSeed == null ? undefined : Number(s.opponentAnimalSeed),
+    opponentColorSeed: s.opponentColorSeed == null ? undefined : Number(s.opponentColorSeed),
+    opponentCorrect: s.opponentCorrect == null ? undefined : Number(s.opponentCorrect),
+    opponentWrong: s.opponentWrong == null ? undefined : Number(s.opponentWrong),
   }),
   component: BattleResults,
 });
+
+function opponentAvatarConfig(seedAnimal?: number, seedColor?: number): AvatarConfig | null {
+  if (seedAnimal == null || seedColor == null) return null;
+  const animal = ANIMALS[seedAnimal % ANIMALS.length]?.id ?? "bear";
+  const color = COLOR_SWATCHES[seedColor % COLOR_SWATCHES.length] ?? "#A855F7";
+  return { animal, color, accessory: "none" };
+}
 
 function BattleResults() {
   const navigate = useNavigate();
@@ -33,8 +53,20 @@ function BattleResults() {
   const showAlert = alert === "1" && rankNum !== null;
   const [dismissed, setDismissed] = useState(false);
 
+  const myAvatar = useStore((s) => s.avatar) ?? defaultAvatar();
+  const { data: freeState } = useFreeState();
+  const myName = (freeState?.name || "You").split(" ")[0];
+
+  const oppName = search.opponentName || "Opponent";
+  const oppAvatar = opponentAvatarConfig(
+    search.opponentAnimalSeed as number | undefined,
+    search.opponentColorSeed as number | undefined,
+  );
+  const oppCorrect = typeof search.opponentCorrect === "number" ? search.opponentCorrect : null;
+  const oppWrong = typeof search.opponentWrong === "number" ? search.opponentWrong : null;
+
   const headline =
-    result === "win" ? "You won!" : result === "loss" ? "So close." : result === "tie" ? "It's a tie." : "Battle complete";
+    result === "win" ? "You win!" : result === "loss" ? "Nice try" : result === "tie" ? "It's a tie" : "Battle complete";
   const headlineColor = result === "win" ? "var(--volt)" : result === "loss" ? "var(--destructive)" : "var(--lavender)";
 
   const share = async () => {
@@ -62,6 +94,7 @@ function BattleResults() {
             {headline}
           </div>
 
+          {/* Matchup card: avatars + correct/wrong */}
           <div
             className="rounded-3xl p-6 backdrop-blur-md"
             style={{
@@ -70,36 +103,94 @@ function BattleResults() {
             }}
           >
             <div className="grid grid-cols-2 gap-4">
-              <div>
-                <div className="text-[10px] font-bold uppercase tracking-widest text-[var(--lavender)]/70">
-                  Correct
+              {/* User */}
+              <div className="flex flex-col items-center">
+                <Avatar config={myAvatar} size={84} animate />
+                <div className="mt-2 display text-lg text-[var(--lavender)] truncate max-w-full px-2">
+                  {myName}
                 </div>
-                <div className="display text-4xl text-[var(--volt)] tabular-nums">{correct}</div>
+                <div className="mt-3">
+                  <div className="text-[10px] font-bold uppercase tracking-widest text-[var(--lavender)]/70">
+                    Correct
+                  </div>
+                  <div className="display text-4xl text-[var(--volt)] tabular-nums">{correct}</div>
+                </div>
+                <div className="mt-3 flex gap-1">
+                  {Array.from({ length: 3 }).map((_, i) => (
+                    <div
+                      key={i}
+                      className="size-6 rounded-md flex items-center justify-center"
+                      style={{
+                        border: "1.5px solid rgba(246,240,250,0.3)",
+                        background: i < wrong ? "var(--destructive)" : "transparent",
+                        boxShadow: i < wrong ? "0 0 8px rgba(255,77,109,0.55)" : undefined,
+                      }}
+                    >
+                      {i < wrong && <span className="text-xs font-bold text-white">✕</span>}
+                    </div>
+                  ))}
+                </div>
               </div>
-              <div>
-                <div className="text-[10px] font-bold uppercase tracking-widest text-[var(--lavender)]/70">
-                  Wrong
+
+              {/* Opponent */}
+              <div className="flex flex-col items-center">
+                {oppAvatar ? (
+                  <Avatar config={oppAvatar} size={84} animate />
+                ) : (
+                  <div
+                    className="rounded-full flex items-center justify-center"
+                    style={{ width: 84, height: 84, background: "rgba(246,240,250,0.15)", border: "2px dashed rgba(246,240,250,0.4)" }}
+                  >
+                    <span className="display text-3xl text-[var(--lavender)]">?</span>
+                  </div>
+                )}
+                <div className="mt-2 display text-lg text-[var(--lavender)] truncate max-w-full px-2">
+                  {oppName}
                 </div>
-                <div className="display text-4xl text-[var(--destructive)] tabular-nums">{wrong}</div>
+                <div className="mt-3">
+                  <div className="text-[10px] font-bold uppercase tracking-widest text-[var(--lavender)]/70">
+                    Correct
+                  </div>
+                  <div className="display text-4xl text-[var(--volt)] tabular-nums">
+                    {oppCorrect ?? "—"}
+                  </div>
+                </div>
+                <div className="mt-3 flex gap-1">
+                  {Array.from({ length: 3 }).map((_, i) => {
+                    const filled = oppWrong != null ? i < oppWrong : false;
+                    return (
+                      <div
+                        key={i}
+                        className="size-6 rounded-md flex items-center justify-center"
+                        style={{
+                          border: "1.5px solid rgba(246,240,250,0.3)",
+                          background: filled ? "var(--destructive)" : "transparent",
+                          boxShadow: filled ? "0 0 8px rgba(255,77,109,0.55)" : undefined,
+                        }}
+                      >
+                        {filled && <span className="text-xs font-bold text-white">✕</span>}
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             </div>
           </div>
 
+          {/* Total wins box */}
           <div
-            className="rounded-3xl p-5 backdrop-blur-md flex items-center justify-between"
+            className="rounded-3xl p-5 backdrop-blur-md flex items-center gap-4"
             style={{
               background: "color-mix(in oklab, var(--violet-deep) 45%, transparent)",
               border: "2px solid var(--neon)",
             }}
           >
-            <div className="flex items-center gap-3">
-              <Trophy className="size-6" style={{ color: "var(--spark)" }} />
-              <div className="text-left">
-                <div className="text-[10px] font-bold uppercase tracking-widest text-[var(--lavender)]/70">
-                  Total wins
-                </div>
-                <div className="display text-2xl text-[var(--lavender)] tabular-nums">{wins}</div>
+            <Avatar config={myAvatar} size={48} />
+            <div className="flex-1 text-left">
+              <div className="text-[10px] font-bold uppercase tracking-widest text-[var(--lavender)]/70">
+                Total wins
               </div>
+              <div className="display text-2xl text-[var(--lavender)] tabular-nums">{wins}</div>
             </div>
             {rankNum !== null && (
               <div className="text-right">
