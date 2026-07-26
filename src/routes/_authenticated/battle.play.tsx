@@ -318,7 +318,7 @@ function PlayerStatus({
           </div>
           <div
             className="text-[10px] font-bold text-white tabular-nums rounded-full flex items-center justify-center"
-            style={{ width: 20, height: 20, background: "var(--volt)" }}
+            style={{ width: 20, height: 20, background: "var(--violet-deep)" }}
           >
             {correct}
           </div>
