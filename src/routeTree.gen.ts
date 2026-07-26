@@ -34,6 +34,7 @@ import { Route as AuthenticatedAccountRouteImport } from './routes/_authenticate
 import { Route as DiagnosticQuestionNRouteImport } from './routes/diagnostic.question.$n'
 import { Route as ApiPublicEnsureDemoUserRouteImport } from './routes/api/public/ensure-demo-user'
 import { Route as AuthenticatedDailyCompleteRouteImport } from './routes/_authenticated/daily.complete'
+import { Route as AuthenticatedBattleIntroRouteImport } from './routes/_authenticated/battle.intro'
 import { Route as ApiPublicHooksGenerateDailySetsRouteImport } from './routes/api/public/hooks/generate-daily-sets'
 import { Route as AuthenticatedDailyQuestionNRouteImport } from './routes/_authenticated/daily.question.$n'
 
@@ -163,6 +164,12 @@ const AuthenticatedDailyCompleteRoute =
     path: '/daily/complete',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedBattleIntroRoute =
+  AuthenticatedBattleIntroRouteImport.update({
+    id: '/battle/intro',
+    path: '/battle/intro',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const ApiPublicHooksGenerateDailySetsRoute =
   ApiPublicHooksGenerateDailySetsRouteImport.update({
     id: '/api/public/hooks/generate-daily-sets',
@@ -198,6 +205,7 @@ export interface FileRoutesByFullPath {
   '/learn/reading-writing': typeof LearnReadingWritingRoute
   '/lesson/$nodeId': typeof LessonNodeIdRoute
   '/diagnostic/': typeof DiagnosticIndexRoute
+  '/battle/intro': typeof AuthenticatedBattleIntroRoute
   '/daily/complete': typeof AuthenticatedDailyCompleteRoute
   '/api/public/ensure-demo-user': typeof ApiPublicEnsureDemoUserRoute
   '/diagnostic/question/$n': typeof DiagnosticQuestionNRoute
@@ -226,6 +234,7 @@ export interface FileRoutesByTo {
   '/learn/reading-writing': typeof LearnReadingWritingRoute
   '/lesson/$nodeId': typeof LessonNodeIdRoute
   '/diagnostic': typeof DiagnosticIndexRoute
+  '/battle/intro': typeof AuthenticatedBattleIntroRoute
   '/daily/complete': typeof AuthenticatedDailyCompleteRoute
   '/api/public/ensure-demo-user': typeof ApiPublicEnsureDemoUserRoute
   '/diagnostic/question/$n': typeof DiagnosticQuestionNRoute
@@ -256,6 +265,7 @@ export interface FileRoutesById {
   '/learn/reading-writing': typeof LearnReadingWritingRoute
   '/lesson/$nodeId': typeof LessonNodeIdRoute
   '/diagnostic/': typeof DiagnosticIndexRoute
+  '/_authenticated/battle/intro': typeof AuthenticatedBattleIntroRoute
   '/_authenticated/daily/complete': typeof AuthenticatedDailyCompleteRoute
   '/api/public/ensure-demo-user': typeof ApiPublicEnsureDemoUserRoute
   '/diagnostic/question/$n': typeof DiagnosticQuestionNRoute
@@ -286,6 +296,7 @@ export interface FileRouteTypes {
     | '/learn/reading-writing'
     | '/lesson/$nodeId'
     | '/diagnostic/'
+    | '/battle/intro'
     | '/daily/complete'
     | '/api/public/ensure-demo-user'
     | '/diagnostic/question/$n'
@@ -314,6 +325,7 @@ export interface FileRouteTypes {
     | '/learn/reading-writing'
     | '/lesson/$nodeId'
     | '/diagnostic'
+    | '/battle/intro'
     | '/daily/complete'
     | '/api/public/ensure-demo-user'
     | '/diagnostic/question/$n'
@@ -343,6 +355,7 @@ export interface FileRouteTypes {
     | '/learn/reading-writing'
     | '/lesson/$nodeId'
     | '/diagnostic/'
+    | '/_authenticated/battle/intro'
     | '/_authenticated/daily/complete'
     | '/api/public/ensure-demo-user'
     | '/diagnostic/question/$n'
@@ -550,6 +563,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDailyCompleteRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/battle/intro': {
+      id: '/_authenticated/battle/intro'
+      path: '/battle/intro'
+      fullPath: '/battle/intro'
+      preLoaderRoute: typeof AuthenticatedBattleIntroRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/api/public/hooks/generate-daily-sets': {
       id: '/api/public/hooks/generate-daily-sets'
       path: '/api/public/hooks/generate-daily-sets'
@@ -571,6 +591,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAccountRoute: typeof AuthenticatedAccountRoute
   AuthenticatedDomainsRoute: typeof AuthenticatedDomainsRoute
   AuthenticatedHomeRoute: typeof AuthenticatedHomeRoute
+  AuthenticatedBattleIntroRoute: typeof AuthenticatedBattleIntroRoute
   AuthenticatedDailyCompleteRoute: typeof AuthenticatedDailyCompleteRoute
   AuthenticatedDailyQuestionNRoute: typeof AuthenticatedDailyQuestionNRoute
 }
@@ -579,6 +600,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAccountRoute: AuthenticatedAccountRoute,
   AuthenticatedDomainsRoute: AuthenticatedDomainsRoute,
   AuthenticatedHomeRoute: AuthenticatedHomeRoute,
+  AuthenticatedBattleIntroRoute: AuthenticatedBattleIntroRoute,
   AuthenticatedDailyCompleteRoute: AuthenticatedDailyCompleteRoute,
   AuthenticatedDailyQuestionNRoute: AuthenticatedDailyQuestionNRoute,
 }
