@@ -317,12 +317,14 @@ function PlayerStatus({
   correct,
   wrong,
   side,
+  scoreRef,
 }: {
   name: string;
   avatar: AvatarConfig;
   correct: number;
   wrong: number;
   side: "left" | "right";
+  scoreRef?: React.RefObject<HTMLDivElement | null>;
 }) {
   return (
     <div
@@ -376,6 +378,7 @@ function PlayerStatus({
         }`}
       >
         <div
+          ref={scoreRef}
           className="text-base font-bold text-white tabular-nums rounded-full flex items-center justify-center"
           style={{ width: 32, height: 32, background: "var(--violet-deep)" }}
         >
