@@ -27,10 +27,10 @@ function BattleIntro() {
   const [introDone, setIntroDone] = useState(false);
   const [countdown, setCountdown] = useState<number | null>(null);
 
-  // Stage 1: reveal the matchup, then start the countdown.
+  // Stage 1: reveal the matchup in three beats, then start the countdown.
   useEffect(() => {
     if (!bundle || bundle.alreadyCompleted) return;
-    const id = setTimeout(() => setIntroDone(true), 1700);
+    const id = setTimeout(() => setIntroDone(true), 3200);
     return () => clearTimeout(id);
   }, [bundle?.battleDate]);
 
@@ -48,7 +48,7 @@ function BattleIntro() {
         }
         return c - 1;
       });
-    }, 800);
+    }, 900);
     return () => clearInterval(id);
   }, [introDone]);
 
@@ -104,20 +104,20 @@ function BattleIntro() {
         <div className="mt-8 flex items-center justify-center gap-6 sm:gap-10">
           <div
             className="flex flex-col items-center gap-2 animate-fade-in"
-            style={{ animationDuration: "0.6s", animationFillMode: "both" }}
+            style={{ animationDuration: "0.6s", animationDelay: "0s", animationFillMode: "both" }}
           >
             <Avatar config={myAvatar} size={104} animate />
             <div className="display text-lg text-[var(--lavender)]">{myName}</div>
           </div>
           <div
             className="display text-4xl sm:text-5xl text-[var(--volt)] animate-fade-in"
-            style={{ animationDuration: "0.6s", animationDelay: "0.5s", animationFillMode: "both" }}
+            style={{ animationDuration: "0.6s", animationDelay: "1s", animationFillMode: "both" }}
           >
             vs.
           </div>
           <div
             className="flex flex-col items-center gap-2 animate-fade-in"
-            style={{ animationDuration: "0.6s", animationDelay: "1s", animationFillMode: "both" }}
+            style={{ animationDuration: "0.6s", animationDelay: "2s", animationFillMode: "both" }}
           >
             {oppAvatar ? (
               <Avatar config={oppAvatar} size={104} animate />
