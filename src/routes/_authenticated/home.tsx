@@ -8,7 +8,7 @@ import { useStore, useHydration } from "@/lib/store";
 import { PredictedScore } from "@/components/PredictedScore";
 import { PredictedScoreHistory } from "@/components/PredictedScoreHistory";
 import { MomentumGauge } from "@/components/MomentumGauge";
-import { UnlockReadyCard } from "@/components/UnlockReadyCard";
+import { UnlockReadyCard, BoltMark } from "@/components/UnlockReadyCard";
 import { BonusUnlockModal } from "@/components/BonusUnlockModal";
 import {
   hasCompletedToday,
