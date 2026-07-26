@@ -35,7 +35,7 @@ function HomePage() {
   const prefetchBattle = usePrefetchBattleBundle();
   const avatar = useStore((s) => s.avatar);
   const overall = state?.overall ?? 800;
-  const streak = state?.streak ?? 0;
+  
   const done = state ? hasCompletedToday(state) : false;
   const lastSession = state?.lastSession ?? null;
   const [animatedScore, setAnimatedScore] = useState(overall);
@@ -417,19 +417,6 @@ function HomePage() {
             </div>
           </section>
 
-          {/* Streak pill */}
-          <div className="flex items-center justify-center">
-            <div
-              className="flex items-center gap-2 rounded-full px-4 py-2"
-              style={{ background: "rgba(255,230,0,0.12)", border: "1px solid rgba(255,230,0,0.35)" }}
-            >
-              <Flame className="size-4" style={{ color: "var(--spark)" }} />
-              <span className="display text-base tabular-nums text-[var(--lavender)]">{streak}</span>
-              <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: "rgba(246,240,250,0.7)" }}>
-                day streak
-              </span>
-            </div>
-          </div>
 
         </main>
       </div>
