@@ -276,51 +276,74 @@ function PlayerStatus({
   avatar,
   correct,
   wrong,
-  questionIndex,
   side,
 }: {
   name: string;
   avatar: AvatarConfig;
   correct: number;
   wrong: number;
-  questionIndex: number;
   side: "left" | "right";
 }) {
   return (
-    <div className={`flex items-center gap-2 min-w-0 ${side === "right" ? "flex-row-reverse" : ""}`}>
-      <Avatar config={avatar} size={36} />
-      <div className={`min-w-0 ${side === "right" ? "text-right" : ""}`}>
-        <div className="text-[11px] font-bold uppercase tracking-wider text-[var(--lavender)] truncate max-w-[80px]">
+    <div
+      className={`flex flex-col min-w-0 ${
+        side === "right" ? "items-end" : "items-start"
+      }`}
+    >
+      {/* Line 1: avatar + name */}
+      <div
+        className={`flex items-center gap-2 ${
+          side === "right" ? "flex-row-reverse" : ""
+        }`}
+      >
+        <Avatar config={avatar} size={44} />
+        <div
+          className={`text-sm font-bold text-[var(--lavender)] truncate max-w-[100px] ${
+            side === "right" ? "text-right" : ""
+          }`}
+        >
           {name}
         </div>
-        <div className={`flex items-center gap-1 mt-0.5 ${side === "right" ? "justify-end" : ""}`}>
-          {/* Wrong boxes */}
-          <div className="flex gap-0.5">
-            {Array.from({ length: MAX_WRONG }).map((_, i) => (
-              <div
-                key={i}
-                className="size-3 rounded-[3px]"
-                style={{
-                  border: "1.5px solid rgba(246,240,250,0.3)",
-                  background: i < wrong ? "#ff4d6d" : "transparent",
-                  boxShadow: i < wrong ? "0 0 6px rgba(255,77,109,0.6)" : undefined,
-                }}
-              >
-                {i < wrong && (
-                  <span className="text-[9px] font-bold text-white leading-none block text-center">
-                    ✕
-                  </span>
-                )}
-              </div>
-            ))}
-          </div>
+      </div>
+
+      {/* Line 2: three incorrect answer boxes */}
+      <div className={`flex gap-1 mt-2 ${side === "right" ? "flex-row-reverse" : ""}`}>
+        {Array.from({ length: MAX_WRONG }).map((_, i) => (
           <div
-            className="text-[10px] font-bold text-white tabular-nums rounded-full flex items-center justify-center"
-            style={{ width: 20, height: 20, background: "var(--violet-deep)" }}
+            key={i}
+            className="rounded-md flex items-center justify-center"
+            style={{
+              width: 24,
+              height: 24,
+              border: "1.5px solid rgba(246,240,250,0.3)",
+              background: i < wrong ? "#ff4d6d" : "transparent",
+              boxShadow: i < wrong ? "0 0 6px rgba(255,77,109,0.6)" : undefined,
+            }}
           >
-            {correct}
+            {i < wrong && (
+              <span className="text-xs font-bold text-white leading-none">
+                ✕
+              </span>
+            )}
           </div>
+        ))}
+      </div>
+
+      {/* Line 3: score */}
+      <div
+        className={`mt-1.5 flex items-center gap-1.5 ${
+          side === "right" ? "flex-row-reverse" : ""
+        }`}
+      >
+        <div
+          className="text-base font-bold text-white tabular-nums rounded-full flex items-center justify-center"
+          style={{ width: 32, height: 32, background: "var(--violet-deep)" }}
+        >
+          {correct}
         </div>
+        <span className="text-[10px] font-medium uppercase tracking-wider text-[var(--lavender)]/70">
+          Score
+        </span>
       </div>
     </div>
   );
