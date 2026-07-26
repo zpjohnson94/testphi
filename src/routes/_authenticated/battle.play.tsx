@@ -90,6 +90,7 @@ function BattlePlay() {
         totalTimeMs,
         eventLog: events,
       });
+      const opp = bundle?.opponent;
       navigate({
         to: "/battle/results" as any,
         search: {
@@ -99,6 +100,11 @@ function BattlePlay() {
           wrong: wrong,
           wins: res.totalWins,
           alert: res.newTop100Alert ? "1" : "",
+          opponentName: opp ? opp.firstName : "Ghost",
+          opponentAnimalSeed: opp?.animalSeed ?? null,
+          opponentColorSeed: opp?.colorSeed ?? null,
+          opponentCorrect: opp ? opp.questionsCorrect : null,
+          opponentWrong: opp ? opp.questionsWrong : null,
         } as any,
       });
     } catch {
