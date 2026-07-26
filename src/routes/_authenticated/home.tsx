@@ -158,7 +158,7 @@ function HomePage() {
 
               </div>
               <div
-                className="shrink-0 size-16 sm:size-20 rounded-2xl flex items-center justify-center"
+                className="shrink-0 size-16 sm:size-20 rounded-full flex items-center justify-center"
                 style={{ background: "rgba(184,255,0,0.15)", border: "2px solid var(--volt)" }}
               >
                 <Avatar config={avatar} size={56} animate />
