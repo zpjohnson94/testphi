@@ -35,7 +35,7 @@ function HomePage() {
   const prefetchBattle = usePrefetchBattleBundle();
   const avatar = useStore((s) => s.avatar);
   const overall = state?.overall ?? 800;
-  const streak = state?.streak ?? 0;
+  
   const done = state ? hasCompletedToday(state) : false;
   const lastSession = state?.lastSession ?? null;
   const [animatedScore, setAnimatedScore] = useState(overall);
