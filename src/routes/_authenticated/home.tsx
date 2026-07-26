@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Flame, Info } from "lucide-react";
+import { Flame, Info, Target } from "lucide-react";
 import { FreeShell } from "@/components/FreeShell";
 import { Logo } from "@/components/Logo";
 import { Avatar } from "@/components/Avatar";
