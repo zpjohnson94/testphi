@@ -219,6 +219,7 @@ function BattlePlay() {
               correct={correct}
               wrong={wrong}
               side="left"
+              scoreRef={scoreRef}
             />
 
             {/* Timer */}
