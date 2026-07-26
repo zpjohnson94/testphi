@@ -411,6 +411,8 @@ function DeveloperMenu({ state }: { state: FreeState }) {
               })}
             </div>
           </section>
+          {/* Battle mode results preview */}
+          <BattleModeDevSection />
 
           {/* Reset */}
           <section>
