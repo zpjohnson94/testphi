@@ -42,6 +42,42 @@ function BattlePlay() {
 
   const startRef = useRef(Date.now());
   const doneRef = useRef(false);
+  const choiceRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  const scoreRef = useRef<HTMLDivElement | null>(null);
+  const [bolts, setBolts] = useState<
+    Array<{ id: number; sx: number; sy: number; ex: number; ey: number; angle: number; delay: number; rot: number }>
+  >([]);
+  const boltSeq = useRef(0);
+
+  const fireBolts = (choiceIdx: number) => {
+    const btn = choiceRefs.current[choiceIdx];
+    const target = scoreRef.current;
+    if (!btn || !target) return;
+    const b = btn.getBoundingClientRect();
+    const t = target.getBoundingClientRect();
+    const sx = b.left + b.width / 2;
+    const sy = b.top + b.height / 2;
+    const ex = t.left + t.width / 2;
+    const ey = t.top + t.height / 2;
+    const count = 14;
+    const newBolts = Array.from({ length: count }).map((_, i) => {
+      const angle = (Math.PI * 2 * i) / count + Math.random() * 0.5;
+      return {
+        id: ++boltSeq.current,
+        sx,
+        sy,
+        ex,
+        ey,
+        angle,
+        delay: Math.random() * 60,
+        rot: Math.random() * 360,
+      };
+    });
+    setBolts((prev) => [...prev, ...newBolts]);
+    window.setTimeout(() => {
+      setBolts((prev) => prev.filter((x) => !newBolts.find((nb) => nb.id === x.id)));
+    }, 900);
+  };
 
   // Opponent live progress derived from ghost event_log against elapsedMs.
   const oppProgress = useMemo(() => {
@@ -128,6 +164,7 @@ function BattlePlay() {
     if (isCorrect) {
       setCorrect((c) => c + 1);
       sfx.correct();
+      fireBolts(choice);
     } else {
       setWrong((w) => w + 1);
       sfx.wrong();
@@ -182,6 +219,7 @@ function BattlePlay() {
               correct={correct}
               wrong={wrong}
               side="left"
+              scoreRef={scoreRef}
             />
 
             {/* Timer */}
@@ -251,6 +289,9 @@ function BattlePlay() {
                 return (
                   <button
                     key={i}
+                    ref={(el) => {
+                      choiceRefs.current[i] = el;
+                    }}
                     disabled={submitted}
                     onClick={() => submit(i)}
                     className="text-left px-4 py-3 rounded-xl transition-all flex items-start gap-3"
@@ -266,6 +307,50 @@ function BattlePlay() {
             </div>
           </div>
         </main>
+
+        {/* Lightning bolts on correct answers */}
+        <div className="pointer-events-none fixed inset-0 z-50" aria-hidden>
+          {bolts.map((b) => {
+            const burstDist = 60 + Math.random() * 40;
+            const midX = b.sx + Math.cos(b.angle) * burstDist;
+            const midY = b.sy + Math.sin(b.angle) * burstDist;
+            const style: React.CSSProperties = {
+              position: "absolute",
+              left: 0,
+              top: 0,
+              willChange: "transform, opacity",
+              animation: `bolt-fly 600ms cubic-bezier(0.4, 0, 0.2, 1) ${b.delay}ms forwards`,
+              ["--sx" as any]: `${b.sx - 7}px`,
+              ["--sy" as any]: `${b.sy - 9}px`,
+              ["--mx" as any]: `${midX - 7}px`,
+              ["--my" as any]: `${midY - 9}px`,
+              ["--ex" as any]: `${b.ex - 7}px`,
+              ["--ey" as any]: `${b.ey - 9}px`,
+              ["--r0" as any]: `${b.rot}deg`,
+              ["--r1" as any]: `${b.rot + 180}deg`,
+            };
+            return (
+              <svg key={b.id} width="14" height="18" viewBox="0 0 14 18" style={style}>
+                <path
+                  d="M8 0 L0 10 L5 10 L4 18 L14 7 L8 7 Z"
+                  fill="#B8FF00"
+                  style={{
+                    filter:
+                      "drop-shadow(0 0 4px #B8FF00) drop-shadow(0 0 8px rgba(184,255,0,0.7))",
+                  }}
+                />
+              </svg>
+            );
+          })}
+        </div>
+
+        <style>{`
+          @keyframes bolt-fly {
+            0%   { transform: translate(var(--sx), var(--sy)) rotate(var(--r0)) scale(0.4); opacity: 0; }
+            15%  { transform: translate(var(--mx), var(--my)) rotate(var(--r0)) scale(1.15); opacity: 1; }
+            100% { transform: translate(var(--ex), var(--ey)) rotate(var(--r1)) scale(0.5); opacity: 0; }
+          }
+        `}</style>
       </div>
     </FreeShell>
   );
@@ -277,12 +362,14 @@ function PlayerStatus({
   correct,
   wrong,
   side,
+  scoreRef,
 }: {
   name: string;
   avatar: AvatarConfig;
   correct: number;
   wrong: number;
   side: "left" | "right";
+  scoreRef?: React.RefObject<HTMLDivElement | null>;
 }) {
   return (
     <div
@@ -336,6 +423,7 @@ function PlayerStatus({
         }`}
       >
         <div
+          ref={scoreRef}
           className="text-base font-bold text-white tabular-nums rounded-full flex items-center justify-center"
           style={{ width: 32, height: 32, background: "var(--violet-deep)" }}
         >
