@@ -27,10 +27,10 @@ function BattleIntro() {
   const [introDone, setIntroDone] = useState(false);
   const [countdown, setCountdown] = useState<number | null>(null);
 
-  // Stage 1: reveal the matchup, then start the countdown.
+  // Stage 1: reveal the matchup in three beats, then start the countdown.
   useEffect(() => {
     if (!bundle || bundle.alreadyCompleted) return;
-    const id = setTimeout(() => setIntroDone(true), 1700);
+    const id = setTimeout(() => setIntroDone(true), 3200);
     return () => clearTimeout(id);
   }, [bundle?.battleDate]);
 
@@ -48,7 +48,7 @@ function BattleIntro() {
         }
         return c - 1;
       });
-    }, 800);
+    }, 900);
     return () => clearInterval(id);
   }, [introDone]);
 
