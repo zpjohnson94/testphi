@@ -197,18 +197,14 @@ function BattlePlay() {
             </div>
 
             {/* Opponent */}
-            {opp && oppAv ? (
-              <PlayerStatus
-                name={opp.firstName}
-                avatar={oppAv}
-                correct={Math.max(0, oppProgress.qIndex - oppProgress.wrong)}
-                wrong={oppProgress.wrong}
-                questionIndex={oppProgress.qIndex}
-                side="right"
-              />
-            ) : (
-              <div className="w-24" />
-            )}
+            <PlayerStatus
+              name={opp?.firstName ?? "Ghost"}
+              avatar={oppAv ?? { animal: "bear", color: "#6B7280", accessory: "none" }}
+              correct={Math.max(0, oppProgress.qIndex - oppProgress.wrong)}
+              wrong={oppProgress.wrong}
+              questionIndex={oppProgress.qIndex}
+              side="right"
+            />
           </div>
         </header>
 
