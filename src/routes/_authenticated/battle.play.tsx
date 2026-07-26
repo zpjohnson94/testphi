@@ -42,6 +42,42 @@ function BattlePlay() {
 
   const startRef = useRef(Date.now());
   const doneRef = useRef(false);
+  const choiceRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  const scoreRef = useRef<HTMLDivElement | null>(null);
+  const [bolts, setBolts] = useState<
+    Array<{ id: number; sx: number; sy: number; ex: number; ey: number; angle: number; delay: number; rot: number }>
+  >([]);
+  const boltSeq = useRef(0);
+
+  const fireBolts = (choiceIdx: number) => {
+    const btn = choiceRefs.current[choiceIdx];
+    const target = scoreRef.current;
+    if (!btn || !target) return;
+    const b = btn.getBoundingClientRect();
+    const t = target.getBoundingClientRect();
+    const sx = b.left + b.width / 2;
+    const sy = b.top + b.height / 2;
+    const ex = t.left + t.width / 2;
+    const ey = t.top + t.height / 2;
+    const count = 14;
+    const newBolts = Array.from({ length: count }).map((_, i) => {
+      const angle = (Math.PI * 2 * i) / count + Math.random() * 0.5;
+      return {
+        id: ++boltSeq.current,
+        sx,
+        sy,
+        ex,
+        ey,
+        angle,
+        delay: Math.random() * 60,
+        rot: Math.random() * 360,
+      };
+    });
+    setBolts((prev) => [...prev, ...newBolts]);
+    window.setTimeout(() => {
+      setBolts((prev) => prev.filter((x) => !newBolts.find((nb) => nb.id === x.id)));
+    }, 900);
+  };
 
   // Opponent live progress derived from ghost event_log against elapsedMs.
   const oppProgress = useMemo(() => {
