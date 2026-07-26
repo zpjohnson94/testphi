@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { Zap, Pencil, Check, X, Wrench, Lock, Unlock } from "lucide-react";
 import { FreeShell } from "@/components/FreeShell";
@@ -411,6 +411,8 @@ function DeveloperMenu({ state }: { state: FreeState }) {
               })}
             </div>
           </section>
+          {/* Battle mode results preview */}
+          <BattleModeDevSection />
 
           {/* Reset */}
           <section>
@@ -454,5 +456,207 @@ function DeveloperMenu({ state }: { state: FreeState }) {
         </div>
     </div>
 
+  );
+}
+
+// ============================= Battle mode dev preview =============================
+
+function BattleModeDevSection() {
+  const navigate = useNavigate();
+  const [useDummyOpp, setUseDummyOpp] = useState(true);
+  const [oppName, setOppName] = useState("Ghost");
+  const [oppCorrect, setOppCorrect] = useState(4);
+  const [oppWrong, setOppWrong] = useState(2);
+  const [oppAnimalSeed, setOppAnimalSeed] = useState(1);
+  const [oppColorSeed, setOppColorSeed] = useState(2);
+
+  const [overrideUser, setOverrideUser] = useState(true);
+  const [userCorrect, setUserCorrect] = useState(6);
+  const [userWrong, setUserWrong] = useState(1);
+
+  const [wins, setWins] = useState(1);
+  const [rank, setRank] = useState<number | "">(42);
+  const [alert, setAlert] = useState(false);
+  const [result, setResult] = useState<"win" | "loss" | "tie" | "auto">("auto");
+
+  const openResults = () => {
+    const my = overrideUser ? userCorrect : 0;
+    const myW = overrideUser ? userWrong : 0;
+    const oc = useDummyOpp ? oppCorrect : 0;
+    const ow = useDummyOpp ? oppWrong : 0;
+    const finalResult: "win" | "loss" | "tie" =
+      result !== "auto" ? result : my > oc ? "win" : my < oc ? "loss" : "tie";
+    navigate({
+      to: "/battle/results" as any,
+      search: {
+        rank: rank === "" ? "" : rank,
+        result: finalResult,
+        correct: my,
+        wrong: myW,
+        wins,
+        alert: alert ? "1" : "",
+        opponentName: useDummyOpp ? oppName : "Ghost",
+        opponentAnimalSeed: useDummyOpp ? oppAnimalSeed : null,
+        opponentColorSeed: useDummyOpp ? oppColorSeed : null,
+        opponentCorrect: useDummyOpp ? oc : null,
+        opponentWrong: useDummyOpp ? ow : null,
+      } as any,
+    });
+  };
+
+  return (
+    <section>
+      <div className="text-[11px] font-bold uppercase tracking-widest mb-2" style={{ color: "rgba(246,240,250,0.6)" }}>
+        Battle mode preview
+      </div>
+
+      {/* Dummy opponent */}
+      <div className="rounded-xl p-3 mb-2" style={{ background: "rgba(0,0,0,0.25)", border: "1px solid rgba(246,240,250,0.08)" }}>
+        <DevToggle label="Dummy opponent" checked={useDummyOpp} onChange={setUseDummyOpp} />
+        {useDummyOpp && (
+          <div className="mt-3 grid grid-cols-2 gap-2">
+            <LabeledText label="Name" value={oppName} onChange={setOppName} />
+            <LabeledNumber label="Correct" value={oppCorrect} onChange={setOppCorrect} min={0} max={99} />
+            <LabeledNumber label="Wrong" value={oppWrong} onChange={setOppWrong} min={0} max={3} />
+            <LabeledNumber label="Animal seed" value={oppAnimalSeed} onChange={setOppAnimalSeed} min={0} max={20} />
+            <LabeledNumber label="Color seed" value={oppColorSeed} onChange={setOppColorSeed} min={0} max={20} />
+          </div>
+        )}
+      </div>
+
+      {/* Override user score */}
+      <div className="rounded-xl p-3 mb-2" style={{ background: "rgba(0,0,0,0.25)", border: "1px solid rgba(246,240,250,0.08)" }}>
+        <DevToggle label="Set user score" checked={overrideUser} onChange={setOverrideUser} />
+        {overrideUser && (
+          <div className="mt-3 grid grid-cols-2 gap-2">
+            <LabeledNumber label="Correct" value={userCorrect} onChange={setUserCorrect} min={0} max={99} />
+            <LabeledNumber label="Wrong" value={userWrong} onChange={setUserWrong} min={0} max={3} />
+          </div>
+        )}
+      </div>
+
+      {/* Meta */}
+      <div className="rounded-xl p-3 mb-2" style={{ background: "rgba(0,0,0,0.25)", border: "1px solid rgba(246,240,250,0.08)" }}>
+        <div className="grid grid-cols-2 gap-2">
+          <LabeledNumber label="Total wins" value={wins} onChange={setWins} min={0} max={999} />
+          <LabeledNumber
+            label="Rank"
+            value={typeof rank === "number" ? rank : 0}
+            onChange={(v) => setRank(v)}
+            min={0}
+            max={9999}
+          />
+        </div>
+        <div className="mt-2 flex items-center gap-2">
+          <DevToggle label="Top-100 alert" checked={alert} onChange={setAlert} />
+        </div>
+        <div className="mt-3">
+          <div className="text-[10px] uppercase tracking-wider mb-1" style={{ color: "rgba(246,240,250,0.5)" }}>
+            Result
+          </div>
+          <div className="grid grid-cols-4 gap-1">
+            {(["auto", "win", "loss", "tie"] as const).map((r) => (
+              <button
+                key={r}
+                onClick={() => setResult(r)}
+                className="rounded-lg py-1.5 text-[10px] font-bold uppercase tracking-wider"
+                style={{
+                  background: result === r ? "var(--volt)" : "rgba(246,240,250,0.05)",
+                  color: result === r ? "var(--ink)" : "var(--lavender)",
+                  border: result === r ? "1px solid var(--volt)" : "1px solid rgba(246,240,250,0.15)",
+                }}
+              >
+                {r}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <button
+        onClick={openResults}
+        className="w-full rounded-xl py-2.5 text-xs font-bold uppercase tracking-wider"
+        style={{ background: "rgba(184,255,0,0.15)", color: "var(--volt)", border: "1px solid rgba(184,255,0,0.4)" }}
+      >
+        Open battle results
+      </button>
+    </section>
+  );
+}
+
+function DevToggle({ label, checked, onChange }: { label: string; checked: boolean; onChange: (v: boolean) => void }) {
+  return (
+    <button
+      type="button"
+      onClick={() => onChange(!checked)}
+      className="w-full flex items-center justify-between gap-2"
+    >
+      <span className="text-xs font-bold" style={{ color: "var(--lavender)" }}>{label}</span>
+      <span
+        className="relative inline-block h-5 w-9 rounded-full transition-colors"
+        style={{ background: checked ? "var(--volt)" : "rgba(246,240,250,0.15)" }}
+      >
+        <span
+          className="absolute top-0.5 h-4 w-4 rounded-full bg-white transition-all"
+          style={{ left: checked ? "18px" : "2px" }}
+        />
+      </span>
+    </button>
+  );
+}
+
+function LabeledNumber({
+  label,
+  value,
+  onChange,
+  min,
+  max,
+}: {
+  label: string;
+  value: number;
+  onChange: (v: number) => void;
+  min: number;
+  max: number;
+}) {
+  return (
+    <label className="flex flex-col gap-1">
+      <span className="text-[10px] uppercase tracking-wider" style={{ color: "rgba(246,240,250,0.5)" }}>
+        {label}
+      </span>
+      <input
+        type="number"
+        min={min}
+        max={max}
+        value={value}
+        onChange={(e) => onChange(Math.max(min, Math.min(max, Number(e.target.value) || 0)))}
+        className="rounded-md px-2 py-1 text-xs"
+        style={{ background: "rgba(0,0,0,0.4)", color: "var(--lavender)", border: "1px solid rgba(246,240,250,0.15)" }}
+      />
+    </label>
+  );
+}
+
+function LabeledText({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+}) {
+  return (
+    <label className="flex flex-col gap-1">
+      <span className="text-[10px] uppercase tracking-wider" style={{ color: "rgba(246,240,250,0.5)" }}>
+        {label}
+      </span>
+      <input
+        type="text"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="rounded-md px-2 py-1 text-xs"
+        style={{ background: "rgba(0,0,0,0.4)", color: "var(--lavender)", border: "1px solid rgba(246,240,250,0.15)" }}
+      />
+    </label>
   );
 }
