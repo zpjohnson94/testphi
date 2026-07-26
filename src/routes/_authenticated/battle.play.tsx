@@ -276,6 +276,7 @@ function BattlePlay() {
 function PlayerStatus({
   name,
   avatar,
+  correct,
   wrong,
   questionIndex,
   side,
@@ -315,8 +316,11 @@ function PlayerStatus({
               </div>
             ))}
           </div>
-          <div className="text-[10px] font-bold text-[var(--lavender)]/70 tabular-nums">
-            Q{Math.max(1, questionIndex)}
+          <div
+            className="text-[10px] font-bold text-white tabular-nums rounded-full flex items-center justify-center"
+            style={{ width: 20, height: 20, background: "#22c55e" }}
+          >
+            {correct}
           </div>
         </div>
       </div>
