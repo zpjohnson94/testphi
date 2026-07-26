@@ -174,14 +174,13 @@ function BattlePlay() {
           className="sticky top-0 z-30 backdrop-blur"
           style={{ background: "rgba(29,41,0,0.9)", borderBottom: "1px solid rgba(246,240,250,0.08)" }}
         >
-          <div className="mx-auto max-w-3xl px-4 py-3 flex items-center justify-between gap-3">
+          <div className="mx-auto max-w-3xl px-4 py-4 flex items-center justify-between gap-3">
             {/* You */}
             <PlayerStatus
               name={myName}
               avatar={myAvatar}
               correct={correct}
               wrong={wrong}
-              questionIndex={index + (submitted ? 1 : 0)}
               side="left"
             />
 
@@ -202,7 +201,6 @@ function BattlePlay() {
               avatar={oppAv ?? { animal: "bear", color: "#6B7280", accessory: "none" }}
               correct={Math.max(0, oppProgress.qIndex - oppProgress.wrong)}
               wrong={oppProgress.wrong}
-              questionIndex={oppProgress.qIndex}
               side="right"
             />
           </div>
