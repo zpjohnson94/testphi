@@ -311,22 +311,20 @@ function HomePage() {
               border: "2px solid var(--neon)",
             }}
           >
-            <div className="flex items-start gap-3">
+            <div className="flex items-center gap-3">
               <div
                 className="shrink-0 size-11 rounded-2xl flex items-center justify-center"
                 style={{ background: "rgba(184,255,0,0.15)", border: "1.5px solid var(--volt)" }}
               >
                 <Swords className="size-5" style={{ color: "var(--volt)" }} />
               </div>
-              <div className="flex-1 min-w-0">
-                <div className="display text-2xl text-[var(--lavender)]">Battle Mode</div>
-                <div
-                  className="text-sm font-semibold mt-1"
-                  style={{ color: "rgba(246,240,250,0.7)" }}
-                >
-                  Go head-to-head with a random opponent to see who can answer more questions correctly in 2 minutes
-                </div>
-              </div>
+              <div className="display text-2xl text-[var(--lavender)]">Battle Mode</div>
+            </div>
+            <div
+              className="text-sm font-semibold mt-1 text-left"
+              style={{ color: "rgba(246,240,250,0.7)" }}
+            >
+              Go head-to-head with a random opponent to see who can answer more questions correctly in 2 minutes
             </div>
             {battleStatus?.alreadyCompleted ? (
               <div
