@@ -224,11 +224,11 @@ function BattlePlay() {
 
             {/* Timer */}
             <div
-              className="flex items-center gap-1.5 rounded-full px-3 py-1.5 shrink-0"
+              className="flex items-center gap-2 rounded-full px-4 py-2 shrink-0"
               style={{ background: "rgba(184,255,0,0.12)", border: "1px solid rgba(184,255,0,0.35)" }}
             >
-              <Timer className="size-4" style={{ color: "var(--volt)" }} />
-              <span className="display text-sm tabular-nums text-[var(--lavender)]">
+              <Timer className="size-5" style={{ color: "var(--volt)" }} />
+              <span className="display text-base tabular-nums text-[var(--lavender)]">
                 {mm}:{ss.toString().padStart(2, "0")}
               </span>
             </div>
