@@ -31,6 +31,8 @@ function HomePage() {
   const navigate = useNavigate();
   useHydration();
   const { data: state } = useFreeState();
+  const { data: battleStatus } = useBattleStatus();
+  const prefetchBattle = usePrefetchBattleBundle();
   const avatar = useStore((s) => s.avatar);
   const overall = state?.overall ?? 800;
   const streak = state?.streak ?? 0;
