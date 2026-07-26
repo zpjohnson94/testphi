@@ -24,11 +24,19 @@ function BattleIntro() {
   const myAvatar = useStore((s) => s.avatar) ?? defaultAvatar();
   const myName = (freeState?.name || "You").split(" ")[0];
 
+  const [introDone, setIntroDone] = useState(false);
   const [countdown, setCountdown] = useState<number | null>(null);
 
-  // Kick off countdown once bundle is ready.
+  // Stage 1: reveal the matchup, then start the countdown.
   useEffect(() => {
     if (!bundle || bundle.alreadyCompleted) return;
+    const id = setTimeout(() => setIntroDone(true), 1700);
+    return () => clearTimeout(id);
+  }, [bundle?.battleDate]);
+
+  // Stage 2: 3-2-1 countdown.
+  useEffect(() => {
+    if (!introDone) return;
     setCountdown(3);
     const id = setInterval(() => {
       setCountdown((c) => {
@@ -42,7 +50,7 @@ function BattleIntro() {
       });
     }, 800);
     return () => clearInterval(id);
-  }, [bundle?.battleDate]);
+  }, [introDone]);
 
   if (isLoading || !bundle) {
     return (
@@ -94,12 +102,23 @@ function BattleIntro() {
         </div>
 
         <div className="mt-8 flex items-center justify-center gap-6 sm:gap-10">
-          <div className="flex flex-col items-center gap-2">
+          <div
+            className="flex flex-col items-center gap-2 animate-fade-in"
+            style={{ animationDuration: "0.6s", opacity: 0, animationFillMode: "forwards" }}
+          >
             <Avatar config={myAvatar} size={104} animate />
             <div className="display text-lg text-[var(--lavender)]">{myName}</div>
           </div>
-          <div className="display text-4xl sm:text-5xl text-[var(--volt)]">vs.</div>
-          <div className="flex flex-col items-center gap-2">
+          <div
+            className="display text-4xl sm:text-5xl text-[var(--volt)] animate-fade-in"
+            style={{ animationDuration: "0.6s", animationDelay: "0.5s", opacity: 0, animationFillMode: "forwards" }}
+          >
+            vs.
+          </div>
+          <div
+            className="flex flex-col items-center gap-2 animate-fade-in"
+            style={{ animationDuration: "0.6s", animationDelay: "1s", opacity: 0, animationFillMode: "forwards" }}
+          >
             {oppAvatar ? (
               <Avatar config={oppAvatar} size={104} animate />
             ) : (
@@ -122,11 +141,11 @@ function BattleIntro() {
           </div>
         )}
 
-        <div className="mt-10 h-24 flex items-center justify-center">
+        <div className="mt-10 h-28 flex items-center justify-center">
           {countdown !== null && countdown > 0 && (
             <div
               key={countdown}
-              className="display text-7xl text-[var(--volt)]"
+              className="display text-8xl sm:text-9xl text-[var(--volt)]"
               style={{ animation: "count-pop 0.8s ease-out" }}
             >
               {countdown}
