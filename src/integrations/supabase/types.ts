@@ -61,6 +61,105 @@ export type Database = {
           },
         ]
       }
+      battle_leaderboard_alerts: {
+        Row: {
+          alerted_at: string
+          battle_date: string
+          id: string
+          rank: number
+          user_id: string
+        }
+        Insert: {
+          alerted_at?: string
+          battle_date: string
+          id?: string
+          rank: number
+          user_id: string
+        }
+        Update: {
+          alerted_at?: string
+          battle_date?: string
+          id?: string
+          rank?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
+      battle_runs: {
+        Row: {
+          battle_date: string
+          completed_at: string
+          daily_rank: number | null
+          event_log: Json
+          id: string
+          opponent_run_id: string | null
+          questions_correct: number
+          questions_wrong: number
+          result: string | null
+          total_time_ms: number
+          user_id: string
+        }
+        Insert: {
+          battle_date: string
+          completed_at?: string
+          daily_rank?: number | null
+          event_log?: Json
+          id?: string
+          opponent_run_id?: string | null
+          questions_correct?: number
+          questions_wrong?: number
+          result?: string | null
+          total_time_ms?: number
+          user_id: string
+        }
+        Update: {
+          battle_date?: string
+          completed_at?: string
+          daily_rank?: number | null
+          event_log?: Json
+          id?: string
+          opponent_run_id?: string | null
+          questions_correct?: number
+          questions_wrong?: number
+          result?: string | null
+          total_time_ms?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "battle_runs_battle_date_fkey"
+            columns: ["battle_date"]
+            isOneToOne: false
+            referencedRelation: "battle_sets"
+            referencedColumns: ["set_date"]
+          },
+          {
+            foreignKeyName: "battle_runs_opponent_run_id_fkey"
+            columns: ["opponent_run_id"]
+            isOneToOne: false
+            referencedRelation: "battle_runs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      battle_sets: {
+        Row: {
+          generated_at: string
+          question_ids: string[]
+          set_date: string
+        }
+        Insert: {
+          generated_at?: string
+          question_ids: string[]
+          set_date: string
+        }
+        Update: {
+          generated_at?: string
+          question_ids?: string[]
+          set_date?: string
+        }
+        Relationships: []
+      }
       daily_attempts: {
         Row: {
           answered_at: string | null
