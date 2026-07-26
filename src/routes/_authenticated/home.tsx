@@ -339,9 +339,12 @@ function HomePage() {
               )}
             </div>
 
-            <div className="relative mb-1 flex items-center gap-1.5 w-full justify-start">
-              <div className="display text-2xl text-[var(--lavender)] mt-1 text-left">
-                Momentum multiplies your progress
+            <div className="relative mb-1 flex flex-col gap-0.5 w-full justify-start">
+              <div className="display text-2xl text-[var(--lavender)] text-left">
+                Momentum Multiplier
+              </div>
+              <div className="text-sm font-semibold text-left" style={{ color: "rgba(246,240,250,0.7)" }}>
+                Practice daily and multiply gains from correct answers
               </div>
             </div>
             <div className="flex justify-center w-full">
