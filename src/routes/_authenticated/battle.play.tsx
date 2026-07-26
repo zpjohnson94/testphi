@@ -276,6 +276,7 @@ function BattlePlay() {
 function PlayerStatus({
   name,
   avatar,
+  correct,
   wrong,
   questionIndex,
   side,
