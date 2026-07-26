@@ -212,14 +212,14 @@ function HomePage() {
           >
             <div className="flex items-center justify-between">
               <div>
-                <div
-                  className="text-[11px] font-bold uppercase tracking-[0.18em]"
-                  style={{ color: done ? "var(--neon)" : "var(--volt)" }}
-                >
-                  {" "}
+                <div className="display text-2xl text-[var(--lavender)]">
+                  Daily 5
                 </div>
-                <div className="display text-2xl text-[var(--lavender)] mt-1">
-                  {done ? "Daily 5 complete." : "Complete the Daily 5 and build your momentum"}
+                <div
+                  className="text-sm font-semibold mt-1"
+                  style={{ color: done ? "var(--neon)" : "rgba(246,240,250,0.7)" }}
+                >
+                  {done ? "Daily 5 complete." : "Complete 5 questions every day to build momentum"}
                 </div>
                 {done && (
                   <div className="text-sm font-semibold mt-1" style={{ color: "var(--neon)" }}>
