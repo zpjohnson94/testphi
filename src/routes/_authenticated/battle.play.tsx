@@ -164,6 +164,7 @@ function BattlePlay() {
     if (isCorrect) {
       setCorrect((c) => c + 1);
       sfx.correct();
+      fireBolts(choice);
     } else {
       setWrong((w) => w + 1);
       sfx.wrong();
