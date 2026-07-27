@@ -48,11 +48,11 @@ function opponentAvatarConfig(seedAnimal?: number, seedColor?: number): AvatarCo
 function BattleResults() {
   const navigate = useNavigate();
   const search = useSearch({ from: "/_authenticated/battle/results" });
-  const { result, correct = 0, wrong = 0, wins = 0, rank, alert } = search;
+  const { result, correct = 0, wrong = 0, wins = 0, rank } = search;
   const rankNum = typeof rank === "number" && !isNaN(rank) ? rank : null;
-  const showAlert = alert === "1" && rankNum !== null;
 
   const myAvatar = useStore((s) => s.avatar) ?? defaultAvatar();
+
   const { data: freeState } = useFreeState();
   const myName = (freeState?.name || "You").split(" ")[0];
 
