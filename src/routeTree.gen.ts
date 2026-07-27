@@ -36,6 +36,7 @@ import { Route as ApiPublicEnsureDemoUserRouteImport } from './routes/api/public
 import { Route as AuthenticatedDailyCompleteRouteImport } from './routes/_authenticated/daily.complete'
 import { Route as AuthenticatedBattleResultsRouteImport } from './routes/_authenticated/battle.results'
 import { Route as AuthenticatedBattlePlayRouteImport } from './routes/_authenticated/battle.play'
+import { Route as AuthenticatedBattleLeaderboardRouteImport } from './routes/_authenticated/battle.leaderboard'
 import { Route as AuthenticatedBattleIntroRouteImport } from './routes/_authenticated/battle.intro'
 import { Route as ApiPublicHooksGenerateDailySetsRouteImport } from './routes/api/public/hooks/generate-daily-sets'
 import { Route as ApiPublicHooksGenerateBattleSetsRouteImport } from './routes/api/public/hooks/generate-battle-sets'
@@ -178,6 +179,12 @@ const AuthenticatedBattlePlayRoute = AuthenticatedBattlePlayRouteImport.update({
   path: '/battle/play',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedBattleLeaderboardRoute =
+  AuthenticatedBattleLeaderboardRouteImport.update({
+    id: '/battle/leaderboard',
+    path: '/battle/leaderboard',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedBattleIntroRoute =
   AuthenticatedBattleIntroRouteImport.update({
     id: '/battle/intro',
@@ -226,6 +233,7 @@ export interface FileRoutesByFullPath {
   '/lesson/$nodeId': typeof LessonNodeIdRoute
   '/diagnostic/': typeof DiagnosticIndexRoute
   '/battle/intro': typeof AuthenticatedBattleIntroRoute
+  '/battle/leaderboard': typeof AuthenticatedBattleLeaderboardRoute
   '/battle/play': typeof AuthenticatedBattlePlayRoute
   '/battle/results': typeof AuthenticatedBattleResultsRoute
   '/daily/complete': typeof AuthenticatedDailyCompleteRoute
@@ -258,6 +266,7 @@ export interface FileRoutesByTo {
   '/lesson/$nodeId': typeof LessonNodeIdRoute
   '/diagnostic': typeof DiagnosticIndexRoute
   '/battle/intro': typeof AuthenticatedBattleIntroRoute
+  '/battle/leaderboard': typeof AuthenticatedBattleLeaderboardRoute
   '/battle/play': typeof AuthenticatedBattlePlayRoute
   '/battle/results': typeof AuthenticatedBattleResultsRoute
   '/daily/complete': typeof AuthenticatedDailyCompleteRoute
@@ -292,6 +301,7 @@ export interface FileRoutesById {
   '/lesson/$nodeId': typeof LessonNodeIdRoute
   '/diagnostic/': typeof DiagnosticIndexRoute
   '/_authenticated/battle/intro': typeof AuthenticatedBattleIntroRoute
+  '/_authenticated/battle/leaderboard': typeof AuthenticatedBattleLeaderboardRoute
   '/_authenticated/battle/play': typeof AuthenticatedBattlePlayRoute
   '/_authenticated/battle/results': typeof AuthenticatedBattleResultsRoute
   '/_authenticated/daily/complete': typeof AuthenticatedDailyCompleteRoute
@@ -326,6 +336,7 @@ export interface FileRouteTypes {
     | '/lesson/$nodeId'
     | '/diagnostic/'
     | '/battle/intro'
+    | '/battle/leaderboard'
     | '/battle/play'
     | '/battle/results'
     | '/daily/complete'
@@ -358,6 +369,7 @@ export interface FileRouteTypes {
     | '/lesson/$nodeId'
     | '/diagnostic'
     | '/battle/intro'
+    | '/battle/leaderboard'
     | '/battle/play'
     | '/battle/results'
     | '/daily/complete'
@@ -391,6 +403,7 @@ export interface FileRouteTypes {
     | '/lesson/$nodeId'
     | '/diagnostic/'
     | '/_authenticated/battle/intro'
+    | '/_authenticated/battle/leaderboard'
     | '/_authenticated/battle/play'
     | '/_authenticated/battle/results'
     | '/_authenticated/daily/complete'
@@ -616,6 +629,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedBattlePlayRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/battle/leaderboard': {
+      id: '/_authenticated/battle/leaderboard'
+      path: '/battle/leaderboard'
+      fullPath: '/battle/leaderboard'
+      preLoaderRoute: typeof AuthenticatedBattleLeaderboardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/battle/intro': {
       id: '/_authenticated/battle/intro'
       path: '/battle/intro'
@@ -652,6 +672,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedDomainsRoute: typeof AuthenticatedDomainsRoute
   AuthenticatedHomeRoute: typeof AuthenticatedHomeRoute
   AuthenticatedBattleIntroRoute: typeof AuthenticatedBattleIntroRoute
+  AuthenticatedBattleLeaderboardRoute: typeof AuthenticatedBattleLeaderboardRoute
   AuthenticatedBattlePlayRoute: typeof AuthenticatedBattlePlayRoute
   AuthenticatedBattleResultsRoute: typeof AuthenticatedBattleResultsRoute
   AuthenticatedDailyCompleteRoute: typeof AuthenticatedDailyCompleteRoute
@@ -663,6 +684,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDomainsRoute: AuthenticatedDomainsRoute,
   AuthenticatedHomeRoute: AuthenticatedHomeRoute,
   AuthenticatedBattleIntroRoute: AuthenticatedBattleIntroRoute,
+  AuthenticatedBattleLeaderboardRoute: AuthenticatedBattleLeaderboardRoute,
   AuthenticatedBattlePlayRoute: AuthenticatedBattlePlayRoute,
   AuthenticatedBattleResultsRoute: AuthenticatedBattleResultsRoute,
   AuthenticatedDailyCompleteRoute: AuthenticatedDailyCompleteRoute,
