@@ -140,7 +140,6 @@ function BattlePlay() {
           correct: finalCorrect,
           wrong: finalWrong,
           wins: res.totalWins,
-          alert: res.newTop100Alert ? "1" : "",
           opponentName: opp ? opp.firstName : "Ghost",
           opponentAnimalSeed: opp?.animalSeed ?? null,
           opponentColorSeed: opp?.colorSeed ?? null,
@@ -148,6 +147,7 @@ function BattlePlay() {
           opponentWrong: opp ? opp.questionsWrong : null,
         } as any,
       });
+
     } catch {
       navigate({ to: "/home" as any });
     }
