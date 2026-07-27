@@ -178,12 +178,13 @@ function BattlePlay() {
     // Advance shortly after grading.
     window.setTimeout(() => {
       const newWrong = isCorrect ? wrong : wrong + 1;
+      const newCorrect = isCorrect ? correct + 1 : correct;
       if (newWrong >= MAX_WRONG) {
-        endRun("wrong");
+        endRun("wrong", { correct: newCorrect, wrong: newWrong });
         return;
       }
       if (index + 1 >= questions.length) {
-        endRun("done");
+        endRun("done", { correct: newCorrect, wrong: newWrong });
         return;
       }
       setIndex((i) => i + 1);
