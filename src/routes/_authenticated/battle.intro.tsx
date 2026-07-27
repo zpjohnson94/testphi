@@ -117,21 +117,21 @@ function BattleIntro() {
 
         <div className="mt-8 flex items-center justify-center gap-6 sm:gap-10">
           <div
-            className="flex flex-col items-center gap-2 animate-fade-in"
-            style={{ animationDuration: "0.6s", animationDelay: "0s", animationFillMode: "both" }}
+            className="flex flex-col items-center gap-2"
+            style={{ animation: "intro-fade 0.6s ease-out 0s both" }}
           >
             <Avatar config={myAvatar} size={104} animate />
             <div className="display text-lg text-[var(--lavender)]">{myName}</div>
           </div>
           <div
-            className="display text-4xl sm:text-5xl text-[var(--volt)] animate-fade-in"
-            style={{ animationDuration: "0.6s", animationDelay: "1s", animationFillMode: "both" }}
+            className="display text-4xl sm:text-5xl text-[var(--volt)]"
+            style={{ animation: "intro-fade 0.6s ease-out 1s both" }}
           >
             vs.
           </div>
           <div
-            className="flex flex-col items-center gap-2 animate-fade-in"
-            style={{ animationDuration: "0.6s", animationDelay: "2s", animationFillMode: "both" }}
+            className="flex flex-col items-center gap-2"
+            style={{ animation: "intro-fade 0.6s ease-out 2s both" }}
           >
             {oppAvatar ? (
               <Avatar config={oppAvatar} size={104} animate />
@@ -150,6 +150,7 @@ function BattleIntro() {
         </div>
 
 
+
         <div className="mt-10 h-28 flex items-center justify-center">
           {countdown !== null && countdown > 0 && (
             <div
@@ -163,11 +164,16 @@ function BattleIntro() {
         </div>
 
         <style>{`
+          @keyframes intro-fade {
+            0% { opacity: 0; transform: translateY(10px); }
+            100% { opacity: 1; transform: translateY(0); }
+          }
           @keyframes count-pop {
             0% { transform: scale(0.4); opacity: 0; }
             30% { transform: scale(1.15); opacity: 1; }
             100% { transform: scale(1); opacity: 1; }
           }
+
         `}</style>
       </div>
     </FreeShell>
