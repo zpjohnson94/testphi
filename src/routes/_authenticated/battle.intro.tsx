@@ -5,6 +5,7 @@ import { Avatar, defaultAvatar, ANIMALS, COLOR_SWATCHES, type AvatarConfig } fro
 import { useBattleBundle } from "@/lib/useBattle";
 import { useFreeState } from "@/lib/useFree";
 import { useStore } from "@/lib/store";
+import { sfx } from "@/lib/sfx";
 
 export const Route = createFileRoute("/_authenticated/battle/intro")({
   head: () => ({ meta: [{ title: "Battle Mode — TestPhi" }] }),
@@ -51,6 +52,19 @@ function BattleIntro() {
     }, 900);
     return () => clearInterval(id);
   }, [introDone]);
+
+  // Resume the audio context as soon as the intro animation begins.
+  useEffect(() => {
+    if (introDone) sfx.resume();
+  }, [introDone]);
+
+  // Play a short tick for every visible countdown number (3, 2, 1).
+  useEffect(() => {
+    if (countdown !== null && countdown > 0) {
+      sfx.countdown();
+    }
+  }, [countdown]);
+
 
   if (isLoading || !bundle) {
     return (
