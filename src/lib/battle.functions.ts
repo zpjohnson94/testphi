@@ -259,16 +259,46 @@ export const getBattleStatus = createServerFn({ method: "GET" })
     const [{ data: mine }, wins] = await Promise.all([
       context.supabase
         .from("battle_runs")
-        .select("id, questions_correct, result, daily_rank")
+        .select("id, questions_correct, questions_wrong, result, daily_rank, total_time_ms, opponent_run_id")
         .eq("user_id", context.userId)
         .eq("battle_date", iso)
         .maybeSingle(),
       countWins(context.supabase, context.userId),
     ]);
+
+    let opponent: OpponentSummary | null = null;
+    if (mine?.opponent_run_id) {
+      const { data: oppRun } = await context.supabase
+        .from("battle_runs")
+        .select("id, user_id, questions_correct, questions_wrong, total_time_ms")
+        .eq("id", mine.opponent_run_id)
+        .maybeSingle();
+      if (oppRun) {
+        const { data: prof } = await context.supabase
+          .from("profiles")
+          .select("name")
+          .eq("id", oppRun.user_id)
+          .maybeSingle();
+        opponent = {
+          runId: oppRun.id,
+          userId: oppRun.user_id,
+          firstName: (prof?.name ?? "").split(" ")[0] || "Rival",
+          animalSeed: hashSeed(oppRun.user_id),
+          colorSeed: hashSeed(oppRun.user_id + ":c"),
+          battleDate: iso,
+          questionsCorrect: oppRun.questions_correct,
+          questionsWrong: oppRun.questions_wrong,
+          totalTimeMs: oppRun.total_time_ms,
+          eventLog: [],
+        };
+      }
+    }
+
     return {
       battleDate: iso,
       alreadyCompleted: !!mine,
       myRun: mine ?? null,
+      opponent,
       totalWins: wins,
     };
   });
