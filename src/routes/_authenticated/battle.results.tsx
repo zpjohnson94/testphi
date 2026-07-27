@@ -51,7 +51,6 @@ function BattleResults() {
   const { result, correct = 0, wrong = 0, wins = 0, rank, alert } = search;
   const rankNum = typeof rank === "number" && !isNaN(rank) ? rank : null;
   const showAlert = alert === "1" && rankNum !== null;
-  const [dismissed, setDismissed] = useState(false);
 
   const myAvatar = useStore((s) => s.avatar) ?? defaultAvatar();
   const { data: freeState } = useFreeState();
