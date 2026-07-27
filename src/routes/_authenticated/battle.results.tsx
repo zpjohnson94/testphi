@@ -68,24 +68,8 @@ function BattleResults() {
     result === "win" ? "You win!" : result === "loss" ? "Nice try" : result === "tie" ? "It's a tie" : "Battle complete";
   const headlineColor = result === "win" ? "var(--volt)" : result === "loss" ? "var(--destructive)" : "var(--lavender)";
 
-  const share = async () => {
-    const text = `I just landed at #${rankNum} on today's TestPhi Battle Mode leaderboard!`;
-    if (navigator.share) {
-      try {
-        await navigator.share({ text, title: "TestPhi Battle Mode" });
-        return;
-      } catch {
-        // fall through
-      }
-    }
-    try {
-      await navigator.clipboard.writeText(text);
-    } catch {
-      // ignore
-    }
-  };
-
   return (
+
     <FreeShell>
       <div className="topo-bg min-h-screen px-5 py-10">
         <div className="mx-auto max-w-md space-y-6 text-center">
