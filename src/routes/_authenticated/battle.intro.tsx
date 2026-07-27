@@ -53,6 +53,19 @@ function BattleIntro() {
     return () => clearInterval(id);
   }, [introDone]);
 
+  // Resume the audio context as soon as the intro animation begins.
+  useEffect(() => {
+    if (introDone) sfx.resume();
+  }, [introDone]);
+
+  // Play a short tick for every visible countdown number (3, 2, 1).
+  useEffect(() => {
+    if (countdown !== null && countdown > 0) {
+      sfx.countdown();
+    }
+  }, [countdown]);
+
+
   if (isLoading || !bundle) {
     return (
       <FreeShell>
