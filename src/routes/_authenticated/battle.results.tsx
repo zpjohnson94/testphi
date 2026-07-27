@@ -28,13 +28,13 @@ export const Route = createFileRoute("/_authenticated/battle/results")({
     correct: s.correct == null ? 0 : Number(s.correct),
     wrong: s.wrong == null ? 0 : Number(s.wrong),
     wins: s.wins == null ? 0 : Number(s.wins),
-    alert: (s.alert as string) ?? "",
     opponentName: (s.opponentName as string) ?? "Opponent",
     opponentAnimalSeed: s.opponentAnimalSeed == null ? undefined : Number(s.opponentAnimalSeed),
     opponentColorSeed: s.opponentColorSeed == null ? undefined : Number(s.opponentColorSeed),
     opponentCorrect: s.opponentCorrect == null ? undefined : Number(s.opponentCorrect),
     opponentWrong: s.opponentWrong == null ? undefined : Number(s.opponentWrong),
   }),
+
   component: BattleResults,
 });
 
