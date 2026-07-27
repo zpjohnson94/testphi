@@ -230,45 +230,6 @@ function BattleResults() {
             Back to home
           </button>
         </div>
-
-        {showAlert && !dismissed && (
-          <div
-            className="fixed inset-0 z-50 flex items-center justify-center px-6"
-            style={{ background: "rgba(0,0,0,0.6)" }}
-            onClick={() => setDismissed(true)}
-          >
-            <div
-              onClick={(e) => e.stopPropagation()}
-              className="max-w-sm w-full rounded-3xl p-6 text-center"
-              style={{
-                background: "var(--violet-deep)",
-                border: "2px solid var(--volt)",
-                boxShadow: "0 20px 60px rgba(0,0,0,0.5)",
-              }}
-            >
-              <div className="text-5xl">🎉</div>
-              <div className="display text-2xl mt-3 text-[var(--lavender)]">Top 100!</div>
-              <div className="mt-2 text-sm text-[var(--lavender)]/80">
-                You just landed at #{rankNum} on today's leaderboard.
-              </div>
-              <div className="mt-5 flex gap-3">
-                <button
-                  onClick={share}
-                  className="btn-volt flex-1 py-3 rounded-2xl flex items-center justify-center gap-2"
-                >
-                  <Share2 className="size-4" /> Share
-                </button>
-                <button
-                  onClick={() => setDismissed(true)}
-                  className="flex-1 py-3 rounded-2xl font-bold text-[var(--lavender)]"
-                  style={{ border: "1.5px solid rgba(246,240,250,0.25)" }}
-                >
-                  Nice
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
     </FreeShell>
   );
