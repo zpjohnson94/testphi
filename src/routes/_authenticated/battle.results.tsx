@@ -177,6 +177,35 @@ function BattleResults() {
             </div>
           </div>
 
+          {/* Top 100 pulsing CTA */}
+          {rankNum !== null && rankNum <= 100 && (
+            <button
+              onClick={() => navigate({ to: "/battle/leaderboard" as any })}
+              className="unlock-pulse relative w-full overflow-hidden text-left rounded-2xl"
+              style={{
+                background: "var(--volt)",
+                color: "var(--ink)",
+                border: "2px solid #6e9c00",
+                boxShadow:
+                  "0 0 40px -6px rgba(184,255,0,0.6), 0 6px 0 0 #6e9c00",
+                padding: "16px 18px",
+              }}
+            >
+              <div className="flex items-center gap-3">
+                <div className="text-2xl">🏆</div>
+                <div className="flex-1 min-w-0 text-left">
+                  <div className="display text-base sm:text-lg leading-tight">
+                    You hit the Top 100 today!
+                  </div>
+                  <div className="text-sm font-bold opacity-80 leading-tight mt-0.5">
+                    See where you rank
+                  </div>
+                </div>
+                <div className="shrink-0 text-sm font-extrabold">→</div>
+              </div>
+            </button>
+          )}
+
           {/* Total wins box */}
           <div
             className="rounded-3xl p-5 backdrop-blur-md flex items-center gap-4"
@@ -192,15 +221,8 @@ function BattleResults() {
               </div>
               <div className="display text-2xl text-[var(--lavender)] tabular-nums">{wins}</div>
             </div>
-            {rankNum !== null && (
-              <div className="text-right">
-                <div className="text-[10px] font-bold uppercase tracking-widest text-[var(--lavender)]/70">
-                  Today's rank
-                </div>
-                <div className="display text-2xl text-[var(--volt)] tabular-nums">#{rankNum}</div>
-              </div>
-            )}
           </div>
+
 
           <button
             onClick={() => navigate({ to: "/home" as any })}
