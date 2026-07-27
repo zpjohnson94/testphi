@@ -164,11 +164,16 @@ function BattleIntro() {
         </div>
 
         <style>{`
+          @keyframes intro-fade {
+            0% { opacity: 0; transform: translateY(10px); }
+            100% { opacity: 1; transform: translateY(0); }
+          }
           @keyframes count-pop {
             0% { transform: scale(0.4); opacity: 0; }
             30% { transform: scale(1.15); opacity: 1; }
             100% { transform: scale(1); opacity: 1; }
           }
+
         `}</style>
       </div>
     </FreeShell>
