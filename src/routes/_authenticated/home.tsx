@@ -351,7 +351,6 @@ function HomePage() {
                       wrong: my?.questions_wrong ?? 0,
                       wins: battleStatus.totalWins ?? 0,
                       rank: my?.daily_rank ?? undefined,
-                      alert: my?.daily_rank && my.daily_rank <= 100 ? "1" : "",
                       opponentName: opp?.firstName,
                       opponentAnimalSeed: opp?.animalSeed,
                       opponentColorSeed: opp?.colorSeed,
@@ -359,6 +358,7 @@ function HomePage() {
                       opponentWrong: opp?.questionsWrong,
                     } as any,
                   });
+
                 }}
                 className="btn-volt mt-5 w-full py-4 text-base rounded-2xl"
               >
