@@ -1,10 +1,10 @@
 import { createFileRoute, useNavigate, useSearch } from "@tanstack/react-router";
-import { useState } from "react";
 import { Share2 } from "lucide-react";
 import { FreeShell } from "@/components/FreeShell";
 import { Avatar, defaultAvatar, ANIMALS, COLOR_SWATCHES, type AvatarConfig } from "@/components/Avatar";
 import { useStore } from "@/lib/store";
 import { useFreeState } from "@/lib/useFree";
+
 
 type BattleResultSearch = {
   rank?: number | string;
