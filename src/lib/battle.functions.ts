@@ -422,3 +422,72 @@ export const finalizeBattleRun = createServerFn({ method: "POST" })
       alreadyCompleted: false,
     };
   });
+
+// ---------- Leaderboard ----------
+
+export interface LeaderboardEntry {
+  rank: number;
+  userId: string;
+  firstName: string;
+  animalSeed: number;
+  colorSeed: number;
+  questionsCorrect: number;
+  totalTimeMs: number;
+  isMe: boolean;
+}
+
+export interface BattleLeaderboard {
+  battleDate: string;
+  entries: LeaderboardEntry[];
+  myRank: number | null;
+}
+
+export const getBattleLeaderboard = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((raw: unknown) =>
+    z.object({ date: z.string().optional() }).parse(raw ?? {}),
+  )
+  .handler(async ({ data, context }): Promise<BattleLeaderboard> => {
+    const iso = data.date ?? todayISO();
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const { data: runs } = await supabaseAdmin
+      .from("battle_runs")
+      .select("user_id, questions_correct, total_time_ms")
+      .eq("battle_date", iso)
+      .order("questions_correct", { ascending: false })
+      .order("total_time_ms", { ascending: true })
+      .limit(100);
+
+    const rows = (runs ?? []) as Array<{
+      user_id: string;
+      questions_correct: number;
+      total_time_ms: number;
+    }>;
+
+    const userIds = Array.from(new Set(rows.map((r) => r.user_id)));
+    const nameByUser = new Map<string, string>();
+    if (userIds.length > 0) {
+      const { data: profs } = await supabaseAdmin
+        .from("profiles")
+        .select("id, name")
+        .in("id", userIds);
+      for (const p of (profs ?? []) as Array<{ id: string; name: string | null }>) {
+        nameByUser.set(p.id, (p.name ?? "").split(" ")[0] || "Player");
+      }
+    }
+
+    const entries: LeaderboardEntry[] = rows.map((r, i) => ({
+      rank: i + 1,
+      userId: r.user_id,
+      firstName: nameByUser.get(r.user_id) || "Player",
+      animalSeed: hashSeed(r.user_id),
+      colorSeed: hashSeed(r.user_id + ":c"),
+      questionsCorrect: r.questions_correct,
+      totalTimeMs: r.total_time_ms,
+      isMe: r.user_id === context.userId,
+    }));
+
+    const mine = entries.find((e) => e.isMe);
+    return { battleDate: iso, entries, myRank: mine?.rank ?? null };
+  });
