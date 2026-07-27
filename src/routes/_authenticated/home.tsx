@@ -339,15 +339,31 @@ function HomePage() {
               </div>
             </div>
             {battleStatus?.alreadyCompleted ? (
-              <div
-                className="mt-5 w-full py-3.5 text-center text-sm font-bold rounded-2xl"
-                style={{
-                  border: "1.5px solid rgba(246,240,250,0.25)",
-                  color: "rgba(246,240,250,0.75)",
+              <button
+                onClick={() => {
+                  const my = battleStatus.myRun;
+                  const opp = battleStatus.opponent;
+                  navigate({
+                    to: "/battle/results" as any,
+                    search: {
+                      result: (my?.result as any) ?? "",
+                      correct: my?.questions_correct ?? 0,
+                      wrong: my?.questions_wrong ?? 0,
+                      wins: battleStatus.totalWins ?? 0,
+                      rank: my?.daily_rank ?? undefined,
+                      alert: my?.daily_rank && my.daily_rank <= 100 ? "1" : "",
+                      opponentName: opp?.firstName,
+                      opponentAnimalSeed: opp?.animalSeed,
+                      opponentColorSeed: opp?.colorSeed,
+                      opponentCorrect: opp?.questionsCorrect,
+                      opponentWrong: opp?.questionsWrong,
+                    } as any,
+                  });
                 }}
+                className="btn-volt mt-5 w-full py-4 text-base rounded-2xl"
               >
-                Come back tomorrow · {battleStatus.totalWins ?? 0} total wins
-              </div>
+                Battle complete! See results
+              </button>
             ) : (
               <button
                 onMouseEnter={() => prefetchBattle()}
