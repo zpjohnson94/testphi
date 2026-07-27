@@ -5,6 +5,7 @@ import { Avatar, defaultAvatar, ANIMALS, COLOR_SWATCHES, type AvatarConfig } fro
 import { useBattleBundle } from "@/lib/useBattle";
 import { useFreeState } from "@/lib/useFree";
 import { useStore } from "@/lib/store";
+import { sfx } from "@/lib/sfx";
 
 export const Route = createFileRoute("/_authenticated/battle/intro")({
   head: () => ({ meta: [{ title: "Battle Mode — TestPhi" }] }),

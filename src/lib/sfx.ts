@@ -50,4 +50,8 @@ export const sfx = {
     tone(1047, 0.3, "triangle", 0.2, 0.32);
   },
   tap() { tone(440, 0.05, "sine", 0.08); },
+  countdown() {
+    // Bright, short tick for each count of the 3-2-1 sequence.
+    tone(880, 0.08, "sine", 0.12);
+  },
 };
