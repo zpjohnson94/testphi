@@ -113,16 +113,21 @@ function BattlePlay() {
     setSubmitted(false);
   }, [index]);
 
-  const endRun = async (_reason: "time" | "wrong" | "done") => {
+  const endRun = async (
+    _reason: "time" | "wrong" | "done",
+    overrides?: { correct?: number; wrong?: number },
+  ) => {
     if (doneRef.current) return;
     doneRef.current = true;
     setFinished(true);
+    const finalCorrect = overrides?.correct ?? correct;
+    const finalWrong = overrides?.wrong ?? wrong;
     const totalTimeMs = Math.min(Date.now() - startRef.current, BATTLE_TIME_MS);
     try {
       const res = await finalize.mutateAsync({
         opponentRunId: bundle?.opponent?.runId ?? null,
-        questionsCorrect: correct,
-        questionsWrong: wrong,
+        questionsCorrect: finalCorrect,
+        questionsWrong: finalWrong,
         totalTimeMs,
         eventLog: events,
       });
@@ -132,8 +137,8 @@ function BattlePlay() {
         search: {
           rank: res.dailyRank ?? "",
           result: res.result ?? "",
-          correct: correct,
-          wrong: wrong,
+          correct: finalCorrect,
+          wrong: finalWrong,
           wins: res.totalWins,
           alert: res.newTop100Alert ? "1" : "",
           opponentName: opp ? opp.firstName : "Ghost",
