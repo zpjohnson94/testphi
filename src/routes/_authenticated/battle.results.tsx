@@ -12,13 +12,13 @@ type BattleResultSearch = {
   correct?: number;
   wrong?: number;
   wins?: number;
-  alert?: string;
   opponentName?: string;
   opponentAnimalSeed?: number | string;
   opponentColorSeed?: number | string;
   opponentCorrect?: number | string;
   opponentWrong?: number | string;
 };
+
 
 export const Route = createFileRoute("/_authenticated/battle/results")({
   head: () => ({ meta: [{ title: "Battle results — TestPhi" }] }),
