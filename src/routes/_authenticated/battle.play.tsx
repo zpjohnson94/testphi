@@ -226,7 +226,17 @@ function BattlePlay() {
   const ss = secs % 60;
 
   const opp = bundle.opponent;
-  const oppAv = opp ? opponentAvatar(opp.animalSeed, opp.colorSeed) : null;
+  const staticGhostAvatar: AvatarConfig = {
+    animal: STATIC_GHOST.animal,
+    color: STATIC_GHOST.color,
+    accessory: STATIC_GHOST.accessory,
+  };
+  const oppAv: AvatarConfig | null = useStaticGhost
+    ? staticGhostAvatar
+    : opp
+      ? opponentAvatar(opp.animalSeed, opp.colorSeed)
+      : null;
+  const oppDisplayName = useStaticGhost ? STATIC_GHOST.name : opp?.firstName ?? "Ghost";
 
   return (
     <FreeShell>
@@ -260,9 +270,9 @@ function BattlePlay() {
 
             {/* Opponent */}
             <PlayerStatus
-              name={opp?.firstName ?? "Ghost"}
+              name={oppDisplayName}
               avatar={oppAv ?? { animal: "bear", color: "#6B7280", accessory: "none" }}
-              correct={Math.max(0, oppProgress.qIndex - oppProgress.wrong)}
+              correct={oppProgress.correct}
               wrong={oppProgress.wrong}
               side="right"
             />
