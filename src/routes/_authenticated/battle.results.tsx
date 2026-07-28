@@ -79,6 +79,9 @@ function BattleResults() {
   const oppAvatar = opponentAvatarConfig(
     search.opponentAnimalSeed as number | undefined,
     search.opponentColorSeed as number | undefined,
+    search.opponentAnimal,
+    search.opponentColor,
+    search.opponentAccessory,
   );
   const oppCorrect = typeof search.opponentCorrect === "number" ? search.opponentCorrect : null;
   const oppWrong = typeof search.opponentWrong === "number" ? search.opponentWrong : null;
