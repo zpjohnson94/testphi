@@ -355,9 +355,13 @@ function HomePage() {
                   });
 
                 }}
-                className="btn-volt mt-5 w-full py-4 text-base rounded-2xl"
+                className="block text-center mt-5 w-full py-3.5 text-base font-bold rounded-2xl"
+                style={{
+                  border: "1.5px solid rgba(246,240,250,0.25)",
+                  color: "var(--lavender)",
+                }}
               >
-                Battle complete! See results
+                View results
               </button>
             ) : (
               <button
