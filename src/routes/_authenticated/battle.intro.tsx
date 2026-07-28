@@ -106,8 +106,20 @@ function BattleIntro() {
     );
   }
 
+  const useStaticGhost = !!(bundle.useStaticGhost || import.meta.env.DEV);
   const opp = bundle.opponent;
-  const oppAvatar = opp ? opponentAvatar(opp.animalSeed, opp.colorSeed) : null;
+  const oppAvatar: AvatarConfig | null = useStaticGhost
+    ? { animal: STATIC_GHOST.animal, color: STATIC_GHOST.color, accessory: STATIC_GHOST.accessory }
+    : opp
+      ? opponentAvatar(opp.animalSeed, opp.colorSeed)
+      : null;
+  const oppLabel = useStaticGhost
+    ? STATIC_GHOST.name
+    : opp
+      ? opp.firstName
+      : bundle.firstEver
+        ? "Solo"
+        : "Ghost";
 
   return (
     <FreeShell>
