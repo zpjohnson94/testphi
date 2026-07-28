@@ -120,6 +120,19 @@ function BattlePlay() {
     return () => window.clearInterval(id);
   }, [finished]);
 
+  // Play soft sfx when opponent's tallies change.
+  const oppPrev = useRef({ correct: 0, wrong: 0 });
+  useEffect(() => {
+    const prev = oppPrev.current;
+    if (oppProgress.correct > prev.correct) {
+      sfx.resume().then(() => sfx.opponentCorrect());
+    }
+    if (oppProgress.wrong > prev.wrong) {
+      sfx.resume().then(() => sfx.opponentWrong());
+    }
+    oppPrev.current = { correct: oppProgress.correct, wrong: oppProgress.wrong };
+  }, [oppProgress.correct, oppProgress.wrong]);
+
   useEffect(() => {
     setSelected(null);
     setSubmitted(false);
