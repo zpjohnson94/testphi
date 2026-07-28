@@ -61,6 +61,33 @@ export type Database = {
           },
         ]
       }
+      battle_fake_profiles: {
+        Row: {
+          avatar_accessory: string
+          avatar_character: string
+          avatar_color: string
+          created_at: string
+          id: string
+          name: string
+        }
+        Insert: {
+          avatar_accessory: string
+          avatar_character: string
+          avatar_color: string
+          created_at?: string
+          id?: string
+          name: string
+        }
+        Update: {
+          avatar_accessory?: string
+          avatar_character?: string
+          avatar_color?: string
+          created_at?: string
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
       battle_leaderboard_alerts: {
         Row: {
           alerted_at: string
@@ -91,39 +118,45 @@ export type Database = {
           completed_at: string
           daily_rank: number | null
           event_log: Json
+          fake_profile_id: string | null
           id: string
+          is_fake: boolean
           opponent_run_id: string | null
           questions_correct: number
           questions_wrong: number
           result: string | null
           total_time_ms: number
-          user_id: string
+          user_id: string | null
         }
         Insert: {
           battle_date: string
           completed_at?: string
           daily_rank?: number | null
           event_log?: Json
+          fake_profile_id?: string | null
           id?: string
+          is_fake?: boolean
           opponent_run_id?: string | null
           questions_correct?: number
           questions_wrong?: number
           result?: string | null
           total_time_ms?: number
-          user_id: string
+          user_id?: string | null
         }
         Update: {
           battle_date?: string
           completed_at?: string
           daily_rank?: number | null
           event_log?: Json
+          fake_profile_id?: string | null
           id?: string
+          is_fake?: boolean
           opponent_run_id?: string | null
           questions_correct?: number
           questions_wrong?: number
           result?: string | null
           total_time_ms?: number
-          user_id?: string
+          user_id?: string | null
         }
         Relationships: [
           {
@@ -132,6 +165,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "battle_sets"
             referencedColumns: ["set_date"]
+          },
+          {
+            foreignKeyName: "battle_runs_fake_profile_id_fkey"
+            columns: ["fake_profile_id"]
+            isOneToOne: false
+            referencedRelation: "battle_fake_profiles"
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "battle_runs_opponent_run_id_fkey"

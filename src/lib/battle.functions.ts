@@ -170,14 +170,137 @@ async function ensureTodaysBattleSet(supabase: any, iso: string): Promise<string
     .select("question_ids")
     .eq("set_date", iso)
     .maybeSingle();
-  if (existing?.question_ids?.length) return existing.question_ids as string[];
-
-  const ids = await generateBattleSet(supabase);
-  if (ids.length === 0) return [];
-  await supabase
-    .from("battle_sets")
-    .upsert({ set_date: iso, question_ids: ids }, { onConflict: "set_date" });
+  let ids: string[] = [];
+  if (existing?.question_ids?.length) {
+    ids = existing.question_ids as string[];
+  } else {
+    ids = await generateBattleSet(supabase);
+    if (ids.length === 0) return [];
+    await supabase
+      .from("battle_sets")
+      .upsert({ set_date: iso, question_ids: ids }, { onConflict: "set_date" });
+  }
+  // First request of the day → ensure fake leaderboard rows exist.
+  await ensureFakeRunsForDay(iso);
   return ids;
+}
+
+// ---------- fake profile daily runs ----------
+
+// Deterministic PRNG (mulberry32) seeded by hash(date + profile id).
+function mulberry32(seed: number) {
+  let a = seed >>> 0;
+  return () => {
+    a = (a + 0x6D2B79F5) >>> 0;
+    let t = a;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+interface GeneratedFakeRun {
+  fake_profile_id: string;
+  questions_correct: number;
+  questions_wrong: number;
+  total_time_ms: number;
+}
+
+function generateFakeRun(iso: string, profileId: string): GeneratedFakeRun {
+  const rand = mulberry32(hashSeed(`${iso}:${profileId}`));
+  // Per-day rank order: reshuffle profiles via the seed. We assign a
+  // "target strength" 0..1 from rand and map to results honoring caps.
+  const strength = rand(); // 0..1
+  const jitter = rand();
+
+  // Baseline correct: rank 1 ≈ 15, rank 100 ≈ 5. Strength=1 → 15, 0 → 5.
+  let correct = Math.round(5 + strength * 10 + (jitter - 0.5) * 2);
+  correct = Math.max(3, Math.min(15, correct));
+
+  // Wrongs 0..3 — stronger players fewer wrongs.
+  let wrongs = 3 - Math.floor(strength * 3 + rand() * 0.8);
+  wrongs = Math.max(0, Math.min(3, wrongs));
+
+  // Termination: 3 wrongs stops early, else at 15 correct or 2:00.
+  const total = correct + wrongs;
+  // Base time: elite ~65s, low end ~timeout 120s.
+  let totalTimeMs: number;
+  if (wrongs >= 3) {
+    // Ended early on 3rd wrong. Time between 40s and 118s scaled by inverse strength.
+    totalTimeMs = Math.round(40_000 + (1 - strength) * 75_000 + (rand() - 0.5) * 4_000);
+  } else if (correct >= 15) {
+    // Finished all 15. Fast for strong.
+    totalTimeMs = Math.round(60_000 + (1 - strength) * 55_000 + (rand() - 0.5) * 4_000);
+  } else {
+    // Timed out at 120s.
+    totalTimeMs = 120_000 - Math.floor(rand() * 500);
+  }
+  totalTimeMs = Math.max(20_000, Math.min(120_000, totalTimeMs));
+  // Sanity: cannot have answered more than total questions in bank size.
+  return {
+    fake_profile_id: profileId,
+    questions_correct: correct,
+    questions_wrong: wrongs,
+    total_time_ms: totalTimeMs,
+  };
+}
+
+async function ensureFakeRunsForDay(iso: string): Promise<void> {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  // Idempotency: skip if any fake row already exists for today.
+  const { count } = await supabaseAdmin
+    .from("battle_runs")
+    .select("*", { count: "exact", head: true })
+    .eq("battle_date", iso)
+    .eq("is_fake", true);
+  if ((count ?? 0) > 0) return;
+
+  const { data: profs } = await supabaseAdmin
+    .from("battle_fake_profiles")
+    .select("id");
+  const profiles = (profs ?? []) as Array<{ id: string }>;
+  if (profiles.length === 0) return;
+
+  const runs = profiles.map((p) => {
+    const r = generateFakeRun(iso, p.id);
+    return {
+      user_id: null,
+      is_fake: true,
+      fake_profile_id: r.fake_profile_id,
+      battle_date: iso,
+      opponent_run_id: null,
+      questions_correct: r.questions_correct,
+      questions_wrong: r.questions_wrong,
+      total_time_ms: r.total_time_ms,
+      event_log: [],
+      result: null,
+    };
+  });
+
+  const { error } = await supabaseAdmin
+    .from("battle_runs")
+    .insert(runs as any);
+  if (error) {
+    // Likely a race with another concurrent request — ignore silently.
+    return;
+  }
+
+  // Compute daily_rank for the inserted fake rows (top 100 only).
+  const { data: sorted } = await supabaseAdmin
+    .from("battle_runs")
+    .select("id, questions_correct, total_time_ms")
+    .eq("battle_date", iso)
+    .eq("is_fake", true)
+    .order("questions_correct", { ascending: false })
+    .order("total_time_ms", { ascending: true });
+  const ranked = (sorted ?? []) as Array<{ id: string }>;
+  await Promise.all(
+    ranked.map((r, i) =>
+      i < 100
+        ? supabaseAdmin.from("battle_runs").update({ daily_rank: i + 1 }).eq("id", r.id)
+        : Promise.resolve(),
+    ),
+  );
 }
 
 // Deterministic pseudo-avatar seed from a user id string.
@@ -195,21 +318,23 @@ async function loadOpponent(
   currentUserId: string,
   iso: string,
 ): Promise<{ opponent: OpponentSummary | null; firstEver: boolean; useStaticGhost: boolean }> {
-  // First player of the day for today's battle_set → static ghost.
-  // Count includes self so the flag flips only when literally no run exists today.
+  // First real player of the day for today's battle_set → static ghost.
+  // Fake runs don't count so this behavior is preserved.
   const { count: todayCount } = await supabase
     .from("battle_runs")
     .select("*", { count: "exact", head: true })
-    .eq("battle_date", iso);
+    .eq("battle_date", iso)
+    .eq("is_fake", false);
   if ((todayCount ?? 0) === 0) {
     return { opponent: null, firstEver: false, useStaticGhost: true };
   }
 
-  // Try today first (excluding self).
+  // Try today first (excluding self, excluding fakes).
   const { data: todayRun } = await supabase
     .from("battle_runs")
     .select("id, user_id, battle_date, questions_correct, questions_wrong, total_time_ms, event_log")
     .eq("battle_date", iso)
+    .eq("is_fake", false)
     .neq("user_id", currentUserId)
     .order("completed_at", { ascending: false })
     .limit(1)
@@ -217,12 +342,13 @@ async function loadOpponent(
 
   let run: any = todayRun;
   if (!run) {
-    // Fall back to yesterday.
+    // Fall back to yesterday (real runs only).
     const y = yesterdayISO(iso);
     const { data: yRun } = await supabase
       .from("battle_runs")
       .select("id, user_id, battle_date, questions_correct, questions_wrong, total_time_ms, event_log")
       .eq("battle_date", y)
+      .eq("is_fake", false)
       .neq("user_id", currentUserId)
       .order("completed_at", { ascending: false })
       .limit(1)
@@ -231,10 +357,11 @@ async function loadOpponent(
   }
 
   if (!run) {
-    // Check any run anywhere → first-ever check.
+    // Check any real run anywhere → first-ever check.
     const { count } = await supabase
       .from("battle_runs")
-      .select("*", { count: "exact", head: true });
+      .select("*", { count: "exact", head: true })
+      .eq("is_fake", false);
     return { opponent: null, firstEver: (count ?? 0) === 0, useStaticGhost: false };
   }
 
@@ -295,18 +422,19 @@ export const getBattleStatus = createServerFn({ method: "GET" })
         .select("id, user_id, questions_correct, questions_wrong, total_time_ms")
         .eq("id", mine.opponent_run_id)
         .maybeSingle();
-      if (oppRun) {
+      if (oppRun && oppRun.user_id) {
+        const userId = oppRun.user_id;
         const { data: prof } = await context.supabase
           .from("profiles")
           .select("name")
-          .eq("id", oppRun.user_id)
+          .eq("id", userId)
           .maybeSingle();
         opponent = {
           runId: oppRun.id,
-          userId: oppRun.user_id,
+          userId,
           firstName: (prof?.name ?? "").split(" ")[0] || "Rival",
-          animalSeed: hashSeed(oppRun.user_id),
-          colorSeed: hashSeed(oppRun.user_id + ":c"),
+          animalSeed: hashSeed(userId),
+          colorSeed: hashSeed(userId + ":c"),
           battleDate: iso,
           questionsCorrect: oppRun.questions_correct,
           questionsWrong: oppRun.questions_wrong,
@@ -487,6 +615,11 @@ export interface LeaderboardEntry {
   questionsCorrect: number;
   totalTimeMs: number;
   isMe: boolean;
+  // Explicit avatar overrides (used for fake profiles).
+  animalId?: string;
+  color?: string;
+  accessoryId?: string;
+  isFake?: boolean;
 }
 
 export interface BattleLeaderboard {
@@ -506,19 +639,27 @@ export const getBattleLeaderboard = createServerFn({ method: "GET" })
 
     const { data: runs } = await supabaseAdmin
       .from("battle_runs")
-      .select("user_id, questions_correct, total_time_ms")
+      .select("user_id, questions_correct, total_time_ms, is_fake, fake_profile_id")
       .eq("battle_date", iso)
       .order("questions_correct", { ascending: false })
       .order("total_time_ms", { ascending: true })
       .limit(100);
 
     const rows = (runs ?? []) as Array<{
-      user_id: string;
+      user_id: string | null;
       questions_correct: number;
       total_time_ms: number;
+      is_fake: boolean;
+      fake_profile_id: string | null;
     }>;
 
-    const userIds = Array.from(new Set(rows.map((r) => r.user_id)));
+    const userIds = Array.from(
+      new Set(rows.filter((r) => !r.is_fake && r.user_id).map((r) => r.user_id as string)),
+    );
+    const fakeIds = Array.from(
+      new Set(rows.filter((r) => r.is_fake && r.fake_profile_id).map((r) => r.fake_profile_id as string)),
+    );
+
     const nameByUser = new Map<string, string>();
     if (userIds.length > 0) {
       const { data: profs } = await supabaseAdmin
@@ -530,16 +671,46 @@ export const getBattleLeaderboard = createServerFn({ method: "GET" })
       }
     }
 
-    const entries: LeaderboardEntry[] = rows.map((r, i) => ({
-      rank: i + 1,
-      userId: r.user_id,
-      firstName: nameByUser.get(r.user_id) || "Player",
-      animalSeed: hashSeed(r.user_id),
-      colorSeed: hashSeed(r.user_id + ":c"),
-      questionsCorrect: r.questions_correct,
-      totalTimeMs: r.total_time_ms,
-      isMe: r.user_id === context.userId,
-    }));
+    type FakeProfile = { id: string; name: string; avatar_character: string; avatar_color: string; avatar_accessory: string };
+    const fakeById = new Map<string, FakeProfile>();
+    if (fakeIds.length > 0) {
+      const { data: fakes } = await supabaseAdmin
+        .from("battle_fake_profiles")
+        .select("id, name, avatar_character, avatar_color, avatar_accessory")
+        .in("id", fakeIds);
+      for (const f of (fakes ?? []) as FakeProfile[]) fakeById.set(f.id, f);
+    }
+
+    const entries: LeaderboardEntry[] = rows.map((r, i) => {
+      if (r.is_fake && r.fake_profile_id) {
+        const f = fakeById.get(r.fake_profile_id);
+        return {
+          rank: i + 1,
+          userId: r.fake_profile_id,
+          firstName: f?.name || "Player",
+          animalSeed: hashSeed(r.fake_profile_id),
+          colorSeed: hashSeed(r.fake_profile_id + ":c"),
+          animalId: f?.avatar_character,
+          color: f?.avatar_color,
+          accessoryId: f?.avatar_accessory,
+          isFake: true,
+          questionsCorrect: r.questions_correct,
+          totalTimeMs: r.total_time_ms,
+          isMe: false,
+        };
+      }
+      const uid = r.user_id ?? "";
+      return {
+        rank: i + 1,
+        userId: uid,
+        firstName: nameByUser.get(uid) || "Player",
+        animalSeed: hashSeed(uid),
+        colorSeed: hashSeed(uid + ":c"),
+        questionsCorrect: r.questions_correct,
+        totalTimeMs: r.total_time_ms,
+        isMe: uid === context.userId,
+      };
+    });
 
     const mine = entries.find((e) => e.isMe);
     return { battleDate: iso, entries, myRank: mine?.rank ?? null };
