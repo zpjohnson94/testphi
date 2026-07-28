@@ -66,7 +66,11 @@ function BattleLeaderboard() {
               </div>
             )}
             {data?.entries.map((e) => {
-              const cfg = seedAvatar(e.animalSeed, e.colorSeed);
+              const cfg = seedAvatar(e.animalSeed, e.colorSeed, {
+                animalId: e.animalId,
+                color: e.color,
+                accessoryId: e.accessoryId,
+              });
               return (
                 <div
                   key={e.userId + e.rank}
