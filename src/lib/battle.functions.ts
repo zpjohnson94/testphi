@@ -295,18 +295,19 @@ export const getBattleStatus = createServerFn({ method: "GET" })
         .select("id, user_id, questions_correct, questions_wrong, total_time_ms")
         .eq("id", mine.opponent_run_id)
         .maybeSingle();
-      if (oppRun) {
+      if (oppRun && oppRun.user_id) {
+        const userId = oppRun.user_id;
         const { data: prof } = await context.supabase
           .from("profiles")
           .select("name")
-          .eq("id", oppRun.user_id)
+          .eq("id", userId)
           .maybeSingle();
         opponent = {
           runId: oppRun.id,
-          userId: oppRun.user_id,
+          userId,
           firstName: (prof?.name ?? "").split(" ")[0] || "Rival",
-          animalSeed: hashSeed(oppRun.user_id),
-          colorSeed: hashSeed(oppRun.user_id + ":c"),
+          animalSeed: hashSeed(userId),
+          colorSeed: hashSeed(userId + ":c"),
           battleDate: iso,
           questionsCorrect: oppRun.questions_correct,
           questionsWrong: oppRun.questions_wrong,
