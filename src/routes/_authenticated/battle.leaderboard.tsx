@@ -115,6 +115,13 @@ function BattleLeaderboard() {
               );
             })}
           </div>
+
+          <button
+            onClick={() => navigate({ to: "/home" as any })}
+            className="btn-volt mt-6 w-full py-4 text-base rounded-2xl"
+          >
+            Go Home
+          </button>
         </div>
       </div>
     </FreeShell>
