@@ -16,11 +16,16 @@ export const Route = createFileRoute("/_authenticated/battle/leaderboard")({
   component: BattleLeaderboard,
 });
 
-function seedAvatar(animalSeed: number, colorSeed: number): AvatarConfig {
+function seedAvatar(
+  animalSeed: number,
+  colorSeed: number,
+  explicit?: { animalId?: string; color?: string; accessoryId?: string },
+): AvatarConfig {
   return {
-    animal: ANIMALS[animalSeed % ANIMALS.length]?.id ?? "bear",
-    color: COLOR_SWATCHES[colorSeed % COLOR_SWATCHES.length] ?? "#A855F7",
-    accessory: "none",
+    animal: (explicit?.animalId as AvatarConfig["animal"]) ??
+      (ANIMALS[animalSeed % ANIMALS.length]?.id ?? "bear"),
+    color: explicit?.color ?? (COLOR_SWATCHES[colorSeed % COLOR_SWATCHES.length] ?? "#A855F7"),
+    accessory: (explicit?.accessoryId as AvatarConfig["accessory"]) ?? "none",
   };
 }
 
