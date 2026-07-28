@@ -5,6 +5,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { DOMAINS, domainById } from "./freeUser";
 import { expectedSecondsFor, type Difficulty } from "./diagnostic";
 import { staticGhostProgress } from "./staticGhostProfile";
 
