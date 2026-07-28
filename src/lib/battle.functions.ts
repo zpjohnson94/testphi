@@ -51,6 +51,7 @@ export interface BattleBundle {
   questions: BattleQuestion[];
   opponent: OpponentSummary | null;
   firstEver: boolean; // no prior runs anywhere → solo run
+  useStaticGhost: boolean; // first player of the day for today's set
 }
 
 // ---------- helpers ----------
