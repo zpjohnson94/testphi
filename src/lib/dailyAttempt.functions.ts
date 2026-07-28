@@ -388,11 +388,47 @@ export const serveDailySetBatch = createServerFn({ method: "POST" })
             shuffled_order: order,
             correct_position: correctPosition,
           },
-          { onConflict: "user_id,set_date,slot" },
+          { onConflict: "user_id,set_date,slot", ignoreDuplicates: true },
         )
         .select("id")
-        .single();
-      if (error || !inserted) throw new Error(error?.message ?? "Failed to create attempt");
+        .maybeSingle();
+      if (error) throw new Error(error.message);
+
+      if (!inserted) {
+        // A concurrent serve won the insert. Re-read and use its shuffle so
+        // the client renders the same choice order the DB will grade against.
+        const { data: winner, error: readErr } = await context.supabase
+          .from("daily_attempts")
+          .select("id, shuffled_order, correct_position, selected_position, is_correct, answered_at")
+          .eq("user_id", context.userId)
+          .eq("set_date", today)
+          .eq("slot", slot)
+          .single();
+        if (readErr || !winner) throw new Error(readErr?.message ?? "Failed to read attempt");
+        const winnerChoices = (winner.shuffled_order as string[]).map(
+          (l) => question.choices[letterToIndex(l)],
+        ) as [string, string, string, string];
+        const s: ServedQuestion = {
+          attemptId: winner.id,
+          slot,
+          questionId: question.questionId,
+          domainId: question.domainId,
+          domainLabel: question.domainLabel,
+          difficulty: question.difficulty,
+          expectedSeconds: question.expectedSeconds,
+          question: question.prompt,
+          passage: question.passage,
+          choices: winnerChoices,
+        };
+        if (winner.answered_at) {
+          s.alreadyAnswered = true;
+          s.selectedPosition = winner.selected_position ?? undefined;
+          s.isCorrect = winner.is_correct ?? undefined;
+          s.correctPosition = winner.correct_position;
+        }
+        out.push(s);
+        continue;
+      }
 
       out.push({
         attemptId: inserted.id,
@@ -406,6 +442,7 @@ export const serveDailySetBatch = createServerFn({ method: "POST" })
         passage: question.passage,
         choices: shuffledChoices,
       });
+
     }
     return out;
   });
