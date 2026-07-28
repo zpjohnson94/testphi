@@ -88,7 +88,7 @@ function BattleResults() {
 
   const headline =
     result === "win" ? "You win!" : result === "loss" ? "Nice try! You lost this one." : result === "tie" ? "It's a tie" : "Battle complete";
-  const headlineColor = result === "win" ? "var(--volt)" : result === "loss" ? "var(--destructive)" : "var(--lavender)";
+  const headlineColor = result === "win" ? "var(--volt)" : result === "loss" ? "var(--lavender)" : "var(--lavender)";
 
   return (
 
