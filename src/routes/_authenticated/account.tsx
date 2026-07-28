@@ -464,6 +464,23 @@ function DeveloperMenu({ state }: { state: FreeState }) {
 function BattleModeDevSection() {
   const navigate = useNavigate();
   const [useDummyOpp, setUseDummyOpp] = useState(true);
+  const [fakeStatus, setFakeStatus] = useState<string>("");
+  const [fakeBusy, setFakeBusy] = useState(false);
+
+  const regenerateFakes = async () => {
+    if (fakeBusy) return;
+    setFakeBusy(true);
+    setFakeStatus("");
+    try {
+      const { devRegenerateFakeRuns } = await import("@/lib/battle.functions");
+      const res = await devRegenerateFakeRuns();
+      setFakeStatus(`Generated ${res.inserted} fake runs for ${res.battleDate}`);
+    } catch (e: any) {
+      setFakeStatus(`Failed: ${e?.message ?? "error"}`);
+    } finally {
+      setFakeBusy(false);
+    }
+  };
   const [oppName, setOppName] = useState("Ghost");
   const [oppCorrect, setOppCorrect] = useState(4);
   const [oppWrong, setOppWrong] = useState(2);
