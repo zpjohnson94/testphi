@@ -5,8 +5,8 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { DOMAINS, domainById } from "./freeUser";
 import { expectedSecondsFor, type Difficulty } from "./diagnostic";
+import { staticGhostProgress } from "./staticGhostProfile";
 
 const BATTLE_QUESTION_COUNT = 60;
 const BATTLE_TIME_MS = 120_000;
