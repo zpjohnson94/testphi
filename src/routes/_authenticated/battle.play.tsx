@@ -7,6 +7,7 @@ import { useBattleBundle, useFinalizeBattle } from "@/lib/useBattle";
 import { useStore } from "@/lib/store";
 import { useFreeState } from "@/lib/useFree";
 import { sfx } from "@/lib/sfx";
+import { STATIC_GHOST, staticGhostProgress } from "@/lib/staticGhostProfile";
 import type { BattleEvent } from "@/lib/battle.functions";
 
 const BATTLE_TIME_MS = 120_000;
