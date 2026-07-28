@@ -195,21 +195,23 @@ async function loadOpponent(
   currentUserId: string,
   iso: string,
 ): Promise<{ opponent: OpponentSummary | null; firstEver: boolean; useStaticGhost: boolean }> {
-  // First player of the day for today's battle_set → static ghost.
-  // Count includes self so the flag flips only when literally no run exists today.
+  // First real player of the day for today's battle_set → static ghost.
+  // Fake runs don't count so this behavior is preserved.
   const { count: todayCount } = await supabase
     .from("battle_runs")
     .select("*", { count: "exact", head: true })
-    .eq("battle_date", iso);
+    .eq("battle_date", iso)
+    .eq("is_fake", false);
   if ((todayCount ?? 0) === 0) {
     return { opponent: null, firstEver: false, useStaticGhost: true };
   }
 
-  // Try today first (excluding self).
+  // Try today first (excluding self, excluding fakes).
   const { data: todayRun } = await supabase
     .from("battle_runs")
     .select("id, user_id, battle_date, questions_correct, questions_wrong, total_time_ms, event_log")
     .eq("battle_date", iso)
+    .eq("is_fake", false)
     .neq("user_id", currentUserId)
     .order("completed_at", { ascending: false })
     .limit(1)
@@ -217,12 +219,13 @@ async function loadOpponent(
 
   let run: any = todayRun;
   if (!run) {
-    // Fall back to yesterday.
+    // Fall back to yesterday (real runs only).
     const y = yesterdayISO(iso);
     const { data: yRun } = await supabase
       .from("battle_runs")
       .select("id, user_id, battle_date, questions_correct, questions_wrong, total_time_ms, event_log")
       .eq("battle_date", y)
+      .eq("is_fake", false)
       .neq("user_id", currentUserId)
       .order("completed_at", { ascending: false })
       .limit(1)
@@ -231,10 +234,11 @@ async function loadOpponent(
   }
 
   if (!run) {
-    // Check any run anywhere → first-ever check.
+    // Check any real run anywhere → first-ever check.
     const { count } = await supabase
       .from("battle_runs")
-      .select("*", { count: "exact", head: true });
+      .select("*", { count: "exact", head: true })
+      .eq("is_fake", false);
     return { opponent: null, firstEver: (count ?? 0) === 0, useStaticGhost: false };
   }
 
