@@ -144,6 +144,10 @@ function BattlePlay() {
         eventLog: events,
       });
       const opp = bundle?.opponent;
+      // If we're running against the static ghost, compute its final tallies
+      // from the fixed profile and hand explicit avatar fields to the results
+      // page instead of numeric seeds. Never write it to battle_runs.
+      const staticFinal = useStaticGhost ? staticGhostProgress(totalTimeMs) : null;
       navigate({
         to: "/battle/results" as any,
         search: {
@@ -152,11 +156,14 @@ function BattlePlay() {
           correct: finalCorrect,
           wrong: finalWrong,
           wins: res.totalWins,
-          opponentName: opp ? opp.firstName : "Ghost",
-          opponentAnimalSeed: opp?.animalSeed ?? null,
-          opponentColorSeed: opp?.colorSeed ?? null,
-          opponentCorrect: opp ? opp.questionsCorrect : null,
-          opponentWrong: opp ? opp.questionsWrong : null,
+          opponentName: useStaticGhost ? STATIC_GHOST.name : opp ? opp.firstName : "Ghost",
+          opponentAnimalSeed: useStaticGhost ? null : opp?.animalSeed ?? null,
+          opponentColorSeed: useStaticGhost ? null : opp?.colorSeed ?? null,
+          opponentCorrect: useStaticGhost ? staticFinal!.correct : opp ? opp.questionsCorrect : null,
+          opponentWrong: useStaticGhost ? staticFinal!.wrong : opp ? opp.questionsWrong : null,
+          opponentAnimal: useStaticGhost ? STATIC_GHOST.animal : "",
+          opponentColor: useStaticGhost ? STATIC_GHOST.color : "",
+          opponentAccessory: useStaticGhost ? STATIC_GHOST.accessory : "",
         } as any,
       });
 
