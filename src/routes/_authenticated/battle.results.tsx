@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate, useSearch } from "@tanstack/react-router";
 import { FreeShell } from "@/components/FreeShell";
-import { Avatar, defaultAvatar, ANIMALS, COLOR_SWATCHES, type AvatarConfig } from "@/components/Avatar";
+import { Avatar, defaultAvatar, ANIMALS, COLOR_SWATCHES, type AvatarConfig, type AnimalId, type AccessoryId } from "@/components/Avatar";
 import { useStore } from "@/lib/store";
 import { useFreeState } from "@/lib/useFree";
 
@@ -17,6 +17,9 @@ type BattleResultSearch = {
   opponentColorSeed?: number | string;
   opponentCorrect?: number | string;
   opponentWrong?: number | string;
+  opponentAnimal?: string;
+  opponentColor?: string;
+  opponentAccessory?: string;
 };
 
 
@@ -33,12 +36,28 @@ export const Route = createFileRoute("/_authenticated/battle/results")({
     opponentColorSeed: s.opponentColorSeed == null ? undefined : Number(s.opponentColorSeed),
     opponentCorrect: s.opponentCorrect == null ? undefined : Number(s.opponentCorrect),
     opponentWrong: s.opponentWrong == null ? undefined : Number(s.opponentWrong),
+    opponentAnimal: (s.opponentAnimal as string) || "",
+    opponentColor: (s.opponentColor as string) || "",
+    opponentAccessory: (s.opponentAccessory as string) || "",
   }),
 
   component: BattleResults,
 });
 
-function opponentAvatarConfig(seedAnimal?: number, seedColor?: number): AvatarConfig | null {
+function opponentAvatarConfig(
+  seedAnimal?: number,
+  seedColor?: number,
+  explicitAnimal?: string,
+  explicitColor?: string,
+  explicitAccessory?: string,
+): AvatarConfig | null {
+  if (explicitAnimal && explicitColor) {
+    return {
+      animal: explicitAnimal as AnimalId,
+      color: explicitColor,
+      accessory: (explicitAccessory || "none") as AccessoryId,
+    };
+  }
   if (seedAnimal == null || seedColor == null) return null;
   const animal = ANIMALS[seedAnimal % ANIMALS.length]?.id ?? "bear";
   const color = COLOR_SWATCHES[seedColor % COLOR_SWATCHES.length] ?? "#A855F7";
