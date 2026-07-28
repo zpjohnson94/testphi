@@ -87,7 +87,7 @@ function BattleResults() {
   const oppWrong = typeof search.opponentWrong === "number" ? search.opponentWrong : null;
 
   const headline =
-    result === "win" ? "You win!" : result === "loss" ? "Nice try" : result === "tie" ? "It's a tie" : "Battle complete";
+    result === "win" ? "You win!" : result === "loss" ? "Nice try! You lost this one." : result === "tie" ? "It's a tie" : "Battle complete";
   const headlineColor = result === "win" ? "var(--volt)" : result === "loss" ? "var(--destructive)" : "var(--lavender)";
 
   return (
