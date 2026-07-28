@@ -615,6 +615,11 @@ export interface LeaderboardEntry {
   questionsCorrect: number;
   totalTimeMs: number;
   isMe: boolean;
+  // Explicit avatar overrides (used for fake profiles).
+  animalId?: string;
+  color?: string;
+  accessoryId?: string;
+  isFake?: boolean;
 }
 
 export interface BattleLeaderboard {
@@ -634,19 +639,27 @@ export const getBattleLeaderboard = createServerFn({ method: "GET" })
 
     const { data: runs } = await supabaseAdmin
       .from("battle_runs")
-      .select("user_id, questions_correct, total_time_ms")
+      .select("user_id, questions_correct, total_time_ms, is_fake, fake_profile_id")
       .eq("battle_date", iso)
       .order("questions_correct", { ascending: false })
       .order("total_time_ms", { ascending: true })
       .limit(100);
 
     const rows = (runs ?? []) as Array<{
-      user_id: string;
+      user_id: string | null;
       questions_correct: number;
       total_time_ms: number;
+      is_fake: boolean;
+      fake_profile_id: string | null;
     }>;
 
-    const userIds = Array.from(new Set(rows.map((r) => r.user_id)));
+    const userIds = Array.from(
+      new Set(rows.filter((r) => !r.is_fake && r.user_id).map((r) => r.user_id as string)),
+    );
+    const fakeIds = Array.from(
+      new Set(rows.filter((r) => r.is_fake && r.fake_profile_id).map((r) => r.fake_profile_id as string)),
+    );
+
     const nameByUser = new Map<string, string>();
     if (userIds.length > 0) {
       const { data: profs } = await supabaseAdmin
@@ -658,16 +671,46 @@ export const getBattleLeaderboard = createServerFn({ method: "GET" })
       }
     }
 
-    const entries: LeaderboardEntry[] = rows.map((r, i) => ({
-      rank: i + 1,
-      userId: r.user_id,
-      firstName: nameByUser.get(r.user_id) || "Player",
-      animalSeed: hashSeed(r.user_id),
-      colorSeed: hashSeed(r.user_id + ":c"),
-      questionsCorrect: r.questions_correct,
-      totalTimeMs: r.total_time_ms,
-      isMe: r.user_id === context.userId,
-    }));
+    type FakeProfile = { id: string; name: string; avatar_character: string; avatar_color: string; avatar_accessory: string };
+    const fakeById = new Map<string, FakeProfile>();
+    if (fakeIds.length > 0) {
+      const { data: fakes } = await supabaseAdmin
+        .from("battle_fake_profiles")
+        .select("id, name, avatar_character, avatar_color, avatar_accessory")
+        .in("id", fakeIds);
+      for (const f of (fakes ?? []) as FakeProfile[]) fakeById.set(f.id, f);
+    }
+
+    const entries: LeaderboardEntry[] = rows.map((r, i) => {
+      if (r.is_fake && r.fake_profile_id) {
+        const f = fakeById.get(r.fake_profile_id);
+        return {
+          rank: i + 1,
+          userId: r.fake_profile_id,
+          firstName: f?.name || "Player",
+          animalSeed: hashSeed(r.fake_profile_id),
+          colorSeed: hashSeed(r.fake_profile_id + ":c"),
+          animalId: f?.avatar_character,
+          color: f?.avatar_color,
+          accessoryId: f?.avatar_accessory,
+          isFake: true,
+          questionsCorrect: r.questions_correct,
+          totalTimeMs: r.total_time_ms,
+          isMe: false,
+        };
+      }
+      const uid = r.user_id ?? "";
+      return {
+        rank: i + 1,
+        userId: uid,
+        firstName: nameByUser.get(uid) || "Player",
+        animalSeed: hashSeed(uid),
+        colorSeed: hashSeed(uid + ":c"),
+        questionsCorrect: r.questions_correct,
+        totalTimeMs: r.total_time_ms,
+        isMe: uid === context.userId,
+      };
+    });
 
     const mine = entries.find((e) => e.isMe);
     return { battleDate: iso, entries, myRank: mine?.rank ?? null };
