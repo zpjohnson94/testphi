@@ -43,6 +43,17 @@ export const sfx = {
     tone(185, 0.08, "sawtooth", 0.08);
     tone(140, 0.2, "sawtooth", 0.06, 0.06);
   },
+  opponentCorrect() {
+    // Softer, muffled version of correct
+    tone(660, 0.14, "sine", 0.05);
+    tone(831, 0.16, "sine", 0.04, 0.06);
+    tone(988, 0.22, "sine", 0.035, 0.12);
+  },
+  opponentWrong() {
+    // Softer, muffled version of wrong
+    tone(160, 0.1, "sine", 0.035);
+    tone(120, 0.22, "sine", 0.025, 0.06);
+  },
   levelUp() {
     tone(523, 0.1, "triangle", 0.18);
     tone(659, 0.1, "triangle", 0.18, 0.1);
