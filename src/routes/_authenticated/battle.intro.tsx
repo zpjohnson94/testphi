@@ -6,6 +6,7 @@ import { useBattleBundle } from "@/lib/useBattle";
 import { useFreeState } from "@/lib/useFree";
 import { useStore } from "@/lib/store";
 import { sfx } from "@/lib/sfx";
+import { STATIC_GHOST } from "@/lib/staticGhostProfile";
 
 export const Route = createFileRoute("/_authenticated/battle/intro")({
   head: () => ({ meta: [{ title: "Battle Mode — TestPhi" }] }),
