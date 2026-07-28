@@ -157,7 +157,7 @@ function BattleIntro() {
               </div>
             )}
             <div className="display text-lg text-[var(--lavender)]">
-              {opp ? opp.firstName : bundle.firstEver ? "Solo" : "Ghost"}
+              {oppLabel}
             </div>
           </div>
         </div>
