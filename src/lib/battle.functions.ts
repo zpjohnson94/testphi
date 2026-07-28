@@ -170,14 +170,137 @@ async function ensureTodaysBattleSet(supabase: any, iso: string): Promise<string
     .select("question_ids")
     .eq("set_date", iso)
     .maybeSingle();
-  if (existing?.question_ids?.length) return existing.question_ids as string[];
-
-  const ids = await generateBattleSet(supabase);
-  if (ids.length === 0) return [];
-  await supabase
-    .from("battle_sets")
-    .upsert({ set_date: iso, question_ids: ids }, { onConflict: "set_date" });
+  let ids: string[] = [];
+  if (existing?.question_ids?.length) {
+    ids = existing.question_ids as string[];
+  } else {
+    ids = await generateBattleSet(supabase);
+    if (ids.length === 0) return [];
+    await supabase
+      .from("battle_sets")
+      .upsert({ set_date: iso, question_ids: ids }, { onConflict: "set_date" });
+  }
+  // First request of the day → ensure fake leaderboard rows exist.
+  await ensureFakeRunsForDay(iso);
   return ids;
+}
+
+// ---------- fake profile daily runs ----------
+
+// Deterministic PRNG (mulberry32) seeded by hash(date + profile id).
+function mulberry32(seed: number) {
+  let a = seed >>> 0;
+  return () => {
+    a = (a + 0x6D2B79F5) >>> 0;
+    let t = a;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+interface GeneratedFakeRun {
+  fake_profile_id: string;
+  questions_correct: number;
+  questions_wrong: number;
+  total_time_ms: number;
+}
+
+function generateFakeRun(iso: string, profileId: string): GeneratedFakeRun {
+  const rand = mulberry32(hashSeed(`${iso}:${profileId}`));
+  // Per-day rank order: reshuffle profiles via the seed. We assign a
+  // "target strength" 0..1 from rand and map to results honoring caps.
+  const strength = rand(); // 0..1
+  const jitter = rand();
+
+  // Baseline correct: rank 1 ≈ 15, rank 100 ≈ 5. Strength=1 → 15, 0 → 5.
+  let correct = Math.round(5 + strength * 10 + (jitter - 0.5) * 2);
+  correct = Math.max(3, Math.min(15, correct));
+
+  // Wrongs 0..3 — stronger players fewer wrongs.
+  let wrongs = 3 - Math.floor(strength * 3 + rand() * 0.8);
+  wrongs = Math.max(0, Math.min(3, wrongs));
+
+  // Termination: 3 wrongs stops early, else at 15 correct or 2:00.
+  const total = correct + wrongs;
+  // Base time: elite ~65s, low end ~timeout 120s.
+  let totalTimeMs: number;
+  if (wrongs >= 3) {
+    // Ended early on 3rd wrong. Time between 40s and 118s scaled by inverse strength.
+    totalTimeMs = Math.round(40_000 + (1 - strength) * 75_000 + (rand() - 0.5) * 4_000);
+  } else if (correct >= 15) {
+    // Finished all 15. Fast for strong.
+    totalTimeMs = Math.round(60_000 + (1 - strength) * 55_000 + (rand() - 0.5) * 4_000);
+  } else {
+    // Timed out at 120s.
+    totalTimeMs = 120_000 - Math.floor(rand() * 500);
+  }
+  totalTimeMs = Math.max(20_000, Math.min(120_000, totalTimeMs));
+  // Sanity: cannot have answered more than total questions in bank size.
+  return {
+    fake_profile_id: profileId,
+    questions_correct: correct,
+    questions_wrong: wrongs,
+    total_time_ms: totalTimeMs,
+  };
+}
+
+async function ensureFakeRunsForDay(iso: string): Promise<void> {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  // Idempotency: skip if any fake row already exists for today.
+  const { count } = await supabaseAdmin
+    .from("battle_runs")
+    .select("*", { count: "exact", head: true })
+    .eq("battle_date", iso)
+    .eq("is_fake", true);
+  if ((count ?? 0) > 0) return;
+
+  const { data: profs } = await supabaseAdmin
+    .from("battle_fake_profiles")
+    .select("id");
+  const profiles = (profs ?? []) as Array<{ id: string }>;
+  if (profiles.length === 0) return;
+
+  const runs = profiles.map((p) => {
+    const r = generateFakeRun(iso, p.id);
+    return {
+      user_id: null,
+      is_fake: true,
+      fake_profile_id: r.fake_profile_id,
+      battle_date: iso,
+      opponent_run_id: null,
+      questions_correct: r.questions_correct,
+      questions_wrong: r.questions_wrong,
+      total_time_ms: r.total_time_ms,
+      event_log: [],
+      result: null,
+    };
+  });
+
+  const { error } = await supabaseAdmin
+    .from("battle_runs")
+    .insert(runs as any);
+  if (error) {
+    // Likely a race with another concurrent request — ignore silently.
+    return;
+  }
+
+  // Compute daily_rank for the inserted fake rows (top 100 only).
+  const { data: sorted } = await supabaseAdmin
+    .from("battle_runs")
+    .select("id, questions_correct, total_time_ms")
+    .eq("battle_date", iso)
+    .eq("is_fake", true)
+    .order("questions_correct", { ascending: false })
+    .order("total_time_ms", { ascending: true });
+  const ranked = (sorted ?? []) as Array<{ id: string }>;
+  await Promise.all(
+    ranked.map((r, i) =>
+      i < 100
+        ? supabaseAdmin.from("battle_runs").update({ daily_rank: i + 1 }).eq("id", r.id)
+        : Promise.resolve(),
+    ),
+  );
 }
 
 // Deterministic pseudo-avatar seed from a user id string.
