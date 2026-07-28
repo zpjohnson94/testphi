@@ -715,3 +715,24 @@ export const getBattleLeaderboard = createServerFn({ method: "GET" })
     const mine = entries.find((e) => e.isMe);
     return { battleDate: iso, entries, myRank: mine?.rank ?? null };
   });
+
+// Dev-only: force-regenerate today's fake leaderboard runs.
+// Deletes existing fake runs for today and reinserts fresh ones.
+export const devRegenerateFakeRuns = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async () => {
+    const iso = todayISO();
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    await supabaseAdmin
+      .from("battle_runs")
+      .delete()
+      .eq("battle_date", iso)
+      .eq("is_fake", true);
+    await ensureFakeRunsForDay(iso);
+    const { count } = await supabaseAdmin
+      .from("battle_runs")
+      .select("*", { count: "exact", head: true })
+      .eq("battle_date", iso)
+      .eq("is_fake", true);
+    return { battleDate: iso, inserted: count ?? 0 };
+  });

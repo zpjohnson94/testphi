@@ -464,6 +464,23 @@ function DeveloperMenu({ state }: { state: FreeState }) {
 function BattleModeDevSection() {
   const navigate = useNavigate();
   const [useDummyOpp, setUseDummyOpp] = useState(true);
+  const [fakeStatus, setFakeStatus] = useState<string>("");
+  const [fakeBusy, setFakeBusy] = useState(false);
+
+  const regenerateFakes = async () => {
+    if (fakeBusy) return;
+    setFakeBusy(true);
+    setFakeStatus("");
+    try {
+      const { devRegenerateFakeRuns } = await import("@/lib/battle.functions");
+      const res = await devRegenerateFakeRuns();
+      setFakeStatus(`Generated ${res.inserted} fake runs for ${res.battleDate}`);
+    } catch (e: any) {
+      setFakeStatus(`Failed: ${e?.message ?? "error"}`);
+    } finally {
+      setFakeBusy(false);
+    }
+  };
   const [oppName, setOppName] = useState("Ghost");
   const [oppCorrect, setOppCorrect] = useState(4);
   const [oppWrong, setOppWrong] = useState(2);
@@ -580,6 +597,23 @@ function BattleModeDevSection() {
       >
         Open battle results
       </button>
+
+      <div className="mt-2 rounded-xl p-3" style={{ background: "rgba(0,0,0,0.25)", border: "1px solid rgba(246,240,250,0.08)" }}>
+        <div className="text-[10px] uppercase tracking-wider mb-2" style={{ color: "rgba(246,240,250,0.5)" }}>
+          Fake leaderboard runs (today)
+        </div>
+        <button
+          onClick={regenerateFakes}
+          disabled={fakeBusy}
+          className="w-full rounded-lg py-2 text-[11px] font-bold uppercase tracking-wider disabled:opacity-40"
+          style={{ background: "rgba(255,77,109,0.15)", color: "var(--destructive)", border: "1px solid rgba(255,77,109,0.4)" }}
+        >
+          {fakeBusy ? "Generating…" : "Generate fake runs"}
+        </button>
+        {fakeStatus && (
+          <div className="mt-2 text-[10px]" style={{ color: "var(--lavender)" }}>{fakeStatus}</div>
+        )}
+      </div>
     </section>
   );
 }
