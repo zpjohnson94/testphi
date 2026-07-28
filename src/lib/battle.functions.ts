@@ -351,6 +351,7 @@ export const getBattleBundle = createServerFn({ method: "GET" })
       questions,
       opponent: opp.opponent,
       firstEver: opp.firstEver,
+      useStaticGhost: opp.useStaticGhost,
     };
   });
 
