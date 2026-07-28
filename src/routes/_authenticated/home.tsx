@@ -225,15 +225,10 @@ function HomePage() {
             </div>
             <div
               className="text-sm font-semibold mt-1 text-left"
-              style={{ color: done ? "var(--neon)" : "rgba(246,240,250,0.7)" }}
+              style={{ color: "rgba(246,240,250,0.7)" }}
             >
-              {done ? "Daily 5 complete." : "Complete 5 questions every day to build momentum"}
+              {done ? "Daily 5 complete. Nice work!" : "Complete 5 questions every day to build momentum"}
             </div>
-            {done && (
-              <div className="text-sm font-semibold mt-1" style={{ color: "var(--neon)" }}>
-                Nice work!
-              </div>
-            )}
 
             {/* Five circle indicators */}
             <div className="mt-5 flex items-center gap-3 justify-center">
