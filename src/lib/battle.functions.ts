@@ -520,6 +520,13 @@ export const finalizeBattleRun = createServerFn({ method: "POST" })
       if (data.questionsCorrect > opponent.questions_correct) result = "win";
       else if (data.questionsCorrect < opponent.questions_correct) result = "loss";
       else result = "tie";
+    } else {
+      // No real opponent (static ghost / first-of-day solo run) — compare to the
+      // fixed pacing profile so the result is never null and the run persists.
+      const ghost = staticGhostProgress(data.totalTimeMs);
+      if (data.questionsCorrect > ghost.correct) result = "win";
+      else if (data.questionsCorrect < ghost.correct) result = "loss";
+      else result = "tie";
     }
 
     // Insert the run. Unique (user_id, battle_date) prevents double submission.
