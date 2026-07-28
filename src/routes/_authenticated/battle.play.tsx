@@ -80,20 +80,31 @@ function BattlePlay() {
     }, 900);
   };
 
+  // Determine if we should render the static ghost:
+  //   - server marked this session as first-of-day for today's battle_set, OR
+  //   - we're running in developer mode (Vite dev).
+  const useStaticGhost = !!(bundle?.useStaticGhost || import.meta.env.DEV);
+
   // Opponent live progress derived from ghost event_log against elapsedMs.
   const oppProgress = useMemo(() => {
-    if (!bundle?.opponent) return { qIndex: 0, wrong: 0 };
+    if (useStaticGhost) {
+      const p = staticGhostProgress(elapsedMs);
+      return { qIndex: p.qIndex, wrong: p.wrong, correct: p.correct };
+    }
+    if (!bundle?.opponent) return { qIndex: 0, wrong: 0, correct: 0 };
     const log = bundle.opponent.eventLog;
     let qIndex = 0;
     let w = 0;
+    let c = 0;
     for (const e of log) {
       if (e.elapsed_ms > elapsedMs) break;
       qIndex = e.question_index + 1;
-      if (!e.correct) w++;
+      if (e.correct) c++;
+      else w++;
       if (w >= MAX_WRONG) break;
     }
-    return { qIndex, wrong: w };
-  }, [elapsedMs, bundle?.opponent]);
+    return { qIndex, wrong: w, correct: c };
+  }, [elapsedMs, bundle?.opponent, useStaticGhost]);
 
   const questions = bundle?.questions ?? [];
   const current = questions[index];
