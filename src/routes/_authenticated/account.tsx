@@ -131,7 +131,7 @@ function AccountPage() {
                     background: avatarDraft.animal === a.id ? "var(--violet-deep)" : "rgba(74,6,136,0.06)",
                     border: avatarDraft.animal === a.id ? "2px solid var(--neon)" : "2px solid transparent",
                   }}>
-                    <Avatar config={{ ...avatarDraft, animal: a.id as AnimalId, accessory: "none" }} size={32} />
+                    <Avatar config={{ ...avatarDraft, animal: a.id as AnimalId, accessory: "none" }} size={52} />
                   </button>
                 ))}
               </div>
