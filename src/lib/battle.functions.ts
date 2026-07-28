@@ -7,6 +7,7 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { DOMAINS, domainById } from "./freeUser";
 import { expectedSecondsFor, type Difficulty } from "./diagnostic";
+import { staticGhostProgress } from "./staticGhostProfile";
 
 const BATTLE_QUESTION_COUNT = 60;
 const BATTLE_TIME_MS = 120_000;
@@ -518,6 +519,13 @@ export const finalizeBattleRun = createServerFn({ method: "POST" })
     if (opponent) {
       if (data.questionsCorrect > opponent.questions_correct) result = "win";
       else if (data.questionsCorrect < opponent.questions_correct) result = "loss";
+      else result = "tie";
+    } else {
+      // No real opponent (static ghost / first-of-day solo run) — compare to the
+      // fixed pacing profile so the result is never null and the run persists.
+      const ghost = staticGhostProgress(data.totalTimeMs);
+      if (data.questionsCorrect > ghost.correct) result = "win";
+      else if (data.questionsCorrect < ghost.correct) result = "loss";
       else result = "tie";
     }
 
