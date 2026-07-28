@@ -249,6 +249,9 @@ export const serveDailyQuestion = createServerFn({ method: "POST" })
       string,
     ];
 
+    // Insert-only, don't clobber a concurrent serve. On unique-conflict the
+    // other request won; re-read and return its shuffle so the client and DB
+    // agree on choice order + correct_position.
     const { data: inserted, error } = await context.supabase
       .from("daily_attempts")
       .upsert(
@@ -260,11 +263,44 @@ export const serveDailyQuestion = createServerFn({ method: "POST" })
           shuffled_order: order,
           correct_position: correctPosition,
         },
-        { onConflict: "user_id,set_date,slot" },
+        { onConflict: "user_id,set_date,slot", ignoreDuplicates: true },
       )
       .select("id")
-      .single();
-    if (error || !inserted) throw new Error(error?.message ?? "Failed to create attempt");
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+
+    if (!inserted) {
+      const { data: winner, error: readErr } = await context.supabase
+        .from("daily_attempts")
+        .select("id, question_id, shuffled_order, correct_position, selected_position, is_correct, answered_at")
+        .eq("user_id", context.userId)
+        .eq("set_date", today)
+        .eq("slot", slot)
+        .single();
+      if (readErr || !winner) throw new Error(readErr?.message ?? "Failed to read attempt");
+      const winnerChoices = (winner.shuffled_order as string[]).map(
+        (l) => question.choices[letterToIndex(l)],
+      ) as [string, string, string, string];
+      const base: ServedQuestion = {
+        attemptId: winner.id,
+        slot,
+        questionId: question.questionId,
+        domainId: question.domainId,
+        domainLabel: question.domainLabel,
+        difficulty: question.difficulty,
+        expectedSeconds: question.expectedSeconds,
+        question: question.prompt,
+        passage: question.passage,
+        choices: winnerChoices,
+      };
+      if (winner.answered_at) {
+        base.alreadyAnswered = true;
+        base.selectedPosition = winner.selected_position ?? undefined;
+        base.isCorrect = winner.is_correct ?? undefined;
+        base.correctPosition = winner.correct_position;
+      }
+      return base;
+    }
 
     return {
       attemptId: inserted.id,
@@ -279,6 +315,7 @@ export const serveDailyQuestion = createServerFn({ method: "POST" })
       choices: shuffledChoices,
     };
   });
+
 
 // ---------- serveDailySetBatch ----------
 // Returns all 5 ServedQuestion for today in a single round-trip. Idempotent:
@@ -351,11 +388,47 @@ export const serveDailySetBatch = createServerFn({ method: "POST" })
             shuffled_order: order,
             correct_position: correctPosition,
           },
-          { onConflict: "user_id,set_date,slot" },
+          { onConflict: "user_id,set_date,slot", ignoreDuplicates: true },
         )
         .select("id")
-        .single();
-      if (error || !inserted) throw new Error(error?.message ?? "Failed to create attempt");
+        .maybeSingle();
+      if (error) throw new Error(error.message);
+
+      if (!inserted) {
+        // A concurrent serve won the insert. Re-read and use its shuffle so
+        // the client renders the same choice order the DB will grade against.
+        const { data: winner, error: readErr } = await context.supabase
+          .from("daily_attempts")
+          .select("id, shuffled_order, correct_position, selected_position, is_correct, answered_at")
+          .eq("user_id", context.userId)
+          .eq("set_date", today)
+          .eq("slot", slot)
+          .single();
+        if (readErr || !winner) throw new Error(readErr?.message ?? "Failed to read attempt");
+        const winnerChoices = (winner.shuffled_order as string[]).map(
+          (l) => question.choices[letterToIndex(l)],
+        ) as [string, string, string, string];
+        const s: ServedQuestion = {
+          attemptId: winner.id,
+          slot,
+          questionId: question.questionId,
+          domainId: question.domainId,
+          domainLabel: question.domainLabel,
+          difficulty: question.difficulty,
+          expectedSeconds: question.expectedSeconds,
+          question: question.prompt,
+          passage: question.passage,
+          choices: winnerChoices,
+        };
+        if (winner.answered_at) {
+          s.alreadyAnswered = true;
+          s.selectedPosition = winner.selected_position ?? undefined;
+          s.isCorrect = winner.is_correct ?? undefined;
+          s.correctPosition = winner.correct_position;
+        }
+        out.push(s);
+        continue;
+      }
 
       out.push({
         attemptId: inserted.id,
@@ -369,6 +442,7 @@ export const serveDailySetBatch = createServerFn({ method: "POST" })
         passage: question.passage,
         choices: shuffledChoices,
       });
+
     }
     return out;
   });
