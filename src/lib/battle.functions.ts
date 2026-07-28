@@ -51,6 +51,7 @@ export interface BattleBundle {
   questions: BattleQuestion[];
   opponent: OpponentSummary | null;
   firstEver: boolean; // no prior runs anywhere → solo run
+  useStaticGhost: boolean; // first player of the day for today's set
 }
 
 // ---------- helpers ----------
@@ -193,7 +194,17 @@ async function loadOpponent(
   supabase: any,
   currentUserId: string,
   iso: string,
-): Promise<{ opponent: OpponentSummary | null; firstEver: boolean }> {
+): Promise<{ opponent: OpponentSummary | null; firstEver: boolean; useStaticGhost: boolean }> {
+  // First player of the day for today's battle_set → static ghost.
+  // Count includes self so the flag flips only when literally no run exists today.
+  const { count: todayCount } = await supabase
+    .from("battle_runs")
+    .select("*", { count: "exact", head: true })
+    .eq("battle_date", iso);
+  if ((todayCount ?? 0) === 0) {
+    return { opponent: null, firstEver: false, useStaticGhost: true };
+  }
+
   // Try today first (excluding self).
   const { data: todayRun } = await supabase
     .from("battle_runs")
@@ -224,7 +235,7 @@ async function loadOpponent(
     const { count } = await supabase
       .from("battle_runs")
       .select("*", { count: "exact", head: true });
-    return { opponent: null, firstEver: (count ?? 0) === 0 };
+    return { opponent: null, firstEver: (count ?? 0) === 0, useStaticGhost: false };
   }
 
   const { data: prof } = await supabase
@@ -248,6 +259,7 @@ async function loadOpponent(
       eventLog: (run.event_log ?? []) as BattleEvent[],
     },
     firstEver: false,
+    useStaticGhost: false,
   };
 }
 
@@ -339,6 +351,7 @@ export const getBattleBundle = createServerFn({ method: "GET" })
       questions,
       opponent: opp.opponent,
       firstEver: opp.firstEver,
+      useStaticGhost: opp.useStaticGhost,
     };
   });
 

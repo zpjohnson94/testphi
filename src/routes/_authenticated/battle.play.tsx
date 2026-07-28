@@ -7,6 +7,7 @@ import { useBattleBundle, useFinalizeBattle } from "@/lib/useBattle";
 import { useStore } from "@/lib/store";
 import { useFreeState } from "@/lib/useFree";
 import { sfx } from "@/lib/sfx";
+import { STATIC_GHOST, staticGhostProgress } from "@/lib/staticGhostProfile";
 import type { BattleEvent } from "@/lib/battle.functions";
 
 const BATTLE_TIME_MS = 120_000;
@@ -79,20 +80,31 @@ function BattlePlay() {
     }, 900);
   };
 
+  // Determine if we should render the static ghost:
+  //   - server marked this session as first-of-day for today's battle_set, OR
+  //   - we're running in developer mode (Vite dev).
+  const useStaticGhost = !!(bundle?.useStaticGhost || import.meta.env.DEV);
+
   // Opponent live progress derived from ghost event_log against elapsedMs.
   const oppProgress = useMemo(() => {
-    if (!bundle?.opponent) return { qIndex: 0, wrong: 0 };
+    if (useStaticGhost) {
+      const p = staticGhostProgress(elapsedMs);
+      return { qIndex: p.qIndex, wrong: p.wrong, correct: p.correct };
+    }
+    if (!bundle?.opponent) return { qIndex: 0, wrong: 0, correct: 0 };
     const log = bundle.opponent.eventLog;
     let qIndex = 0;
     let w = 0;
+    let c = 0;
     for (const e of log) {
       if (e.elapsed_ms > elapsedMs) break;
       qIndex = e.question_index + 1;
-      if (!e.correct) w++;
+      if (e.correct) c++;
+      else w++;
       if (w >= MAX_WRONG) break;
     }
-    return { qIndex, wrong: w };
-  }, [elapsedMs, bundle?.opponent]);
+    return { qIndex, wrong: w, correct: c };
+  }, [elapsedMs, bundle?.opponent, useStaticGhost]);
 
   const questions = bundle?.questions ?? [];
   const current = questions[index];
@@ -132,6 +144,10 @@ function BattlePlay() {
         eventLog: events,
       });
       const opp = bundle?.opponent;
+      // If we're running against the static ghost, compute its final tallies
+      // from the fixed profile and hand explicit avatar fields to the results
+      // page instead of numeric seeds. Never write it to battle_runs.
+      const staticFinal = useStaticGhost ? staticGhostProgress(totalTimeMs) : null;
       navigate({
         to: "/battle/results" as any,
         search: {
@@ -140,11 +156,14 @@ function BattlePlay() {
           correct: finalCorrect,
           wrong: finalWrong,
           wins: res.totalWins,
-          opponentName: opp ? opp.firstName : "Ghost",
-          opponentAnimalSeed: opp?.animalSeed ?? null,
-          opponentColorSeed: opp?.colorSeed ?? null,
-          opponentCorrect: opp ? opp.questionsCorrect : null,
-          opponentWrong: opp ? opp.questionsWrong : null,
+          opponentName: useStaticGhost ? STATIC_GHOST.name : opp ? opp.firstName : "Ghost",
+          opponentAnimalSeed: useStaticGhost ? null : opp?.animalSeed ?? null,
+          opponentColorSeed: useStaticGhost ? null : opp?.colorSeed ?? null,
+          opponentCorrect: useStaticGhost ? staticFinal!.correct : opp ? opp.questionsCorrect : null,
+          opponentWrong: useStaticGhost ? staticFinal!.wrong : opp ? opp.questionsWrong : null,
+          opponentAnimal: useStaticGhost ? STATIC_GHOST.animal : "",
+          opponentColor: useStaticGhost ? STATIC_GHOST.color : "",
+          opponentAccessory: useStaticGhost ? STATIC_GHOST.accessory : "",
         } as any,
       });
 
@@ -207,7 +226,17 @@ function BattlePlay() {
   const ss = secs % 60;
 
   const opp = bundle.opponent;
-  const oppAv = opp ? opponentAvatar(opp.animalSeed, opp.colorSeed) : null;
+  const staticGhostAvatar: AvatarConfig = {
+    animal: STATIC_GHOST.animal,
+    color: STATIC_GHOST.color,
+    accessory: STATIC_GHOST.accessory,
+  };
+  const oppAv: AvatarConfig | null = useStaticGhost
+    ? staticGhostAvatar
+    : opp
+      ? opponentAvatar(opp.animalSeed, opp.colorSeed)
+      : null;
+  const oppDisplayName = useStaticGhost ? STATIC_GHOST.name : opp?.firstName ?? "Ghost";
 
   return (
     <FreeShell>
@@ -241,9 +270,9 @@ function BattlePlay() {
 
             {/* Opponent */}
             <PlayerStatus
-              name={opp?.firstName ?? "Ghost"}
+              name={oppDisplayName}
               avatar={oppAv ?? { animal: "bear", color: "#6B7280", accessory: "none" }}
-              correct={Math.max(0, oppProgress.qIndex - oppProgress.wrong)}
+              correct={oppProgress.correct}
               wrong={oppProgress.wrong}
               side="right"
             />
