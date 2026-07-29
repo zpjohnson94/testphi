@@ -1,68 +1,38 @@
-## Battle Mode
+## What's actually wrong
 
-A once-daily async race against a "ghost" — a replayed run from another user. Fully separate from Daily 5, mastery, momentum, and predicted score.
+Verified against the database:
 
-### Rules
-- 2:00 clock, starts after a 3-2-1 countdown
-- 3 wrong answers ends the run
-- Score = questions correct; ties allowed
-- One run per user per calendar day (DB unique constraint)
-- Free for all users
+- `battle_sets` has **0 rows** (no day has ever been generated).
+- `battle_runs` has **0 rows** — not just fake runs, real runs too.
+- `battle_fake_profiles` has 100 rows, so seeding is fine.
+- `battle_runs.battle_date` has a foreign key to `battle_sets(set_date)`.
 
-### Data model (new tables, additive)
+Root cause chain:
 
-**`battle_sets`** — one row per day, frozen ordered array of 60 question ids.
-- `date` (pk), `question_ids uuid[]`, `generated_at`
+1. `ensureTodaysBattleSet()` writes today's `battle_sets` row using the **user-scoped** client (`context.supabase`). `battle_sets` has only a read policy for authenticated users, no insert/update policy, so the upsert is rejected by row-level security. The error is never checked, so it fails silently.
+2. With no `battle_sets` row for today, every `battle_runs` insert violates the `battle_date` foreign key. Fake-run inserts swallow the error (`if (error) return;`), so 100 rows quietly become 0.
+3. `getBattleLeaderboard` never calls `ensureFakeRunsForDay`, so opening the leaderboard alone never repairs the day.
 
-**`battle_runs`** — one row per user per day, immutable once completed.
-- `id`, `user_id`, `battle_date`, `opponent_run_id` (nullable), `questions_correct`, `questions_wrong`, `total_time_ms`, `event_log jsonb`, `result` ('win'/'loss'/'tie'), `daily_rank`, `completed_at`
-- Unique `(user_id, battle_date)`
-- Index `(battle_date, questions_correct DESC, total_time_ms ASC)`
-- RLS: read own runs + any run referenced as an `opponent_run_id`; insert own; no updates
+## The fix
 
-**`battle_leaderboard_alerts`** — dedupe Top 100 alerts.
-- `id`, `user_id`, `battle_date`, `rank`, `alerted_at`
-- Unique `(user_id, battle_date)`
-- RLS: read own; write service-role only
+**1. Write the daily set with the admin client** (`src/lib/battle.functions.ts`)
+- In `ensureTodaysBattleSet`, keep reading with the user client but perform the `battle_sets` upsert via `supabaseAdmin` (dynamically imported inside the handler path, as elsewhere in the file).
+- Check the upsert error and throw a clear message instead of returning silently.
 
-### Server functions (`src/lib/battle.functions.ts`)
+**2. Stop swallowing fake-run insert errors** (`ensureFakeRunsForDay`)
+- Log/throw on insert error rather than `return;`, and make `devRegenerateFakeRuns` surface the error so the dev button reports failure instead of "inserted: 0".
+- Have `ensureFakeRunsForDay` first make sure the day's `battle_sets` row exists (call the set generator if missing), so it can never hit the foreign key.
 
-- `getTodaysBattleSet()` — lazy generates today's `battle_sets` row if missing (random draw across 8 domains, ~even weighting, 60 questions); returns full question payloads in order
-- `pickOpponent()` — most recent completed run today excluding self; falls back to most recent from prior day; null on first-ever day
-- `startBattle()` — validates no existing run for `(user_id, today)`; returns `{ questions, opponent: { run_id, event_log, user: {name, avatar} } | null }`
-- `finalizeBattleRun({ event_log, questions_correct, questions_wrong, total_time_ms, opponent_run_id })` — inserts `battle_runs`; computes `result` vs opponent; computes `daily_rank` (null if >100); if rank <=100 inserts `battle_leaderboard_alerts` on conflict do nothing; returns final row + total wins to date
-- `getBattleStatus()` — has user completed today? total wins? — for home module state
+**3. Populate the leaderboard on view** (`getBattleLeaderboard`)
+- Ensure today's set and fake runs exist before reading, so the leaderboard is populated even if the user never starts a battle.
 
-### Daily set generation
+**4. Backfill today**
+- Run the dev "Generate fake runs" action (or an equivalent one-off) after the fix so today's leaderboard has its 100 entries immediately.
 
-Extend existing cron endpoint pattern: add `src/routes/api/public/hooks/generate-battle-sets.ts` mirroring `generate-daily-sets.ts`. Also lazy-generate on first request of the day inside `getTodaysBattleSet()` so it works without cron.
+## Optional cleanup (recommended, ask before doing)
 
-Schedule via `pg_cron` (insert tool) to POST once per day early UTC.
+The `battle_runs.battle_date -> battle_sets.set_date` foreign key is what turned a soft failure into total data loss, and it adds no real value (a run is valid whether or not the set row is still around, and the FK cascades deletes). I'd suggest dropping it in a migration so a missing set can never silently wipe out runs again. This requires a database migration; say the word and I'll include it.
 
-### UI
+## Technical notes
 
-**Home module** — new card between Daily 5 and Momentum, styled like the other purple modules:
-- Header: "Battle Mode"
-- Subheader: "Go head-to-head with a random opponent to see who can answer more questions correctly in 2 minutes"
-- CTA "Battle!" (or "Come back tomorrow" + wins-to-date when today's run is complete)
-
-**Routes under `_authenticated/`**:
-- `battle.intro.tsx` — pre-battle interstitial: both avatars + first names, "vs.", header "Let's battle!", then 3-2-1 countdown with motion
-- `battle.play.tsx` — live battle screen: question + choices, running clock (counts up to 2:00), 3-box wrong counter for user, opponent indicator ("Opponent: Q4" + 3-box wrong counter advancing on a `setInterval` keyed to ghost `elapsed_ms`), submit button, correct/incorrect sfx reuse from Daily 5
-- `battle.results.tsx` — final score, W/L/T vs opponent, running total wins, conditional Top 100 alert modal with share action
-
-Prefetch opponent + questions in `battle.intro.tsx` loader so `battle.play.tsx` starts instantly.
-
-### Copy convention
-No em dashes. Match existing TestPhi tone.
-
-### Out of scope
-- No changes to mastery, predicted score, momentum, answers, or existing scoring
-- No persistent ranking display; Top 100 is only surfaced when earned
-- No live multiplayer; ghosts only
-
-### Technical notes
-- Ghost timing: since everyone that day answers the same frozen ordered question array, `event_log[i].question_index === i` maps directly onto the current user's progression — no cross-user question mapping needed
-- Opponent indicator advances via `setInterval` reading ghost `event_log` against `Date.now() - battleStartMs`
-- Wrong-answer cap enforced client-side and validated server-side in `finalizeBattleRun` (reject if `questions_wrong > 3` or `total_time_ms > 120500`)
-- `daily_rank` computed with a windowed SQL query: `SELECT count(*)+1 FROM battle_runs WHERE battle_date = $1 AND (questions_correct, -total_time_ms) > (own.questions_correct, -own.total_time_ms)`; store null if > 100
+Files touched: `src/lib/battle.functions.ts` only (plus one migration if we drop the foreign key). No UI changes needed — `battle.leaderboard.tsx` already renders fake profiles correctly once rows exist.

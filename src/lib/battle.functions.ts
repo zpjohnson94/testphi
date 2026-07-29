@@ -175,16 +175,29 @@ async function ensureTodaysBattleSet(supabase: any, iso: string): Promise<string
   if (existing?.question_ids?.length) {
     ids = existing.question_ids as string[];
   } else {
-    ids = await generateBattleSet(supabase);
+    // battle_sets is read-only under RLS — write with the admin client.
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    ids = await generateBattleSet(supabaseAdmin);
     if (ids.length === 0) return [];
-    await supabase
+    const { error } = await supabaseAdmin
       .from("battle_sets")
       .upsert({ set_date: iso, question_ids: ids }, { onConflict: "set_date" });
+    if (error) {
+      // Another request may have inserted it concurrently — re-read before failing.
+      const { data: retry } = await supabaseAdmin
+        .from("battle_sets")
+        .select("question_ids")
+        .eq("set_date", iso)
+        .maybeSingle();
+      if (retry?.question_ids?.length) ids = retry.question_ids as string[];
+      else throw new Error(`Failed to create today's battle set: ${error.message}`);
+    }
   }
   // First request of the day → ensure fake leaderboard rows exist.
   await ensureFakeRunsForDay(iso);
   return ids;
 }
+
 
 // ---------- fake profile daily runs ----------
 
@@ -246,6 +259,30 @@ function generateFakeRun(iso: string, profileId: string): GeneratedFakeRun {
   };
 }
 
+// Makes sure the battle_sets row for `iso` exists (battle_runs has a FK to it).
+async function ensureBattleSetRow(admin: any, iso: string): Promise<boolean> {
+  const { data: existing } = await admin
+    .from("battle_sets")
+    .select("set_date")
+    .eq("set_date", iso)
+    .maybeSingle();
+  if (existing) return true;
+  const ids = await generateBattleSet(admin);
+  if (ids.length === 0) return false;
+  const { error } = await admin
+    .from("battle_sets")
+    .upsert({ set_date: iso, question_ids: ids }, { onConflict: "set_date" });
+  if (error) {
+    const { data: retry } = await admin
+      .from("battle_sets")
+      .select("set_date")
+      .eq("set_date", iso)
+      .maybeSingle();
+    return !!retry;
+  }
+  return true;
+}
+
 async function ensureFakeRunsForDay(iso: string): Promise<void> {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   // Idempotency: skip if any fake row already exists for today.
@@ -255,6 +292,11 @@ async function ensureFakeRunsForDay(iso: string): Promise<void> {
     .eq("battle_date", iso)
     .eq("is_fake", true);
   if ((count ?? 0) > 0) return;
+
+  // battle_runs.battle_date references battle_sets.set_date.
+  const hasSet = await ensureBattleSetRow(supabaseAdmin, iso);
+  if (!hasSet) throw new Error(`No battle set could be created for ${iso}`);
+
 
   const { data: profs } = await supabaseAdmin
     .from("battle_fake_profiles")
@@ -282,9 +324,17 @@ async function ensureFakeRunsForDay(iso: string): Promise<void> {
     .from("battle_runs")
     .insert(runs as any);
   if (error) {
-    // Likely a race with another concurrent request — ignore silently.
-    return;
+    // Re-check for a concurrent insert; otherwise surface the real failure.
+    const { count: now } = await supabaseAdmin
+      .from("battle_runs")
+      .select("*", { count: "exact", head: true })
+      .eq("battle_date", iso)
+      .eq("is_fake", true);
+    if ((now ?? 0) > 0) return;
+    console.error("[battle] fake run insert failed", error);
+    throw new Error(`Failed to insert fake battle runs: ${error.message}`);
   }
+
 
   // Compute daily_rank for the inserted fake rows (top 100 only).
   const { data: sorted } = await supabaseAdmin
@@ -644,6 +694,10 @@ export const getBattleLeaderboard = createServerFn({ method: "GET" })
   .handler(async ({ data, context }): Promise<BattleLeaderboard> => {
     const iso = data.date ?? todayISO();
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    // Populate the day even if the user hasn't started a battle yet.
+    await ensureFakeRunsForDay(iso);
+
+
 
     const { data: runs } = await supabaseAdmin
       .from("battle_runs")
