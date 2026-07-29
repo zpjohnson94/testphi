@@ -324,9 +324,17 @@ async function ensureFakeRunsForDay(iso: string): Promise<void> {
     .from("battle_runs")
     .insert(runs as any);
   if (error) {
-    // Likely a race with another concurrent request — ignore silently.
-    return;
+    // Re-check for a concurrent insert; otherwise surface the real failure.
+    const { count: now } = await supabaseAdmin
+      .from("battle_runs")
+      .select("*", { count: "exact", head: true })
+      .eq("battle_date", iso)
+      .eq("is_fake", true);
+    if ((now ?? 0) > 0) return;
+    console.error("[battle] fake run insert failed", error);
+    throw new Error(`Failed to insert fake battle runs: ${error.message}`);
   }
+
 
   // Compute daily_rank for the inserted fake rows (top 100 only).
   const { data: sorted } = await supabaseAdmin
