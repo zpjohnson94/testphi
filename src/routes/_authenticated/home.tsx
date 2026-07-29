@@ -338,6 +338,9 @@ function HomePage() {
                 onClick={() => {
                   const my = battleStatus.myRun;
                   const opp = battleStatus.opponent;
+                  const ghost = !opp
+                    ? staticGhostProgress(my?.total_time_ms ?? 120000)
+                    : null;
                   navigate({
                     to: "/battle/results" as any,
                     search: {
@@ -346,15 +349,19 @@ function HomePage() {
                       wrong: my?.questions_wrong ?? 0,
                       wins: battleStatus.totalWins ?? 0,
                       rank: my?.daily_rank ?? undefined,
-                      opponentName: opp?.firstName,
+                      opponentName: opp?.firstName ?? STATIC_GHOST.name,
                       opponentAnimalSeed: opp?.animalSeed,
                       opponentColorSeed: opp?.colorSeed,
-                      opponentCorrect: opp?.questionsCorrect,
-                      opponentWrong: opp?.questionsWrong,
+                      opponentCorrect: opp?.questionsCorrect ?? ghost?.correct,
+                      opponentWrong: opp?.questionsWrong ?? ghost?.wrong,
+                      opponentAnimal: opp ? "" : STATIC_GHOST.animal,
+                      opponentColor: opp ? "" : STATIC_GHOST.color,
+                      opponentAccessory: opp ? "" : STATIC_GHOST.accessory,
                     } as any,
                   });
 
                 }}
+
                 className="block text-center mt-5 w-full py-3.5 text-base font-bold rounded-2xl"
                 style={{
                   border: "1.5px solid rgba(246,240,250,0.25)",
