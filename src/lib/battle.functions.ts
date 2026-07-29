@@ -579,40 +579,62 @@ export const finalizeBattleRun = createServerFn({ method: "POST" })
       else result = "tie";
     }
 
+    // battle_runs.battle_date has a FK to battle_sets.set_date — make sure the
+    // day's row exists (writes to battle_sets require the admin client).
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    await ensureBattleSetRow(supabaseAdmin, iso);
+
+    const runRow = {
+      user_id: context.userId,
+      battle_date: iso,
+      opponent_run_id: data.opponentRunId,
+      questions_correct: data.questionsCorrect,
+      questions_wrong: data.questionsWrong,
+      total_time_ms: data.totalTimeMs,
+      event_log: data.eventLog,
+      result,
+    };
+
     // Insert the run. Unique (user_id, battle_date) prevents double submission.
-    const { data: inserted, error: insertErr } = await context.supabase
+    let { data: inserted, error: insertErr } = await context.supabase
       .from("battle_runs")
-      .insert({
-        user_id: context.userId,
-        battle_date: iso,
-        opponent_run_id: data.opponentRunId,
-        questions_correct: data.questionsCorrect,
-        questions_wrong: data.questionsWrong,
-        total_time_ms: data.totalTimeMs,
-        event_log: data.eventLog,
-        result,
-      })
+      .insert(runRow)
       .select("id")
       .single();
 
+    if (insertErr) {
+      console.error("[battle] run insert failed", insertErr.message, insertErr.details);
+    }
+
     if (insertErr || !inserted) {
-      // Likely already completed today — surface existing.
+      // Already completed today? Surface the existing run.
       const { data: mine } = await context.supabase
         .from("battle_runs")
         .select("id, questions_correct, questions_wrong, result, daily_rank")
         .eq("user_id", context.userId)
         .eq("battle_date", iso)
         .maybeSingle();
-      const totalWins = await countWins(context.supabase, context.userId);
-      return {
-        runId: mine?.id ?? null,
-        result: (mine?.result ?? null) as "win" | "loss" | "tie" | null,
-        dailyRank: mine?.daily_rank ?? null,
-        newTop100Alert: false,
-        totalWins,
-        alreadyCompleted: true,
-      };
+      if (mine) {
+        const totalWins = await countWins(context.supabase, context.userId);
+        return {
+          runId: mine.id,
+          result: (mine.result ?? null) as "win" | "loss" | "tie" | null,
+          dailyRank: mine.daily_rank ?? null,
+          newTop100Alert: false,
+          totalWins,
+          alreadyCompleted: true,
+        };
+      }
+      // Not a duplicate — retry once with the admin client so a policy or
+      // constraint hiccup can't silently drop the run.
+      const retry = await supabaseAdmin.from("battle_runs").insert(runRow).select("id").single();
+      if (retry.error || !retry.data) {
+        console.error("[battle] admin run insert failed", retry.error?.message);
+        throw new Error(`Could not save your battle run: ${retry.error?.message ?? "unknown error"}`);
+      }
+      inserted = retry.data;
     }
+
 
     // Compute daily rank: number of runs today that beat this one + 1.
     // Better = higher questions_correct; tiebreak lower total_time_ms.
