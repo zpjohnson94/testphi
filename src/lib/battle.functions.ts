@@ -638,7 +638,8 @@ export const finalizeBattleRun = createServerFn({ method: "POST" })
 
     // Compute daily rank: number of runs today that beat this one + 1.
     // Better = higher questions_correct; tiebreak lower total_time_ms.
-    const { data: better } = await context.supabase
+    // Read with admin: RLS only exposes the user's own runs.
+    const { data: better } = await supabaseAdmin
       .from("battle_runs")
       .select("id, questions_correct, total_time_ms")
       .eq("battle_date", iso);
@@ -656,7 +657,8 @@ export const finalizeBattleRun = createServerFn({ method: "POST" })
     const finalRank = rank <= 100 ? rank : null;
 
     if (finalRank !== null) {
-      await context.supabase
+      // battle_runs has no update policy — write the rank with admin.
+      await supabaseAdmin
         .from("battle_runs")
         .update({ daily_rank: finalRank })
         .eq("id", inserted.id);
@@ -665,12 +667,12 @@ export const finalizeBattleRun = createServerFn({ method: "POST" })
     // Alert on Top 100 (dedupe).
     let newTop100Alert = false;
     if (finalRank !== null) {
-      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
       const { error: alertErr } = await supabaseAdmin
         .from("battle_leaderboard_alerts")
         .insert({ user_id: context.userId, battle_date: iso, rank: finalRank });
       newTop100Alert = !alertErr;
     }
+
 
     const totalWins = await countWins(context.supabase, context.userId);
 
