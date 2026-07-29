@@ -694,6 +694,10 @@ export const getBattleLeaderboard = createServerFn({ method: "GET" })
   .handler(async ({ data, context }): Promise<BattleLeaderboard> => {
     const iso = data.date ?? todayISO();
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    // Populate the day even if the user hasn't started a battle yet.
+    await ensureFakeRunsForDay(iso);
+
+
 
     const { data: runs } = await supabaseAdmin
       .from("battle_runs")
