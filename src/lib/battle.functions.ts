@@ -175,16 +175,29 @@ async function ensureTodaysBattleSet(supabase: any, iso: string): Promise<string
   if (existing?.question_ids?.length) {
     ids = existing.question_ids as string[];
   } else {
-    ids = await generateBattleSet(supabase);
+    // battle_sets is read-only under RLS — write with the admin client.
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    ids = await generateBattleSet(supabaseAdmin);
     if (ids.length === 0) return [];
-    await supabase
+    const { error } = await supabaseAdmin
       .from("battle_sets")
       .upsert({ set_date: iso, question_ids: ids }, { onConflict: "set_date" });
+    if (error) {
+      // Another request may have inserted it concurrently — re-read before failing.
+      const { data: retry } = await supabaseAdmin
+        .from("battle_sets")
+        .select("question_ids")
+        .eq("set_date", iso)
+        .maybeSingle();
+      if (retry?.question_ids?.length) ids = retry.question_ids as string[];
+      else throw new Error(`Failed to create today's battle set: ${error.message}`);
+    }
   }
   // First request of the day → ensure fake leaderboard rows exist.
   await ensureFakeRunsForDay(iso);
   return ids;
 }
+
 
 // ---------- fake profile daily runs ----------
 
