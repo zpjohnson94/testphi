@@ -259,6 +259,30 @@ function generateFakeRun(iso: string, profileId: string): GeneratedFakeRun {
   };
 }
 
+// Makes sure the battle_sets row for `iso` exists (battle_runs has a FK to it).
+async function ensureBattleSetRow(admin: any, iso: string): Promise<boolean> {
+  const { data: existing } = await admin
+    .from("battle_sets")
+    .select("set_date")
+    .eq("set_date", iso)
+    .maybeSingle();
+  if (existing) return true;
+  const ids = await generateBattleSet(admin);
+  if (ids.length === 0) return false;
+  const { error } = await admin
+    .from("battle_sets")
+    .upsert({ set_date: iso, question_ids: ids }, { onConflict: "set_date" });
+  if (error) {
+    const { data: retry } = await admin
+      .from("battle_sets")
+      .select("set_date")
+      .eq("set_date", iso)
+      .maybeSingle();
+    return !!retry;
+  }
+  return true;
+}
+
 async function ensureFakeRunsForDay(iso: string): Promise<void> {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   // Idempotency: skip if any fake row already exists for today.
@@ -268,6 +292,11 @@ async function ensureFakeRunsForDay(iso: string): Promise<void> {
     .eq("battle_date", iso)
     .eq("is_fake", true);
   if ((count ?? 0) > 0) return;
+
+  // battle_runs.battle_date references battle_sets.set_date.
+  const hasSet = await ensureBattleSetRow(supabaseAdmin, iso);
+  if (!hasSet) throw new Error(`No battle set could be created for ${iso}`);
+
 
   const { data: profs } = await supabaseAdmin
     .from("battle_fake_profiles")
