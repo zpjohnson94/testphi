@@ -20,7 +20,9 @@ import {
 } from "@/lib/freeUser";
 import { useFreeState } from "@/lib/useFree";
 import { useBattleStatus, usePrefetchBattleBundle } from "@/lib/useBattle";
+import { STATIC_GHOST, staticGhostProgress } from "@/lib/staticGhostProfile";
 import { Swords } from "lucide-react";
+
 
 export const Route = createFileRoute("/_authenticated/home")({
   head: () => ({ meta: [{ title: "Home — TestPhi" }] }),
