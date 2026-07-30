@@ -1,12 +1,12 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { Zap, Pencil, Check, X, Wrench, Lock, Unlock } from "lucide-react";
+import { Zap, Pencil, Check, X, Wrench } from "lucide-react";
 import { FreeShell } from "@/components/FreeShell";
 import { Avatar, ANIMALS, COLOR_SWATCHES, ACCESSORIES, type AvatarConfig, type AnimalId, type AccessoryId } from "@/components/Avatar";
-import { useFreeState, useUpdateProfile, useResetDemo, useResetDailyToday, useDevPatchState } from "@/lib/useFree";
+import { useFreeState, useUpdateProfile } from "@/lib/useFree";
 import { useHydration, useStore, updateAvatar } from "@/lib/store";
 import { sfx } from "@/lib/sfx";
-import { DOMAINS, SCORING, type FreeState } from "@/lib/freeUser";
+import { hasDevAccess } from "@/lib/devAccess";
 
 export const Route = createFileRoute("/_authenticated/account")({
   head: () => ({ meta: [{ title: "Account — TestPhi" }] }),
@@ -48,7 +48,19 @@ function AccountPage() {
     <FreeShell>
       <div className="topo-bg topo-dim min-h-screen">
         <div className="mx-auto max-w-2xl p-5 space-y-4">
-          <h1 className="display text-2xl text-[var(--lavender)]">Account</h1>
+          <div className="flex items-center justify-between gap-3">
+            <h1 className="display text-2xl text-[var(--lavender)]">Account</h1>
+            {hasDevAccess(free.email) && (
+              <Link
+                to={"/developer" as any}
+                aria-label="Developer mode"
+                className="size-10 rounded-xl flex items-center justify-center shrink-0"
+                style={{ background: "rgba(255,77,109,0.12)", color: "var(--destructive)", border: "1px solid rgba(255,77,109,0.55)" }}
+              >
+                <Wrench className="size-5" />
+              </Link>
+            )}
+          </div>
 
           {/* Identity card */}
           <div className="rounded-3xl p-5 flex items-center gap-4" style={{ background: "var(--violet-deep)", border: "1.5px solid rgba(168,85,247,0.4)" }}>
@@ -187,7 +199,6 @@ function AccountPage() {
             </button>
           )}
 
-          <DeveloperMenu state={free} />
         </div>
       </div>
     </FreeShell>
