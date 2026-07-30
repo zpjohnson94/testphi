@@ -43,6 +43,15 @@ function BattlePlay() {
 
   const startRef = useRef(Date.now());
   const doneRef = useRef(false);
+  // Mirrors of the tallies so the interval's stale closure can't finalize with 0.
+  const correctRef = useRef(0);
+  const wrongRef = useRef(0);
+  const eventsRef = useRef<BattleEvent[]>([]);
+  useEffect(() => {
+    correctRef.current = correct;
+    wrongRef.current = wrong;
+    eventsRef.current = events;
+  }, [correct, wrong, events]);
   const choiceRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const scoreRef = useRef<HTMLDivElement | null>(null);
   const [bolts, setBolts] = useState<
