@@ -43,6 +43,15 @@ function BattlePlay() {
 
   const startRef = useRef(Date.now());
   const doneRef = useRef(false);
+  // Mirrors of the tallies so the interval's stale closure can't finalize with 0.
+  const correctRef = useRef(0);
+  const wrongRef = useRef(0);
+  const eventsRef = useRef<BattleEvent[]>([]);
+  useEffect(() => {
+    correctRef.current = correct;
+    wrongRef.current = wrong;
+    eventsRef.current = events;
+  }, [correct, wrong, events]);
   const choiceRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const scoreRef = useRef<HTMLDivElement | null>(null);
   const [bolts, setBolts] = useState<
@@ -145,8 +154,8 @@ function BattlePlay() {
     if (doneRef.current) return;
     doneRef.current = true;
     setFinished(true);
-    const finalCorrect = overrides?.correct ?? correct;
-    const finalWrong = overrides?.wrong ?? wrong;
+    const finalCorrect = overrides?.correct ?? correctRef.current;
+    const finalWrong = overrides?.wrong ?? wrongRef.current;
     const totalTimeMs = Math.min(Date.now() - startRef.current, BATTLE_TIME_MS);
     try {
       const res = await finalize.mutateAsync({
@@ -154,7 +163,7 @@ function BattlePlay() {
         questionsCorrect: finalCorrect,
         questionsWrong: finalWrong,
         totalTimeMs,
-        eventLog: events,
+        eventLog: eventsRef.current,
       });
       const opp = bundle?.opponent;
       // If we're running against the static ghost, compute its final tallies
