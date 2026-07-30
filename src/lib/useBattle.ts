@@ -49,8 +49,30 @@ export function useFinalizeBattle() {
       totalTimeMs: number;
       eventLog: { question_index: number; correct: boolean; elapsed_ms: number }[];
     }) => fn({ data: vars }),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: battleStatusKey });
+    onSuccess: (result, variables) => {
+      // Update both battle caches synchronously before the results screen is
+      // shown. This prevents Home from briefly (or indefinitely, while the
+      // previous query is still fresh) rendering the pre-battle CTA.
+      qc.setQueryData(battleStatusKey, (previous: any) => ({
+        ...previous,
+        alreadyCompleted: true,
+        totalWins: result.totalWins,
+        myRun: {
+          id: result.runId,
+          questions_correct: variables.questionsCorrect,
+          questions_wrong: variables.questionsWrong,
+          result: result.result,
+          daily_rank: result.dailyRank,
+          total_time_ms: variables.totalTimeMs,
+          opponent_run_id: variables.opponentRunId,
+        },
+      }));
+      qc.setQueryData(battleBundleKey, (previous: BattleBundle | undefined) =>
+        previous
+          ? { ...previous, alreadyCompleted: true, myRunId: result.runId, totalWins: result.totalWins }
+          : previous,
+      );
+      void qc.invalidateQueries({ queryKey: battleStatusKey });
     },
   });
 }
