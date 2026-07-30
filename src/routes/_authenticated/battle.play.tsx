@@ -154,8 +154,8 @@ function BattlePlay() {
     if (doneRef.current) return;
     doneRef.current = true;
     setFinished(true);
-    const finalCorrect = overrides?.correct ?? correct;
-    const finalWrong = overrides?.wrong ?? wrong;
+    const finalCorrect = overrides?.correct ?? correctRef.current;
+    const finalWrong = overrides?.wrong ?? wrongRef.current;
     const totalTimeMs = Math.min(Date.now() - startRef.current, BATTLE_TIME_MS);
     try {
       const res = await finalize.mutateAsync({
@@ -163,7 +163,7 @@ function BattlePlay() {
         questionsCorrect: finalCorrect,
         questionsWrong: finalWrong,
         totalTimeMs,
-        eventLog: events,
+        eventLog: eventsRef.current,
       });
       const opp = bundle?.opponent;
       // If we're running against the static ghost, compute its final tallies
