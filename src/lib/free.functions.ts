@@ -77,7 +77,8 @@ function emptyState(): FreeState {
 
 function domainScore(masteryPct: number): number {
   const m = Math.max(0, Math.min(100, masteryPct)) / 100;
-  return 50 + 150 * Math.pow(m, 1.4);
+  // v2 spec: linear — every mastery point is worth exactly 1.5 score points.
+  return 50 + 150 * m;
 }
 function computePredicted(state: FreeState): number {
   const allInit = DOMAINS.every((d) => state.domainStats[d.id]?.initialized);

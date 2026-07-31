@@ -113,7 +113,8 @@ async function loadFreeState(ctx: { supabase: any; userId: string }): Promise<Fr
     let total = 0;
     for (const d of DOMAINS) {
       const m = Math.max(0, Math.min(100, s.domainStats[d.id].mastery)) / 100;
-      total += 50 + 150 * Math.pow(m, 1.4);
+      // v2 spec: linear domain score (must match freeUser.computePredicted).
+      total += 50 + 150 * m;
     }
     s.overall = Math.max(400, Math.min(1600, Math.round(total / 10) * 10));
   } else {
