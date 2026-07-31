@@ -251,7 +251,7 @@ function CompleteContent({ prev, next, session, onExit }: ContentProps) {
         {/* 1. Predicted Score */}
         <SectionFade show={step >= 0}>
           {calibrationMoment ? (
-            <CalibrationMilestone prevScore={prev.overall} newScore={next.overall} />
+            <CalibrationMilestone prevScore={session.prevOverall} newScore={session.newOverall} />
           ) : (
             <div
               className="rounded-3xl p-6 text-center"
@@ -262,9 +262,9 @@ function CompleteContent({ prev, next, session, onExit }: ContentProps) {
               </div>
               <div className="mt-3 flex justify-center">
                 <PredictedScore
-                  score={next.overall}
+                  score={session.newOverall}
                   calibrated={calibrated}
-                  animateFrom={prev.overall}
+                  animateFrom={session.prevOverall}
                   sizeClass="text-[72px] sm:text-[96px]"
                 />
               </div>
