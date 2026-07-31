@@ -45,7 +45,6 @@ function BattleIntro() {
         if (c === null) return null;
         if (c <= 1) {
           clearInterval(id);
-          navigate({ to: "/battle/play" as any });
           return 0;
         }
         return c - 1;
@@ -53,6 +52,13 @@ function BattleIntro() {
     }, 900);
     return () => clearInterval(id);
   }, [introDone]);
+
+  // Navigate as an effect of the completed countdown rather than from inside
+  // the state updater, which React treats as a render-time update.
+  useEffect(() => {
+    if (countdown !== 0) return;
+    navigate({ to: "/battle/play" as any });
+  }, [countdown, navigate]);
 
   // Resume the audio context as soon as the intro animation begins.
   useEffect(() => {
