@@ -36,7 +36,7 @@ function BattleIntro() {
     return () => clearTimeout(id);
   }, [bundle?.battleDate]);
 
-  // Stage 2: 3-2-1 countdown.
+  // Stage 2: 3-2-1-Go! countdown.
   useEffect(() => {
     if (!introDone) return;
     setCountdown(3);
@@ -53,11 +53,13 @@ function BattleIntro() {
     return () => clearInterval(id);
   }, [introDone]);
 
-  // Navigate as an effect of the completed countdown rather than from inside
-  // the state updater, which React treats as a render-time update.
+  // Navigate after the "Go!" flash so the player can see it.
   useEffect(() => {
     if (countdown !== 0) return;
-    navigate({ to: "/battle/play" as any });
+    const id = setTimeout(() => {
+      navigate({ to: "/battle/play" as any });
+    }, 900);
+    return () => clearTimeout(id);
   }, [countdown, navigate]);
 
   // Resume the audio context as soon as the intro animation begins.
