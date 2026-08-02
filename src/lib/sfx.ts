@@ -65,4 +65,8 @@ export const sfx = {
     // Bright, short tick for each count of the 3-2-1 sequence.
     tone(880, 0.08, "sine", 0.12);
   },
+  countdownGo() {
+    // Same tick as the 3-2-1 countdown, pitched up for the "Go!" beat.
+    tone(1320, 0.14, "sine", 0.14);
+  },
 };

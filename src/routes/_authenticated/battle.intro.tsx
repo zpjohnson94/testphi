@@ -67,11 +67,12 @@ function BattleIntro() {
     if (introDone) sfx.resume();
   }, [introDone]);
 
-  // Play a short tick for every visible countdown number (3, 2, 1).
+  // Play a short tick for every visible countdown number (3, 2, 1), then a
+  // higher-pitched version on "Go!".
   useEffect(() => {
-    if (countdown !== null && countdown > 0) {
-      sfx.countdown();
-    }
+    if (countdown === null) return;
+    if (countdown > 0) sfx.countdown();
+    else sfx.countdownGo();
   }, [countdown]);
 
 
@@ -186,7 +187,7 @@ function BattleIntro() {
             <div
               key="go"
               className="display text-8xl sm:text-9xl text-[var(--volt)]"
-              style={{ animation: "go-bang 0.9s ease-out" }}
+              style={{ animation: "go-bang 0.45s cubic-bezier(0.2, 1.4, 0.4, 1) both" }}
             >
               Go!
             </div>
@@ -205,9 +206,8 @@ function BattleIntro() {
           }
           @keyframes go-bang {
             0% { transform: scale(0.4); opacity: 0; }
-            25% { transform: scale(1.25); opacity: 1; }
-            60% { transform: scale(1); opacity: 1; }
-            100% { transform: scale(1.1); opacity: 0; }
+            60% { transform: scale(1.2); opacity: 1; }
+            100% { transform: scale(1.08); opacity: 1; }
           }
         `}</style>
       </div>
