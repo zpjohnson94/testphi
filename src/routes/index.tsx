@@ -67,7 +67,7 @@ function Landing() {
             <Logo size={36} />
             <span className="display text-lg text-[var(--lavender)]">TestPhi</span>
           </Link>
-          <Link to="/diagnostic" onClick={() => trackEvent("cta_click", { location: "nav", label: "Sign in" })} className="btn-volt px-4 py-2 text-sm">Sign in</Link>
+          <Link to="/auth" onClick={() => trackEvent("cta_click", { location: "nav", label: "Sign in" })} className="btn-volt px-4 py-2 text-sm">Sign in</Link>
         </div>
       </header>
 
