@@ -576,9 +576,18 @@ function DomainRow({
   const tipOpen = isOpen;
   const momentumMult = diff.baseGain !== 0 ? diff.actualGain / diff.baseGain : 1;
   const positiveDelta = diff.newMastery - diff.prevMastery >= 0;
-  const hasCorrectAnswer = results.some(
-    (r) => r.domainId === diff.domainId && r.correct,
+  const domainResults = useMemo(
+    () =>
+      results
+        .filter((r) => r.domainId === diff.domainId)
+        .map((r) => {
+          const exp = expectedSecondsFor(r.difficulty);
+          const tf = timeFactor(r.correct, r.elapsedSeconds, exp);
+          return { ...r, expectedSeconds: exp, tf };
+        }),
+    [results, diff.domainId],
   );
+  const hasCorrectAnswer = domainResults.some((r) => r.correct);
   const showCeilingNote = hasCorrectAnswer && Math.abs(diff.actualGain) < 0.05;
 
   return (
@@ -588,7 +597,11 @@ function DomainRow({
         background: "#1a1230",
         border: justUnlocked ? "1.5px solid var(--volt)" : "1px solid rgba(246,240,250,0.1)",
         boxShadow: justUnlocked ? "0 0 40px -10px rgba(184,255,0,0.55)" : undefined,
-        minHeight: tipOpen ? (showCeilingNote ? 210 : 155) : undefined,
+        minHeight: tipOpen
+          ? (showCeilingNote ? 210 : 155) + domainResults.length * 22
+          : undefined,
+        zIndex: tipOpen ? 100 : undefined,
+      }}
         zIndex: tipOpen ? 100 : undefined,
       }}
     >
