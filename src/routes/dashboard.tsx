@@ -5,7 +5,7 @@ import { EloHeroCard } from "@/components/EloHeroCard";
 import { Avatar } from "@/components/Avatar";
 import { useHydration, useStore, weakestSkill, nextRecommendedNode } from "@/lib/store";
 import { WORLDS, getNode } from "@/lib/content";
-import { Flame, Target, BookOpen, Calculator, ChevronRight, Brain, Zap } from "lucide-react";
+import { Flame, Target, ChevronRight, Brain, Zap } from "lucide-react";
 
 export const Route = createFileRoute("/dashboard")({
   head: () => ({ meta: [{ title: "Home — TestPhi" }] }),
