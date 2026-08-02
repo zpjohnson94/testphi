@@ -182,6 +182,15 @@ function BattleIntro() {
               {countdown}
             </div>
           )}
+          {countdown === 0 && (
+            <div
+              key="go"
+              className="display text-8xl sm:text-9xl text-[var(--volt)]"
+              style={{ animation: "go-bang 0.9s ease-out" }}
+            >
+              Go!
+            </div>
+          )}
         </div>
 
         <style>{`
