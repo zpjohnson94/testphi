@@ -100,7 +100,7 @@ function LessonRunner({ ctx }: { ctx: LessonContext }) {
   if (phase === "lesson") {
     return (
       <div className="topo-bg topo-dim min-h-screen flex flex-col">
-        <TopBar accent={accent} title={ctx.worldName} subtitle={ctx.title} onBack={() => navigate({ to: ctx.section === "rw" ? "/learn/reading-writing" as any : "/learn/math" as any })} progress={0} />
+        <TopBar accent={accent} title={ctx.worldName} subtitle={ctx.title} onBack={() => navigate({ to: "/dashboard" as any })} progress={0} />
         <div className="flex-1 mx-auto w-full max-w-md p-5 animate-fade-up">
           <div className="rounded-3xl p-6" style={{ background: "var(--lavender)", color: "var(--ink)" }}>
             <div className="text-[11px] font-bold uppercase tracking-widest" style={{ color: "var(--neon)" }}>Lesson</div>
@@ -135,7 +135,7 @@ function LessonRunner({ ctx }: { ctx: LessonContext }) {
     const progress = ((qIdx + (picked !== null ? 1 : 0)) / ctx.questions.length) * 100;
     return (
       <div className="topo-bg topo-dim min-h-screen flex flex-col">
-        <TopBar accent={accent} title={ctx.title} subtitle={`Question ${qIdx + 1} of ${ctx.questions.length}`} onBack={() => navigate({ to: ctx.section === "rw" ? "/learn/reading-writing" as any : "/learn/math" as any })} progress={progress} />
+        <TopBar accent={accent} title={ctx.title} subtitle={`Question ${qIdx + 1} of ${ctx.questions.length}`} onBack={() => navigate({ to: "/dashboard" as any })} progress={progress} />
         <div className={`flex-1 mx-auto w-full max-w-md p-5 ${shake ? "animate-shake" : "animate-fade-up"}`}>
           <div className="rounded-3xl p-6" style={{ background: "var(--lavender)", color: "var(--ink)" }}>
             {q.passage && (
@@ -210,7 +210,7 @@ function LessonRunner({ ctx }: { ctx: LessonContext }) {
   return <ResultsScreen
     correctCount={correctCount} total={total} xpEarned={xpEarned} perfect={perfect}
     section={ctx.section} eloBefore={eloBefore} skillName={ctx.skillName}
-    onContinue={() => navigate({ to: ctx.section === "rw" ? "/learn/reading-writing" as any : "/learn/math" as any })}
+    onContinue={() => navigate({ to: "/dashboard" as any })}
   />;
 }
 
