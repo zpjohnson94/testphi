@@ -203,7 +203,12 @@ function BattleIntro() {
             30% { transform: scale(1.15); opacity: 1; }
             100% { transform: scale(1); opacity: 1; }
           }
-
+          @keyframes go-bang {
+            0% { transform: scale(0.4); opacity: 0; }
+            25% { transform: scale(1.25); opacity: 1; }
+            60% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(1.1); opacity: 0; }
+          }
         `}</style>
       </div>
     </FreeShell>
