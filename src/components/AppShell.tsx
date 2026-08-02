@@ -1,5 +1,5 @@
 import { Link, useLocation } from "@tanstack/react-router";
-import { Home, BookOpen, Calculator, User2 } from "lucide-react";
+import { Home, User2 } from "lucide-react";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   return (
@@ -14,14 +14,12 @@ function BottomNav() {
   const { pathname } = useLocation();
   const items = [
     { to: "/dashboard", label: "Home", Icon: Home },
-    { to: "/learn/reading-writing", label: "R&W", Icon: BookOpen },
-    { to: "/learn/math", label: "Math", Icon: Calculator },
     { to: "/profile", label: "You", Icon: User2 },
   ] as const;
 
   return (
     <nav className="fixed bottom-0 inset-x-0 z-40 backdrop-blur" style={{ background: "rgba(29,41,0,0.92)", borderTop: "1px solid rgba(246,240,250,0.1)" }}>
-      <div className="mx-auto max-w-2xl grid grid-cols-4">
+      <div className="mx-auto max-w-2xl grid grid-cols-2">
         {items.map(({ to, label, Icon }) => {
           const active = pathname === to || (to !== "/dashboard" && pathname.startsWith(to));
           return (
