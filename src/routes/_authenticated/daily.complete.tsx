@@ -524,13 +524,6 @@ function DomainRow({
   isOpen: boolean;
   onToggle: () => void;
 }) {
-  const d = domainById(diff.domainId);
-  if (!d) return null;
-  const parts = d.label.split(" · ");
-  const sectionName = parts[0];
-  const name = parts.slice(1).join(" · ");
-  const isMath = sectionName === "Math";
-
   const wasInit = diff.wasInitialized;
   const nowInit = diff.nowInitialized;
   const justUnlocked = diff.justUnlocked;
@@ -589,6 +582,15 @@ function DomainRow({
   );
   const hasCorrectAnswer = domainResults.some((r) => r.correct);
   const showCeilingNote = hasCorrectAnswer && Math.abs(diff.actualGain) < 0.05;
+
+  // Bail out only after every hook above has run — an early return placed before
+  // them changes hook order between renders and crashes the reconciler.
+  const d = domainById(diff.domainId);
+  if (!d) return null;
+  const parts = d.label.split(" · ");
+  const sectionName = parts[0];
+  const name = parts.slice(1).join(" · ");
+  const isMath = sectionName === "Math";
 
   return (
     <div
