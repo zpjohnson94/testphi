@@ -715,6 +715,33 @@ function DomainRow({
             <div className="font-bold uppercase tracking-wider mb-2 text-[10px]" style={{ color: "var(--volt)" }}>
               Score change breakdown
             </div>
+            {domainResults.length > 0 && (
+              <div className="space-y-1 mb-2 pb-2 border-b" style={{ borderColor: "rgba(246,240,250,0.15)" }}>
+                {domainResults.map((r, i) => (
+                  <div key={`${r.questionId ?? r.n}-${i}`} className="flex items-center justify-between gap-2">
+                    <span className="flex items-center gap-1.5">
+                      <span
+                        className="inline-block rounded-full"
+                        style={{
+                          width: 6,
+                          height: 6,
+                          background: r.correct ? "var(--volt)" : "var(--destructive)",
+                        }}
+                      />
+                      <span style={{ color: "rgba(246,240,250,0.85)" }}>
+                        {DIFF_LABEL[r.difficulty] ?? "Medium"}
+                      </span>
+                      <span style={{ color: "rgba(246,240,250,0.5)" }}>
+                        · {speedLabel(r.tf, r.correct)}
+                      </span>
+                    </span>
+                    <span className="tabular-nums" style={{ color: "rgba(246,240,250,0.55)" }}>
+                      {Math.round(r.elapsedSeconds)}s / {r.expectedSeconds}s
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
             <div className="space-y-1">
               <div>
                 <span style={{ color: "rgba(246,240,250,0.6)" }}>Base {positiveDelta ? "gain" : "loss"}:</span>{" "}
