@@ -1,6 +1,6 @@
-# TestPhi Scoring Algorithm Spec (v2)
+# TestPhi Scoring Algorithm Spec (v3)
 
-> **Revision note:** This version supersedes the original scoring algorithm spec. Three formulas changed as a result of a review session focused on why a Daily 5 (5 questions) could move predicted score by an unexpectedly large amount. Changes are marked **[CHANGED]** below. Everything else is unchanged from v1.
+> **Revision note:** This version supersedes v2. v2 addressed why a Daily 5 could move predicted score by an unexpectedly large amount (linear domain score, revised base gains, mastery-scaled losses). v3 folds in three additional decisions made in a separate thread on mastery initialization tuning and marathon-session behavior: the mastery init exponent, a unified time factor table, the variable-N batch model, and the explicit rejection of a session-level mastery-delta cap. Changes since v2 are marked **[CHANGED SINCE V2]**. Everything else carries over from v2 unchanged.
 
 ---
 
@@ -24,7 +24,7 @@
 
 ## Diagnostic Score
 
-*Unchanged from v1.*
+*Unchanged since v1.*
 
 15 questions, all Medium difficulty (rating: 2), served approximately 2 per domain.
 
@@ -56,21 +56,23 @@ Diagnostic Score = clamp(round(base + time_bonus, −1), 400, 1560)
 
 ---
 
-## Domain Unlock Threshold
+## Domain Unlock Threshold — **[CHANGED SINCE V2: variable-N batch model]**
 
-*Unchanged from v1.*
+**v1/v2 (old):** Fixed at exactly 5 questions per domain, with a hard cap on batch size.
 
-Each domain reaches its threshold when **5 questions** have been answered in that domain. The 2 diagnostic questions per domain count toward this threshold, so 3 additional practice questions are needed after the diagnostic.
+**v3 (new):** The threshold is still nominally 5 questions, but the batch is **variable-N**. If a session (e.g., a Daily 5 that happens to draw multiple questions from a domain already close to its threshold) pushes the domain past 5 threshold questions before the bonus round actually fires, all of those questions are included in the batch rather than being truncated at exactly 5. The batch grows to include however many threshold questions were genuinely answered before the bonus round triggers.
 
-At the threshold, the bonus round triggers — mastery does not unlock immediately.
+**Why this changed:** a session-overlap edge case could produce a 9-question batch (6 threshold + 3 bonus) when a Daily 5 pushed a domain past the nominal 5-question line in a single session. Capping at exactly 5 would have silently discarded a real answered question from the calculation; variable-N ensures every answered question is counted.
+
+At the threshold (whatever N turns out to be), the bonus round triggers — mastery does not unlock immediately.
 
 ---
 
 ## Bonus Round
 
-*Unchanged from v1.*
+*Unchanged since v1.*
 
-When a domain hits the 5-question threshold, a bonus round of 3 domain-specific questions is served before mastery unlocks. The questions are always delivered in this fixed order:
+When a domain hits its threshold, a bonus round of 3 domain-specific questions is served before mastery unlocks. The questions are always delivered in this fixed order:
 
 1. **Easy**
 2. **Medium**
@@ -86,20 +88,20 @@ Free users receive domain-specific bonus round questions as a special exception 
 
 ## Mastery Initialization (Batch)
 
-*Unchanged from v1.*
+When the bonus round is completed, mastery is initialized using all threshold questions collectively (N, per the variable-N model above) plus the 3 bonus questions. This is a one-time calibration calculation. The delta system takes over from the initialized value for all subsequent questions.
 
-When the bonus round is completed, mastery is initialized using all 8 questions collectively — the 5 threshold questions plus the 3 bonus questions. This is a one-time calibration calculation. The delta system takes over from the initialized value for all subsequent questions.
-
-### Batch Composition
+### Batch Composition — **[CHANGED SINCE V2: N is variable, not fixed at 5]**
 
 | Source | Count | Difficulty |
 |---|---|---|
 | Diagnostic | 2 | Medium (always) |
-| Practice | 3 | Variable |
+| Practice (threshold) | N − 2, minimum 3 | Variable |
 | Bonus round | 3 | 1 Easy + 1 Medium + 1 Hard (always) |
-| **Total** | **8** | |
+| **Total** | **N + 3** (typically 8) | |
 
 ### Difficulty Weights
+
+*Unchanged.*
 
 | Difficulty | Weight |
 |---|---|
@@ -107,7 +109,7 @@ When the bonus round is completed, mastery is initialized using all 8 questions 
 | Medium (2) | 2 |
 | Hard (3) | 3 |
 
-### Formula
+### Formula — **[CHANGED SINCE V2: exponent 0.7 → 0.5]**
 
 ```
 question_score = difficulty_weight × time_factor_i   [if correct]
@@ -116,35 +118,39 @@ question_max   = difficulty_weight × 1.25
 
 performance_ratio = Σ question_score / Σ question_max
 
-mastery_init = 0.15 + 0.75 × performance_ratio^0.7
+mastery_init = 0.15 + 0.75 × performance_ratio^0.5
 ```
 
 - **Floor: 15%** — minimum initialized mastery regardless of performance
 - **Cap: 90%** — maximum initialized mastery regardless of performance; reaching 100% requires sustained practice after unlock
-- Total max possible score: **(2×2 + 3×2 + 1×1 + 1×2 + 1×3) × 1.25 = 20 points**
+- The ×1.25 multiplier on `question_max` is retained (unchanged from v1/v2)
 
-### Reference Table
+**Why the exponent changed:** at 0.7, a strong-but-imperfect performance (e.g., missing only the Hard bonus question) produced initialized mastery in the mid-60s to low-70s — punishing enough that it read as a bug rather than intended design (a real test case of 8/9 correct landing at 66% mastery prompted the review). A comparison table across exponents 0.3, 0.4, 0.5, and 0.7 was reviewed directly; 0.5 was selected as the best balance — meaningfully more forgiving of near-perfect performance than 0.7, without compressing the gap between "fast and imperfect" and "slow and correct" as much as the more aggressive 0.3/0.4 options did.
 
-*Assumes practice questions are Medium difficulty. Hard practice questions shift ratio and mastery upward.*
+### Reference Table — recalculated for the 0.5 exponent
 
-| Threshold (5q) | Bonus Round (3q) | Speed | Ratio | Mastery Init |
+*Ratios are unchanged from v1/v2 (they depend on correct/incorrect counts and time factor, not the exponent) — only the resulting Mastery Init % column changes.*
+
+| Threshold (5q) | Bonus Round (3q, fixed E→M→H) | Speed | Ratio | Mastery Init (0.5 exp) |
 |---|---|---|---|---|
-| 5/5 correct | 3/3 correct | Fast | 100% | 90% |
-| 5/5 correct | 3/3 correct | Normal | 80% | 79% |
-| 5/5 correct | 3/3 correct (bonus fast) | Mixed | 88% | 83% |
-| 5/5 correct | 2/3 correct (miss hard) | Normal | 65% | 70% |
-| 5/5 correct | 1/3 correct (miss M+H) | Normal | 55% | 64% |
-| 5/5 correct | 0/3 correct | Normal | 50% | 61% |
-| 4/5 correct | 3/3 correct | Normal | 70% | 73% |
-| 3/5 correct | 3/3 correct | Normal | 60% | 67% |
-| 2/5 correct | 3/3 correct | Normal | 50% | 61% |
-| 0/5 correct | 0/3 correct | Any | 0% | 15% |
+| 5/5 correct | 3/3 correct | Fast | 100% | 90% (capped) |
+| 5/5 correct | 3/3 correct | Normal | 80% | 82.1% |
+| 5/5 correct | 3/3 correct (bonus fast) | Mixed | 88% | 85.4% |
+| 5/5 correct | 2/3 correct (miss Hard) | Normal | 65% | 75.5% |
+| 5/5 correct | 1/3 correct (miss Med+Hard) | Normal | 55% | 70.6% |
+| 5/5 correct | 0/3 correct | Normal | 50% | 68.0% |
+| 4/5 correct | 3/3 correct | Normal | 70% | 77.8% |
+| 3/5 correct | 3/3 correct | Normal | 60% | 73.1% |
+| 2/5 correct | 3/3 correct | Normal | 50% | 68.0% |
+| 0/5 correct | 0/3 correct | Any | 0% | 15% (floor) |
+
+Note: with variable-N batches, a batch larger than 8 questions (e.g., 6 threshold + 3 bonus = 9 total) uses the same formula with the larger N folded into `Σ question_score` and `Σ question_max` — no separate table needed, since the ratio-based formula scales naturally to any N.
 
 ---
 
 ## Calibration
 
-*Unchanged from v1.*
+*Unchanged.*
 
 When all 8 domains have reached the unlock threshold, the diagnostic score is replaced by the mastery-composite predicted score. From this point forward the predicted score updates in real time after every answer.
 
@@ -152,36 +158,28 @@ When all 8 domains have reached the unlock threshold, the diagnostic score is re
 
 ## Predicted Score (Post-Calibration)
 
-### Per-Domain Score — **[CHANGED: now linear, not convex]**
+### Per-Domain Score — carried over from v2, unchanged since v2
 
-**v1 (old):**
-```
-Domain Score = 50 + 150 × mastery^1.4
-```
-
-**v2 (new):**
 ```
 Domain Score = 50 + 150 × mastery
 ```
 
-**Why this changed:** the `^1.4` exponent made domain score sensitivity to mastery gains vary across the mastery range — flattest in the middle (~40-60%), steepest at both ends. Combined with the gain formula's own mastery-dependent scaling, this produced a non-obvious "sweet spot" around 44% mastery where per-question score movement was maximized — a side effect nobody intended and that made maximum session movement hard to predict or bound. A linear relationship means every mastery point is worth exactly 1.5 predicted-score points, always. All diminishing-returns behavior now lives entirely in the gain and loss formulas below, where it's intentional and singular rather than duplicated and interacting.
+| Mastery % | Domain Score |
+|---|---|
+| 0% | 50 |
+| 30% | 95 |
+| 50% | 125 |
+| 60% | 140 |
+| 70% | 155 |
+| 80% | 170 |
+| 90% | 185 |
+| 100% | 200 |
 
-50 is preserved as the literal SAT per-domain floor; 200 remains the ceiling at 100% mastery.
-
-| Mastery % | Domain Score (v1, convex) | Domain Score (v2, linear) |
-|---|---|---|
-| 0% | 50 | 50 |
-| 30% | 78 | 95 |
-| 50% | 107 | 125 |
-| 60% | 122 | 140 |
-| 70% | 136 | 155 |
-| 80% | 152 | 170 |
-| 90% | 179 | 185 |
-| 100% | 200 | 200 |
+50 is the literal SAT per-domain floor; 200 is the ceiling at 100% mastery. Every mastery point is worth exactly 1.5 predicted-score points, always — no interior sweet spot. (v2 replaced the old `mastery^1.4` convex formula, which produced a hidden, unintended sweet spot around 44% mastery where per-question score movement was maximized.)
 
 ### Section and Total Score
 
-*Unchanged from v1.*
+*Unchanged.*
 
 - **Math score** = sum of 4 math domain scores → range 200–800
 - **R&W score** = sum of 4 R&W domain scores → range 200–800
@@ -191,7 +189,7 @@ Domain Score = 50 + 150 × mastery
 
 ## Difficulty Levels
 
-*Unchanged from v1.*
+*Unchanged.*
 
 | Rating | Label | Expected Time |
 |---|---|---|
@@ -203,10 +201,7 @@ Domain Score = 50 + 150 × mastery
 
 ## Mastery Deltas — Base Values
 
-### Gains (correct answers) — **[CHANGED: values revised]**
-
-**v1 (old):** Easy +1.5%, Medium +2.5%, Hard +4.0%
-**v2 (new):**
+### Gains (correct answers) — carried over from v2, unchanged since v2
 
 | Difficulty | Base Gain |
 |---|---|
@@ -214,11 +209,11 @@ Domain Score = 50 + 150 × mastery
 | Medium (2) | +2.0% |
 | Hard (3) | +3.0% |
 
-**Why this changed:** reducing Hard's base gain from 4.0% to 3.0% (a proportional cut across all three tiers) directly lowers the ceiling on maximum possible score movement in a single session, without altering the shape of the gain curve or how it interacts with mastery, time, or momentum.
+(Reduced proportionally from v1's 1.5% / 2.5% / 4.0% to lower the ceiling on max possible single-session movement.)
 
 ### Losses (incorrect answers)
 
-*Base values unchanged from v1 — only the mastery-scaling term applied to them has changed (see Loss Formula below).*
+*Base values unchanged since v1 — only the mastery-scaling term applied to them changed in v2 (see Loss Formula below).*
 
 | Difficulty | Base Loss |
 |---|---|
@@ -230,7 +225,7 @@ Domain Score = 50 + 150 × mastery
 
 ## Mastery Ceilings and Floors
 
-*Unchanged from v1.*
+*Unchanged.*
 
 ### Gain Ceilings
 
@@ -263,37 +258,33 @@ Incorrect answers below this mastery level produce no loss:
 
 ---
 
-## Time Factor
+## Time Factor — **[CHANGED SINCE V2: unified into one 5-tier table]**
 
-*Unchanged from v1 — expected times and tier boundaries remain 30/60/90s for Easy/Medium/Hard.*
+**v1/v2 (old):** two structurally different tables — 5 tiers for correct answers, 3 tiers for incorrect answers, with different breakpoints.
+
+**v3 (new):** a single set of 5 tiers with shared breakpoints, applied to both correct and incorrect answers, with mirrored factor values around the "on pace" center.
 
 ```
 time_ratio = actual_time / expected_time
 ```
 
-### For Correct Answers
+| Time Ratio | Correct → Time Factor | Incorrect → Time Factor |
+|---|---|---|
+| < 0.50 | 1.25 | 0.70 |
+| 0.50 – 0.75 | 1.10 | 0.85 |
+| 0.75 – 1.25 | 1.00 | 1.00 |
+| 1.25 – 1.75 | 0.85 | 1.15 |
+| > 1.75 | 0.70 | 1.30 |
 
-| Time Ratio | Time Factor |
-|---|---|
-| < 0.50 | 1.25 |
-| 0.50 – 0.75 | 1.10 |
-| 0.75 – 1.25 | 1.00 |
-| 1.25 – 1.75 | 0.85 |
-| > 1.75 | 0.70 |
+**Why this changed:** the old incorrect-answer table only had 3 tiers and treated any ratio above 1.25 identically (flat 1.30x), which didn't distinguish "slightly slow and wrong" from "very slow and wrong." The correct-answer column is untouched from v1. The incorrect-answer column keeps its original center value (1.00 at on-pace) and mirrors the correct-answer curve's shape outward in both directions: a rushed wrong answer is treated more like a slip (down to 0.70x), while a slow, deliberated-but-still-wrong answer signals a real gap and costs more (up to 1.30x).
 
-### For Incorrect Answers
-
-| Time Ratio | Time Factor |
-|---|---|
-| < 0.75 | 0.80 |
-| 0.75 – 1.25 | 1.00 |
-| > 1.25 | 1.30 |
+Note: because the middle tier (0.75–1.25 ratio → 1.00 factor) is unchanged from v1/v2 in both directions, any calculation using "Normal" speed for incorrect answers is unaffected by this change. Only Fast/Slow incorrect answers are affected.
 
 ---
 
 ## Momentum
 
-*Unchanged from v1.*
+*Unchanged.*
 
 Momentum is a multiplier applied to mastery gains only. It never worsens losses. A qualifying session is 5 or more questions completed. The diagnostic does not count as a qualifying session.
 
@@ -325,7 +316,7 @@ These formulas apply to all questions answered after mastery initialization. Que
 
 Ceilings and floors are evaluated first. If a question's difficulty falls outside the valid range for the current mastery level, the delta is zero.
 
-### Gains (correct answers) — formula shape unchanged, base values updated
+### Gains (correct answers) — carried over from v2, unchanged since v2
 
 Gains scale progressively — the closer mastery is to 100%, the smaller the gain per correct answer. This makes high mastery genuinely hard to earn.
 
@@ -333,9 +324,9 @@ Gains scale progressively — the closer mastery is to 100%, the smaller the gai
 effective_gain = base_gain × (1 − mastery)^0.5 × time_factor × momentum
 ```
 
-*(`base_gain` now uses the revised v2 values above: 1.0% / 2.0% / 3.0%.)*
+`base_gain` uses 1.0% / 2.0% / 3.0% (Easy/Medium/Hard).
 
-The scaling factor `(1 − mastery)^0.5` at key mastery levels — unchanged:
+The scaling factor `(1 − mastery)^0.5` at key mastery levels:
 
 | Mastery | Scale Factor |
 |---|---|
@@ -346,7 +337,7 @@ The scaling factor `(1 − mastery)^0.5` at key mastery levels — unchanged:
 | 95% | 0.224 |
 | 99% | 0.100 |
 
-**Hard Correct Fast effective gain at key mastery levels (v2 base gain 3.0%):**
+**Hard Correct Fast effective gain at key mastery levels:**
 
 | Mastery | Effective Gain |
 |---|---|
@@ -357,24 +348,15 @@ The scaling factor `(1 − mastery)^0.5` at key mastery levels — unchanged:
 | 95% | 0.84% |
 | 99% | 0.38% |
 
-### Losses (incorrect answers) — **[CHANGED: now mastery-scaled]**
+### Losses (incorrect answers) — carried over from v2, unchanged since v2
 
-**v1 (old):** losses were not scaled by mastery at all — the base loss applied identically regardless of mastery level.
-```
-mastery_loss = base_loss × time_factor
-```
-
-**v2 (new):**
 ```
 mastery_loss = base_loss × time_factor × (0.5 + (1 − (1 − mastery)^0.5))
 ```
 
-**Why this changed:** the team wanted losses to mirror gains conceptually — a correct answer should matter less as mastery rises, and an incorrect answer should matter *more* as mastery rises, so that high mastery is genuinely fragile and must be maintained through continued practice, not just earned once. A literal mirror of the gain curve (`mastery^0.5`, or `1 − (1−mastery)^0.5`) was evaluated in two forms:
+**Why this exists:** losses were originally flat (unscaled by mastery at all). The design intent is that a correct answer should matter less as mastery rises, and an incorrect answer should matter *more* as mastery rises — so high mastery is genuinely fragile and must be actively maintained, not just earned once.
 
-- `mastery^0.5` (naive variable swap) — rejected. This shape decelerates near 100% mastery, the opposite of the intended effect.
-- `1 − (1 − mastery)^0.5` (true reflection of the gain curve) — closer, but reaches **zero** penalty at 0% mastery, meaning a beginner missing an Easy question would face no consequence at all. Rejected on its own.
-
-The adopted formula combines a **fixed floor** (0.5x, preserving some penalty even at 0% mastery) with the **accelerating** reflected curve on top, ranging smoothly from 0.5x at 0% mastery to 1.5x at 100% mastery — matching the same 0.5x–1.5x range the team had already tuned into a simpler linear version, but with the punishment ramping increasingly sharply in the final stretch toward 100% rather than climbing at a flat rate.
+Two mirror candidates were rejected before landing here: `mastery^0.5` decelerates near 100% (wrong direction), and the pure reflection `1 − (1 − mastery)^0.5` alone reaches zero penalty at 0% mastery (a beginner missing an Easy question would face no consequence). The adopted formula adds a fixed 0.5x floor to the reflected curve, ranging smoothly from 0.5x at 0% mastery to 1.5x at 100% — the same 0.5x–1.5x range as a simpler linear version, but ramping increasingly sharply in the final stretch toward 100%.
 
 **Loss multiplier `(0.5 + (1 − (1 − mastery)^0.5))` at key mastery levels:**
 
@@ -389,7 +371,9 @@ The adopted formula combines a **fixed floor** (0.5x, preserving some penalty ev
 | 95% | 1.276 |
 | 100% | 1.500 |
 
-**Effective loss by difficulty, floors applied, Normal time (base losses unchanged: Easy −3.0%, Medium −2.0%, Hard −1.0%):**
+**Effective loss by difficulty, floors applied, Normal time (base losses: Easy −3.0%, Medium −2.0%, Hard −1.0%):**
+
+*Unaffected by the v3 time factor change, since Normal-speed incorrect answers still resolve to a 1.00 time factor in both versions.*
 
 | Mastery | Easy (no floor) | Medium (floor 25%) | Hard (floor 50%) |
 |---|---|---|---|
@@ -402,13 +386,13 @@ The adopted formula combines a **fixed floor** (0.5x, preserving some penalty ev
 | 95% | −3.83% | −2.55% | −1.28% |
 | 100% | −4.50% | −3.00% | −1.50% |
 
-**Note on Easy-question asymmetry (unchanged interaction, flagged for awareness):** Easy questions have a gain ceiling at 50% mastery (no gain above it) but no loss floor at all. Above 75-80% mastery, an Easy question is pure downside — zero possible gain, and loss growing toward −4.5% at the mastery ceiling. This was already true in v1 and is preserved intentionally: a high-mastery user slipping on a below-level question is expected to feel it.
+**Note on Easy-question asymmetry (unchanged, flagged for awareness):** Easy questions have a gain ceiling at 50% mastery (no gain above it) but no loss floor at all. Above 75–80% mastery, an Easy question is pure downside — zero possible gain, and loss growing toward −4.5% at the mastery ceiling. This is intentional: a high-mastery user slipping on a below-level question is expected to feel it.
 
 ### Questions to Reach 100% from Initialization Cap (hard correct)
 
-*Reference table below is approximate under the v2 base gain (3.0% vs. v1's 4.0%) — expect slightly more questions needed than v1's figures. Not recalculated in this revision; flag if you want exact updated counts.*
+*Not recalculated in this revision — figures below are the v1 estimate (base gain 4.0%) and are now stale given the v2 base gain reduction to 3.0%. Expect somewhat more questions needed than shown. Flag if exact updated counts are wanted.*
 
-| Speed | Questions Needed (v1 estimate, for reference only) |
+| Speed | Questions Needed (stale v1 estimate) |
 |---|---|
 | Fast | 11 |
 | Normal | 14 |
@@ -420,7 +404,7 @@ Mastery is hard-capped at 0–100%.
 
 ## Mastery Decay
 
-*Unchanged from v1.*
+*Unchanged.*
 
 Mastery decays per domain independently based on inactivity in that specific domain. Decay only applies to domains that have been initialized — uninitialized domains are unaffected.
 
@@ -431,11 +415,19 @@ Mastery decays per domain independently based on inactivity in that specific dom
 
 ---
 
+## Session/Domain Mastery-Delta Cap — Explicitly Rejected
+
+**This is not an open item. It was proposed and deliberately turned down.**
+
+During the v2 review, a hard per-domain-per-session cap on total mastery movement (e.g., ±15 mastery-points per domain per session, applied as a clamp after all per-question deltas are summed) was proposed as a structural fix for marathon-session scenarios — e.g., a 50-question Power Up drilling session compounding into a very large single-day score swing regardless of how gentle the per-question curve is.
+
+**Decision: rejected.** The stated reasoning is that this mechanism would feel bad to users and would likely be rejected by them — an invisible ceiling silently capping earned progress reads as arbitrary and punitive, especially for engaged Power Up users doing exactly the kind of extended practice the product wants to reward. The v2 formula changes (linear domain score, reduced base gains, accelerating loss curve) are left to stand on their own as the full answer to the movement problem. No cap mechanism should be implemented; if marathon-session movement resurfaces as a concern, it should be solved some other way, not with this mechanism.
+
+---
+
 ## Reference: Max Session Movement (Daily 5, 5 questions)
 
-*New section — added to document the outcome of the v2 revision, for context on future tuning decisions.*
-
-Under v2 (linear domain score, revised 1/2/3 base gains, unchanged loss formula shape):
+*Carried over from v2. Note: these figures were computed before the exponent/time-factor changes above and have not been re-verified against them — the Daily 5 scenarios described use post-initialization delta formulas (gain/loss), which are unaffected by the mastery-init-exponent change, but may be marginally affected by the unified time factor table if the "slow" incorrect scenario falls in a different tier than originally assumed. Treat as directionally correct, not exact.*
 
 | Scenario | Approx. Total Points |
 |---|---|
@@ -443,6 +435,4 @@ Under v2 (linear domain score, revised 1/2/3 base gains, unchanged loss formula 
 | Max loss — Daily 5, boundary case (Easy/Slow, mastery → 100%, spread across 5 domains) | ~44 pts |
 | Typical "great but not extreme" day (5 Medium/correct/Normal time, 50% mastery, max momentum) | ~16 pts |
 
-Gain and loss ceilings are now approximately symmetric and both occur predictably at mastery boundaries (0% or 100%) rather than at a hidden interior point — a direct improvement over v1, where the convex domain-score curve caused max gain and max loss to peak at different, non-obvious mastery values and produced a larger loss-side ceiling (~61 pts) than gain-side (~44 pts).
-
-
+Gain and loss ceilings are approximately symmetric and both occur predictably at mastery boundaries (0% or 100%) rather than at a hidden interior point.
