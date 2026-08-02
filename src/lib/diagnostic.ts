@@ -30,8 +30,10 @@ export function timeFactor(correct: boolean, actualSeconds: number, expectedSeco
     if (ratio < 1.75) return 0.85;
     return 0.7;
   }
-  if (ratio < 0.75) return 0.8;
+  if (ratio < 0.5) return 0.7;
+  if (ratio < 0.75) return 0.85;
   if (ratio < 1.25) return 1.0;
+  if (ratio < 1.75) return 1.15;
   return 1.3;
 }
 
