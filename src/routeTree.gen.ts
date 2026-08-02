@@ -21,8 +21,6 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DiagnosticIndexRouteImport } from './routes/diagnostic.index'
 import { Route as LessonNodeIdRouteImport } from './routes/lesson.$nodeId'
-import { Route as LearnReadingWritingRouteImport } from './routes/learn.reading-writing'
-import { Route as LearnMathRouteImport } from './routes/learn.math'
 import { Route as DiagnosticResultsPreviewRouteImport } from './routes/diagnostic.results-preview'
 import { Route as DiagnosticResultsRouteImport } from './routes/diagnostic.results'
 import { Route as DiagnosticAvatarRouteImport } from './routes/diagnostic.avatar'
@@ -100,16 +98,6 @@ const DiagnosticIndexRoute = DiagnosticIndexRouteImport.update({
 const LessonNodeIdRoute = LessonNodeIdRouteImport.update({
   id: '/lesson/$nodeId',
   path: '/lesson/$nodeId',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LearnReadingWritingRoute = LearnReadingWritingRouteImport.update({
-  id: '/learn/reading-writing',
-  path: '/learn/reading-writing',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LearnMathRoute = LearnMathRouteImport.update({
-  id: '/learn/math',
-  path: '/learn/math',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DiagnosticResultsPreviewRoute =
@@ -235,8 +223,6 @@ export interface FileRoutesByFullPath {
   '/diagnostic/avatar': typeof DiagnosticAvatarRoute
   '/diagnostic/results': typeof DiagnosticResultsRoute
   '/diagnostic/results-preview': typeof DiagnosticResultsPreviewRoute
-  '/learn/math': typeof LearnMathRoute
-  '/learn/reading-writing': typeof LearnReadingWritingRoute
   '/lesson/$nodeId': typeof LessonNodeIdRoute
   '/diagnostic/': typeof DiagnosticIndexRoute
   '/battle/intro': typeof AuthenticatedBattleIntroRoute
@@ -269,8 +255,6 @@ export interface FileRoutesByTo {
   '/diagnostic/avatar': typeof DiagnosticAvatarRoute
   '/diagnostic/results': typeof DiagnosticResultsRoute
   '/diagnostic/results-preview': typeof DiagnosticResultsPreviewRoute
-  '/learn/math': typeof LearnMathRoute
-  '/learn/reading-writing': typeof LearnReadingWritingRoute
   '/lesson/$nodeId': typeof LessonNodeIdRoute
   '/diagnostic': typeof DiagnosticIndexRoute
   '/battle/intro': typeof AuthenticatedBattleIntroRoute
@@ -305,8 +289,6 @@ export interface FileRoutesById {
   '/diagnostic/avatar': typeof DiagnosticAvatarRoute
   '/diagnostic/results': typeof DiagnosticResultsRoute
   '/diagnostic/results-preview': typeof DiagnosticResultsPreviewRoute
-  '/learn/math': typeof LearnMathRoute
-  '/learn/reading-writing': typeof LearnReadingWritingRoute
   '/lesson/$nodeId': typeof LessonNodeIdRoute
   '/diagnostic/': typeof DiagnosticIndexRoute
   '/_authenticated/battle/intro': typeof AuthenticatedBattleIntroRoute
@@ -341,8 +323,6 @@ export interface FileRouteTypes {
     | '/diagnostic/avatar'
     | '/diagnostic/results'
     | '/diagnostic/results-preview'
-    | '/learn/math'
-    | '/learn/reading-writing'
     | '/lesson/$nodeId'
     | '/diagnostic/'
     | '/battle/intro'
@@ -375,8 +355,6 @@ export interface FileRouteTypes {
     | '/diagnostic/avatar'
     | '/diagnostic/results'
     | '/diagnostic/results-preview'
-    | '/learn/math'
-    | '/learn/reading-writing'
     | '/lesson/$nodeId'
     | '/diagnostic'
     | '/battle/intro'
@@ -410,8 +388,6 @@ export interface FileRouteTypes {
     | '/diagnostic/avatar'
     | '/diagnostic/results'
     | '/diagnostic/results-preview'
-    | '/learn/math'
-    | '/learn/reading-writing'
     | '/lesson/$nodeId'
     | '/diagnostic/'
     | '/_authenticated/battle/intro'
@@ -440,8 +416,6 @@ export interface RootRouteChildren {
   DiagnosticAvatarRoute: typeof DiagnosticAvatarRoute
   DiagnosticResultsRoute: typeof DiagnosticResultsRoute
   DiagnosticResultsPreviewRoute: typeof DiagnosticResultsPreviewRoute
-  LearnMathRoute: typeof LearnMathRoute
-  LearnReadingWritingRoute: typeof LearnReadingWritingRoute
   LessonNodeIdRoute: typeof LessonNodeIdRoute
   DiagnosticIndexRoute: typeof DiagnosticIndexRoute
   ApiPublicEnsureDemoUserRoute: typeof ApiPublicEnsureDemoUserRoute
@@ -534,20 +508,6 @@ declare module '@tanstack/react-router' {
       path: '/lesson/$nodeId'
       fullPath: '/lesson/$nodeId'
       preLoaderRoute: typeof LessonNodeIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/learn/reading-writing': {
-      id: '/learn/reading-writing'
-      path: '/learn/reading-writing'
-      fullPath: '/learn/reading-writing'
-      preLoaderRoute: typeof LearnReadingWritingRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/learn/math': {
-      id: '/learn/math'
-      path: '/learn/math'
-      fullPath: '/learn/math'
-      preLoaderRoute: typeof LearnMathRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/diagnostic/results-preview': {
@@ -741,8 +701,6 @@ const rootRouteChildren: RootRouteChildren = {
   DiagnosticAvatarRoute: DiagnosticAvatarRoute,
   DiagnosticResultsRoute: DiagnosticResultsRoute,
   DiagnosticResultsPreviewRoute: DiagnosticResultsPreviewRoute,
-  LearnMathRoute: LearnMathRoute,
-  LearnReadingWritingRoute: LearnReadingWritingRoute,
   LessonNodeIdRoute: LessonNodeIdRoute,
   DiagnosticIndexRoute: DiagnosticIndexRoute,
   ApiPublicEnsureDemoUserRoute: ApiPublicEnsureDemoUserRoute,
