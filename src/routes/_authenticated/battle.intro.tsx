@@ -36,7 +36,7 @@ function BattleIntro() {
     return () => clearTimeout(id);
   }, [bundle?.battleDate]);
 
-  // Stage 2: 3-2-1 countdown.
+  // Stage 2: 3-2-1-Go! countdown.
   useEffect(() => {
     if (!introDone) return;
     setCountdown(3);
@@ -53,11 +53,13 @@ function BattleIntro() {
     return () => clearInterval(id);
   }, [introDone]);
 
-  // Navigate as an effect of the completed countdown rather than from inside
-  // the state updater, which React treats as a render-time update.
+  // Navigate after the "Go!" flash so the player can see it.
   useEffect(() => {
     if (countdown !== 0) return;
-    navigate({ to: "/battle/play" as any });
+    const id = setTimeout(() => {
+      navigate({ to: "/battle/play" as any });
+    }, 900);
+    return () => clearTimeout(id);
   }, [countdown, navigate]);
 
   // Resume the audio context as soon as the intro animation begins.
@@ -180,6 +182,15 @@ function BattleIntro() {
               {countdown}
             </div>
           )}
+          {countdown === 0 && (
+            <div
+              key="go"
+              className="display text-8xl sm:text-9xl text-[var(--volt)]"
+              style={{ animation: "go-bang 0.9s ease-out" }}
+            >
+              Go!
+            </div>
+          )}
         </div>
 
         <style>{`
@@ -192,7 +203,12 @@ function BattleIntro() {
             30% { transform: scale(1.15); opacity: 1; }
             100% { transform: scale(1); opacity: 1; }
           }
-
+          @keyframes go-bang {
+            0% { transform: scale(0.4); opacity: 0; }
+            25% { transform: scale(1.25); opacity: 1; }
+            60% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(1.1); opacity: 0; }
+          }
         `}</style>
       </div>
     </FreeShell>
