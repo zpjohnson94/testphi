@@ -19,6 +19,18 @@ import { FreeShell } from "@/components/FreeShell";
 import { UnlockReadyCard } from "@/components/UnlockReadyCard";
 import { BonusUnlockModal } from "@/components/BonusUnlockModal";
 import { MissedReviewModal } from "@/components/MissedReviewModal";
+import { timeFactor, expectedSecondsFor } from "@/lib/diagnostic";
+
+const DIFF_LABEL: Record<number, string> = { 1: "Easy", 2: "Medium", 3: "Hard" };
+
+function speedLabel(tf: number, correct: boolean): string {
+  if (!correct) return tf > 1 ? "slow" : tf < 1 ? "fast" : "on pace";
+  if (tf >= 1.25) return "very fast";
+  if (tf >= 1.1) return "fast";
+  if (tf >= 1.0) return "on pace";
+  if (tf >= 0.85) return "slow";
+  return "very slow";
+}
 
 export const Route = createFileRoute("/_authenticated/daily/complete")({
   head: () => ({ meta: [{ title: "Session complete — TestPhi" }] }),
