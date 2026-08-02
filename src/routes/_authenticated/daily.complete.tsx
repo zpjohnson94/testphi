@@ -19,6 +19,18 @@ import { FreeShell } from "@/components/FreeShell";
 import { UnlockReadyCard } from "@/components/UnlockReadyCard";
 import { BonusUnlockModal } from "@/components/BonusUnlockModal";
 import { MissedReviewModal } from "@/components/MissedReviewModal";
+import { timeFactor, expectedSecondsFor } from "@/lib/diagnostic";
+
+const DIFF_LABEL: Record<number, string> = { 1: "Easy", 2: "Medium", 3: "Hard" };
+
+function speedLabel(tf: number, correct: boolean): string {
+  if (!correct) return tf > 1 ? "slow" : tf < 1 ? "fast" : "on pace";
+  if (tf >= 1.25) return "very fast";
+  if (tf >= 1.1) return "fast";
+  if (tf >= 1.0) return "on pace";
+  if (tf >= 0.85) return "slow";
+  return "very slow";
+}
 
 export const Route = createFileRoute("/_authenticated/daily/complete")({
   head: () => ({ meta: [{ title: "Session complete — TestPhi" }] }),
@@ -564,9 +576,18 @@ function DomainRow({
   const tipOpen = isOpen;
   const momentumMult = diff.baseGain !== 0 ? diff.actualGain / diff.baseGain : 1;
   const positiveDelta = diff.newMastery - diff.prevMastery >= 0;
-  const hasCorrectAnswer = results.some(
-    (r) => r.domainId === diff.domainId && r.correct,
+  const domainResults = useMemo(
+    () =>
+      results
+        .filter((r) => r.domainId === diff.domainId)
+        .map((r) => {
+          const exp = expectedSecondsFor(r.difficulty);
+          const tf = timeFactor(r.correct, r.elapsedSeconds, exp);
+          return { ...r, expectedSeconds: exp, tf };
+        }),
+    [results, diff.domainId],
   );
+  const hasCorrectAnswer = domainResults.some((r) => r.correct);
   const showCeilingNote = hasCorrectAnswer && Math.abs(diff.actualGain) < 0.05;
 
   return (
@@ -576,7 +597,9 @@ function DomainRow({
         background: "#1a1230",
         border: justUnlocked ? "1.5px solid var(--volt)" : "1px solid rgba(246,240,250,0.1)",
         boxShadow: justUnlocked ? "0 0 40px -10px rgba(184,255,0,0.55)" : undefined,
-        minHeight: tipOpen ? (showCeilingNote ? 210 : 155) : undefined,
+        minHeight: tipOpen
+          ? (showCeilingNote ? 210 : 155) + domainResults.length * 22
+          : undefined,
         zIndex: tipOpen ? 100 : undefined,
       }}
     >
@@ -692,6 +715,33 @@ function DomainRow({
             <div className="font-bold uppercase tracking-wider mb-2 text-[10px]" style={{ color: "var(--volt)" }}>
               Score change breakdown
             </div>
+            {domainResults.length > 0 && (
+              <div className="space-y-1 mb-2 pb-2 border-b" style={{ borderColor: "rgba(246,240,250,0.15)" }}>
+                {domainResults.map((r, i) => (
+                  <div key={`${r.questionId ?? r.n}-${i}`} className="flex items-center justify-between gap-2">
+                    <span className="flex items-center gap-1.5">
+                      <span
+                        className="inline-block rounded-full"
+                        style={{
+                          width: 6,
+                          height: 6,
+                          background: r.correct ? "var(--volt)" : "var(--destructive)",
+                        }}
+                      />
+                      <span style={{ color: "rgba(246,240,250,0.85)" }}>
+                        {DIFF_LABEL[r.difficulty] ?? "Medium"}
+                      </span>
+                      <span style={{ color: "rgba(246,240,250,0.5)" }}>
+                        · {speedLabel(r.tf, r.correct)}
+                      </span>
+                    </span>
+                    <span className="tabular-nums" style={{ color: "rgba(246,240,250,0.55)" }}>
+                      {Math.round(r.elapsedSeconds)}s / {r.expectedSeconds}s
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
             <div className="space-y-1">
               <div>
                 <span style={{ color: "rgba(246,240,250,0.6)" }}>Base {positiveDelta ? "gain" : "loss"}:</span>{" "}
