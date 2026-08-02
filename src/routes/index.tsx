@@ -67,7 +67,7 @@ function Landing() {
             <Logo size={36} />
             <span className="display text-lg text-[var(--lavender)]">TestPhi</span>
           </Link>
-          <Link to="/diagnostic" onClick={() => trackEvent("cta_click", { location: "nav", label: "Sign in" })} className="btn-volt px-4 py-2 text-sm">Sign in</Link>
+          <Link to="/auth" onClick={() => trackEvent("cta_click", { location: "nav", label: "Sign in" })} className="btn-volt px-4 py-2 text-sm">Sign in</Link>
         </div>
       </header>
 
@@ -94,7 +94,7 @@ function Landing() {
             <span aria-hidden="true" className="text-2xl sm:text-3xl">→</span>
           </Link>
           <Link
-            to={"/diagnostic" as any}
+            to="/auth"
             onClick={() => trackEvent("cta_click", { location: "landing_hero", label: "Already have an account" })}
             className="text-sm font-bold underline-offset-4 hover:underline"
             style={{ color: "rgba(246,240,250,0.7)" }}
