@@ -4,7 +4,7 @@ import { AppShell } from "@/components/AppShell";
 import { EloHeroCard } from "@/components/EloHeroCard";
 import { Avatar } from "@/components/Avatar";
 import { useHydration, useStore, weakestSkill, nextRecommendedNode } from "@/lib/store";
-import { WORLDS, getNode } from "@/lib/content";
+import { getNode } from "@/lib/content";
 import { Flame, Target, ChevronRight, Brain, Zap } from "lucide-react";
 
 export const Route = createFileRoute("/dashboard")({
@@ -95,27 +95,6 @@ function Dashboard() {
             </div>
           )}
 
-          {/* Section maps */}
-          <div className="grid gap-3 sm:grid-cols-2">
-            {WORLDS.map((w) => (
-              <Link
-                key={w.id}
-                to={(w.section === "rw" ? "/learn/reading-writing" : "/learn/math") as any}
-                className="rounded-3xl p-5 transition-transform hover:-translate-y-1"
-                style={{
-                  background: w.section === "rw" ? "rgba(184,255,0,0.12)" : "rgba(168,85,247,0.15)",
-                  border: `1.5px solid ${w.section === "rw" ? "var(--volt)" : "var(--neon)"}`,
-                }}
-              >
-                <div className="flex items-center gap-2">
-                  {w.section === "rw" ? <BookOpen className="size-5" style={{ color: "var(--volt)" }} /> : <Calculator className="size-5" style={{ color: "var(--neon)" }} />}
-                  <span className="text-[11px] uppercase tracking-widest font-bold" style={{ color: w.section === "rw" ? "var(--volt)" : "var(--neon)" }}>{w.section === "rw" ? "Reading & Writing" : "Math"}</span>
-                </div>
-                <div className="mt-3 display text-xl text-[var(--lavender)]">{w.name}</div>
-                <div className="mt-1 text-sm font-semibold" style={{ color: "rgba(246,240,250,0.7)" }}>{w.tagline}</div>
-              </Link>
-            ))}
-          </div>
         </div>
       </div>
     </AppShell>
