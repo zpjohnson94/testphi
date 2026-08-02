@@ -426,7 +426,7 @@ function initializeMastery(batch: BatchEntry[]): number {
     if (e.correct) scoreSum += w * e.timeFactor;
   }
   const ratio = maxSum === 0 ? 0 : scoreSum / maxSum;
-  const m = 0.15 + 0.75 * Math.pow(Math.max(0, ratio), 0.7);
+  const m = 0.15 + 0.75 * Math.pow(Math.max(0, ratio), 0.5);
   const pct = m * 100;
   return Math.max(SCORING.MASTERY_INIT_FLOOR, Math.min(SCORING.MASTERY_INIT_CEIL, pct));
 }
@@ -469,7 +469,7 @@ function applyOneResult(
   if (!stat.initialized) {
     stat.batch.push({ difficulty: r.difficulty, correct: r.correct, timeFactor: tf });
     if (r.isBonus) stat.bonusStep = Math.min(3, stat.bonusStep + 1) as 0 | 1 | 2 | 3;
-    if (stat.bonusStep >= 3 || stat.batch.length >= 8) {
+    if (stat.bonusStep >= 3) {
       stat.mastery = initializeMastery(stat.batch);
       stat.initialized = true;
     }
