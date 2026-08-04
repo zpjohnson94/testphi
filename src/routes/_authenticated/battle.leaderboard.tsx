@@ -33,6 +33,8 @@ function seedAvatar(
 function BattleLeaderboard() {
   const navigate = useNavigate();
   const { date } = useSearch({ from: "/_authenticated/battle/leaderboard" });
+  useHydration();
+  const myAvatar = useStore((s) => s.avatar);
   const fn = useServerFn(getBattleLeaderboard);
   const { data, isLoading } = useQuery({
     queryKey: ["battle-leaderboard", date ?? "today"],
