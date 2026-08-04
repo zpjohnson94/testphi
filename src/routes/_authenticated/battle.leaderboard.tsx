@@ -5,6 +5,7 @@ import { ArrowLeft } from "lucide-react";
 import { FreeShell } from "@/components/FreeShell";
 import { Avatar, ANIMALS, COLOR_SWATCHES, type AvatarConfig } from "@/components/Avatar";
 import { getBattleLeaderboard } from "@/lib/battle.functions";
+import { useStore, useHydration } from "@/lib/store";
 
 type Search = { date?: string };
 
@@ -32,6 +33,8 @@ function seedAvatar(
 function BattleLeaderboard() {
   const navigate = useNavigate();
   const { date } = useSearch({ from: "/_authenticated/battle/leaderboard" });
+  useHydration();
+  const myAvatar = useStore((s) => s.avatar);
   const fn = useServerFn(getBattleLeaderboard);
   const { data, isLoading } = useQuery({
     queryKey: ["battle-leaderboard", date ?? "today"],
@@ -66,11 +69,13 @@ function BattleLeaderboard() {
               </div>
             )}
             {data?.entries.map((e) => {
-              const cfg = seedAvatar(e.animalSeed, e.colorSeed, {
-                animalId: e.animalId,
-                color: e.color,
-                accessoryId: e.accessoryId,
-              });
+              const cfg = e.isMe
+                ? myAvatar
+                : seedAvatar(e.animalSeed, e.colorSeed, {
+                    animalId: e.animalId,
+                    color: e.color,
+                    accessoryId: e.accessoryId,
+                  });
               return (
                 <div
                   key={e.userId + e.rank}
