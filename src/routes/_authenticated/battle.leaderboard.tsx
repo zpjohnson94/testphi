@@ -5,6 +5,7 @@ import { ArrowLeft } from "lucide-react";
 import { FreeShell } from "@/components/FreeShell";
 import { Avatar, ANIMALS, COLOR_SWATCHES, type AvatarConfig } from "@/components/Avatar";
 import { getBattleLeaderboard } from "@/lib/battle.functions";
+import { useStore, useHydration } from "@/lib/store";
 
 type Search = { date?: string };
 
