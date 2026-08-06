@@ -11,6 +11,8 @@ export interface DomainActivityRow {
   difficulty: number;
   answeredAt: string;
   questionId: string;
+  /** Hydrated review payload (absent when the question can't be resolved). */
+  review?: DomainReviewItem;
 }
 
 export interface DomainActivityResponse {
@@ -44,18 +46,37 @@ export const getDomainActivity = createServerFn({ method: "POST" })
         .eq("correct", false),
     ]);
 
+    const rawRows = recent.data ?? [];
+    const ids = Array.from(new Set(rawRows.map((r: any) => r.question_id).filter(Boolean)));
+    const domainLabel = domainById(data.domainId)?.label ?? "";
+
+    let reviewById = new Map<string, DomainReviewItem>();
+    if (ids.length) {
+      const [{ data: questions }, { data: attempts }] = await Promise.all([
+        context.supabase.from("questions").select("id, payload").in("id", ids),
+        context.supabase
+          .from("daily_attempts")
+          .select("question_id, shuffled_order, correct_position, selected_position")
+          .eq("user_id", context.userId)
+          .in("question_id", ids),
+      ]);
+      reviewById = buildReviewMap(ids, questions, attempts, domainLabel);
+    }
+
     return {
-      rows: (recent.data ?? []).map((r: any) => ({
+      rows: rawRows.map((r: any) => ({
         id: r.id,
         correct: !!r.correct,
         difficulty: Number(r.difficulty),
         answeredAt: r.answered_at,
         questionId: r.question_id,
+        review: reviewById.get(r.question_id),
       })),
       totalAnswered: totals.count ?? 0,
       missedCount: missed.count ?? 0,
     };
   });
+
 
 export interface DomainReviewItem {
   questionId: string;
