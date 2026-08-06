@@ -31,6 +31,7 @@ import { Route as AuthenticatedAccountRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedDomainsIndexRouteImport } from './routes/_authenticated/domains.index'
 import { Route as DiagnosticQuestionNRouteImport } from './routes/diagnostic.question.$n'
 import { Route as ApiPublicEnsureDemoUserRouteImport } from './routes/api/public/ensure-demo-user'
+import { Route as AuthenticatedDomainsDomainIdRouteImport } from './routes/_authenticated/domains.$domainId'
 import { Route as AuthenticatedDailyCompleteRouteImport } from './routes/_authenticated/daily.complete'
 import { Route as AuthenticatedBattleResultsRouteImport } from './routes/_authenticated/battle.results'
 import { Route as AuthenticatedBattlePlayRouteImport } from './routes/_authenticated/battle.play'
@@ -151,6 +152,12 @@ const ApiPublicEnsureDemoUserRoute = ApiPublicEnsureDemoUserRouteImport.update({
   path: '/api/public/ensure-demo-user',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedDomainsDomainIdRoute =
+  AuthenticatedDomainsDomainIdRouteImport.update({
+    id: '/domains/$domainId',
+    path: '/domains/$domainId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedDailyCompleteRoute =
   AuthenticatedDailyCompleteRouteImport.update({
     id: '/daily/complete',
@@ -223,6 +230,7 @@ export interface FileRoutesByFullPath {
   '/battle/play': typeof AuthenticatedBattlePlayRoute
   '/battle/results': typeof AuthenticatedBattleResultsRoute
   '/daily/complete': typeof AuthenticatedDailyCompleteRoute
+  '/domains/$domainId': typeof AuthenticatedDomainsDomainIdRoute
   '/api/public/ensure-demo-user': typeof ApiPublicEnsureDemoUserRoute
   '/diagnostic/question/$n': typeof DiagnosticQuestionNRoute
   '/domains/': typeof AuthenticatedDomainsIndexRoute
@@ -254,6 +262,7 @@ export interface FileRoutesByTo {
   '/battle/play': typeof AuthenticatedBattlePlayRoute
   '/battle/results': typeof AuthenticatedBattleResultsRoute
   '/daily/complete': typeof AuthenticatedDailyCompleteRoute
+  '/domains/$domainId': typeof AuthenticatedDomainsDomainIdRoute
   '/api/public/ensure-demo-user': typeof ApiPublicEnsureDemoUserRoute
   '/diagnostic/question/$n': typeof DiagnosticQuestionNRoute
   '/domains': typeof AuthenticatedDomainsIndexRoute
@@ -287,6 +296,7 @@ export interface FileRoutesById {
   '/_authenticated/battle/play': typeof AuthenticatedBattlePlayRoute
   '/_authenticated/battle/results': typeof AuthenticatedBattleResultsRoute
   '/_authenticated/daily/complete': typeof AuthenticatedDailyCompleteRoute
+  '/_authenticated/domains/$domainId': typeof AuthenticatedDomainsDomainIdRoute
   '/api/public/ensure-demo-user': typeof ApiPublicEnsureDemoUserRoute
   '/diagnostic/question/$n': typeof DiagnosticQuestionNRoute
   '/_authenticated/domains/': typeof AuthenticatedDomainsIndexRoute
@@ -320,6 +330,7 @@ export interface FileRouteTypes {
     | '/battle/play'
     | '/battle/results'
     | '/daily/complete'
+    | '/domains/$domainId'
     | '/api/public/ensure-demo-user'
     | '/diagnostic/question/$n'
     | '/domains/'
@@ -351,6 +362,7 @@ export interface FileRouteTypes {
     | '/battle/play'
     | '/battle/results'
     | '/daily/complete'
+    | '/domains/$domainId'
     | '/api/public/ensure-demo-user'
     | '/diagnostic/question/$n'
     | '/domains'
@@ -383,6 +395,7 @@ export interface FileRouteTypes {
     | '/_authenticated/battle/play'
     | '/_authenticated/battle/results'
     | '/_authenticated/daily/complete'
+    | '/_authenticated/domains/$domainId'
     | '/api/public/ensure-demo-user'
     | '/diagnostic/question/$n'
     | '/_authenticated/domains/'
@@ -568,6 +581,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicEnsureDemoUserRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/domains/$domainId': {
+      id: '/_authenticated/domains/$domainId'
+      path: '/domains/$domainId'
+      fullPath: '/domains/$domainId'
+      preLoaderRoute: typeof AuthenticatedDomainsDomainIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/daily/complete': {
       id: '/_authenticated/daily/complete'
       path: '/daily/complete'
@@ -636,6 +656,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedBattlePlayRoute: typeof AuthenticatedBattlePlayRoute
   AuthenticatedBattleResultsRoute: typeof AuthenticatedBattleResultsRoute
   AuthenticatedDailyCompleteRoute: typeof AuthenticatedDailyCompleteRoute
+  AuthenticatedDomainsDomainIdRoute: typeof AuthenticatedDomainsDomainIdRoute
   AuthenticatedDomainsIndexRoute: typeof AuthenticatedDomainsIndexRoute
   AuthenticatedDailyQuestionNRoute: typeof AuthenticatedDailyQuestionNRoute
 }
@@ -649,6 +670,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedBattlePlayRoute: AuthenticatedBattlePlayRoute,
   AuthenticatedBattleResultsRoute: AuthenticatedBattleResultsRoute,
   AuthenticatedDailyCompleteRoute: AuthenticatedDailyCompleteRoute,
+  AuthenticatedDomainsDomainIdRoute: AuthenticatedDomainsDomainIdRoute,
   AuthenticatedDomainsIndexRoute: AuthenticatedDomainsIndexRoute,
   AuthenticatedDailyQuestionNRoute: AuthenticatedDailyQuestionNRoute,
 }
