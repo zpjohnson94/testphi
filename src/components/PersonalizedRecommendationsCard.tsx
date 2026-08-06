@@ -12,7 +12,7 @@ interface Props {
 export function PersonalizedRecommendationsCard({ tierColor, onUnlock }: Props) {
   return (
     <div
-      className="relative overflow-hidden rounded-2xl p-6"
+      className="relative overflow-hidden rounded-2xl p-6 min-h-[260px]"
       style={{
         background: "var(--violet-deep)",
         border: `1.5px solid ${tierColor}`,
