@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { Lock } from "lucide-react";
 
@@ -20,7 +20,7 @@ import { UnlockReadyCard } from "@/components/UnlockReadyCard";
 import { BonusUnlockModal } from "@/components/BonusUnlockModal";
 
 
-export const Route = createFileRoute("/_authenticated/domains")({
+export const Route = createFileRoute("/_authenticated/domains/")({
   head: () => ({ meta: [{ title: "Domains — TestPhi" }] }),
   component: Domains,
 });
@@ -149,7 +149,13 @@ function Domains() {
                             : undefined,
                         }}
                       >
+                        <Link
+                          to="/domains/$domainId"
+                          params={{ domainId: d.id }}
+                          className="block"
+                        >
                         <div className="flex items-start justify-between gap-3">
+
                           <div className="min-w-0 flex-1 text-left">
                             <DomainPill section={section} />
                             <div
@@ -208,6 +214,9 @@ function Domains() {
                             </div>
                           </div>
                         )}
+                        </Link>
+
+
 
                         <button
                           onClick={() => setShowModal(true)}

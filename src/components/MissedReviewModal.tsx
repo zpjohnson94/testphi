@@ -3,6 +3,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { X, ChevronLeft, ChevronRight, Check, HelpCircle } from "lucide-react";
 import { useServeDailyQuestion, servedQuestionKey } from "@/lib/useFree";
 import { PowerUpModal } from "./PowerUpModal";
+import type { DomainReviewItem } from "@/lib/domainDetail.functions";
 
 export interface MissedQuestionRef {
   slot: number;
@@ -11,15 +12,22 @@ export interface MissedQuestionRef {
 
 interface Props {
   open: boolean;
-  missed: MissedQuestionRef[];
+  /** Daily-session mode: resolved by slot from today's set. */
+  missed?: MissedQuestionRef[];
+  /** Domain mode: fully hydrated review items (any date). */
+  items?: DomainReviewItem[];
   onClose: () => void;
 }
 
-export function MissedReviewModal({ open, missed, onClose }: Props) {
+export function MissedReviewModal({ open, missed, items, onClose }: Props) {
   const [idx, setIdx] = useState(0);
   const [showPowerUp, setShowPowerUp] = useState(false);
-  if (!open || missed.length === 0) return null;
-  const current = missed[Math.min(idx, missed.length - 1)];
+  const count = items ? items.length : (missed?.length ?? 0);
+  if (!open || count === 0) return null;
+  const safeIdx = Math.min(idx, count - 1);
+  const current = missed ? missed[safeIdx] : undefined;
+  const currentItem = items ? items[safeIdx] : undefined;
+
 
   return (
     <div
@@ -38,7 +46,7 @@ export function MissedReviewModal({ open, missed, onClose }: Props) {
       >
         <div className="flex items-center justify-between mb-4">
           <div className="text-[11px] font-bold uppercase tracking-wider" style={{ color: "var(--volt)" }}>
-            Review · {idx + 1} of {missed.length}
+            Review · {safeIdx + 1} of {count}
           </div>
           <button
             onClick={onClose}
@@ -50,12 +58,16 @@ export function MissedReviewModal({ open, missed, onClose }: Props) {
           </button>
         </div>
 
-        <QuestionReview slot={current.slot} />
+        {currentItem ? (
+          <ReviewBody data={currentItem} />
+        ) : current ? (
+          <QuestionReview slot={current.slot} />
+        ) : null}
 
-        {missed.length > 1 && (
+        {count > 1 && (
           <div className="mt-5 flex items-center justify-between gap-2">
             <button
-              disabled={idx === 0}
+              disabled={safeIdx === 0}
               onClick={() => setIdx((i) => Math.max(0, i - 1))}
               className="flex items-center gap-1 px-3 py-2 rounded-xl text-sm font-bold disabled:opacity-40"
               style={{ background: "rgba(246,240,250,0.08)", border: "1px solid rgba(246,240,250,0.2)" }}
@@ -75,8 +87,8 @@ export function MissedReviewModal({ open, missed, onClose }: Props) {
               <HelpCircle className="size-5" />
             </button>
             <button
-              disabled={idx >= missed.length - 1}
-              onClick={() => setIdx((i) => Math.min(missed.length - 1, i + 1))}
+              disabled={safeIdx >= count - 1}
+              onClick={() => setIdx((i) => Math.min(count - 1, i + 1))}
               className="flex items-center gap-1 px-3 py-2 rounded-xl text-sm font-bold disabled:opacity-40"
               style={{ background: "rgba(246,240,250,0.08)", border: "1px solid rgba(246,240,250,0.2)" }}
             >
@@ -85,7 +97,7 @@ export function MissedReviewModal({ open, missed, onClose }: Props) {
           </div>
         )}
 
-        {missed.length === 1 && (
+        {count === 1 && (
           <div className="mt-5 flex items-center justify-center">
             <button
               onClick={() => setShowPowerUp(true)}
@@ -130,8 +142,32 @@ function QuestionReview({ slot }: { slot: number }) {
     return <div className="text-sm text-[var(--destructive)]">Couldn't load question.</div>;
   }
 
-  const correctPos = data.correctPosition ?? -1;
-  const selectedPos = data.selectedPosition ?? -1;
+  return (
+    <ReviewBody
+      data={{
+        domainLabel: data.domainLabel,
+        passage: data.passage,
+        question: data.question,
+        choices: data.choices as unknown as string[],
+        correctPosition: data.correctPosition ?? -1,
+        selectedPosition: data.selectedPosition ?? -1,
+      }}
+    />
+  );
+}
+
+interface ReviewBodyData {
+  domainLabel?: string;
+  passage?: string;
+  question: string;
+  choices: string[];
+  correctPosition: number;
+  selectedPosition: number;
+}
+
+function ReviewBody({ data }: { data: ReviewBodyData }) {
+  const correctPos = data.correctPosition;
+  const selectedPos = data.selectedPosition;
 
   return (
     <div>
