@@ -72,7 +72,6 @@ function DomainDetail() {
   const { domainId } = Route.useParams();
   const { data: state } = useFreeState();
   const [showPowerUp, setShowPowerUp] = useState(false);
-  const [showInfo, setShowInfo] = useState(false);
   const [showBonus, setShowBonus] = useState(false);
   const [reviewOpen, setReviewOpen] = useState(false);
 
