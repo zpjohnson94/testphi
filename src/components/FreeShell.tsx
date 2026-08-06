@@ -1,5 +1,7 @@
 import { Link, useLocation } from "@tanstack/react-router";
-import { Home, Grid3x3, User2 } from "lucide-react";
+import { Home, Grid3x3 } from "lucide-react";
+import { useStore } from "@/lib/store";
+import { Avatar, defaultAvatar } from "@/components/Avatar";
 
 export function FreeShell({ children }: { children: React.ReactNode }) {
   return (
@@ -12,11 +14,14 @@ export function FreeShell({ children }: { children: React.ReactNode }) {
 
 function FreeBottomNav() {
   const { pathname } = useLocation();
+  const storeAvatar = useStore((s) => s.avatar);
+  const avatarConfig = { ...(storeAvatar ?? defaultAvatar()), accessory: "none" as const };
   const items = [
     { to: "/home", label: "Home", Icon: Home },
     { to: "/domains", label: "Domains", Icon: Grid3x3 },
-    { to: "/account", label: "Account", Icon: User2 },
+    { to: "/account", label: "Account", Icon: null },
   ] as const;
+
 
   return (
     <nav
@@ -33,7 +38,16 @@ function FreeBottomNav() {
               className="flex flex-col items-center gap-1 py-3 text-xs font-bold transition-colors"
               style={{ color: active ? "var(--volt)" : "rgba(246,240,250,0.55)" }}
             >
-              <Icon className="size-5" />
+              {Icon ? <Icon className="size-5" /> : (
+                <Avatar
+                  config={avatarConfig}
+                  size={22}
+                  style={{
+                    boxShadow: active ? "0 0 0 2px var(--volt)" : "0 0 0 2px rgba(246,240,250,0.3)",
+                  }}
+                />
+              )}
+
               {label}
             </Link>
           );
