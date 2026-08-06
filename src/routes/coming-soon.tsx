@@ -50,7 +50,7 @@ function ComingSoon() {
           </p>
 
           <Link
-            to="/"
+            to="/home"
             className="inline-block mt-8 text-sm font-bold"
             style={{ color: "rgba(246,240,250,0.6)" }}
           >
