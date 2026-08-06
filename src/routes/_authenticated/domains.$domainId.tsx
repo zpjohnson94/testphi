@@ -100,6 +100,7 @@ function DomainDetail() {
   const parts = (domain?.label ?? "").split(" · ");
   const section = parts[0] ?? "";
   const name = parts.slice(1).join(" · ");
+  const content = DOMAIN_CONTENT[domainId];
 
   return (
     <FreeShell>
