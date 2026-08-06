@@ -64,12 +64,11 @@ function ComingSoon() {
             You're on the waitlist
           </div>
           <h1 className="mt-3 display text-4xl sm:text-5xl text-[var(--lavender)]">
-            Power Up isn't available yet
+            You're on the waitlist!
           </h1>
           <p className="mt-4 text-base sm:text-lg font-medium" style={{ color: "rgba(246,240,250,0.75)" }}>
-            Power Up is still in development — it isn't purchasable today, and nothing has been
-            charged. We're building adaptive drills that target your weak spots, and you'll be
-            emailed as soon as it launches. In the meantime, keep using TestPhi for free.
+            You'll be emailed as soon as Power Up launches with a gift for being an early believer.
+            In the meantime, keep using TestPhi for free.
           </p>
 
           <div className="mt-8 flex items-center justify-center gap-2 text-left">
