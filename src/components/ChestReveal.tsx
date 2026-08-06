@@ -144,6 +144,27 @@ export function ChestReveal({ domainName, masteryPct, bonusSummary, onDone }: Pr
           role="button"
           aria-label="Tap the chest to unlock"
         >
+          {/* Animated "Tap!" prompts */}
+          <div className="pointer-events-none absolute inset-0 z-20">
+            {bubbles.map((b) => (
+              <span
+                key={b.id}
+                className="absolute display text-sm uppercase tracking-[0.12em] px-3 py-1.5 rounded-full whitespace-nowrap"
+                style={{
+                  left: `${b.left}%`,
+                  top: `${b.top}%`,
+                  color: "var(--ink)",
+                  background: "var(--volt)",
+                  boxShadow: "0 0 18px rgba(184,255,0,0.55)",
+                  animation: "tap-pop 1.3s ease-out forwards",
+                  ["--rot" as any]: `${b.rot}deg`,
+                }}
+              >
+                Tap!
+              </span>
+            ))}
+          </div>
+
           <div
             className="relative"
             style={{ width: 280, height: 280, animation: "chest-pulse 2.4s ease-in-out infinite" }}
