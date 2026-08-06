@@ -16,17 +16,23 @@ interface Props {
   missed?: MissedQuestionRef[];
   /** Domain mode: fully hydrated review items (any date). */
   items?: DomainReviewItem[];
+  /** Index to open on (domain mode). */
+  startIndex?: number;
   onClose: () => void;
 }
 
-export function MissedReviewModal({ open, missed, items, onClose }: Props) {
-  const [idx, setIdx] = useState(0);
+export function MissedReviewModal({ open, missed, items, startIndex = 0, onClose }: Props) {
+  const [idx, setIdx] = useState(startIndex);
   const [showPowerUp, setShowPowerUp] = useState(false);
+  useEffect(() => {
+    if (open) setIdx(startIndex);
+  }, [open, startIndex]);
   const count = items ? items.length : (missed?.length ?? 0);
   if (!open || count === 0) return null;
   const safeIdx = Math.min(idx, count - 1);
   const current = missed ? missed[safeIdx] : undefined;
   const currentItem = items ? items[safeIdx] : undefined;
+
 
 
   return (
