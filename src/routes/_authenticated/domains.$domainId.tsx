@@ -160,12 +160,6 @@ function DomainDetail() {
                     style={{ width: `${mastery}%`, ["--swirl-color" as any]: color }}
                   />
                 </div>
-                {/* TODO: 7-day mastery delta isn't queryable yet — no per-day
-                    mastery snapshot exists in the schema. Wire this up once
-                    mastery history is persisted. */}
-                <div className="mt-2 text-xs font-bold" style={{ color }}>
-                  Mastery trend over the last 7 days coming soon
-                </div>
               </div>
             ) : (
               <div className="mt-5">
