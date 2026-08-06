@@ -2,18 +2,18 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { ChevronLeft, Info } from "lucide-react";
+import { ChevronLeft, Check } from "lucide-react";
 
 import { FreeShell } from "@/components/FreeShell";
 import { Logo } from "@/components/Logo";
 import { PowerUpModal } from "@/components/PowerUpModal";
 import { UnlockReadyCard } from "@/components/UnlockReadyCard";
 import { BonusUnlockModal } from "@/components/BonusUnlockModal";
-import { DomainInfoModal } from "@/components/DomainInfoModal";
 import { PersonalizedRecommendationsCard } from "@/components/PersonalizedRecommendationsCard";
 import { MissedReviewModal } from "@/components/MissedReviewModal";
 import { useFreeState } from "@/lib/useFree";
 import { DOMAINS, SCORING, domainById, tierColor, tierOf } from "@/lib/freeUser";
+import { DOMAIN_CONTENT } from "@/lib/domainContent";
 import { getDomainActivity, getDomainMissedReviews } from "@/lib/domainDetail.functions";
 
 export const Route = createFileRoute("/_authenticated/domains/$domainId")({
@@ -72,7 +72,6 @@ function DomainDetail() {
   const { domainId } = Route.useParams();
   const { data: state } = useFreeState();
   const [showPowerUp, setShowPowerUp] = useState(false);
-  const [showInfo, setShowInfo] = useState(false);
   const [showBonus, setShowBonus] = useState(false);
   const [reviewOpen, setReviewOpen] = useState(false);
 
@@ -101,6 +100,7 @@ function DomainDetail() {
   const parts = (domain?.label ?? "").split(" · ");
   const section = parts[0] ?? "";
   const name = parts.slice(1).join(" · ");
+  const content = DOMAIN_CONTENT[domainId];
 
   return (
     <FreeShell>
@@ -127,16 +127,8 @@ function DomainDetail() {
           {/* Hero */}
           <section>
             <DomainPill section={section} />
-            <div className="mt-2 flex items-start gap-2">
+            <div className="mt-2">
               <h1 className="display text-3xl text-[var(--lavender)]">{name || "Domain"}</h1>
-              <button
-                onClick={() => setShowInfo(true)}
-                aria-label="About this domain"
-                className="mt-1 size-7 rounded-full flex items-center justify-center shrink-0"
-                style={{ background: "rgba(246,240,250,0.08)", color: "var(--lavender)" }}
-              >
-                <Info className="size-4" />
-              </button>
             </div>
 
             {bonusReady ? (
@@ -193,6 +185,38 @@ function DomainDetail() {
           >
             Drill this domain
           </button>
+
+          {/* About this domain */}
+          {content && (
+            <section className="space-y-5">
+              <div>
+                <h2 className="display text-2xl text-[var(--lavender)]">About this domain</h2>
+                <p
+                  className="mt-2 text-sm font-medium leading-relaxed"
+                  style={{ color: "rgba(246,240,250,0.75)" }}
+                >
+                  {content.description}
+                </p>
+              </div>
+
+              <div>
+                <div
+                  className="text-[11px] font-bold uppercase tracking-[0.18em]"
+                  style={{ color: "var(--volt)" }}
+                >
+                  Tips
+                </div>
+                <ul className="mt-2 space-y-2.5">
+                  {content.tips.map((t) => (
+                    <li key={t} className="flex items-start gap-2.5 text-sm font-medium">
+                      <Check className="size-4 mt-0.5 shrink-0" style={{ color: "var(--volt)" }} />
+                      <span style={{ color: "rgba(246,240,250,0.85)" }}>{t}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </section>
+          )}
 
           {/* Activity */}
           <section>
@@ -268,8 +292,6 @@ function DomainDetail() {
           />
         </main>
       </div>
-
-      <DomainInfoModal open={showInfo} domainId={domainId} onClose={() => setShowInfo(false)} />
 
       <PowerUpModal
         open={showPowerUp}
