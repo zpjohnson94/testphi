@@ -3,6 +3,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { X, ChevronLeft, ChevronRight, Check, HelpCircle } from "lucide-react";
 import { useServeDailyQuestion, servedQuestionKey } from "@/lib/useFree";
 import { PowerUpModal } from "./PowerUpModal";
+import type { DomainReviewItem } from "@/lib/domainDetail.functions";
 
 export interface MissedQuestionRef {
   slot: number;
@@ -11,15 +12,22 @@ export interface MissedQuestionRef {
 
 interface Props {
   open: boolean;
-  missed: MissedQuestionRef[];
+  /** Daily-session mode: resolved by slot from today's set. */
+  missed?: MissedQuestionRef[];
+  /** Domain mode: fully hydrated review items (any date). */
+  items?: DomainReviewItem[];
   onClose: () => void;
 }
 
-export function MissedReviewModal({ open, missed, onClose }: Props) {
+export function MissedReviewModal({ open, missed, items, onClose }: Props) {
   const [idx, setIdx] = useState(0);
   const [showPowerUp, setShowPowerUp] = useState(false);
-  if (!open || missed.length === 0) return null;
-  const current = missed[Math.min(idx, missed.length - 1)];
+  const count = items ? items.length : (missed?.length ?? 0);
+  if (!open || count === 0) return null;
+  const safeIdx = Math.min(idx, count - 1);
+  const current = missed ? missed[safeIdx] : undefined;
+  const currentItem = items ? items[safeIdx] : undefined;
+
 
   return (
     <div
