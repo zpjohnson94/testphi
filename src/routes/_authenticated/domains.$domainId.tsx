@@ -127,16 +127,8 @@ function DomainDetail() {
           {/* Hero */}
           <section>
             <DomainPill section={section} />
-            <div className="mt-2 flex items-start gap-2">
+            <div className="mt-2">
               <h1 className="display text-3xl text-[var(--lavender)]">{name || "Domain"}</h1>
-              <button
-                onClick={() => setShowInfo(true)}
-                aria-label="About this domain"
-                className="mt-1 size-7 rounded-full flex items-center justify-center shrink-0"
-                style={{ background: "rgba(246,240,250,0.08)", color: "var(--lavender)" }}
-              >
-                <Info className="size-4" />
-              </button>
             </div>
 
             {bonusReady ? (
