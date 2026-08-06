@@ -187,6 +187,19 @@ function DomainDetail() {
             )}
           </section>
 
+          {/* Drill CTA */}
+          <button
+            onClick={() => setShowPowerUp(true)}
+            className="w-full py-3 text-sm font-bold text-center rounded-2xl"
+            style={{
+              background: "var(--volt)",
+              color: "var(--ink)",
+              boxShadow: "var(--shadow-pop)",
+            }}
+          >
+            Drill this domain
+          </button>
+
           {/* Activity */}
           <section>
             <h2 className="display text-2xl text-[var(--lavender)]">Activity</h2>
@@ -259,19 +272,6 @@ function DomainDetail() {
             tierColor={color}
             onUnlock={() => setShowPowerUp(true)}
           />
-
-          {/* Drill CTA */}
-          <button
-            onClick={() => setShowPowerUp(true)}
-            className="w-full py-3 text-sm font-bold text-center rounded-2xl"
-            style={{
-              background: "var(--volt)",
-              color: "var(--ink)",
-              boxShadow: "var(--shadow-pop)",
-            }}
-          >
-            Drill this domain
-          </button>
         </main>
       </div>
 
