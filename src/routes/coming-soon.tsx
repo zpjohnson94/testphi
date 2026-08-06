@@ -1,9 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Logo } from "@/components/Logo";
-import { Checkbox } from "@/components/ui/checkbox";
-import { trackEvent } from "@/lib/analytics";
 import { updateSignup } from "@/lib/signups.functions";
 
 export const Route = createFileRoute("/coming-soon")({
@@ -19,7 +17,6 @@ export const Route = createFileRoute("/coming-soon")({
 });
 
 function ComingSoon() {
-  const [notify, setNotify] = useState(true);
   const updateSignupFn = useServerFn(updateSignup);
 
   useEffect(() => {
@@ -32,22 +29,6 @@ function ComingSoon() {
     } catch {}
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  function toggle(v: boolean) {
-    setNotify(v);
-    trackEvent("waitlist_opt_in", { notify: v });
-    try {
-      const email =
-        typeof window !== "undefined" ? window.localStorage.getItem("signup_email") : null;
-      if (email) {
-        void updateSignupFn({ data: { email, notify_opt_in: v } }).catch((err) =>
-          console.error("waitlist capture failed", err),
-        );
-      }
-    } catch (err) {
-      console.error("waitlist capture failed", err);
-    }
-  }
 
   return (
     <div className="topo-bg min-h-screen flex flex-col">
