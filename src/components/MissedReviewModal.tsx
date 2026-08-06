@@ -142,8 +142,32 @@ function QuestionReview({ slot }: { slot: number }) {
     return <div className="text-sm text-[var(--destructive)]">Couldn't load question.</div>;
   }
 
-  const correctPos = data.correctPosition ?? -1;
-  const selectedPos = data.selectedPosition ?? -1;
+  return (
+    <ReviewBody
+      data={{
+        domainLabel: data.domainLabel,
+        passage: data.passage,
+        question: data.question,
+        choices: data.choices as unknown as string[],
+        correctPosition: data.correctPosition ?? -1,
+        selectedPosition: data.selectedPosition ?? -1,
+      }}
+    />
+  );
+}
+
+interface ReviewBodyData {
+  domainLabel?: string;
+  passage?: string;
+  question: string;
+  choices: string[];
+  correctPosition: number;
+  selectedPosition: number;
+}
+
+function ReviewBody({ data }: { data: ReviewBodyData }) {
+  const correctPos = data.correctPosition;
+  const selectedPos = data.selectedPosition;
 
   return (
     <div>
