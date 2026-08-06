@@ -68,21 +68,6 @@ function ComingSoon() {
             In the meantime, keep using TestPhi for free.
           </p>
 
-          <div className="mt-8 flex items-center justify-center gap-2 text-left">
-            <Checkbox
-              id="notify"
-              checked={notify}
-              onCheckedChange={(v) => toggle(Boolean(v))}
-              className="h-3.5 w-3.5"
-            />
-            <label
-              htmlFor="notify"
-              className="cursor-pointer text-xs font-medium"
-              style={{ color: "rgba(246,240,250,0.55)" }}
-            >
-              Notify me when it's here — plus a special gift for being an early believer 🎁
-            </label>
-          </div>
 
           <Link
             to="/"
