@@ -2,18 +2,18 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { ChevronLeft, Info } from "lucide-react";
+import { ChevronLeft, Check } from "lucide-react";
 
 import { FreeShell } from "@/components/FreeShell";
 import { Logo } from "@/components/Logo";
 import { PowerUpModal } from "@/components/PowerUpModal";
 import { UnlockReadyCard } from "@/components/UnlockReadyCard";
 import { BonusUnlockModal } from "@/components/BonusUnlockModal";
-import { DomainInfoModal } from "@/components/DomainInfoModal";
 import { PersonalizedRecommendationsCard } from "@/components/PersonalizedRecommendationsCard";
 import { MissedReviewModal } from "@/components/MissedReviewModal";
 import { useFreeState } from "@/lib/useFree";
 import { DOMAINS, SCORING, domainById, tierColor, tierOf } from "@/lib/freeUser";
+import { DOMAIN_CONTENT } from "@/lib/domainContent";
 import { getDomainActivity, getDomainMissedReviews } from "@/lib/domainDetail.functions";
 
 export const Route = createFileRoute("/_authenticated/domains/$domainId")({
