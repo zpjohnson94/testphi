@@ -20,7 +20,7 @@ import { UnlockReadyCard } from "@/components/UnlockReadyCard";
 import { BonusUnlockModal } from "@/components/BonusUnlockModal";
 
 
-export const Route = createFileRoute("/_authenticated/domains")({
+export const Route = createFileRoute("/_authenticated/domains/")({
   head: () => ({ meta: [{ title: "Domains — TestPhi" }] }),
   component: Domains,
 });
