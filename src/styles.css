@@ -282,6 +282,12 @@
   25% { transform: rotate(var(--shake, 4deg)); }
   75% { transform: rotate(calc(var(--shake, 4deg) * -1)); }
 }
+@keyframes tap-pop {
+  0% { opacity: 0; transform: translate(-50%, 0) scale(0.5) rotate(var(--rot, 0deg)); }
+  25% { opacity: 1; transform: translate(-50%, -14px) scale(1.12) rotate(var(--rot, 0deg)); }
+  55% { opacity: 1; transform: translate(-50%, -30px) scale(1) rotate(var(--rot, 0deg)); }
+  100% { opacity: 0; transform: translate(-50%, -64px) scale(0.92) rotate(var(--rot, 0deg)); }
+}
 @keyframes screen-flash {
   0% { opacity: 0; }
   30% { opacity: 1; }
