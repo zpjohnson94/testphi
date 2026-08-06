@@ -331,9 +331,11 @@ function DomainDetail() {
 
       <MissedReviewModal
         open={reviewOpen}
-        items={reviews ?? []}
+        items={reviewItems}
+        startIndex={reviewStart}
         onClose={() => setReviewOpen(false)}
       />
+
     </FreeShell>
   );
 }
