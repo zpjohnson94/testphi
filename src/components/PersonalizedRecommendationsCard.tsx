@@ -12,7 +12,7 @@ interface Props {
 export function PersonalizedRecommendationsCard({ tierColor, onUnlock }: Props) {
   return (
     <div
-      className="relative overflow-hidden rounded-2xl p-5"
+      className="relative overflow-hidden rounded-2xl p-6"
       style={{
         background: "var(--violet-deep)",
         border: `1.5px solid ${tierColor}`,
@@ -33,17 +33,30 @@ export function PersonalizedRecommendationsCard({ tierColor, onUnlock }: Props) 
         </div>
       </div>
 
-      <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-5 gap-2">
-        <Lock className="size-6" style={{ color: "var(--volt)" }} />
-        <div className="display text-xl" style={{ color: "var(--lavender)" }}>
-          Personalized recommendations
+      <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6 py-8 gap-4">
+        <div
+          className="flex items-center justify-center rounded-full size-12"
+          style={{
+            background: "rgba(0,0,0,0.35)",
+            border: `1.5px solid ${tierColor}`,
+          }}
+        >
+          <Lock className="size-5" style={{ color: "var(--volt)" }} />
         </div>
-        <p className="text-xs font-medium" style={{ color: "rgba(246,240,250,0.7)" }}>
-          See exactly what to study next based on your mastery data
-        </p>
+        <div className="space-y-1.5">
+          <div className="display text-xl" style={{ color: "var(--lavender)" }}>
+            Personalized recommendations
+          </div>
+          <p
+            className="text-sm font-medium leading-relaxed max-w-[18rem]"
+            style={{ color: "rgba(246,240,250,0.7)" }}
+          >
+            See exactly what to study next based on your mastery data
+          </p>
+        </div>
         <button
           onClick={onUnlock}
-          className="btn-volt mt-1 px-4 py-2.5 text-sm rounded-2xl"
+          className="btn-volt px-5 py-2.5 text-sm font-bold rounded-2xl"
         >
           Unlock with Power Up
         </button>
