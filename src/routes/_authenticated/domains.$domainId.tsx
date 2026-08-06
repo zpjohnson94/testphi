@@ -199,14 +199,20 @@ function DomainDetail() {
                 </p>
               </div>
 
-              <div>
+              <div
+                className="rounded-2xl p-5 space-y-3"
+                style={{
+                  background: "var(--violet-deep)",
+                  border: "1.5px solid rgba(168,85,247,0.35)",
+                }}
+              >
                 <div
                   className="text-[11px] font-bold uppercase tracking-[0.18em]"
                   style={{ color: "var(--volt)" }}
                 >
                   Tips
                 </div>
-                <ul className="mt-2 space-y-2.5">
+                <ul className="space-y-2.5">
                   {content.tips.map((t) => (
                     <li key={t} className="flex items-start gap-2.5 text-sm font-medium">
                       <Check className="size-4 mt-0.5 shrink-0" style={{ color: "var(--volt)" }} />
