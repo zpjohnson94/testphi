@@ -75,20 +75,24 @@ function DomainDetail() {
   const [showPowerUp, setShowPowerUp] = useState(false);
   const [showBonus, setShowBonus] = useState(false);
   const [reviewOpen, setReviewOpen] = useState(false);
+  const [reviewStart, setReviewStart] = useState(0);
 
   const activityFn = useServerFn(getDomainActivity);
-  const reviewsFn = useServerFn(getDomainMissedReviews);
 
   const { data: activity } = useQuery({
     queryKey: ["domain-activity", domainId],
     queryFn: () => activityFn({ data: { domainId } }),
   });
 
-  const { data: reviews } = useQuery({
-    queryKey: ["domain-missed", domainId],
-    queryFn: () => reviewsFn({ data: { domainId } }),
-    enabled: reviewOpen,
-  });
+  const reviewableRows = useMemo(
+    () => (activity?.rows ?? []).filter((r) => !!r.review),
+    [activity],
+  );
+  const reviewItems = useMemo(
+    () => reviewableRows.map((r) => r.review!),
+    [reviewableRows],
+  );
+
 
   const domain = useMemo(() => DOMAINS.find((d) => d.id === domainId), [domainId]);
   const stat = state?.domainStats[domainId];
