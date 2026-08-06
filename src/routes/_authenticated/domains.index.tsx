@@ -149,7 +149,13 @@ function Domains() {
                             : undefined,
                         }}
                       >
+                        <Link
+                          to="/domains/$domainId"
+                          params={{ domainId: d.id }}
+                          className="block"
+                        >
                         <div className="flex items-start justify-between gap-3">
+
                           <div className="min-w-0 flex-1 text-left">
                             <DomainPill section={section} />
                             <div
