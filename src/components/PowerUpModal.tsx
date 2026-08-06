@@ -69,22 +69,31 @@ export function PowerUpModal({
           className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest"
           style={{ background: "rgba(74,6,136,0.85)", color: "var(--lavender)", border: "1px solid rgba(168,85,247,0.4)" }}
         >
-          Recommended
+          {WAITLIST_MODE ? "Not yet available" : "Recommended"}
         </div>
 
         <h3 className="display text-2xl text-[var(--lavender)] mt-1 pr-8">{title}</h3>
 
-        <div className="mt-3">
-          <div className="score-num text-3xl text-[var(--lavender)]">
-            $12 <span className="text-base font-semibold opacity-70">/ mo</span>
-          </div>
-          <div className="text-xs font-medium mt-0.5" style={{ color: "rgba(246,240,250,0.6)" }}>
-            billed annually
-          </div>
-        </div>
-        <div className="mt-2 text-xs font-medium italic" style={{ color: "rgba(246,240,250,0.55)" }}>
-          Less than half the cost of other test prep apps
-        </div>
+        {WAITLIST_MODE ? (
+          <p className="mt-3 text-sm font-medium" style={{ color: "rgba(246,240,250,0.7)" }}>
+            Power Up isn't purchasable yet — we're still building it. Join the waitlist and we'll
+            email you at launch. Planned pricing: $12/mo billed annually.
+          </p>
+        ) : (
+          <>
+            <div className="mt-3">
+              <div className="score-num text-3xl text-[var(--lavender)]">
+                $12 <span className="text-base font-semibold opacity-70">/ mo</span>
+              </div>
+              <div className="text-xs font-medium mt-0.5" style={{ color: "rgba(246,240,250,0.6)" }}>
+                billed annually
+              </div>
+            </div>
+            <div className="mt-2 text-xs font-medium italic" style={{ color: "rgba(246,240,250,0.55)" }}>
+              Less than half the cost of other test prep apps
+            </div>
+          </>
+        )}
 
         <ul className="mt-5 space-y-2.5">
           <Feat>Detailed answer explanations</Feat>
@@ -96,9 +105,10 @@ export function PowerUpModal({
 
         <Link
           to={"/coming-soon?plan=powerup" as any}
+          onClick={captureWaitlistIntent}
           className="btn-volt block text-center mt-6 py-3.5 text-base rounded-2xl"
         >
-          Get Power Up →
+          {WAITLIST_MODE ? "Join the Power Up waitlist →" : "Get Power Up →"}
         </Link>
         <button
           onClick={onClose}
