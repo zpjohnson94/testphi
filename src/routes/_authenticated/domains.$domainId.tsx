@@ -261,8 +261,6 @@ function DomainDetail() {
         </main>
       </div>
 
-      <DomainInfoModal open={showInfo} domainId={domainId} onClose={() => setShowInfo(false)} />
-
       <PowerUpModal
         open={showPowerUp}
         onClose={() => setShowPowerUp(false)}
