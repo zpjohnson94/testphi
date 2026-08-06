@@ -1,5 +1,7 @@
 import { Link, useLocation } from "@tanstack/react-router";
-import { Home, Grid3x3, User2 } from "lucide-react";
+import { Home, Grid3x3 } from "lucide-react";
+import { useStore } from "@/lib/store";
+import { Avatar, defaultAvatar } from "@/components/Avatar";
 
 export function FreeShell({ children }: { children: React.ReactNode }) {
   return (
@@ -12,11 +14,14 @@ export function FreeShell({ children }: { children: React.ReactNode }) {
 
 function FreeBottomNav() {
   const { pathname } = useLocation();
+  const storeAvatar = useStore((s) => s.avatar);
+  const avatarConfig = { ...(storeAvatar ?? defaultAvatar()), accessory: "none" as const };
   const items = [
     { to: "/home", label: "Home", Icon: Home },
     { to: "/domains", label: "Domains", Icon: Grid3x3 },
-    { to: "/account", label: "Account", Icon: User2 },
+    { to: "/account", label: "Account", Icon: null },
   ] as const;
+
 
   return (
     <nav
