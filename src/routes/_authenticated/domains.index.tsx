@@ -134,9 +134,11 @@ function Domains() {
                       );
                     }
                     return (
-                      <div
+                      <Link
                         key={d.id}
-                        className="w-full rounded-2xl p-5"
+                        to="/domains/$domainId"
+                        params={{ domainId: d.id }}
+                        className="block w-full rounded-2xl p-5"
                         style={{
                           background: d.initialized && Math.round(d.mastery) === 100
                             ? "linear-gradient(135deg, #FFD700 0%, #FFA500 100%)"
@@ -149,13 +151,7 @@ function Domains() {
                             : undefined,
                         }}
                       >
-                        <Link
-                          to="/domains/$domainId"
-                          params={{ domainId: d.id }}
-                          className="block"
-                        >
                         <div className="flex items-start justify-between gap-3">
-
                           <div className="min-w-0 flex-1 text-left">
                             <DomainPill section={section} />
                             <div
@@ -214,12 +210,13 @@ function Domains() {
                             </div>
                           </div>
                         )}
-                        </Link>
-
-
 
                         <button
-                          onClick={() => setShowModal(true)}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            setShowModal(true);
+                          }}
                           className="mt-4 w-full py-3 text-sm font-bold text-center rounded-2xl"
                           style={{
                             background: d.initialized && Math.round(d.mastery) === 100 ? "#1a1230" : "var(--volt)",
@@ -229,7 +226,7 @@ function Domains() {
                         >
                           Drill this domain
                         </button>
-                      </div>
+                      </Link>
                     );
                   })}
                 </div>
