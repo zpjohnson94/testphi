@@ -4,6 +4,10 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { domainById } from "./freeUser";
+import { buildReviewMap, type DomainReviewItem } from "./domainReview.server";
+
+export type { DomainReviewItem };
+
 
 export interface DomainActivityRow {
   id: string;
