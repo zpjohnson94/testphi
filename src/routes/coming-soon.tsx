@@ -49,7 +49,6 @@ function ComingSoon() {
             In the meantime, keep using TestPhi for free.
           </p>
 
-
           <Link
             to="/"
             className="inline-block mt-8 text-sm font-bold"
