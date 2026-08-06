@@ -20,7 +20,7 @@ export function WorldMap({ world }: { world: World }) {
     <div className="topo-bg topo-dim min-h-screen pb-24">
       <header className="sticky top-0 z-20 backdrop-blur" style={{ background: "rgba(29,41,0,0.85)", borderBottom: "1px solid rgba(246,240,250,0.1)" }}>
         <div className="mx-auto max-w-2xl flex items-center gap-3 px-5 py-4">
-          <Link to={"/dashboard" as any} className="size-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(246,240,250,0.08)", color: "var(--lavender)" }}>
+          <Link to={"/home" as any} className="size-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(246,240,250,0.08)", color: "var(--lavender)" }}>
             <ArrowLeft className="size-5" />
           </Link>
           <div className="flex-1">

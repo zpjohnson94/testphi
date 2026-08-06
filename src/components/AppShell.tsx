@@ -13,7 +13,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 function BottomNav() {
   const { pathname } = useLocation();
   const items = [
-    { to: "/dashboard", label: "Home", Icon: Home },
+    { to: "/home", label: "Home", Icon: Home },
     { to: "/profile", label: "You", Icon: User2 },
   ] as const;
 
@@ -21,7 +21,7 @@ function BottomNav() {
     <nav className="fixed bottom-0 inset-x-0 z-40 backdrop-blur" style={{ background: "rgba(29,41,0,0.92)", borderTop: "1px solid rgba(246,240,250,0.1)" }}>
       <div className="mx-auto max-w-2xl grid grid-cols-2">
         {items.map(({ to, label, Icon }) => {
-          const active = pathname === to || (to !== "/dashboard" && pathname.startsWith(to));
+          const active = pathname === to || (to !== "/home" && pathname.startsWith(to));
           return (
             <Link
               key={to}
