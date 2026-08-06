@@ -38,7 +38,16 @@ function FreeBottomNav() {
               className="flex flex-col items-center gap-1 py-3 text-xs font-bold transition-colors"
               style={{ color: active ? "var(--volt)" : "rgba(246,240,250,0.55)" }}
             >
-              <Icon className="size-5" />
+              {Icon ? <Icon className="size-5" /> : (
+                <Avatar
+                  config={avatarConfig}
+                  size={22}
+                  style={{
+                    boxShadow: active ? "0 0 0 2px var(--volt)" : "0 0 0 2px rgba(246,240,250,0.3)",
+                  }}
+                />
+              )}
+
               {label}
             </Link>
           );
