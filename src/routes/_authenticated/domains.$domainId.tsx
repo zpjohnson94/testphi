@@ -186,6 +186,38 @@ function DomainDetail() {
             Drill this domain
           </button>
 
+          {/* About this domain */}
+          {content && (
+            <section className="space-y-5">
+              <div>
+                <h2 className="display text-2xl text-[var(--lavender)]">About this domain</h2>
+                <p
+                  className="mt-2 text-sm font-medium leading-relaxed"
+                  style={{ color: "rgba(246,240,250,0.75)" }}
+                >
+                  {content.description}
+                </p>
+              </div>
+
+              <div>
+                <div
+                  className="text-[11px] font-bold uppercase tracking-[0.18em]"
+                  style={{ color: "var(--volt)" }}
+                >
+                  Tips
+                </div>
+                <ul className="mt-2 space-y-2.5">
+                  {content.tips.map((t) => (
+                    <li key={t} className="flex items-start gap-2.5 text-sm font-medium">
+                      <Check className="size-4 mt-0.5 shrink-0" style={{ color: "var(--volt)" }} />
+                      <span style={{ color: "rgba(246,240,250,0.85)" }}>{t}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </section>
+          )}
+
           {/* Activity */}
           <section>
             <h2 className="display text-2xl text-[var(--lavender)]">Activity</h2>
