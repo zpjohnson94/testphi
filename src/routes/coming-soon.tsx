@@ -60,9 +60,6 @@ function ComingSoon() {
 
       <main className="flex-1 flex items-center justify-center px-5 pb-20">
         <div className="w-full max-w-lg text-center">
-          <div className="text-[11px] font-bold uppercase tracking-[0.18em]" style={{ color: "var(--volt)" }}>
-            You're on the waitlist
-          </div>
           <h1 className="mt-3 display text-4xl sm:text-5xl text-[var(--lavender)]">
             You're on the waitlist!
           </h1>
