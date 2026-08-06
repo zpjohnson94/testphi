@@ -1,6 +1,15 @@
 import { Link } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { Check, X } from "lucide-react";
 import { useEffect } from "react";
+import { updateSignup } from "@/lib/signups.functions";
+
+/**
+ * Alpha: Power Up isn't purchasable (no drill flow, no payments), so this modal
+ * behaves as a waitlist signup. Flip WAITLIST_MODE to false once drills +
+ * payments ship to restore the purchase copy/CTA below.
+ */
+const WAITLIST_MODE = true;
 
 interface Props {
   open: boolean;
@@ -8,7 +17,15 @@ interface Props {
   title?: string;
 }
 
-export function PowerUpModal({ open, onClose, title = "Power Up for answer explanations" }: Props) {
+export function PowerUpModal({
+  open,
+  onClose,
+  title = WAITLIST_MODE
+    ? "Power Up is coming — join the waitlist"
+    : "Power Up for answer explanations",
+}: Props) {
+  const updateSignupFn = useServerFn(updateSignup);
+
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
