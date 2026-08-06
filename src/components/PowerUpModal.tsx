@@ -39,6 +39,18 @@ export function PowerUpModal({
     };
   }, [open, onClose]);
 
+  function captureWaitlistIntent() {
+    try {
+      const email =
+        typeof window !== "undefined" ? window.localStorage.getItem("signup_email") : null;
+      if (email) {
+        void updateSignupFn({
+          data: { email, plan: "power_up", notify_opt_in: true },
+        }).catch(() => {});
+      }
+    } catch {}
+  }
+
   if (!open) return null;
 
   return (
