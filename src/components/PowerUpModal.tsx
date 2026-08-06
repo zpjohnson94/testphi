@@ -21,7 +21,7 @@ export function PowerUpModal({
   open,
   onClose,
   title = WAITLIST_MODE
-    ? "Power Up is coming — join the waitlist"
+    ? "Power Up isn't ready yet!"
     : "Power Up for answer explanations",
 }: Props) {
   const updateSignupFn = useServerFn(updateSignup);
@@ -81,15 +81,15 @@ export function PowerUpModal({
           className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest"
           style={{ background: "rgba(74,6,136,0.85)", color: "var(--lavender)", border: "1px solid rgba(168,85,247,0.4)" }}
         >
-          {WAITLIST_MODE ? "Not yet available" : "Recommended"}
+          {WAITLIST_MODE ? "COMING SOON" : "Recommended"}
         </div>
 
         <h3 className="display text-2xl text-[var(--lavender)] mt-1 pr-8">{title}</h3>
 
         {WAITLIST_MODE ? (
           <p className="mt-3 text-sm font-medium" style={{ color: "rgba(246,240,250,0.7)" }}>
-            Power Up isn't purchasable yet — we're still building it. Join the waitlist and we'll
-            email you at launch. Planned pricing: $12/mo billed annually.
+            Join the waitlist and we'll email you at launch with a little gift for being an early
+            believer.
           </p>
         ) : (
           <>
