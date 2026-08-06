@@ -43,17 +43,49 @@ interface Sand {
   born: number;
 }
 
+interface TapBubble {
+  id: number;
+  left: number; // % across the stage
+  top: number; // % down the stage
+  rot: number;
+  delay: number;
+}
+
 export function ChestReveal({ domainName, masteryPct, bonusSummary, onDone }: Props) {
   const [taps, setTaps] = useState(0);
   const [opened, setOpened] = useState(false);
   const [flash, setFlash] = useState(false);
   const [reveal, setReveal] = useState(false);
   const [sand, setSand] = useState<Sand[]>([]);
+  const [bubbles, setBubbles] = useState<TapBubble[]>([]);
   const seq = useRef(0);
+  const bubbleSeq = useRef(0);
   const chestRef = useRef<HTMLDivElement | null>(null);
   const [shakeKey, setShakeKey] = useState(0);
 
   const shakeAmp = useMemo(() => 2 + (taps / TAPS_TO_UNLOCK) * 10, [taps]);
+
+  // Ambient "Tap!" prompts popping up until unlocked
+  useEffect(() => {
+    if (opened) return;
+    const spawn = () => {
+      const b: TapBubble = {
+        id: ++bubbleSeq.current,
+        left: 10 + Math.random() * 80,
+        top: 12 + Math.random() * 62,
+        rot: -14 + Math.random() * 28,
+        delay: 0,
+      };
+      setBubbles((prev) => [...prev.slice(-6), b]);
+      window.setTimeout(() => {
+        setBubbles((prev) => prev.filter((p) => p.id !== b.id));
+      }, 1300);
+    };
+    spawn();
+    const iv = window.setInterval(spawn, 650);
+    return () => window.clearInterval(iv);
+  }, [opened]);
+
 
   const doTap = () => {
     if (opened) return;
