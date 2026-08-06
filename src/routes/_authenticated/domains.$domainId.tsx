@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { ChevronLeft, Check } from "lucide-react";
+import { ChevronLeft, ChevronRight, Check } from "lucide-react";
 
 import { FreeShell } from "@/components/FreeShell";
 import { Logo } from "@/components/Logo";
@@ -14,7 +14,8 @@ import { MissedReviewModal } from "@/components/MissedReviewModal";
 import { useFreeState } from "@/lib/useFree";
 import { DOMAINS, SCORING, domainById, tierColor, tierOf } from "@/lib/freeUser";
 import { DOMAIN_CONTENT } from "@/lib/domainContent";
-import { getDomainActivity, getDomainMissedReviews } from "@/lib/domainDetail.functions";
+import { getDomainActivity } from "@/lib/domainDetail.functions";
+
 
 export const Route = createFileRoute("/_authenticated/domains/$domainId")({
   head: () => ({
@@ -74,20 +75,24 @@ function DomainDetail() {
   const [showPowerUp, setShowPowerUp] = useState(false);
   const [showBonus, setShowBonus] = useState(false);
   const [reviewOpen, setReviewOpen] = useState(false);
+  const [reviewStart, setReviewStart] = useState(0);
 
   const activityFn = useServerFn(getDomainActivity);
-  const reviewsFn = useServerFn(getDomainMissedReviews);
 
   const { data: activity } = useQuery({
     queryKey: ["domain-activity", domainId],
     queryFn: () => activityFn({ data: { domainId } }),
   });
 
-  const { data: reviews } = useQuery({
-    queryKey: ["domain-missed", domainId],
-    queryFn: () => reviewsFn({ data: { domainId } }),
-    enabled: reviewOpen,
-  });
+  const reviewableRows = useMemo(
+    () => (activity?.rows ?? []).filter((r) => !!r.review),
+    [activity],
+  );
+  const reviewItems = useMemo(
+    () => reviewableRows.map((r) => r.review!),
+    [reviewableRows],
+  );
+
 
   const domain = useMemo(() => DOMAINS.find((d) => d.id === domainId), [domainId]);
   const stat = state?.domainStats[domainId];
@@ -233,63 +238,75 @@ function DomainDetail() {
               </p>
             ) : (
               <div className="mt-3 space-y-2">
-                {(activity?.rows ?? []).map((r) => (
-                  <div
-                    key={r.id}
-                    className="flex items-center gap-3 rounded-2xl px-4 py-3"
-                    style={{
-                      background: "var(--violet-deep)",
-                      border: "1.5px solid rgba(168,85,247,0.35)",
-                    }}
-                  >
-                    <div
-                      className="size-7 rounded-full flex items-center justify-center text-sm font-bold shrink-0"
+                {(activity?.rows ?? []).map((r) => {
+                  const reviewIdx = reviewableRows.findIndex((x) => x.id === r.id);
+                  const clickable = reviewIdx >= 0;
+                  return (
+                    <button
+                      key={r.id}
+                      type="button"
+                      disabled={!clickable}
+                      onClick={() => {
+                        if (!clickable) return;
+                        setReviewStart(reviewIdx);
+                        setReviewOpen(true);
+                      }}
+                      className="w-full text-left rounded-2xl px-4 py-3 space-y-2 disabled:cursor-default"
                       style={{
-                        background: r.correct ? "var(--volt)" : "var(--destructive)",
-                        color: r.correct ? "var(--ink)" : "var(--lavender)",
-                        boxShadow: r.correct
-                          ? "0 0 12px rgba(184,255,0,0.6)"
-                          : "0 0 12px rgba(255,77,109,0.6)",
+                        background: "var(--violet-deep)",
+                        border: "1.5px solid rgba(168,85,247,0.35)",
                       }}
                     >
-                      {r.correct ? "✓" : "✕"}
-                    </div>
-                    <span
-                      className="text-[10px] font-bold uppercase tracking-wider rounded-full px-2 py-0.5"
-                      style={{
-                        background: "rgba(0,0,0,0.35)",
-                        color: "rgba(246,240,250,0.8)",
-                      }}
-                    >
-                      {DIFF_LABEL[r.difficulty] ?? "Medium"}
-                    </span>
-                    <span
-                      className="ml-auto text-xs font-medium"
-                      style={{ color: "rgba(246,240,250,0.6)" }}
-                    >
-                      {relativeTime(r.answeredAt)}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {!!activity?.missedCount && (
-              <div className="mt-4 flex items-center justify-between gap-3">
-                <span className="text-sm font-bold" style={{ color: "var(--lavender)" }}>
-                  {activity.missedCount} question{activity.missedCount === 1 ? "" : "s"} missed in
-                  this domain
-                </span>
-                <button
-                  onClick={() => setReviewOpen(true)}
-                  className="text-sm font-bold"
-                  style={{ color: "var(--volt)" }}
-                >
-                  Review →
-                </button>
+                      <div className="flex items-center gap-3">
+                        <div
+                          className="size-7 rounded-full flex items-center justify-center text-sm font-bold shrink-0"
+                          style={{
+                            background: r.correct ? "var(--volt)" : "var(--destructive)",
+                            color: r.correct ? "var(--ink)" : "var(--lavender)",
+                            boxShadow: r.correct
+                              ? "0 0 12px rgba(184,255,0,0.6)"
+                              : "0 0 12px rgba(255,77,109,0.6)",
+                          }}
+                        >
+                          {r.correct ? "✓" : "✕"}
+                        </div>
+                        <span
+                          className="text-[10px] font-bold uppercase tracking-wider rounded-full px-2 py-0.5"
+                          style={{
+                            background: "rgba(0,0,0,0.35)",
+                            color: "rgba(246,240,250,0.8)",
+                          }}
+                        >
+                          {DIFF_LABEL[r.difficulty] ?? "Medium"}
+                        </span>
+                        <span
+                          className="ml-auto text-xs font-medium"
+                          style={{ color: "rgba(246,240,250,0.6)" }}
+                        >
+                          {relativeTime(r.answeredAt)}
+                        </span>
+                      </div>
+                      {r.review?.question && (
+                        <div className="flex items-start gap-2">
+                          <p
+                            className="flex-1 text-sm font-medium leading-snug line-clamp-2"
+                            style={{ color: "rgba(246,240,250,0.85)" }}
+                          >
+                            {r.review.question}
+                          </p>
+                          <ChevronRight
+                            className="size-4 mt-0.5 shrink-0"
+                            style={{ color: "var(--volt)" }}
+                          />
+                        </div>
+                      )}
+                    </button>
+                  );
+                })}
               </div>
             )}
           </section>
+
 
           {/* Personalized recommendations (locked) */}
           <PersonalizedRecommendationsCard
@@ -314,9 +331,11 @@ function DomainDetail() {
 
       <MissedReviewModal
         open={reviewOpen}
-        items={reviews ?? []}
+        items={reviewItems}
+        startIndex={reviewStart}
         onClose={() => setReviewOpen(false)}
       />
+
     </FreeShell>
   );
 }
