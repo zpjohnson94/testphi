@@ -116,7 +116,3 @@ export const getDomainMissedReviews = createServerFn({ method: "POST" })
     const map = buildReviewMap(ids, questions, attempts, domainLabel);
     return ids.map((id) => map.get(id)).filter(Boolean) as DomainReviewItem[];
   });
-
-
-    return out;
-  });
