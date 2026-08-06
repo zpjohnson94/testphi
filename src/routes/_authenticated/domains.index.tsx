@@ -214,6 +214,9 @@ function Domains() {
                             </div>
                           </div>
                         )}
+                        </Link>
+
+
 
                         <button
                           onClick={() => setShowModal(true)}
