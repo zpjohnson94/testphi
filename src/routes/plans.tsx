@@ -98,7 +98,7 @@ function Plans() {
             <Link to={"/coming-soon?plan=powerup" as any}
               onClick={() => recordPlan("power_up")}
               className="btn-volt block text-center mt-6 py-3.5 text-base rounded-2xl">
-              Get Power Up →
+              Join the Power Up waitlist →
             </Link>
           </div>
 

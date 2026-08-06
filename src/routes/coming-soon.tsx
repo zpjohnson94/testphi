@@ -61,14 +61,15 @@ function ComingSoon() {
       <main className="flex-1 flex items-center justify-center px-5 pb-20">
         <div className="w-full max-w-lg text-center">
           <div className="text-[11px] font-bold uppercase tracking-[0.18em]" style={{ color: "var(--volt)" }}>
-            You're early
+            You're on the waitlist
           </div>
           <h1 className="mt-3 display text-4xl sm:text-5xl text-[var(--lavender)]">
-            TestPhi is coming soon
+            Power Up isn't available yet
           </h1>
           <p className="mt-4 text-base sm:text-lg font-medium" style={{ color: "rgba(246,240,250,0.75)" }}>
-            We're putting the finishing touches on adaptive practice that targets your weak spots.
-            We'll let you know the moment it's ready.
+            Power Up is still in development — it isn't purchasable today, and nothing has been
+            charged. We're building adaptive drills that target your weak spots, and you'll be
+            emailed as soon as it launches. In the meantime, keep using TestPhi for free.
           </p>
 
           <div className="mt-8 flex items-center justify-center gap-2 text-left">

@@ -1,6 +1,15 @@
 import { Link } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { Check, X } from "lucide-react";
 import { useEffect } from "react";
+import { updateSignup } from "@/lib/signups.functions";
+
+/**
+ * Alpha: Power Up isn't purchasable (no drill flow, no payments), so this modal
+ * behaves as a waitlist signup. Flip WAITLIST_MODE to false once drills +
+ * payments ship to restore the purchase copy/CTA below.
+ */
+const WAITLIST_MODE = true;
 
 interface Props {
   open: boolean;
@@ -8,7 +17,15 @@ interface Props {
   title?: string;
 }
 
-export function PowerUpModal({ open, onClose, title = "Power Up for answer explanations" }: Props) {
+export function PowerUpModal({
+  open,
+  onClose,
+  title = WAITLIST_MODE
+    ? "Power Up is coming — join the waitlist"
+    : "Power Up for answer explanations",
+}: Props) {
+  const updateSignupFn = useServerFn(updateSignup);
+
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
@@ -21,6 +38,18 @@ export function PowerUpModal({ open, onClose, title = "Power Up for answer expla
       document.body.style.overflow = "";
     };
   }, [open, onClose]);
+
+  function captureWaitlistIntent() {
+    try {
+      const email =
+        typeof window !== "undefined" ? window.localStorage.getItem("signup_email") : null;
+      if (email) {
+        void updateSignupFn({
+          data: { email, plan: "power_up", notify_opt_in: true },
+        }).catch(() => {});
+      }
+    } catch {}
+  }
 
   if (!open) return null;
 
@@ -52,22 +81,31 @@ export function PowerUpModal({ open, onClose, title = "Power Up for answer expla
           className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest"
           style={{ background: "rgba(74,6,136,0.85)", color: "var(--lavender)", border: "1px solid rgba(168,85,247,0.4)" }}
         >
-          Recommended
+          {WAITLIST_MODE ? "Not yet available" : "Recommended"}
         </div>
 
         <h3 className="display text-2xl text-[var(--lavender)] mt-1 pr-8">{title}</h3>
 
-        <div className="mt-3">
-          <div className="score-num text-3xl text-[var(--lavender)]">
-            $12 <span className="text-base font-semibold opacity-70">/ mo</span>
-          </div>
-          <div className="text-xs font-medium mt-0.5" style={{ color: "rgba(246,240,250,0.6)" }}>
-            billed annually
-          </div>
-        </div>
-        <div className="mt-2 text-xs font-medium italic" style={{ color: "rgba(246,240,250,0.55)" }}>
-          Less than half the cost of other test prep apps
-        </div>
+        {WAITLIST_MODE ? (
+          <p className="mt-3 text-sm font-medium" style={{ color: "rgba(246,240,250,0.7)" }}>
+            Power Up isn't purchasable yet — we're still building it. Join the waitlist and we'll
+            email you at launch. Planned pricing: $12/mo billed annually.
+          </p>
+        ) : (
+          <>
+            <div className="mt-3">
+              <div className="score-num text-3xl text-[var(--lavender)]">
+                $12 <span className="text-base font-semibold opacity-70">/ mo</span>
+              </div>
+              <div className="text-xs font-medium mt-0.5" style={{ color: "rgba(246,240,250,0.6)" }}>
+                billed annually
+              </div>
+            </div>
+            <div className="mt-2 text-xs font-medium italic" style={{ color: "rgba(246,240,250,0.55)" }}>
+              Less than half the cost of other test prep apps
+            </div>
+          </>
+        )}
 
         <ul className="mt-5 space-y-2.5">
           <Feat>Detailed answer explanations</Feat>
@@ -79,9 +117,10 @@ export function PowerUpModal({ open, onClose, title = "Power Up for answer expla
 
         <Link
           to={"/coming-soon?plan=powerup" as any}
+          onClick={captureWaitlistIntent}
           className="btn-volt block text-center mt-6 py-3.5 text-base rounded-2xl"
         >
-          Get Power Up →
+          {WAITLIST_MODE ? "Join the Power Up waitlist →" : "Get Power Up →"}
         </Link>
         <button
           onClick={onClose}
