@@ -67,17 +67,21 @@ const rwNodes: Node[] = [
     title: "Subject–Verb Agreement",
     skillId: "subj-verb",
     lesson: {
-      intro: "Verbs must match their subject in number. A singular subject takes a singular verb; a plural subject takes a plural verb.",
-      example: "The box of cookies *is* on the counter. ('Box' is the subject — singular — not 'cookies'.)",
+      intro:
+        "Verbs must match their subject in number. A singular subject takes a singular verb; a plural subject takes a plural verb.",
+      example:
+        "The box of cookies *is* on the counter. ('Box' is the subject — singular — not 'cookies'.)",
       tip: "Cross out prepositional phrases between the subject and the verb to find the real subject.",
     },
     questions: [
       {
         id: "rw-1-q1",
-        prompt: "Choose the correct verb: The collection of rare coins ____ displayed in the museum lobby.",
+        prompt:
+          "Choose the correct verb: The collection of rare coins ____ displayed in the museum lobby.",
         choices: ["are", "is", "were", "have been"],
         correctIndex: 1,
-        explanation: "'Collection' is the singular subject. 'Of rare coins' is a prepositional phrase.",
+        explanation:
+          "'Collection' is the singular subject. 'Of rare coins' is a prepositional phrase.",
         difficulty: 1100,
         skillId: "subj-verb",
       },
@@ -95,7 +99,8 @@ const rwNodes: Node[] = [
         prompt: "Neither the captain nor the players ____ ready for the storm.",
         choices: ["was", "is", "were", "has been"],
         correctIndex: 2,
-        explanation: "With 'neither/nor', the verb agrees with the noun closest to it — here, 'players' (plural).",
+        explanation:
+          "With 'neither/nor', the verb agrees with the noun closest to it — here, 'players' (plural).",
         difficulty: 1300,
         skillId: "subj-verb",
       },
@@ -106,8 +111,10 @@ const rwNodes: Node[] = [
     title: "Commas & Semicolons",
     skillId: "punctuation",
     lesson: {
-      intro: "Use a semicolon to join two independent clauses. Use a comma plus a coordinating conjunction (FANBOYS) to do the same job.",
-      example: "I love SAT prep; it makes me feel powerful. — OR — I love SAT prep, and it makes me feel powerful.",
+      intro:
+        "Use a semicolon to join two independent clauses. Use a comma plus a coordinating conjunction (FANBOYS) to do the same job.",
+      example:
+        "I love SAT prep; it makes me feel powerful. — OR — I love SAT prep, and it makes me feel powerful.",
       tip: "Never join two independent clauses with just a comma — that's a comma splice.",
     },
     questions: [
@@ -155,8 +162,10 @@ const rwNodes: Node[] = [
     title: "Transitions",
     skillId: "transitions",
     lesson: {
-      intro: "Transitions show the relationship between ideas: contrast, cause/effect, addition, sequence.",
-      example: "She trained hard; *therefore*, she won. (cause/effect) — She trained hard; *however*, she lost. (contrast)",
+      intro:
+        "Transitions show the relationship between ideas: contrast, cause/effect, addition, sequence.",
+      example:
+        "She trained hard; *therefore*, she won. (cause/effect) — She trained hard; *however*, she lost. (contrast)",
       tip: "Read both sentences and ask: agree, disagree, or add? Then pick the matching transition.",
     },
     questions: [
@@ -195,13 +204,15 @@ const rwNodes: Node[] = [
     skillId: "evidence",
     lesson: {
       intro: "Pick the choice that most directly supports the claim — not just a related fact.",
-      example: "Claim: 'Bees navigate using polarized light.' Best evidence: a study showing bees lose direction under filters that block polarization.",
+      example:
+        "Claim: 'Bees navigate using polarized light.' Best evidence: a study showing bees lose direction under filters that block polarization.",
       tip: "Cross out choices that are true but off-topic. Match the evidence to the exact claim.",
     },
     questions: [
       {
         id: "rw-4-q1",
-        passage: "Researchers claim that urban gardens reduce neighborhood stress. Which finding best supports this claim?",
+        passage:
+          "Researchers claim that urban gardens reduce neighborhood stress. Which finding best supports this claim?",
         prompt: "Which choice best supports the researchers' claim?",
         choices: [
           "Urban gardens contain a wide variety of plant species.",
@@ -216,7 +227,8 @@ const rwNodes: Node[] = [
       },
       {
         id: "rw-4-q2",
-        passage: "A historian argues that early printing presses spread literacy faster than any prior invention.",
+        passage:
+          "A historian argues that early printing presses spread literacy faster than any prior invention.",
         prompt: "Which evidence most directly supports the argument?",
         choices: [
           "Printing presses required skilled labor to operate.",
@@ -231,7 +243,8 @@ const rwNodes: Node[] = [
       },
       {
         id: "rw-4-q3",
-        passage: "A biologist hypothesizes that nocturnal foxes hunt more efficiently during full moons.",
+        passage:
+          "A biologist hypothesizes that nocturnal foxes hunt more efficiently during full moons.",
         prompt: "Which finding best supports this hypothesis?",
         choices: [
           "Foxes adjust their dens seasonally.",
@@ -252,7 +265,8 @@ const rwNodes: Node[] = [
     skillId: "vocab-context",
     lesson: {
       intro: "Pick the word whose meaning fits the sentence's tone, intent, and surrounding clues.",
-      example: "Her *measured* response calmed the room. ('Measured' = careful, restrained — fits the calming tone.)",
+      example:
+        "Her *measured* response calmed the room. ('Measured' = careful, restrained — fits the calming tone.)",
       tip: "Plug each option in mentally. Eliminate words that are too strong, too weak, or off-tone.",
     },
     questions: [
@@ -261,7 +275,8 @@ const rwNodes: Node[] = [
         prompt: "The senator gave a ____ apology — brief, vague, and clearly forced.",
         choices: ["heartfelt", "perfunctory", "exuberant", "meticulous"],
         correctIndex: 1,
-        explanation: "'Perfunctory' means done with minimum effort — matches 'brief, vague, forced'.",
+        explanation:
+          "'Perfunctory' means done with minimum effort — matches 'brief, vague, forced'.",
         difficulty: 1300,
         skillId: "vocab-context",
       },
@@ -276,7 +291,8 @@ const rwNodes: Node[] = [
       },
       {
         id: "rw-5-q3",
-        prompt: "The critic praised the novel's ____ prose — rich, layered, and slow to reveal its secrets.",
+        prompt:
+          "The critic praised the novel's ____ prose — rich, layered, and slow to reveal its secrets.",
         choices: ["sparse", "dense", "blunt", "trite"],
         correctIndex: 1,
         explanation: "'Rich, layered' matches 'dense' (in the literary sense).",
@@ -293,8 +309,10 @@ const mathNodes: Node[] = [
     title: "Linear Equations",
     skillId: "linear-eq",
     lesson: {
-      intro: "A linear equation has the form y = mx + b. m is the slope (rise/run), b is the y-intercept.",
-      example: "If y = 2x + 3, the line crosses the y-axis at 3 and rises 2 for every 1 step right.",
+      intro:
+        "A linear equation has the form y = mx + b. m is the slope (rise/run), b is the y-intercept.",
+      example:
+        "If y = 2x + 3, the line crosses the y-axis at 3 and rises 2 for every 1 step right.",
       tip: "Two points (x₁,y₁) and (x₂,y₂) give slope m = (y₂ − y₁) / (x₂ − x₁).",
     },
     questions: [
@@ -396,7 +414,8 @@ const mathNodes: Node[] = [
       },
       {
         id: "math-3-q3",
-        prompt: "A recipe uses sugar to flour in a 2:5 ratio. If you use 10 cups of flour, how much sugar?",
+        prompt:
+          "A recipe uses sugar to flour in a 2:5 ratio. If you use 10 cups of flour, how much sugar?",
         choices: ["2", "3", "4", "5"],
         correctIndex: 2,
         explanation: "2/5 = x/10 → x = 4.",

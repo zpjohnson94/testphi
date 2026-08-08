@@ -1,7 +1,13 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { FreeShell } from "@/components/FreeShell";
-import { Avatar, defaultAvatar, ANIMALS, COLOR_SWATCHES, type AvatarConfig } from "@/components/Avatar";
+import {
+  Avatar,
+  defaultAvatar,
+  ANIMALS,
+  COLOR_SWATCHES,
+  type AvatarConfig,
+} from "@/components/Avatar";
 import { useBattleBundle } from "@/lib/useBattle";
 import { useFreeState } from "@/lib/useFree";
 import { useStore } from "@/lib/store";
@@ -75,7 +81,6 @@ function BattleIntro() {
     else sfx.countdownGo();
   }, [countdown]);
 
-
   if (isLoading || !bundle) {
     return (
       <FreeShell>
@@ -102,7 +107,9 @@ function BattleIntro() {
         <div className="topo-bg min-h-screen flex items-center justify-center px-6 text-center">
           <div>
             <div className="display text-3xl text-[var(--lavender)]">You already battled today</div>
-            <div className="mt-2 text-sm text-[var(--lavender)]/70">Come back tomorrow for a fresh run.</div>
+            <div className="mt-2 text-sm text-[var(--lavender)]/70">
+              Come back tomorrow for a fresh run.
+            </div>
             <button
               onClick={() => navigate({ to: "/home" as any })}
               className="btn-volt mt-6 px-6 py-3 rounded-2xl"
@@ -160,18 +167,19 @@ function BattleIntro() {
             ) : (
               <div
                 className="rounded-full flex items-center justify-center"
-                style={{ width: 104, height: 104, background: "rgba(246,240,250,0.15)", border: "2px dashed rgba(246,240,250,0.4)" }}
+                style={{
+                  width: 104,
+                  height: 104,
+                  background: "rgba(246,240,250,0.15)",
+                  border: "2px dashed rgba(246,240,250,0.4)",
+                }}
               >
                 <span className="display text-3xl text-[var(--lavender)]">?</span>
               </div>
             )}
-            <div className="display text-lg text-[var(--lavender)]">
-              {oppLabel}
-            </div>
+            <div className="display text-lg text-[var(--lavender)]">{oppLabel}</div>
           </div>
         </div>
-
-
 
         <div className="mt-10 h-28 flex items-center justify-center">
           {countdown !== null && countdown > 0 && (

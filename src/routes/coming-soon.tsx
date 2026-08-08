@@ -8,9 +8,15 @@ export const Route = createFileRoute("/coming-soon")({
   head: () => ({
     meta: [
       { title: "Coming Soon — TestPhi" },
-      { name: "description", content: "TestPhi is launching soon. Join the waitlist to be first in line." },
+      {
+        name: "description",
+        content: "TestPhi is launching soon. Join the waitlist to be first in line.",
+      },
       { property: "og:title", content: "Coming Soon — TestPhi" },
-      { property: "og:description", content: "TestPhi is launching soon. Join the waitlist to be first in line." },
+      {
+        property: "og:description",
+        content: "TestPhi is launching soon. Join the waitlist to be first in line.",
+      },
     ],
   }),
   component: ComingSoon,
@@ -44,7 +50,10 @@ function ComingSoon() {
           <h1 className="mt-3 display text-4xl sm:text-5xl text-[var(--lavender)]">
             You're on the waitlist!
           </h1>
-          <p className="mt-4 text-base sm:text-lg font-medium" style={{ color: "rgba(246,240,250,0.75)" }}>
+          <p
+            className="mt-4 text-base sm:text-lg font-medium"
+            style={{ color: "rgba(246,240,250,0.75)" }}
+          >
             You'll be emailed as soon as Power Up launches with a gift for being an early believer.
             In the meantime, keep using TestPhi for free.
           </p>

@@ -12,12 +12,29 @@ import shiba from "@/assets/avatars/shiba.png";
 export type AnimalId = "bear" | "eagle" | "frog" | "panda" | "pig" | "shiba";
 
 export type AccessoryId =
-  | "none" | "tophat" | "brain" | "crown" | "grad" | "cap"
-  | "star" | "flower" | "fire" | "poop" | "goggles" | "bolt"
-  | "ice" | "bulb" | "disco";
+  | "none"
+  | "tophat"
+  | "brain"
+  | "crown"
+  | "grad"
+  | "cap"
+  | "star"
+  | "flower"
+  | "fire"
+  | "poop"
+  | "goggles"
+  | "bolt"
+  | "ice"
+  | "bulb"
+  | "disco";
 
 const ANIMAL_IMAGES: Record<AnimalId, string> = {
-  bear, eagle, frog, panda, pig, shiba,
+  bear,
+  eagle,
+  frog,
+  panda,
+  pig,
+  shiba,
 };
 
 export interface AvatarConfig {
@@ -36,8 +53,16 @@ export const ANIMALS: { id: AnimalId; name: string; emoji: string }[] = [
 ];
 
 export const COLOR_SWATCHES = [
-  "#B8FF00", "#A855F7", "#FFE600", "#FF6FB5", "#5BE1FF",
-  "#FF8A3D", "#7CF6B0", "#F6F0FA", "#FF4D6D", "#9DAEFF",
+  "#B8FF00",
+  "#A855F7",
+  "#FFE600",
+  "#FF6FB5",
+  "#5BE1FF",
+  "#FF8A3D",
+  "#7CF6B0",
+  "#F6F0FA",
+  "#FF4D6D",
+  "#9DAEFF",
 ];
 
 const ACCESSORY_EMOJI: Record<AccessoryId, string> = {

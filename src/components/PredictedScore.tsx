@@ -37,11 +37,7 @@ export function PredictedScore({
   }, [score]);
 
   const isGold = theme === "gold";
-  const color = isGold
-    ? "var(--ink)"
-    : calibrated
-      ? "var(--volt)"
-      : "rgba(184,255,0,0.55)";
+  const color = isGold ? "var(--ink)" : calibrated ? "var(--volt)" : "rgba(184,255,0,0.55)";
   const subColor = isGold
     ? "rgba(29,41,0,0.65)"
     : calibrated
@@ -56,10 +52,7 @@ export function PredictedScore({
   return (
     <div className="relative">
       <div className="flex items-end gap-1.5">
-        <div
-          className={`score-num ${sizeClass} leading-none`}
-          style={{ color, textShadow }}
-        >
+        <div className={`score-num ${sizeClass} leading-none`} style={{ color, textShadow }}>
           {shown}
         </div>
         <div className="score-num text-lg sm:text-2xl mb-1.5 sm:mb-2" style={{ color: subColor }}>
@@ -97,10 +90,14 @@ export function PredictedScore({
             }}
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="text-[11px] font-bold uppercase tracking-wider mb-2" style={{ color: "var(--volt)" }}>
+            <div
+              className="text-[11px] font-bold uppercase tracking-wider mb-2"
+              style={{ color: "var(--volt)" }}
+            >
               Still calibrating
             </div>
-            This score is based only on your diagnostic. Unlock your mastery score in all 8 domains and we'll have enough data to give you a higher-confidence prediction.
+            This score is based only on your diagnostic. Unlock your mastery score in all 8 domains
+            and we'll have enough data to give you a higher-confidence prediction.
           </div>
         </div>
       )}

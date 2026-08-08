@@ -9,7 +9,6 @@ import {
   updateProfile,
 } from "./free.functions";
 
-
 import type { FreeState, SessionResult } from "./freeUser";
 import type { DiagState } from "./diagnostic";
 
@@ -96,8 +95,7 @@ export function useGradeDailyAnswer() {
   });
 }
 
-export const dailyFinalizeKey = (dateISO: string) =>
-  ["daily-finalize", dateISO] as const;
+export const dailyFinalizeKey = (dateISO: string) => ["daily-finalize", dateISO] as const;
 
 function todayISO() {
   return new Date().toISOString().slice(0, 10);
@@ -184,7 +182,6 @@ export function useResetDailyToday() {
   });
 }
 
-
 type DevPatch = {
   plan?: "free" | "powerup";
   momentumNeedle?: number;
@@ -202,6 +199,3 @@ export function useDevPatchState() {
     },
   });
 }
-
-
-

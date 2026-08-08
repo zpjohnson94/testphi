@@ -29,7 +29,10 @@ export function evaluateAccessoryUnlocks(prev: FreeState | null, next: FreeState
 
   // 100% mastery in any domain
   for (const d of DOMAINS) {
-    if ((next.domainStats[d.id]?.mastery ?? 0) >= 100) { unlocks.push("star"); break; }
+    if ((next.domainStats[d.id]?.mastery ?? 0) >= 100) {
+      unlocks.push("star");
+      break;
+    }
   }
 
   // Total questions answered

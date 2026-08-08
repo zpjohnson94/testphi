@@ -1,10 +1,16 @@
 import { createFileRoute, useNavigate, useSearch } from "@tanstack/react-router";
 import { FreeShell } from "@/components/FreeShell";
-import { Avatar, defaultAvatar, ANIMALS, COLOR_SWATCHES, type AvatarConfig, type AnimalId, type AccessoryId } from "@/components/Avatar";
+import {
+  Avatar,
+  defaultAvatar,
+  ANIMALS,
+  COLOR_SWATCHES,
+  type AvatarConfig,
+  type AnimalId,
+  type AccessoryId,
+} from "@/components/Avatar";
 import { useStore } from "@/lib/store";
 import { useFreeState } from "@/lib/useFree";
-
-
 
 type BattleResultSearch = {
   rank?: number | string;
@@ -21,7 +27,6 @@ type BattleResultSearch = {
   opponentColor?: string;
   opponentAccessory?: string;
 };
-
 
 export const Route = createFileRoute("/_authenticated/battle/results")({
   head: () => ({ meta: [{ title: "Battle results — TestPhi" }] }),
@@ -90,13 +95,13 @@ function BattleResults() {
     result === "win"
       ? "You win!"
       : result === "tie"
-      ? "It's a tie"
-      : "Nice try! You lost this one.";
+        ? "It's a tie"
+        : "Nice try! You lost this one.";
 
-  const headlineColor = result === "win" ? "var(--volt)" : result === "loss" ? "var(--lavender)" : "var(--lavender)";
+  const headlineColor =
+    result === "win" ? "var(--volt)" : result === "loss" ? "var(--lavender)" : "var(--lavender)";
 
   return (
-
     <FreeShell>
       <div className="topo-bg min-h-screen px-5 py-10">
         <div className="mx-auto max-w-md space-y-6 text-center">
@@ -149,7 +154,12 @@ function BattleResults() {
                 ) : (
                   <div
                     className="rounded-full flex items-center justify-center"
-                    style={{ width: 84, height: 84, background: "rgba(246,240,250,0.15)", border: "2px dashed rgba(246,240,250,0.4)" }}
+                    style={{
+                      width: 84,
+                      height: 84,
+                      background: "rgba(246,240,250,0.15)",
+                      border: "2px dashed rgba(246,240,250,0.4)",
+                    }}
                   >
                     <span className="display text-3xl text-[var(--lavender)]">?</span>
                   </div>
@@ -196,8 +206,7 @@ function BattleResults() {
                 background: "var(--volt)",
                 color: "var(--ink)",
                 border: "2px solid #6e9c00",
-                boxShadow:
-                  "0 0 40px -6px rgba(184,255,0,0.6), 0 6px 0 0 #6e9c00",
+                boxShadow: "0 0 40px -6px rgba(184,255,0,0.6), 0 6px 0 0 #6e9c00",
                 padding: "16px 18px",
               }}
             >
@@ -232,7 +241,6 @@ function BattleResults() {
               <div className="display text-2xl text-[var(--lavender)] tabular-nums">{wins}</div>
             </div>
           </div>
-
 
           <button
             onClick={() => navigate({ to: "/home" as any })}

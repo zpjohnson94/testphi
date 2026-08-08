@@ -10,7 +10,12 @@ import pig from "@/assets/avatars/pig.png";
 export type AvatarId = "bear" | "frog" | "panda" | "eagle" | "shiba" | "pig";
 
 export const AVATAR_IMAGES: Record<AvatarId, string> = {
-  bear, frog, panda, eagle, shiba, pig,
+  bear,
+  frog,
+  panda,
+  eagle,
+  shiba,
+  pig,
 };
 
 export const AVATAR_OPTIONS: { id: AvatarId; name: string }[] = [

@@ -2,7 +2,13 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Timer } from "lucide-react";
 import { FreeShell } from "@/components/FreeShell";
-import { Avatar, defaultAvatar, ANIMALS, COLOR_SWATCHES, type AvatarConfig } from "@/components/Avatar";
+import {
+  Avatar,
+  defaultAvatar,
+  ANIMALS,
+  COLOR_SWATCHES,
+  type AvatarConfig,
+} from "@/components/Avatar";
 import { useBattleBundle, useFinalizeBattle } from "@/lib/useBattle";
 import { useStore } from "@/lib/store";
 import { useFreeState } from "@/lib/useFree";
@@ -55,7 +61,16 @@ function BattlePlay() {
   const choiceRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const scoreRef = useRef<HTMLDivElement | null>(null);
   const [bolts, setBolts] = useState<
-    Array<{ id: number; sx: number; sy: number; ex: number; ey: number; angle: number; delay: number; rot: number }>
+    Array<{
+      id: number;
+      sx: number;
+      sy: number;
+      ex: number;
+      ey: number;
+      angle: number;
+      delay: number;
+      rot: number;
+    }>
   >([]);
   const boltSeq = useRef(0);
 
@@ -179,16 +194,19 @@ function BattlePlay() {
           wrong: finalWrong,
           wins: res.totalWins,
           opponentName: useStaticGhost ? STATIC_GHOST.name : opp ? opp.firstName : "Ghost",
-          opponentAnimalSeed: useStaticGhost ? null : opp?.animalSeed ?? null,
-          opponentColorSeed: useStaticGhost ? null : opp?.colorSeed ?? null,
-          opponentCorrect: useStaticGhost ? staticFinal!.correct : opp ? opp.questionsCorrect : null,
+          opponentAnimalSeed: useStaticGhost ? null : (opp?.animalSeed ?? null),
+          opponentColorSeed: useStaticGhost ? null : (opp?.colorSeed ?? null),
+          opponentCorrect: useStaticGhost
+            ? staticFinal!.correct
+            : opp
+              ? opp.questionsCorrect
+              : null,
           opponentWrong: useStaticGhost ? staticFinal!.wrong : opp ? opp.questionsWrong : null,
           opponentAnimal: useStaticGhost ? STATIC_GHOST.animal : "",
           opponentColor: useStaticGhost ? STATIC_GHOST.color : "",
           opponentAccessory: useStaticGhost ? STATIC_GHOST.accessory : "",
         } as any,
       });
-
     } catch {
       navigate({ to: "/home" as any });
     }
@@ -258,7 +276,7 @@ function BattlePlay() {
     : opp
       ? opponentAvatar(opp.animalSeed, opp.colorSeed)
       : null;
-  const oppDisplayName = useStaticGhost ? STATIC_GHOST.name : opp?.firstName ?? "Ghost";
+  const oppDisplayName = useStaticGhost ? STATIC_GHOST.name : (opp?.firstName ?? "Ghost");
 
   return (
     <FreeShell>
@@ -266,7 +284,10 @@ function BattlePlay() {
         {/* Header: timer + opponent progress */}
         <header
           className="sticky top-0 z-30 backdrop-blur"
-          style={{ background: "rgba(29,41,0,0.9)", borderBottom: "1px solid rgba(246,240,250,0.08)" }}
+          style={{
+            background: "rgba(29,41,0,0.9)",
+            borderBottom: "1px solid rgba(246,240,250,0.08)",
+          }}
         >
           <div className="mx-auto max-w-3xl px-4 py-4 flex items-center justify-between gap-3">
             {/* You */}
@@ -282,7 +303,10 @@ function BattlePlay() {
             {/* Timer */}
             <div
               className="flex items-center gap-2 rounded-full px-4 py-2 shrink-0"
-              style={{ background: "rgba(184,255,0,0.12)", border: "1px solid rgba(184,255,0,0.35)" }}
+              style={{
+                background: "rgba(184,255,0,0.12)",
+                border: "1px solid rgba(184,255,0,0.35)",
+              }}
             >
               <Timer className="size-5" style={{ color: "var(--volt)" }} />
               <span className="display text-base tabular-nums text-[var(--lavender)]">
@@ -392,8 +416,7 @@ function BattlePlay() {
                   d="M8 0 L0 10 L5 10 L4 18 L14 7 L8 7 Z"
                   fill="#B8FF00"
                   style={{
-                    filter:
-                      "drop-shadow(0 0 4px #B8FF00) drop-shadow(0 0 8px rgba(184,255,0,0.7))",
+                    filter: "drop-shadow(0 0 4px #B8FF00) drop-shadow(0 0 8px rgba(184,255,0,0.7))",
                   }}
                 />
               </svg>
@@ -429,17 +452,9 @@ function PlayerStatus({
   scoreRef?: React.RefObject<HTMLDivElement | null>;
 }) {
   return (
-    <div
-      className={`flex flex-col min-w-0 ${
-        side === "right" ? "items-end" : "items-start"
-      }`}
-    >
+    <div className={`flex flex-col min-w-0 ${side === "right" ? "items-end" : "items-start"}`}>
       {/* Line 1: avatar + name */}
-      <div
-        className={`flex items-center gap-2 ${
-          side === "right" ? "flex-row-reverse" : ""
-        }`}
-      >
+      <div className={`flex items-center gap-2 ${side === "right" ? "flex-row-reverse" : ""}`}>
         <Avatar config={avatar} size={44} />
         <div
           className={`text-sm font-bold text-[var(--lavender)] truncate max-w-[100px] ${
@@ -464,20 +479,14 @@ function PlayerStatus({
               boxShadow: i < wrong ? "0 0 6px rgba(255,77,109,0.6)" : undefined,
             }}
           >
-            {i < wrong && (
-              <span className="text-xs font-bold text-white leading-none">
-                ✕
-              </span>
-            )}
+            {i < wrong && <span className="text-xs font-bold text-white leading-none">✕</span>}
           </div>
         ))}
       </div>
 
       {/* Line 3: score */}
       <div
-        className={`mt-1.5 flex items-center gap-1.5 ${
-          side === "right" ? "flex-row-reverse" : ""
-        }`}
+        className={`mt-1.5 flex items-center gap-1.5 ${side === "right" ? "flex-row-reverse" : ""}`}
       >
         <div
           ref={scoreRef}

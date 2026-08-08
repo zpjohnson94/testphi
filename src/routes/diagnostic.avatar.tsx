@@ -18,8 +18,16 @@ export const Route = createFileRoute("/diagnostic/avatar")({
 });
 
 const COLORS = [
-  "#B8FF00", "#A855F7", "#FFE600", "#FF6FB5", "#5BE1FF",
-  "#FF8A3D", "#7CF6B0", "#FF4D6D", "#9DAEFF", "#F6F0FA",
+  "#B8FF00",
+  "#A855F7",
+  "#FFE600",
+  "#FF6FB5",
+  "#5BE1FF",
+  "#FF8A3D",
+  "#7CF6B0",
+  "#FF4D6D",
+  "#9DAEFF",
+  "#F6F0FA",
 ];
 
 function DiagAvatarPage() {
@@ -64,25 +72,42 @@ function DiagAvatarPage() {
 
       <main className="min-h-screen flex items-center justify-center p-5">
         <div className="w-full max-w-md">
-          <div className="rounded-3xl p-6 sm:p-8 animate-pop"
-            style={{ background: "var(--lavender)", boxShadow: "0 20px 60px -10px rgba(0,0,0,0.5)" }}>
+          <div
+            className="rounded-3xl p-6 sm:p-8 animate-pop"
+            style={{
+              background: "var(--lavender)",
+              boxShadow: "0 20px 60px -10px rgba(0,0,0,0.5)",
+            }}
+          >
             {step === "avatar" && (
               <>
-                <h2 className="display text-2xl" style={{ color: "var(--ink)" }}>Pick your avatar</h2>
-                <p className="mt-1 text-sm" style={{ color: "#5a4a72" }}>You can change this later.</p>
+                <h2 className="display text-2xl" style={{ color: "var(--ink)" }}>
+                  Pick your avatar
+                </h2>
+                <p className="mt-1 text-sm" style={{ color: "#5a4a72" }}>
+                  You can change this later.
+                </p>
 
                 <div className="mt-5 flex justify-center">
                   <DiagAvatar id={avatarId} color={color} size={128} />
                 </div>
 
-                <div className="mt-6 text-xs font-bold uppercase tracking-widest" style={{ color: "#5a4a72" }}>Avatar</div>
+                <div
+                  className="mt-6 text-xs font-bold uppercase tracking-widest"
+                  style={{ color: "#5a4a72" }}
+                >
+                  Avatar
+                </div>
                 <div className="mt-2 grid grid-cols-4 gap-2.5">
                   {AVATAR_OPTIONS.map((a) => {
                     const active = avatarId === a.id;
                     return (
                       <button
                         key={a.id}
-                        onClick={() => { setAvatarId(a.id); sfx.tap(); }}
+                        onClick={() => {
+                          setAvatarId(a.id);
+                          sfx.tap();
+                        }}
                         className="aspect-square rounded-full flex items-center justify-center transition-transform hover:scale-105"
                         style={{
                           background: "transparent",
@@ -98,14 +123,20 @@ function DiagAvatarPage() {
                   })}
                 </div>
 
-                <button onClick={() => setStep("name")} className="btn-volt w-full mt-6 py-4">Continue →</button>
+                <button onClick={() => setStep("name")} className="btn-volt w-full mt-6 py-4">
+                  Continue →
+                </button>
               </>
             )}
 
             {step === "name" && (
               <>
-                <h2 className="display text-2xl" style={{ color: "var(--ink)" }}>What's your name?</h2>
-                <p className="mt-1 text-sm" style={{ color: "#5a4a72" }}>So we can personalize your results.</p>
+                <h2 className="display text-2xl" style={{ color: "var(--ink)" }}>
+                  What's your name?
+                </h2>
+                <p className="mt-1 text-sm" style={{ color: "#5a4a72" }}>
+                  So we can personalize your results.
+                </p>
 
                 <div className="mt-4 flex justify-center">
                   <DiagAvatar id={avatarId} color={color} size={104} />
@@ -119,18 +150,27 @@ function DiagAvatarPage() {
                   autoFocus
                   className="mt-4 w-full rounded-xl bg-white px-4 py-3 font-semibold text-[var(--ink)] focus:outline-none focus:ring-2"
                   style={{ border: "2px solid #d6cce0" }}
-                  onKeyDown={(e) => { if (e.key === "Enter") start(); }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") start();
+                  }}
                 />
 
                 <button
                   onClick={start}
                   disabled={!name.trim()}
                   className="btn-volt w-full mt-6 py-4"
-                  style={{ opacity: name.trim() ? 1 : 0.4, cursor: name.trim() ? "pointer" : "not-allowed" }}
+                  style={{
+                    opacity: name.trim() ? 1 : 0.4,
+                    cursor: name.trim() ? "pointer" : "not-allowed",
+                  }}
                 >
                   Start diagnostic →
                 </button>
-                <button onClick={() => setStep("avatar")} className="w-full mt-2 py-2 text-xs font-bold" style={{ color: "#5a4a72" }}>
+                <button
+                  onClick={() => setStep("avatar")}
+                  className="w-full mt-2 py-2 text-xs font-bold"
+                  style={{ color: "#5a4a72" }}
+                >
                   ← Back
                 </button>
               </>

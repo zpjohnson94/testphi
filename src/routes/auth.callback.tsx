@@ -35,14 +35,18 @@ function AuthCallback() {
 
     supabase.auth.getSession().then(({ data }) => {
       if (data?.session) {
-        try { window.sessionStorage.removeItem("post_signup_pending"); } catch {}
+        try {
+          window.sessionStorage.removeItem("post_signup_pending");
+        } catch {}
         go(dest);
       }
     });
 
     const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
       if ((event === "SIGNED_IN" || event === "INITIAL_SESSION") && session) {
-        try { window.sessionStorage.removeItem("post_signup_pending"); } catch {}
+        try {
+          window.sessionStorage.removeItem("post_signup_pending");
+        } catch {}
         go(dest);
       }
     });

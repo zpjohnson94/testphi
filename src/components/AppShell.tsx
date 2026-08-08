@@ -18,7 +18,10 @@ function BottomNav() {
   ] as const;
 
   return (
-    <nav className="fixed bottom-0 inset-x-0 z-40 backdrop-blur" style={{ background: "rgba(29,41,0,0.92)", borderTop: "1px solid rgba(246,240,250,0.1)" }}>
+    <nav
+      className="fixed bottom-0 inset-x-0 z-40 backdrop-blur"
+      style={{ background: "rgba(29,41,0,0.92)", borderTop: "1px solid rgba(246,240,250,0.1)" }}
+    >
       <div className="mx-auto max-w-2xl grid grid-cols-2">
         {items.map(({ to, label, Icon }) => {
           const active = pathname === to || (to !== "/home" && pathname.startsWith(to));

@@ -49,17 +49,30 @@ function ResetPasswordPage() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-6 py-12">
       <div className="w-full max-w-md">
-        <div className="mb-8 flex justify-center"><Logo /></div>
-        <div className="rounded-2xl p-8" style={{ background: "rgba(74,6,136,0.35)", border: "1px solid rgba(246,240,250,0.12)" }}>
-          <h1 className="text-2xl font-extrabold text-foreground text-center">Set a new password</h1>
+        <div className="mb-8 flex justify-center">
+          <Logo />
+        </div>
+        <div
+          className="rounded-2xl p-8"
+          style={{ background: "rgba(74,6,136,0.35)", border: "1px solid rgba(246,240,250,0.12)" }}
+        >
+          <h1 className="text-2xl font-extrabold text-foreground text-center">
+            Set a new password
+          </h1>
           {!ready ? (
-            <p className="mt-6 text-sm text-center text-muted-foreground">Verifying your reset link…</p>
+            <p className="mt-6 text-sm text-center text-muted-foreground">
+              Verifying your reset link…
+            </p>
           ) : status === "saved" ? (
-            <p className="mt-6 text-sm text-center text-foreground font-semibold">Password updated. Redirecting…</p>
+            <p className="mt-6 text-sm text-center text-foreground font-semibold">
+              Password updated. Redirecting…
+            </p>
           ) : (
             <form onSubmit={submit} className="mt-6 space-y-4">
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground">New password</label>
+                <label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                  New password
+                </label>
                 <input
                   type="password"
                   required
@@ -70,7 +83,9 @@ function ResetPasswordPage() {
                 />
               </div>
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground">Confirm password</label>
+                <label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                  Confirm password
+                </label>
                 <input
                   type="password"
                   required
@@ -80,8 +95,16 @@ function ResetPasswordPage() {
                   placeholder="Repeat password"
                 />
               </div>
-              {error && <p className="text-xs" style={{ color: "#ff4d6d" }}>{error}</p>}
-              <button type="submit" disabled={status === "saving"} className="btn-volt w-full disabled:opacity-60">
+              {error && (
+                <p className="text-xs" style={{ color: "#ff4d6d" }}>
+                  {error}
+                </p>
+              )}
+              <button
+                type="submit"
+                disabled={status === "saving"}
+                className="btn-volt w-full disabled:opacity-60"
+              >
                 {status === "saving" ? "Saving…" : "Update password"}
               </button>
             </form>

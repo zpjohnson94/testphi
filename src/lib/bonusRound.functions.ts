@@ -27,17 +27,37 @@ import type { Difficulty } from "./diagnostic";
 // ------- shared state helpers (mirrors dailyAttempt.functions.ts) -------
 
 function emptyStat(): DomainStat {
-  return { answered: 0, initialized: false, mastery: 0, lastAnsweredISO: "", batch: [], bonusStep: 0 };
+  return {
+    answered: 0,
+    initialized: false,
+    mastery: 0,
+    lastAnsweredISO: "",
+    batch: [],
+    bonusStep: 0,
+  };
 }
 function emptyState(): FreeState {
   const stats: Record<string, DomainStat> = {};
   const scores: Record<string, number> = {};
-  for (const d of DOMAINS) { stats[d.id] = emptyStat(); scores[d.id] = 0; }
+  for (const d of DOMAINS) {
+    stats[d.id] = emptyStat();
+    scores[d.id] = 0;
+  }
   return {
-    name: "", email: "", plan: "free", seeded: false, diagnosticScore: 800,
-    domainStats: stats, momentumNeedle: 0, lastMomentumDateISO: "",
-    qualifyingDays: [], streak: 0, lastDailyDate: "", lastSession: null,
-    domainScores: scores, overall: 800,
+    name: "",
+    email: "",
+    plan: "free",
+    seeded: false,
+    diagnosticScore: 800,
+    domainStats: stats,
+    momentumNeedle: 0,
+    lastMomentumDateISO: "",
+    qualifyingDays: [],
+    streak: 0,
+    lastDailyDate: "",
+    lastSession: null,
+    domainScores: scores,
+    overall: 800,
   };
 }
 
@@ -46,8 +66,11 @@ async function loadFreeState(ctx: { supabase: any; userId: string }): Promise<Fr
     ctx.supabase.from("profiles").select("name, email, plan").eq("id", ctx.userId).maybeSingle(),
     ctx.supabase
       .from("user_scoring_state")
-      .select("momentum_needle, last_momentum_date, qualifying_days, streak, last_daily_date, diagnostic_score, seeded")
-      .eq("user_id", ctx.userId).maybeSingle(),
+      .select(
+        "momentum_needle, last_momentum_date, qualifying_days, streak, last_daily_date, diagnostic_score, seeded",
+      )
+      .eq("user_id", ctx.userId)
+      .maybeSingle(),
     ctx.supabase
       .from("user_domain_mastery")
       .select("domain_id, answered, initialized, mastery, last_answered_at, batch, bonus_step")
@@ -57,13 +80,16 @@ async function loadFreeState(ctx: { supabase: any; userId: string }): Promise<Fr
   const profile = profileRes.data;
   const scoring = scoringRes.data;
   if (profile) {
-    s.name = profile.name ?? ""; s.email = profile.email ?? "";
+    s.name = profile.name ?? "";
+    s.email = profile.email ?? "";
     s.plan = (profile.plan === "powerup" ? "powerup" : "free") as "free" | "powerup";
   }
   if (scoring) {
     s.momentumNeedle = Number(scoring.momentum_needle) || 0;
     s.lastMomentumDateISO = scoring.last_momentum_date ?? "";
-    s.qualifyingDays = Array.isArray(scoring.qualifying_days) ? (scoring.qualifying_days as string[]) : [];
+    s.qualifyingDays = Array.isArray(scoring.qualifying_days)
+      ? (scoring.qualifying_days as string[])
+      : [];
     s.streak = scoring.streak || 0;
     s.lastDailyDate = scoring.last_daily_date ?? "";
     s.diagnosticScore = Number(scoring.diagnostic_score) || 800;
@@ -97,15 +123,21 @@ async function persistFreeState(ctx: { supabase: any; userId: string }, state: F
   const masteryRows = DOMAINS.map((d) => {
     const st = state.domainStats[d.id];
     return {
-      user_id: ctx.userId, domain_id: d.id,
-      answered: st.answered, initialized: st.initialized, mastery: st.mastery,
+      user_id: ctx.userId,
+      domain_id: d.id,
+      answered: st.answered,
+      initialized: st.initialized,
+      mastery: st.mastery,
       last_answered_at: st.lastAnsweredISO || null,
-      batch: st.batch, bonus_step: st.bonusStep,
+      batch: st.batch,
+      bonus_step: st.bonusStep,
     };
   });
   await Promise.all([
     ctx.supabase.from("user_scoring_state").upsert(scoringPayload, { onConflict: "user_id" }),
-    ctx.supabase.from("user_domain_mastery").upsert(masteryRows, { onConflict: "user_id,domain_id" }),
+    ctx.supabase
+      .from("user_domain_mastery")
+      .upsert(masteryRows, { onConflict: "user_id,domain_id" }),
   ]);
 }
 
@@ -131,7 +163,8 @@ function parseRow(row: any): ParsedQ | null {
     question = p.question;
     const c = p.choices as Record<string, string>;
     if (c.A && c.B && c.C && c.D) choices = [c.A, c.B, c.C, c.D];
-    correctIndex = ({ A: 0, B: 1, C: 2, D: 3 } as Record<string, number>)[String(p.correct).toUpperCase()] ?? -1;
+    correctIndex =
+      ({ A: 0, B: 1, C: 2, D: 3 } as Record<string, number>)[String(p.correct).toUpperCase()] ?? -1;
   } else {
     question = String(p.prompt ?? "");
     if (Array.isArray(p.choices) && p.choices.length === 4) choices = p.choices as any;
@@ -142,7 +175,8 @@ function parseRow(row: any): ParsedQ | null {
     questionId: row.id,
     domainId: row.domain_id,
     difficulty: (row.difficulty as Difficulty) ?? 2,
-    expectedSeconds: row.expected_seconds ?? (row.difficulty === 1 ? 30 : row.difficulty === 3 ? 90 : 60),
+    expectedSeconds:
+      row.expected_seconds ?? (row.difficulty === 1 ? 30 : row.difficulty === 3 ? 90 : 60),
     question,
     passage: typeof p.passage === "string" ? p.passage : undefined,
     choices,
@@ -150,12 +184,19 @@ function parseRow(row: any): ParsedQ | null {
   };
 }
 
-async function pickQuestion(supabase: any, domainId: string, difficulty: Difficulty): Promise<ParsedQ | null> {
+async function pickQuestion(
+  supabase: any,
+  domainId: string,
+  difficulty: Difficulty,
+): Promise<ParsedQ | null> {
   const { data } = await supabase
     .from("questions")
     .select("id, domain_id, difficulty, expected_seconds, payload")
-    .eq("domain_id", domainId).eq("difficulty", difficulty).eq("is_active", true)
-    .order("id", { ascending: true }).limit(20);
+    .eq("domain_id", domainId)
+    .eq("difficulty", difficulty)
+    .eq("is_active", true)
+    .order("id", { ascending: true })
+    .limit(20);
   for (const row of data ?? []) {
     const q = parseRow(row);
     if (q) return q;
@@ -227,8 +268,10 @@ function seededShuffle(seed: string): number[] {
     h = Math.imul(h, 16777619);
   }
   const rand = () => {
-    h ^= h << 13; h ^= h >>> 17; h ^= h << 5;
-    return ((h >>> 0) / 0xffffffff);
+    h ^= h << 13;
+    h ^= h >>> 17;
+    h ^= h << 5;
+    return (h >>> 0) / 0xffffffff;
   };
   const arr = [0, 1, 2, 3];
   for (let i = arr.length - 1; i > 0; i--) {
@@ -261,13 +304,19 @@ export const serveBonusRound = createServerFn({ method: "POST" })
       const perm = seededShuffle(seed);
       const shuffled = perm.map((i) => q.choices[i]) as [string, string, string, string];
       return {
-        step, questionId: q.questionId, difficulty: q.difficulty,
+        step,
+        questionId: q.questionId,
+        difficulty: q.difficulty,
         expectedSeconds: q.expectedSeconds,
-        question: q.question, passage: q.passage, choices: shuffled, shuffleSeed: seed,
+        question: q.question,
+        passage: q.passage,
+        choices: shuffled,
+        shuffleSeed: seed,
       };
     };
     return {
-      domainId: data.domainId, domainLabel: domain.label,
+      domainId: data.domainId,
+      domainLabel: domain.label,
       questions: [build(q1, 1), build(q2, 2), build(q3, 3)],
     };
   });
@@ -277,23 +326,32 @@ export const serveBonusRound = createServerFn({ method: "POST" })
 export const submitBonusRound = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((raw: unknown) =>
-    z.object({
-      domainId: z.string(),
-      answers: z.array(z.object({
-        step: z.union([z.literal(1), z.literal(2), z.literal(3)]),
-        questionId: z.string(),
-        selectedPosition: z.number().int().min(0).max(3),
-        shuffleSeed: z.string(),
-        elapsedMs: z.number().int().min(0),
-      })).length(3),
-    }).parse(raw),
+    z
+      .object({
+        domainId: z.string(),
+        answers: z
+          .array(
+            z.object({
+              step: z.union([z.literal(1), z.literal(2), z.literal(3)]),
+              questionId: z.string(),
+              selectedPosition: z.number().int().min(0).max(3),
+              shuffleSeed: z.string(),
+              elapsedMs: z.number().int().min(0),
+            }),
+          )
+          .length(3),
+      })
+      .parse(raw),
   )
   .handler(async ({ data, context }): Promise<BonusSubmitResult> => {
     // Grade each answer server-side.
     const { data: rows } = await context.supabase
       .from("questions")
       .select("id, domain_id, difficulty, payload")
-      .in("id", data.answers.map((a) => a.questionId));
+      .in(
+        "id",
+        data.answers.map((a) => a.questionId),
+      );
     const byId = new Map<string, ParsedQ>();
     for (const r of rows ?? []) {
       const p = parseRow(r);
@@ -338,7 +396,8 @@ export const submitBonusRound = createServerFn({ method: "POST" })
         streak_before: prev.streak,
         streak_after: next.streak,
       })
-      .select("id").single();
+      .select("id")
+      .single();
 
     if (sessionRow?.id) {
       const answerRows = results.map((r) => ({

@@ -115,7 +115,6 @@ function rowToBattleQuestion(row: any): BattleQuestion | null {
   };
 }
 
-
 async function hydrateQuestions(supabase: any, ids: string[]): Promise<BattleQuestion[]> {
   if (ids.length === 0) return [];
   const { data } = await supabase
@@ -145,7 +144,9 @@ async function generateBattleSet(supabase: any): Promise<string[]> {
       .eq("domain_id", d.id)
       .eq("is_active", true)
       .limit(200);
-    const pool = ((data ?? []) as Array<{ id: string }>).map((r) => r.id).filter((id) => !seen.has(id));
+    const pool = ((data ?? []) as Array<{ id: string }>)
+      .map((r) => r.id)
+      .filter((id) => !seen.has(id));
     // Shuffle deterministically enough via sort by hash
     pool.sort();
     for (let i = pool.length - 1; i > 0; i--) {
@@ -198,14 +199,13 @@ async function ensureTodaysBattleSet(supabase: any, iso: string): Promise<string
   return ids;
 }
 
-
 // ---------- fake profile daily runs ----------
 
 // Deterministic PRNG (mulberry32) seeded by hash(date + profile id).
 function mulberry32(seed: number) {
   let a = seed >>> 0;
   return () => {
-    a = (a + 0x6D2B79F5) >>> 0;
+    a = (a + 0x6d2b79f5) >>> 0;
     let t = a;
     t = Math.imul(t ^ (t >>> 15), t | 1);
     t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
@@ -297,10 +297,7 @@ async function ensureFakeRunsForDay(iso: string): Promise<void> {
   const hasSet = await ensureBattleSetRow(supabaseAdmin, iso);
   if (!hasSet) throw new Error(`No battle set could be created for ${iso}`);
 
-
-  const { data: profs } = await supabaseAdmin
-    .from("battle_fake_profiles")
-    .select("id");
+  const { data: profs } = await supabaseAdmin.from("battle_fake_profiles").select("id");
   const profiles = (profs ?? []) as Array<{ id: string }>;
   if (profiles.length === 0) return;
 
@@ -320,9 +317,7 @@ async function ensureFakeRunsForDay(iso: string): Promise<void> {
     };
   });
 
-  const { error } = await supabaseAdmin
-    .from("battle_runs")
-    .insert(runs as any);
+  const { error } = await supabaseAdmin.from("battle_runs").insert(runs as any);
   if (error) {
     // Re-check for a concurrent insert; otherwise surface the real failure.
     const { count: now } = await supabaseAdmin
@@ -334,7 +329,6 @@ async function ensureFakeRunsForDay(iso: string): Promise<void> {
     console.error("[battle] fake run insert failed", error);
     throw new Error(`Failed to insert fake battle runs: ${error.message}`);
   }
-
 
   // Compute daily_rank for the inserted fake rows (top 100 only).
   const { data: sorted } = await supabaseAdmin
@@ -348,7 +342,10 @@ async function ensureFakeRunsForDay(iso: string): Promise<void> {
   await Promise.all(
     ranked.map((r, i) =>
       i < 100
-        ? supabaseAdmin.from("battle_runs").update({ daily_rank: i + 1 }).eq("id", r.id)
+        ? supabaseAdmin
+            .from("battle_runs")
+            .update({ daily_rank: i + 1 })
+            .eq("id", r.id)
         : Promise.resolve(),
     ),
   );
@@ -383,7 +380,9 @@ async function loadOpponent(
   // Try today first (excluding self, excluding fakes).
   const { data: todayRun } = await supabase
     .from("battle_runs")
-    .select("id, user_id, battle_date, questions_correct, questions_wrong, total_time_ms, event_log")
+    .select(
+      "id, user_id, battle_date, questions_correct, questions_wrong, total_time_ms, event_log",
+    )
     .eq("battle_date", iso)
     .eq("is_fake", false)
     .neq("user_id", currentUserId)
@@ -397,7 +396,9 @@ async function loadOpponent(
     const y = yesterdayISO(iso);
     const { data: yRun } = await supabase
       .from("battle_runs")
-      .select("id, user_id, battle_date, questions_correct, questions_wrong, total_time_ms, event_log")
+      .select(
+        "id, user_id, battle_date, questions_correct, questions_wrong, total_time_ms, event_log",
+      )
       .eq("battle_date", y)
       .eq("is_fake", false)
       .neq("user_id", currentUserId)
@@ -459,7 +460,9 @@ export const getBattleStatus = createServerFn({ method: "GET" })
     const [{ data: mine }, wins] = await Promise.all([
       context.supabase
         .from("battle_runs")
-        .select("id, questions_correct, questions_wrong, result, daily_rank, total_time_ms, opponent_run_id")
+        .select(
+          "id, questions_correct, questions_wrong, result, daily_rank, total_time_ms, opponent_run_id",
+        )
         .eq("user_id", context.userId)
         .eq("battle_date", iso)
         .maybeSingle(),
@@ -538,14 +541,20 @@ const finalizeSchema = z.object({
   opponentRunId: z.string().uuid().nullable(),
   questionsCorrect: z.number().int().min(0).max(BATTLE_QUESTION_COUNT),
   questionsWrong: z.number().int().min(0).max(MAX_WRONG),
-  totalTimeMs: z.number().int().min(0).max(BATTLE_TIME_MS + 2000),
-  eventLog: z.array(
-    z.object({
-      question_index: z.number().int().min(0),
-      correct: z.boolean(),
-      elapsed_ms: z.number().int().min(0),
-    }),
-  ).max(BATTLE_QUESTION_COUNT),
+  totalTimeMs: z
+    .number()
+    .int()
+    .min(0)
+    .max(BATTLE_TIME_MS + 2000),
+  eventLog: z
+    .array(
+      z.object({
+        question_index: z.number().int().min(0),
+        correct: z.boolean(),
+        elapsed_ms: z.number().int().min(0),
+      }),
+    )
+    .max(BATTLE_QUESTION_COUNT),
 });
 
 export const finalizeBattleRun = createServerFn({ method: "POST" })
@@ -630,11 +639,12 @@ export const finalizeBattleRun = createServerFn({ method: "POST" })
       const retry = await supabaseAdmin.from("battle_runs").insert(runRow).select("id").single();
       if (retry.error || !retry.data) {
         console.error("[battle] admin run insert failed", retry.error?.message);
-        throw new Error(`Could not save your battle run: ${retry.error?.message ?? "unknown error"}`);
+        throw new Error(
+          `Could not save your battle run: ${retry.error?.message ?? "unknown error"}`,
+        );
       }
       inserted = retry.data;
     }
-
 
     // Compute daily rank: number of runs today that beat this one + 1.
     // Better = higher questions_correct; tiebreak lower total_time_ms.
@@ -672,7 +682,6 @@ export const finalizeBattleRun = createServerFn({ method: "POST" })
         .insert({ user_id: context.userId, battle_date: iso, rank: finalRank });
       newTop100Alert = !alertErr;
     }
-
 
     const totalWins = await countWins(context.supabase, context.userId);
 
@@ -712,16 +721,12 @@ export interface BattleLeaderboard {
 
 export const getBattleLeaderboard = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((raw: unknown) =>
-    z.object({ date: z.string().optional() }).parse(raw ?? {}),
-  )
+  .inputValidator((raw: unknown) => z.object({ date: z.string().optional() }).parse(raw ?? {}))
   .handler(async ({ data, context }): Promise<BattleLeaderboard> => {
     const iso = data.date ?? todayISO();
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     // Populate the day even if the user hasn't started a battle yet.
     await ensureFakeRunsForDay(iso);
-
-
 
     const { data: runs } = await supabaseAdmin
       .from("battle_runs")
@@ -743,7 +748,9 @@ export const getBattleLeaderboard = createServerFn({ method: "GET" })
       new Set(rows.filter((r) => !r.is_fake && r.user_id).map((r) => r.user_id as string)),
     );
     const fakeIds = Array.from(
-      new Set(rows.filter((r) => r.is_fake && r.fake_profile_id).map((r) => r.fake_profile_id as string)),
+      new Set(
+        rows.filter((r) => r.is_fake && r.fake_profile_id).map((r) => r.fake_profile_id as string),
+      ),
     );
 
     const nameByUser = new Map<string, string>();
@@ -757,7 +764,13 @@ export const getBattleLeaderboard = createServerFn({ method: "GET" })
       }
     }
 
-    type FakeProfile = { id: string; name: string; avatar_character: string; avatar_color: string; avatar_accessory: string };
+    type FakeProfile = {
+      id: string;
+      name: string;
+      avatar_character: string;
+      avatar_color: string;
+      avatar_accessory: string;
+    };
     const fakeById = new Map<string, FakeProfile>();
     if (fakeIds.length > 0) {
       const { data: fakes } = await supabaseAdmin
@@ -809,11 +822,7 @@ export const devRegenerateFakeRuns = createServerFn({ method: "POST" })
   .handler(async () => {
     const iso = todayISO();
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    await supabaseAdmin
-      .from("battle_runs")
-      .delete()
-      .eq("battle_date", iso)
-      .eq("is_fake", true);
+    await supabaseAdmin.from("battle_runs").delete().eq("battle_date", iso).eq("is_fake", true);
     await ensureFakeRunsForDay(iso);
     const { count } = await supabaseAdmin
       .from("battle_runs")

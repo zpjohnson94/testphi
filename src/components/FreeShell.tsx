@@ -22,7 +22,6 @@ function FreeBottomNav() {
     { to: "/account", label: "Account", Icon: null },
   ] as const;
 
-
   return (
     <nav
       className="fixed bottom-0 inset-x-0 z-40 backdrop-blur"
@@ -38,7 +37,9 @@ function FreeBottomNav() {
               className="flex flex-col items-center gap-1 py-3 text-xs font-bold transition-colors"
               style={{ color: active ? "var(--volt)" : "rgba(246,240,250,0.55)" }}
             >
-              {Icon ? <Icon className="size-5" /> : (
+              {Icon ? (
+                <Icon className="size-5" />
+              ) : (
                 <Avatar
                   config={avatarConfig}
                   size={22}

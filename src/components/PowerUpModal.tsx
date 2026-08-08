@@ -20,9 +20,7 @@ interface Props {
 export function PowerUpModal({
   open,
   onClose,
-  title = WAITLIST_MODE
-    ? "Power Up isn't ready yet!"
-    : "Power Up for answer explanations",
+  title = WAITLIST_MODE ? "Power Up isn't ready yet!" : "Power Up for answer explanations",
 }: Props) {
   const updateSignupFn = useServerFn(updateSignup);
 
@@ -79,7 +77,11 @@ export function PowerUpModal({
 
         <div
           className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest"
-          style={{ background: "rgba(74,6,136,0.85)", color: "var(--lavender)", border: "1px solid rgba(168,85,247,0.4)" }}
+          style={{
+            background: "rgba(74,6,136,0.85)",
+            color: "var(--lavender)",
+            border: "1px solid rgba(168,85,247,0.4)",
+          }}
         >
           {WAITLIST_MODE ? "COMING SOON" : "Recommended"}
         </div>
@@ -97,11 +99,17 @@ export function PowerUpModal({
               <div className="score-num text-3xl text-[var(--lavender)]">
                 $12 <span className="text-base font-semibold opacity-70">/ mo</span>
               </div>
-              <div className="text-xs font-medium mt-0.5" style={{ color: "rgba(246,240,250,0.6)" }}>
+              <div
+                className="text-xs font-medium mt-0.5"
+                style={{ color: "rgba(246,240,250,0.6)" }}
+              >
                 billed annually
               </div>
             </div>
-            <div className="mt-2 text-xs font-medium italic" style={{ color: "rgba(246,240,250,0.55)" }}>
+            <div
+              className="mt-2 text-xs font-medium italic"
+              style={{ color: "rgba(246,240,250,0.55)" }}
+            >
               Less than half the cost of other test prep apps
             </div>
           </>

@@ -1,4 +1,11 @@
-import { Outlet, Link, createRootRouteWithContext, HeadContent, Scripts, useRouter } from "@tanstack/react-router";
+import {
+  Outlet,
+  Link,
+  createRootRouteWithContext,
+  HeadContent,
+  Scripts,
+  useRouter,
+} from "@tanstack/react-router";
 import { QueryClientProvider, type QueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { Footer } from "@/components/Footer";
@@ -42,8 +49,16 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:title", content: "TestPhi" },
       { property: "og:description", content: "Adaptive SAT prep that detects your weak spots." },
       { name: "twitter:description", content: "Adaptive SAT prep that detects your weak spots." },
-      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/xRxEwaZVtSRSny01qNrZLv7YgqE2/social-images/social-1778017988021-TestPhi_Logo.webp" },
-      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/xRxEwaZVtSRSny01qNrZLv7YgqE2/social-images/social-1778017988021-TestPhi_Logo.webp" },
+      {
+        property: "og:image",
+        content:
+          "https://storage.googleapis.com/gpt-engineer-file-uploads/xRxEwaZVtSRSny01qNrZLv7YgqE2/social-images/social-1778017988021-TestPhi_Logo.webp",
+      },
+      {
+        name: "twitter:image",
+        content:
+          "https://storage.googleapis.com/gpt-engineer-file-uploads/xRxEwaZVtSRSny01qNrZLv7YgqE2/social-images/social-1778017988021-TestPhi_Logo.webp",
+      },
       { name: "twitter:card", content: "summary_large_image" },
       { property: "og:type", content: "website" },
     ],

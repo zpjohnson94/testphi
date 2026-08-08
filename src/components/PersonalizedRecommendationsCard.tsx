@@ -54,10 +54,7 @@ export function PersonalizedRecommendationsCard({ tierColor, onUnlock }: Props) 
             See exactly what to study next based on your mastery data
           </p>
         </div>
-        <button
-          onClick={onUnlock}
-          className="btn-volt px-5 py-2.5 text-sm font-bold rounded-2xl"
-        >
+        <button onClick={onUnlock} className="btn-volt px-5 py-2.5 text-sm font-bold rounded-2xl">
           Unlock with Power Up
         </button>
       </div>

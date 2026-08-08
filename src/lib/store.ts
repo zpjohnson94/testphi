@@ -9,9 +9,9 @@ import { defaultAvatar, type AvatarConfig, type AccessoryId } from "@/components
 const STORAGE_KEY = "satquest:v2";
 
 export interface NodeProgress {
-  best: number;        // 0..3 best correct count
+  best: number; // 0..3 best correct count
   attempts: number;
-  lastScore?: number;  // last attempt correct count
+  lastScore?: number; // last attempt correct count
 }
 
 export interface State {
@@ -21,13 +21,13 @@ export interface State {
   unlockedAccessories: AccessoryId[];
   dailyGoalXp: number;
   xpToday: number;
-  xpDate: string;       // ISO date for xpToday
+  xpDate: string; // ISO date for xpToday
   totalXp: number;
   streak: number;
   lastActiveDate: string;
   rwElo: number;
   mathElo: number;
-  mastery: Record<string, number>;     // skillId -> 0..100
+  mastery: Record<string, number>; // skillId -> 0..100
   progress: Record<string, NodeProgress>; // nodeId -> progress
   eloHistory: { date: string; rw: number; math: number }[];
   lastNodeId?: string;
@@ -80,10 +80,14 @@ function load(): State {
 
 function persist() {
   if (typeof window === "undefined") return;
-  try { window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch {}
+  try {
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  } catch {}
 }
 
-function emit() { listeners.forEach((l) => l()); }
+function emit() {
+  listeners.forEach((l) => l());
+}
 
 function setState(updater: (s: State) => State) {
   state = updater(state);
@@ -91,7 +95,9 @@ function setState(updater: (s: State) => State) {
   emit();
 }
 
-export function getState() { return state; }
+export function getState() {
+  return state;
+}
 
 export function subscribe(l: () => void) {
   listeners.add(l);
@@ -213,7 +219,11 @@ export function updateAvatar(avatar: AvatarConfig) {
 }
 
 export function unlockAccessory(id: AccessoryId) {
-  setState((s) => s.unlockedAccessories.includes(id) ? s : { ...s, unlockedAccessories: [...s.unlockedAccessories, id] });
+  setState((s) =>
+    s.unlockedAccessories.includes(id)
+      ? s
+      : { ...s, unlockedAccessories: [...s.unlockedAccessories, id] },
+  );
 }
 
 export function unlockAccessories(ids: AccessoryId[]) {
@@ -221,7 +231,10 @@ export function unlockAccessories(ids: AccessoryId[]) {
     const set = new Set<AccessoryId>(s.unlockedAccessories);
     let changed = false;
     for (const id of ids) {
-      if (!set.has(id)) { set.add(id); changed = true; }
+      if (!set.has(id)) {
+        set.add(id);
+        changed = true;
+      }
     }
     return changed ? { ...s, unlockedAccessories: Array.from(set) } : s;
   });

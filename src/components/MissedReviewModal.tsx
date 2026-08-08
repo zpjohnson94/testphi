@@ -33,8 +33,6 @@ export function MissedReviewModal({ open, missed, items, startIndex = 0, onClose
   const current = missed ? missed[safeIdx] : undefined;
   const currentItem = items ? items[safeIdx] : undefined;
 
-
-
   return (
     <div
       className="fixed inset-0 z-[100] flex items-center justify-center p-4"
@@ -51,7 +49,10 @@ export function MissedReviewModal({ open, missed, items, startIndex = 0, onClose
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between mb-4">
-          <div className="text-[11px] font-bold uppercase tracking-wider" style={{ color: "var(--volt)" }}>
+          <div
+            className="text-[11px] font-bold uppercase tracking-wider"
+            style={{ color: "var(--volt)" }}
+          >
             Review · {safeIdx + 1} of {count}
           </div>
           <button
@@ -76,7 +77,10 @@ export function MissedReviewModal({ open, missed, items, startIndex = 0, onClose
               disabled={safeIdx === 0}
               onClick={() => setIdx((i) => Math.max(0, i - 1))}
               className="flex items-center gap-1 px-3 py-2 rounded-xl text-sm font-bold disabled:opacity-40"
-              style={{ background: "rgba(246,240,250,0.08)", border: "1px solid rgba(246,240,250,0.2)" }}
+              style={{
+                background: "rgba(246,240,250,0.08)",
+                border: "1px solid rgba(246,240,250,0.2)",
+              }}
             >
               <ChevronLeft className="size-4" /> Prev
             </button>
@@ -96,7 +100,10 @@ export function MissedReviewModal({ open, missed, items, startIndex = 0, onClose
               disabled={safeIdx >= count - 1}
               onClick={() => setIdx((i) => Math.min(count - 1, i + 1))}
               className="flex items-center gap-1 px-3 py-2 rounded-xl text-sm font-bold disabled:opacity-40"
-              style={{ background: "rgba(246,240,250,0.08)", border: "1px solid rgba(246,240,250,0.2)" }}
+              style={{
+                background: "rgba(246,240,250,0.08)",
+                border: "1px solid rgba(246,240,250,0.2)",
+              }}
             >
               Next <ChevronRight className="size-4" />
             </button>
@@ -177,7 +184,10 @@ function ReviewBody({ data }: { data: ReviewBodyData }) {
 
   return (
     <div>
-      <div className="text-[10px] font-bold uppercase tracking-wider mb-2" style={{ color: "rgba(246,240,250,0.6)" }}>
+      <div
+        className="text-[10px] font-bold uppercase tracking-wider mb-2"
+        style={{ color: "rgba(246,240,250,0.6)" }}
+      >
         {data.domainLabel}
       </div>
       {data.passage && (
@@ -198,13 +208,14 @@ function ReviewBody({ data }: { data: ReviewBodyData }) {
             : isSelected
               ? "2px solid var(--destructive)"
               : "1px solid rgba(246,240,250,0.12)";
-          const label = isCorrect && isSelected
-            ? "Correct (your answer)"
-            : isCorrect
-              ? "Correct answer"
-              : isSelected
-                ? "Your answer"
-                : null;
+          const label =
+            isCorrect && isSelected
+              ? "Correct (your answer)"
+              : isCorrect
+                ? "Correct answer"
+                : isSelected
+                  ? "Your answer"
+                  : null;
           return (
             <div
               key={i}
@@ -214,13 +225,18 @@ function ReviewBody({ data }: { data: ReviewBodyData }) {
               <div className="flex-1 whitespace-pre-wrap">
                 {c}
                 {label && (
-                  <div className="mt-1 text-[10px] font-bold uppercase tracking-wider" style={{ color: isCorrect ? "var(--volt)" : "var(--destructive)" }}>
+                  <div
+                    className="mt-1 text-[10px] font-bold uppercase tracking-wider"
+                    style={{ color: isCorrect ? "var(--volt)" : "var(--destructive)" }}
+                  >
                     {label}
                   </div>
                 )}
               </div>
               {isCorrect && <Check className="size-4 shrink-0" style={{ color: "var(--volt)" }} />}
-              {isSelected && !isCorrect && <X className="size-4 shrink-0" style={{ color: "var(--destructive)" }} />}
+              {isSelected && !isCorrect && (
+                <X className="size-4 shrink-0" style={{ color: "var(--destructive)" }} />
+              )}
             </div>
           );
         })}

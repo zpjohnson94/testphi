@@ -16,17 +16,21 @@ Root cause chain:
 ## The fix
 
 **1. Write the daily set with the admin client** (`src/lib/battle.functions.ts`)
+
 - In `ensureTodaysBattleSet`, keep reading with the user client but perform the `battle_sets` upsert via `supabaseAdmin` (dynamically imported inside the handler path, as elsewhere in the file).
 - Check the upsert error and throw a clear message instead of returning silently.
 
 **2. Stop swallowing fake-run insert errors** (`ensureFakeRunsForDay`)
+
 - Log/throw on insert error rather than `return;`, and make `devRegenerateFakeRuns` surface the error so the dev button reports failure instead of "inserted: 0".
 - Have `ensureFakeRunsForDay` first make sure the day's `battle_sets` row exists (call the set generator if missing), so it can never hit the foreign key.
 
 **3. Populate the leaderboard on view** (`getBattleLeaderboard`)
+
 - Ensure today's set and fake runs exist before reading, so the leaderboard is populated even if the user never starts a battle.
 
 **4. Backfill today**
+
 - Run the dev "Generate fake runs" action (or an equivalent one-off) after the fix so today's leaderboard has its 100 entries immediately.
 
 ## Optional cleanup (recommended, ask before doing)

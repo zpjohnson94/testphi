@@ -2,7 +2,6 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { Lock } from "lucide-react";
 
-
 import { FreeShell } from "@/components/FreeShell";
 import { Logo } from "@/components/Logo";
 import {
@@ -18,7 +17,6 @@ import { useFreeState } from "@/lib/useFree";
 import { PowerUpModal } from "@/components/PowerUpModal";
 import { UnlockReadyCard } from "@/components/UnlockReadyCard";
 import { BonusUnlockModal } from "@/components/BonusUnlockModal";
-
 
 export const Route = createFileRoute("/_authenticated/domains/")({
   head: () => ({ meta: [{ title: "Domains — TestPhi" }] }),
@@ -67,13 +65,15 @@ function Domains() {
 
   const order: Tier[] = ["weak", "developing", "strong", "locked"];
 
-
   return (
     <FreeShell>
       <div className="topo-bg min-h-screen">
         <header
           className="sticky top-0 z-30 backdrop-blur"
-          style={{ background: "rgba(29,41,0,0.85)", borderBottom: "1px solid rgba(246,240,250,0.08)" }}
+          style={{
+            background: "rgba(29,41,0,0.85)",
+            borderBottom: "1px solid rgba(246,240,250,0.08)",
+          }}
         >
           <div className="mx-auto max-w-2xl px-5 py-3 flex items-center gap-2">
             <Logo size={28} />
@@ -89,9 +89,7 @@ function Domains() {
             >
               <br />
             </div>
-            <h1 className="mt-1 display text-3xl text-[var(--lavender)]">
-              Domains
-            </h1>
+            <h1 className="mt-1 display text-3xl text-[var(--lavender)]">Domains</h1>
             <p className="mt-2 text-sm font-medium" style={{ color: "rgba(246,240,250,0.7)" }}>
               Review your level of mastery over 8 SAT domains, sorted from weakest to strongest.
             </p>
@@ -140,15 +138,18 @@ function Domains() {
                         params={{ domainId: d.id }}
                         className="block w-full rounded-2xl p-5"
                         style={{
-                          background: d.initialized && Math.round(d.mastery) === 100
-                            ? "linear-gradient(135deg, #FFD700 0%, #FFA500 100%)"
-                            : "#1a1230",
-                          border: d.initialized && Math.round(d.mastery) === 100
-                            ? "2px solid #B8860B"
-                            : `1.5px solid ${color}`,
-                          boxShadow: d.initialized && Math.round(d.mastery) === 100
-                            ? "0 0 40px -4px rgba(255, 215, 0, 0.7), inset 0 0 0 1px rgba(255, 255, 255, 0.35)"
-                            : undefined,
+                          background:
+                            d.initialized && Math.round(d.mastery) === 100
+                              ? "linear-gradient(135deg, #FFD700 0%, #FFA500 100%)"
+                              : "#1a1230",
+                          border:
+                            d.initialized && Math.round(d.mastery) === 100
+                              ? "2px solid #B8860B"
+                              : `1.5px solid ${color}`,
+                          boxShadow:
+                            d.initialized && Math.round(d.mastery) === 100
+                              ? "0 0 40px -4px rgba(255, 215, 0, 0.7), inset 0 0 0 1px rgba(255, 255, 255, 0.35)"
+                              : undefined,
                         }}
                       >
                         <div className="flex items-start justify-between gap-3">
@@ -156,7 +157,12 @@ function Domains() {
                             <DomainPill section={section} />
                             <div
                               className="mt-2 display text-lg leading-tight"
-                              style={{ color: d.initialized && Math.round(d.mastery) === 100 ? "#1a1230" : "var(--lavender)" }}
+                              style={{
+                                color:
+                                  d.initialized && Math.round(d.mastery) === 100
+                                    ? "#1a1230"
+                                    : "var(--lavender)",
+                              }}
                             >
                               {name}
                             </div>
@@ -169,7 +175,10 @@ function Domains() {
                               {`${Math.round(d.mastery)}%`}
                             </div>
                           ) : (
-                            <Lock className="size-5 shrink-0" style={{ color: "rgba(246,240,250,0.55)" }} />
+                            <Lock
+                              className="size-5 shrink-0"
+                              style={{ color: "rgba(246,240,250,0.55)" }}
+                            />
                           )}
                         </div>
 
@@ -177,13 +186,22 @@ function Domains() {
                           <div
                             className="mt-4 h-2 rounded-full overflow-hidden"
                             style={{
-                              background: d.initialized && Math.round(d.mastery) === 100 ? "rgba(26,18,48,0.25)" : "rgba(0,0,0,0.3)",
+                              background:
+                                d.initialized && Math.round(d.mastery) === 100
+                                  ? "rgba(26,18,48,0.25)"
+                                  : "rgba(0,0,0,0.3)",
                               border: `1px solid ${d.initialized && Math.round(d.mastery) === 100 ? "#1a1230" : `color-mix(in srgb, ${color}, transparent 75%)`}`,
                             }}
                           >
                             <div
                               className="mastery-swirl-fill h-full rounded-full transition-all duration-700"
-                              style={{ width: `${d.mastery}%`, ["--swirl-color" as any]: d.initialized && Math.round(d.mastery) === 100 ? "#1a1230" : color }}
+                              style={{
+                                width: `${d.mastery}%`,
+                                ["--swirl-color" as any]:
+                                  d.initialized && Math.round(d.mastery) === 100
+                                    ? "#1a1230"
+                                    : color,
+                              }}
                             />
                           </div>
                         ) : (
@@ -219,9 +237,18 @@ function Domains() {
                           }}
                           className="mt-4 w-full py-3 text-sm font-bold text-center rounded-2xl"
                           style={{
-                            background: d.initialized && Math.round(d.mastery) === 100 ? "#1a1230" : "var(--volt)",
-                            color: d.initialized && Math.round(d.mastery) === 100 ? "var(--volt)" : "var(--ink)",
-                            boxShadow: d.initialized && Math.round(d.mastery) === 100 ? "0 4px 0 0 #0f0a1c" : "var(--shadow-pop)",
+                            background:
+                              d.initialized && Math.round(d.mastery) === 100
+                                ? "#1a1230"
+                                : "var(--volt)",
+                            color:
+                              d.initialized && Math.round(d.mastery) === 100
+                                ? "var(--volt)"
+                                : "var(--ink)",
+                            boxShadow:
+                              d.initialized && Math.round(d.mastery) === 100
+                                ? "0 4px 0 0 #0f0a1c"
+                                : "var(--shadow-pop)",
                           }}
                         >
                           Drill this domain
@@ -230,7 +257,6 @@ function Domains() {
                     );
                   })}
                 </div>
-
               </section>
             );
           })}

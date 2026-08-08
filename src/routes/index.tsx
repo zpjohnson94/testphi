@@ -9,14 +9,26 @@ export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       { title: "TestPhi — Adaptive SAT prep that feels like a game" },
-      { name: "description", content: "Level up to your target SAT score with bite-sized lessons, an ELO rating like chess, and adaptive practice that hunts your weak spots." },
+      {
+        name: "description",
+        content:
+          "Level up to your target SAT score with bite-sized lessons, an ELO rating like chess, and adaptive practice that hunts your weak spots.",
+      },
       { property: "og:title", content: "TestPhi — Adaptive SAT prep that feels like a game" },
-      { property: "og:description", content: "Bite-sized lessons. An ELO rating like chess. An adaptive map that targets your weak spots." },
+      {
+        property: "og:description",
+        content:
+          "Bite-sized lessons. An ELO rating like chess. An adaptive map that targets your weak spots.",
+      },
       { property: "og:type", content: "website" },
       { property: "og:image", content: journeyBg },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: "TestPhi — Adaptive SAT prep that feels like a game" },
-      { name: "twitter:description", content: "Bite-sized lessons. An ELO rating like chess. An adaptive map that targets your weak spots." },
+      {
+        name: "twitter:description",
+        content:
+          "Bite-sized lessons. An ELO rating like chess. An adaptive map that targets your weak spots.",
+      },
       { name: "twitter:image", content: journeyBg },
     ],
   }),
@@ -65,29 +77,48 @@ function Landing() {
         }}
       />
       {/* Nav */}
-      <header className="sticky top-0 z-30 backdrop-blur" style={{ background: "rgba(29,41,0,0.85)", borderBottom: "1px solid rgba(246,240,250,0.08)", fontFamily: "var(--font-display)" }}>
+      <header
+        className="sticky top-0 z-30 backdrop-blur"
+        style={{
+          background: "rgba(29,41,0,0.85)",
+          borderBottom: "1px solid rgba(246,240,250,0.08)",
+          fontFamily: "var(--font-display)",
+        }}
+      >
         <div className="mx-auto max-w-6xl flex items-center justify-between px-5 py-3">
           <Link to="/" className="flex items-center gap-2">
             <Logo size={36} />
             <span className="display text-lg text-[var(--lavender)]">TestPhi</span>
           </Link>
-          <Link to="/auth" onClick={() => trackEvent("cta_click", { location: "nav", label: "Sign in" })} className="btn-volt px-4 py-2 text-sm">Sign in</Link>
+          <Link
+            to="/auth"
+            onClick={() => trackEvent("cta_click", { location: "nav", label: "Sign in" })}
+            className="btn-volt px-4 py-2 text-sm"
+          >
+            Sign in
+          </Link>
         </div>
       </header>
 
       {/* Hero */}
       <section className="relative z-10 mx-auto max-w-6xl px-5 pt-6 pb-6 sm:pt-16 sm:pb-56 text-center">
         <h1 className="mt-2 sm:mt-6 display text-4xl sm:text-7xl text-[var(--lavender)]">
-          Crush the SAT.<br />
+          Crush the SAT.
+          <br />
           <span style={{ color: "var(--volt)" }}>Master your weak spots.</span>
         </h1>
-        <p className="mt-3 sm:mt-5 mx-auto max-w-2xl text-base sm:text-lg font-medium" style={{ color: "rgba(246,240,250,0.7)" }}>
+        <p
+          className="mt-3 sm:mt-5 mx-auto max-w-2xl text-base sm:text-lg font-medium"
+          style={{ color: "rgba(246,240,250,0.7)" }}
+        >
           Boost your predicted score with lessons that adapt to your weak spots.
         </p>
         <div className="mt-5 sm:mt-10 flex flex-col items-center gap-3 sm:gap-4">
           <Link
             to={"/diagnostic?source=cta" as any}
-            onClick={() => trackEvent("cta_click", { location: "landing_hero", label: "Predict my score" })}
+            onClick={() =>
+              trackEvent("cta_click", { location: "landing_hero", label: "Predict my score" })
+            }
             className="btn-volt px-12 py-6 text-2xl tracking-tight inline-flex items-center gap-2 rounded-2xl"
             style={{
               boxShadow:
@@ -95,11 +126,18 @@ function Landing() {
             }}
           >
             Predict my score
-            <span aria-hidden="true" className="text-2xl sm:text-3xl">→</span>
+            <span aria-hidden="true" className="text-2xl sm:text-3xl">
+              →
+            </span>
           </Link>
           <Link
             to="/auth"
-            onClick={() => trackEvent("cta_click", { location: "landing_hero", label: "Already have an account" })}
+            onClick={() =>
+              trackEvent("cta_click", {
+                location: "landing_hero",
+                label: "Already have an account",
+              })
+            }
             className="text-sm font-bold underline-offset-4 hover:underline"
             style={{ color: "rgba(246,240,250,0.7)" }}
           >
@@ -109,32 +147,77 @@ function Landing() {
 
         {/* Floating preview */}
         <div className="mt-20 sm:mt-16 mx-auto max-w-lg">
-          <div className="rounded-3xl p-4 sm:p-7 backdrop-blur-md" style={{ background: "color-mix(in oklab, var(--violet-deep) 45%, transparent)", border: "1.5px solid var(--neon)" }}>
+          <div
+            className="rounded-3xl p-4 sm:p-7 backdrop-blur-md"
+            style={{
+              background: "color-mix(in oklab, var(--violet-deep) 45%, transparent)",
+              border: "1.5px solid var(--neon)",
+            }}
+          >
             <div className="flex items-start justify-between gap-3 sm:gap-4">
               <div className="text-left min-w-0">
-                <div className="text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.18em] whitespace-pre-line" style={{ color: "var(--volt)" }}>
+                <div
+                  className="text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.18em] whitespace-pre-line"
+                  style={{ color: "var(--volt)" }}
+                >
                   Hey Bianca!{"\n"}Your predicted SAT score
                 </div>
                 <div className="mt-2 sm:mt-3 flex items-end gap-1.5">
-                  <div className="score-num text-[56px] sm:text-[96px] leading-none" style={{ color: "var(--volt)" }}>1340</div>
-                  <div className="score-num text-lg sm:text-2xl mb-1.5 sm:mb-2" style={{ color: "rgba(184,255,0,0.6)" }}>/1600</div>
+                  <div
+                    className="score-num text-[56px] sm:text-[96px] leading-none"
+                    style={{ color: "var(--volt)" }}
+                  >
+                    1340
+                  </div>
+                  <div
+                    className="score-num text-lg sm:text-2xl mb-1.5 sm:mb-2"
+                    style={{ color: "rgba(184,255,0,0.6)" }}
+                  >
+                    /1600
+                  </div>
                 </div>
-                <div className="mt-2 sm:mt-3 inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-extrabold" style={{ background: "rgba(184,255,0,0.15)", color: "var(--volt)", border: "1px solid var(--volt)" }}>
+                <div
+                  className="mt-2 sm:mt-3 inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-extrabold"
+                  style={{
+                    background: "rgba(184,255,0,0.15)",
+                    color: "var(--volt)",
+                    border: "1px solid var(--volt)",
+                  }}
+                >
                   <Zap className="size-3.5" />
                   +40 pts this month
                 </div>
               </div>
-              <div className="shrink-0 size-16 sm:size-20 rounded-2xl flex items-center justify-center" style={{ background: "rgba(184,255,0,0.15)", border: "2px solid var(--volt)" }}>
+              <div
+                className="shrink-0 size-16 sm:size-20 rounded-2xl flex items-center justify-center"
+                style={{ background: "rgba(184,255,0,0.15)", border: "2px solid var(--volt)" }}
+              >
                 <Avatar config={{ ...defaultAvatar(), accessory: "crown" }} size={56} animate />
               </div>
             </div>
             <div className="mt-3 sm:mt-5 grid grid-cols-2 gap-2 sm:gap-3 text-left">
-              <div className="rounded-2xl p-2.5 sm:p-3" style={{ background: "rgba(0,0,0,0.25)", border: "1px solid var(--volt)" }}>
-                <div className="text-[10px] font-bold uppercase tracking-widest" style={{ color: "var(--volt)" }}>R&W</div>
+              <div
+                className="rounded-2xl p-2.5 sm:p-3"
+                style={{ background: "rgba(0,0,0,0.25)", border: "1px solid var(--volt)" }}
+              >
+                <div
+                  className="text-[10px] font-bold uppercase tracking-widest"
+                  style={{ color: "var(--volt)" }}
+                >
+                  R&W
+                </div>
                 <div className="score-num text-2xl sm:text-3xl text-[var(--lavender)]">670</div>
               </div>
-              <div className="rounded-2xl p-2.5 sm:p-3" style={{ background: "rgba(0,0,0,0.25)", border: "1px solid var(--neon)" }}>
-                <div className="text-[10px] font-bold uppercase tracking-widest" style={{ color: "var(--neon)" }}>Math</div>
+              <div
+                className="rounded-2xl p-2.5 sm:p-3"
+                style={{ background: "rgba(0,0,0,0.25)", border: "1px solid var(--neon)" }}
+              >
+                <div
+                  className="text-[10px] font-bold uppercase tracking-widest"
+                  style={{ color: "var(--neon)" }}
+                >
+                  Math
+                </div>
                 <div className="score-num text-2xl sm:text-3xl text-[var(--lavender)]">670</div>
               </div>
             </div>
@@ -142,10 +225,12 @@ function Landing() {
         </div>
       </section>
 
-      <footer className="hidden sm:block py-8 text-center text-xs" style={{ color: "rgba(246,240,250,0.4)", borderTop: "1px solid rgba(246,240,250,0.08)" }}>
+      <footer
+        className="hidden sm:block py-8 text-center text-xs"
+        style={{ color: "rgba(246,240,250,0.4)", borderTop: "1px solid rgba(246,240,250,0.08)" }}
+      >
         ​
       </footer>
     </div>
   );
 }
-

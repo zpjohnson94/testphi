@@ -4,12 +4,22 @@ let ctx: AudioContext | null = null;
 function getCtx(): AudioContext | null {
   if (typeof window === "undefined") return null;
   if (!ctx) {
-    try { ctx = new (window.AudioContext || (window as any).webkitAudioContext)(); } catch { ctx = null; }
+    try {
+      ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+    } catch {
+      ctx = null;
+    }
   }
   return ctx;
 }
 
-function tone(freq: number, duration: number, type: OscillatorType = "sine", gain = 0.15, when = 0) {
+function tone(
+  freq: number,
+  duration: number,
+  type: OscillatorType = "sine",
+  gain = 0.15,
+  when = 0,
+) {
   const c = getCtx();
   if (!c) return;
   const o = c.createOscillator();
@@ -28,7 +38,9 @@ export const sfx = {
   async resume() {
     const c = getCtx();
     if (c && c.state === "suspended") {
-      try { await c.resume(); } catch {}
+      try {
+        await c.resume();
+      } catch {}
     }
   },
   correct() {
@@ -60,7 +72,9 @@ export const sfx = {
     tone(784, 0.1, "triangle", 0.18, 0.2);
     tone(1047, 0.3, "triangle", 0.2, 0.32);
   },
-  tap() { tone(440, 0.05, "sine", 0.08); },
+  tap() {
+    tone(440, 0.05, "sine", 0.08);
+  },
   countdown() {
     // Bright, short tick for each count of the 3-2-1 sequence.
     tone(880, 0.08, "sine", 0.12);

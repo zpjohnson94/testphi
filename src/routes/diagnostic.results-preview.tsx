@@ -4,7 +4,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { Lock } from "lucide-react";
-import { QUESTIONS, TOTAL_QUESTIONS, scoreFor, type DiagState, type AnswerRecord } from "@/lib/diagnostic";
+import {
+  QUESTIONS,
+  TOTAL_QUESTIONS,
+  scoreFor,
+  type DiagState,
+  type AnswerRecord,
+} from "@/lib/diagnostic";
 import { Logo } from "@/components/Logo";
 import { DiagAvatar, AVATAR_IMAGES, type AvatarId } from "@/components/DiagAvatar";
 
@@ -181,7 +187,10 @@ function DiagResultsPreview() {
 
       <header
         className="sticky top-0 z-30 backdrop-blur"
-        style={{ background: "rgba(29,41,0,0.85)", borderBottom: "1px solid rgba(246,240,250,0.08)" }}
+        style={{
+          background: "rgba(29,41,0,0.85)",
+          borderBottom: "1px solid rgba(246,240,250,0.08)",
+        }}
       >
         <div className="mx-auto max-w-3xl px-5 py-3 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2">
@@ -201,11 +210,17 @@ function DiagResultsPreview() {
       </header>
 
       <section className="relative z-10 mx-auto max-w-2xl px-5 pt-12 pb-12 text-center">
-        <div className="text-[11px] font-bold uppercase tracking-[0.18em]" style={{ color: "var(--volt)" }}>
+        <div
+          className="text-[11px] font-bold uppercase tracking-[0.18em]"
+          style={{ color: "var(--volt)" }}
+        >
           Your predicted SAT score
         </div>
         <div className="mt-4 flex items-end justify-center gap-2">
-          <div className="score-num text-[88px] sm:text-[110px] leading-none" style={{ color: "var(--volt)" }}>
+          <div
+            className="score-num text-[88px] sm:text-[110px] leading-none"
+            style={{ color: "var(--volt)" }}
+          >
             {animatedScore}
           </div>
           <div className="score-num text-2xl mb-3" style={{ color: "rgba(184,255,0,0.6)" }}>
@@ -216,10 +231,12 @@ function DiagResultsPreview() {
       </section>
 
       <section className="relative z-10 mx-auto max-w-2xl px-5 pb-24 space-y-6">
-
         <div
           className="rounded-3xl p-6 sm:p-8"
-          style={{ background: "rgba(246,240,250,0.04)", border: "1px solid rgba(246,240,250,0.08)" }}
+          style={{
+            background: "rgba(246,240,250,0.04)",
+            border: "1px solid rgba(246,240,250,0.08)",
+          }}
         >
           <Group
             label="Weak Spots"
@@ -230,8 +247,22 @@ function DiagResultsPreview() {
             showBadge
             overlay={!unlocked ? <UnlockOverlay totalUpside={totalUpside} /> : undefined}
           />
-          <Group label="Developing" color="var(--spark)" items={developing} fallback={["Quadratic Equations", "Words in Context", "Data Interpretation"]} fallbackPts={[26, 22, 26]} showBadge />
-          <Group label="Strong" color="var(--volt)" items={strong} fallback={["Linear Equations", "Main Idea"]} fallbackPts={[]} showBadge={false} />
+          <Group
+            label="Developing"
+            color="var(--spark)"
+            items={developing}
+            fallback={["Quadratic Equations", "Words in Context", "Data Interpretation"]}
+            fallbackPts={[26, 22, 26]}
+            showBadge
+          />
+          <Group
+            label="Strong"
+            color="var(--volt)"
+            items={strong}
+            fallback={["Linear Equations", "Main Idea"]}
+            fallbackPts={[]}
+            showBadge={false}
+          />
         </div>
 
         <div>
@@ -255,19 +286,23 @@ function DiagResultsPreview() {
                 }}
               >
                 <div className="min-w-0">
-                  <div className="text-sm font-semibold text-[var(--lavender)] truncate">{c.name}</div>
+                  <div className="text-sm font-semibold text-[var(--lavender)] truncate">
+                    {c.name}
+                  </div>
                   <div className="text-xs" style={{ color: "rgba(246,240,250,0.55)" }}>
                     {c.loc}
                   </div>
                 </div>
-                <div className="text-sm font-bold whitespace-nowrap" style={{ color: "var(--volt)" }}>
+                <div
+                  className="text-sm font-bold whitespace-nowrap"
+                  style={{ color: "var(--volt)" }}
+                >
                   Avg SAT: {c.avg}
                 </div>
               </div>
             ))}
           </div>
         </div>
-
       </section>
     </div>
   );
@@ -303,7 +338,10 @@ function UnlockOverlay({ totalUpside }: { totalUpside: number }) {
       >
         +{totalUpside} points waiting to be unlocked
       </h3>
-      <p className="max-w-xs text-xs sm:text-sm font-medium" style={{ color: "rgba(246,240,250,0.75)" }}>
+      <p
+        className="max-w-xs text-xs sm:text-sm font-medium"
+        style={{ color: "rgba(246,240,250,0.75)" }}
+      >
         See your weak spots and the colleges that come into range when you master them.
       </p>
       <Link
@@ -319,7 +357,6 @@ function UnlockOverlay({ totalUpside }: { totalUpside: number }) {
     </div>
   );
 }
-
 
 function Group({
   label,

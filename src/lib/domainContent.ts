@@ -16,7 +16,7 @@ export const DOMAIN_CONTENT: Record<string, DomainContent> = {
       "Solving for a variable, interpreting what a slope or intercept means in context, and systems of two linear equations solved algebraically or graphically.",
     tips: [
       "When a word problem gives you two unknowns, write both equations before you solve either one. Don't try to shortcut it in your head.",
-      "If a question describes a line in words (\"a rate of $5 per hour plus a $20 fee\"), translate it to slope-intercept form immediately.",
+      'If a question describes a line in words ("a rate of $5 per hour plus a $20 fee"), translate it to slope-intercept form immediately.',
       "For systems questions, check if elimination is faster than substitution before you start. It usually is when coefficients already line up.",
     ],
   },

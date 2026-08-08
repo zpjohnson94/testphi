@@ -16,10 +16,10 @@ import {
 // ---------- Constants from spec ----------
 
 export const SCORING = {
-  THRESHOLD_QUESTIONS: 5,                  // 2 diag + 3 practice
+  THRESHOLD_QUESTIONS: 5, // 2 diag + 3 practice
   BONUS_DIFFICULTIES: [1, 2, 3] as Difficulty[],
-  MASTERY_INIT_FLOOR: 15,                  // %
-  MASTERY_INIT_CEIL: 90,                   // %
+  MASTERY_INIT_FLOOR: 15, // %
+  MASTERY_INIT_CEIL: 90, // %
   MASTERY_FLOOR: 0,
   MASTERY_CEIL: 100,
   DIFF_WEIGHTS: { 1: 1, 2: 2, 3: 3 } as Record<Difficulty, number>,
@@ -27,14 +27,14 @@ export const SCORING = {
   BASE_LOSS: { 1: 3.0, 2: 2.0, 3: 1.0 } as Record<Difficulty, number>,
   // null = no cap / no floor
   GAIN_CEILING: { 1: 50, 2: 85, 3: null } as Record<Difficulty, number | null>,
-  LOSS_FLOOR:   { 1: null, 2: 25, 3: 50 } as Record<Difficulty, number | null>,
+  LOSS_FLOOR: { 1: null, 2: 25, 3: 50 } as Record<Difficulty, number | null>,
   MOMENTUM_MIN: 1.0,
   MOMENTUM_MAX: 1.5,
-  MOMENTUM_STEP: 0.05,                     // ±0.05 per calendar day
-  QUALIFYING_QUESTIONS: 5,                 // questions/day to count as qualifying
+  MOMENTUM_STEP: 0.05, // ±0.05 per calendar day
+  QUALIFYING_QUESTIONS: 5, // questions/day to count as qualifying
   DECAY_GRACE_DAYS: 3,
-  DECAY_PER_WEEK: 2,                       // %
-  DECAY_FLOOR: 30,                         // %
+  DECAY_PER_WEEK: 2, // %
+  DECAY_FLOOR: 30, // %
 } as const;
 
 // ---------- Domains ----------
@@ -69,17 +69,17 @@ export interface BatchEntry {
 }
 
 export interface DomainStat {
-  answered: number;            // total questions answered in this domain (diag + practice + bonus)
-  initialized: boolean;        // mastery has been initialized via the batch formula
-  mastery: number;             // 0..100; meaningless until initialized
-  lastAnsweredISO: string;     // for decay tracking
-  batch: BatchEntry[];         // up to 8 entries used for one-time mastery init
-  bonusStep: 0 | 1 | 2 | 3;    // 0..3 bonus questions completed
+  answered: number; // total questions answered in this domain (diag + practice + bonus)
+  initialized: boolean; // mastery has been initialized via the batch formula
+  mastery: number; // 0..100; meaningless until initialized
+  lastAnsweredISO: string; // for decay tracking
+  batch: BatchEntry[]; // up to 8 entries used for one-time mastery init
+  bonusStep: 0 | 1 | 2 | 3; // 0..3 bonus questions completed
 }
 
 export interface SessionResult {
-  n: number;                    // 1..5 ordinal within the session
-  questionId?: string;          // real bank ID (falls back to String(n) if absent)
+  n: number; // 1..5 ordinal within the session
+  questionId?: string; // real bank ID (falls back to String(n) if absent)
   domainId: string;
   difficulty: Difficulty;
   correct: boolean;
@@ -124,17 +124,17 @@ export interface FreeState {
   email: string;
   plan: "free" | "powerup";
   seeded: boolean;
-  diagnosticScore: number;                 // 400..1600, snapshot from /diagnostic
+  diagnosticScore: number; // 400..1600, snapshot from /diagnostic
   domainStats: Record<string, DomainStat>;
-  momentumNeedle: number;                  // 0..10 (multiplier = 1 + 0.05 × needle)
-  lastMomentumDateISO: string;             // last date momentum was updated
-  qualifyingDays: string[];                // ISO dates with ≥5 non-diag questions
+  momentumNeedle: number; // 0..10 (multiplier = 1 + 0.05 × needle)
+  lastMomentumDateISO: string; // last date momentum was updated
+  qualifyingDays: string[]; // ISO dates with ≥5 non-diag questions
   streak: number;
-  lastDailyDate: string;                   // ISO date of last completed Daily 5
+  lastDailyDate: string; // ISO date of last completed Daily 5
   lastSession: LastSession | null;
   // Derived snapshots kept on the state for read convenience.
-  domainScores: Record<string, number>;    // mastery 0..100 per domain
-  overall: number;                         // predicted SAT score 400..1600
+  domainScores: Record<string, number>; // mastery 0..100 per domain
+  overall: number; // predicted SAT score 400..1600
 }
 
 const KEY = "testphi:free:v2";
@@ -389,7 +389,6 @@ export function saveFree(s: FreeState) {
 // personalized. Bonus-round selection stays adaptive and is handled per
 // domain via `isBonusQuestionFor` / `nextBonusDifficulty` below.
 
-
 export function hasCompletedToday(s: FreeState): boolean {
   return s.lastDailyDate === todayISO();
 }
@@ -455,10 +454,7 @@ function deltaFor(
 
 // Apply a single answered question to the state. Returns base + actual gain
 // contribution for the diff (post-init only; pre-init returns 0).
-function applyOneResult(
-  state: FreeState,
-  r: SessionResult,
-): { base: number; actual: number } {
+function applyOneResult(state: FreeState, r: SessionResult): { base: number; actual: number } {
   const stat = state.domainStats[r.domainId];
   if (!stat) return { base: 0, actual: 0 };
   const tf = timeFactor(r.correct, r.elapsedSeconds, expectedSecondsForDifficulty(r.difficulty));
@@ -493,7 +489,6 @@ function expectedSecondsForDifficulty(d: Difficulty): number {
   return 60;
 }
 
-
 function yesterdayISO() {
   return isoMinusDays(todayISO(), 1);
 }
@@ -506,7 +501,10 @@ export function applySession(prev: FreeState, results: SessionResult[]): FreeSta
   const wasCalibrated = isCalibrated(prev);
 
   // Snapshot per-domain pre-state for diffing.
-  const pre: Record<string, { answered: number; mastery: number; initialized: boolean; bonusStep: number }> = {};
+  const pre: Record<
+    string,
+    { answered: number; mastery: number; initialized: boolean; bonusStep: number }
+  > = {};
   for (const d of DOMAINS) {
     const s = prev.domainStats[d.id];
     pre[d.id] = {
@@ -534,7 +532,6 @@ export function applySession(prev: FreeState, results: SessionResult[]): FreeSta
       s.mastery = Math.min(s.mastery, SCORING.MASTERY_INIT_CEIL);
     }
   }
-
 
   // Streak
   const td = todayISO();
@@ -564,7 +561,10 @@ export function applySession(prev: FreeState, results: SessionResult[]): FreeSta
     const p = pre[d.id];
     const s = next.domainStats[d.id];
     const justUnlocked = !p.initialized && s.initialized;
-    const bonusUnlocked = !p.initialized && s.answered >= SCORING.THRESHOLD_QUESTIONS && p.answered < SCORING.THRESHOLD_QUESTIONS;
+    const bonusUnlocked =
+      !p.initialized &&
+      s.answered >= SCORING.THRESHOLD_QUESTIONS &&
+      p.answered < SCORING.THRESHOLD_QUESTIONS;
     return {
       domainId: d.id,
       wasInitialized: p.initialized,
@@ -615,8 +615,6 @@ export function momentumMultiplierOf(s: FreeState): number {
 export function bonusStepOf(s: FreeState, domainId: string): number {
   return s.domainStats[domainId]?.bonusStep ?? 0;
 }
-
-
 
 // ---------- Mastery → category (for Domains) ----------
 
