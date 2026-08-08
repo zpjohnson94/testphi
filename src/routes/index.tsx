@@ -3,7 +3,7 @@ import { Zap } from "lucide-react";
 import { Avatar, defaultAvatar } from "@/components/Avatar";
 import { Logo } from "@/components/Logo";
 import { trackEvent } from "@/lib/analytics";
-import journeyBg from "@/assets/journey-bg.png";
+import journeyBg from "@/assets/journey-bg.jpg";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -46,6 +46,10 @@ function Landing() {
         <img
           src={journeyBg}
           alt=""
+          width={1376}
+          height={768}
+          loading="lazy"
+          decoding="async"
           className="w-full h-full object-cover object-center"
           style={{ opacity: 0.55 }}
         />

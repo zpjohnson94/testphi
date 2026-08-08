@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { X } from "lucide-react";
 import { useServeBonusRound, useSubmitBonusRound, type BonusSubmitAnswer } from "@/lib/useBonusRound";
 import { ChestReveal } from "./ChestReveal";
+import { CHEST_IMAGE, preloadImage } from "@/lib/images";
 import { sfx } from "@/lib/sfx";
 
 interface Props {
@@ -38,6 +39,12 @@ export function BonusUnlockModal({ open, domainId, domainLabel, onClose }: Props
       setMasteryPct(0);
       setBonusSummary(null);
     }
+  }, [open]);
+
+  // Fetch the chest art up front so the reveal doesn't stall on it. The user
+  // spends several seconds on the three questions first, which is ample.
+  useEffect(() => {
+    if (open) preloadImage(CHEST_IMAGE);
   }, [open]);
 
   useEffect(() => {

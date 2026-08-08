@@ -1,6 +1,6 @@
 // Full-screen chest reveal experience: tap 12 times, unlock, celebrate.
 import { useEffect, useMemo, useRef, useState } from "react";
-import chestImg from "@/assets/chest-buried.png";
+import { CHEST_IMAGE } from "@/lib/images";
 import { sfx } from "@/lib/sfx";
 
 function AnimatedPct({ target }: { target: number }) {
@@ -186,11 +186,11 @@ export function ChestReveal({ domainName, masteryPct, bonusSummary, onDone }: Pr
               }}
             >
               <img
-                src={chestImg}
+                src={CHEST_IMAGE}
                 alt=""
                 width={280}
                 height={280}
-                loading="lazy"
+                fetchPriority="high"
                 draggable={false}
                 style={{
                   width: "100%",
