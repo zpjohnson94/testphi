@@ -176,10 +176,10 @@ function DeveloperMenu({ state }: { state: FreeState }) {
                           <input
                             type="number"
                             min={0}
-                            max={SCORING.THRESHOLD_QUESTIONS - 1}
+                            max={SCORING.THRESHOLD_QUESTIONS}
                             value={d.answered}
                             onChange={(e) => {
-                              const answered = Math.max(0, Math.min(SCORING.THRESHOLD_QUESTIONS - 1, Number(e.target.value) || 0));
+                              const answered = Math.max(0, Math.min(SCORING.THRESHOLD_QUESTIONS, Number(e.target.value) || 0));
                               dev.mutate({ domainLock: [{ domainId: d.id, locked: true, answered }] });
                             }}
                             className="w-14 rounded-md px-2 py-1 text-xs"
