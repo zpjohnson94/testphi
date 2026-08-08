@@ -138,8 +138,8 @@ function DeveloperMenu({ state }: { state: FreeState }) {
                       <div className="text-xs font-bold truncate" style={{ color: "var(--lavender)" }}>{d.label}</div>
                       <div className="flex items-center gap-1">
                         {d.locked ? (
-                          <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider" style={{ color: "var(--destructive)" }}>
-                            <Lock className="size-3" /> Locked · {d.remaining} left
+                          <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider" style={{ color: d.remaining === 0 ? "var(--volt)" : "var(--destructive)" }}>
+                            <Lock className="size-3" /> {d.remaining === 0 ? "Ready to unlock" : `Locked · ${d.remaining} left`}
                           </span>
                         ) : (
                           <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider" style={{ color: "var(--volt)" }}>
