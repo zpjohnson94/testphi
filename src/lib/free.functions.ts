@@ -4,6 +4,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { hasDevAccess } from "./devAccess";
 import {
   DOMAINS,
   SCORING,
@@ -406,6 +407,14 @@ export const devPatchState = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((raw: unknown) => devPatchSchema.parse(raw))
   .handler(async ({ data, context }) => {
+    // Authorize against the verified JWT claim, NOT profiles.email — that column
+    // is user-writable via updateProfile, so trusting it would let any account
+    // grant itself dev access (and with it, the "powerup" plan).
+    const claimEmail = typeof context.claims.email === "string" ? context.claims.email : null;
+    if (!hasDevAccess(claimEmail)) {
+      throw new Response("Forbidden: developer access required", { status: 403 });
+    }
+
     const state = await loadState(context);
 
     if (data.plan) {
