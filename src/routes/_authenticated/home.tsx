@@ -1,12 +1,11 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { Flame, Info } from "lucide-react";
 import { FreeShell } from "@/components/FreeShell";
 import { Logo } from "@/components/Logo";
 import { Avatar } from "@/components/Avatar";
 import { useStore, useHydration } from "@/lib/store";
 import { PredictedScore } from "@/components/PredictedScore";
-import { PredictedScoreHistory } from "@/components/PredictedScoreHistory";
 import { MomentumGauge } from "@/components/MomentumGauge";
 import { UnlockReadyCard, BoltMark } from "@/components/UnlockReadyCard";
 import { BonusUnlockModal } from "@/components/BonusUnlockModal";
@@ -23,6 +22,13 @@ import { useBattleStatus, usePrefetchBattleBundle } from "@/lib/useBattle";
 import { STATIC_GHOST, staticGhostProgress } from "@/lib/staticGhostProfile";
 import { Swords } from "lucide-react";
 
+
+// Recharts is ~100 KB gzipped — more than half of Home's JS. Split it out so
+// the screen paints without it; the placeholder reserves the chart's height so
+// swapping it in doesn't shift layout.
+const PredictedScoreHistory = lazy(() =>
+  import("@/components/PredictedScoreHistory").then((m) => ({ default: m.PredictedScoreHistory })),
+);
 
 export const Route = createFileRoute("/_authenticated/home")({
   head: () => ({ meta: [{ title: "Home — TestPhi" }] }),
@@ -192,7 +198,11 @@ function HomePage() {
                 <div className="score-num text-2xl sm:text-3xl text-[var(--lavender)]">{mathScore}</div>
               </div>
             </div>
-            {state && <PredictedScoreHistory state={state} />}
+            {state && (
+              <Suspense fallback={<div className="mt-4 h-40 sm:h-48" />}>
+                <PredictedScoreHistory state={state} />
+              </Suspense>
+            )}
           </section>
 
           {/* Bonus round unlock cards (one per domain that's ready) */}

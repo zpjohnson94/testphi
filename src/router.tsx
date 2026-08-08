@@ -66,6 +66,9 @@ export const getRouter = () => {
     routeTree,
     context: { queryClient },
     scrollRestoration: true,
+    // Start fetching a route's chunk (and its beforeLoad) on hover/touchstart
+    // rather than on click, so navigation isn't a cold chunk fetch every time.
+    defaultPreload: "intent",
     defaultPreloadStaleTime: 0,
     defaultErrorComponent: DefaultErrorComponent,
   });
