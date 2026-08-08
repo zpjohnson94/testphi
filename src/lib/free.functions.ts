@@ -443,7 +443,7 @@ export const devPatchState = createServerFn({ method: "POST" })
           stat.mastery = 0;
           stat.batch = [];
           stat.bonusStep = 0;
-          const cap = SCORING.THRESHOLD_QUESTIONS - 1;
+          const cap = SCORING.THRESHOLD_QUESTIONS;
           const target = l.answered !== undefined ? Math.min(l.answered, cap) : Math.min(stat.answered, cap);
           stat.answered = Math.max(0, target);
         } else {
