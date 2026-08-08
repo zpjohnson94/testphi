@@ -69,7 +69,12 @@ export function useFinalizeBattle() {
       }));
       qc.setQueryData(battleBundleKey, (previous: BattleBundle | undefined) =>
         previous
-          ? { ...previous, alreadyCompleted: true, myRunId: result.runId, totalWins: result.totalWins }
+          ? {
+              ...previous,
+              alreadyCompleted: true,
+              myRunId: result.runId,
+              totalWins: result.totalWins,
+            }
           : previous,
       );
       void qc.invalidateQueries({ queryKey: battleStatusKey });

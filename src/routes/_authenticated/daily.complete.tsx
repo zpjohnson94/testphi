@@ -133,16 +133,17 @@ function DailyComplete() {
             {displayMsg}
           </div>
           <div className="mt-5 flex gap-2">
-            <button
-              onClick={runRetry}
-              className="btn-volt flex-1 py-3 rounded-xl text-sm"
-            >
+            <button onClick={runRetry} className="btn-volt flex-1 py-3 rounded-xl text-sm">
               Retry
             </button>
             <button
               onClick={() => navigate({ to: "/home" as any, replace: true })}
               className="flex-1 py-3 rounded-xl text-sm font-bold"
-              style={{ background: "rgba(246,240,250,0.08)", color: "var(--lavender)", border: "1px solid rgba(246,240,250,0.2)" }}
+              style={{
+                background: "rgba(246,240,250,0.08)",
+                color: "var(--lavender)",
+                border: "1px solid rgba(246,240,250,0.2)",
+              }}
             >
               Home
             </button>
@@ -151,7 +152,6 @@ function DailyComplete() {
       </div>
     );
   }
-
 
   if (!next || !prev || !next.lastSession) {
     return (
@@ -186,11 +186,15 @@ function DailyComplete() {
 
   return (
     <FreeShell>
-      <CompleteContent prev={prev} next={next} session={session} onExit={() => navigate({ to: "/home" as any })} />
+      <CompleteContent
+        prev={prev}
+        next={next}
+        session={session}
+        onExit={() => navigate({ to: "/home" as any })}
+      />
     </FreeShell>
   );
 }
-
 
 interface ContentProps {
   prev: FreeState;
@@ -241,7 +245,6 @@ function CompleteContent({ prev, next, session, onExit }: ContentProps) {
   const showStreak = session.streakIncreased && step >= streakStep;
   const showFinish = step >= totalSteps;
 
-
   const noMissLine = useMemo(
     () => NO_MISS_LINES[Math.floor(Math.random() * NO_MISS_LINES.length)],
     [],
@@ -253,7 +256,11 @@ function CompleteContent({ prev, next, session, onExit }: ContentProps) {
       <button
         onClick={onExit}
         className="fixed top-4 right-4 z-40 size-10 rounded-full flex items-center justify-center"
-        style={{ background: "rgba(0,0,0,0.5)", border: "1px solid rgba(246,240,250,0.18)", color: "var(--lavender)" }}
+        style={{
+          background: "rgba(0,0,0,0.5)",
+          border: "1px solid rgba(246,240,250,0.18)",
+          color: "var(--lavender)",
+        }}
         aria-label="Close session summary"
       >
         <X className="size-5" />
@@ -267,9 +274,15 @@ function CompleteContent({ prev, next, session, onExit }: ContentProps) {
           ) : (
             <div
               className="rounded-3xl p-6 text-center"
-              style={{ background: "var(--violet-deep)", border: "1.5px solid rgba(168,85,247,0.4)" }}
+              style={{
+                background: "var(--violet-deep)",
+                border: "1.5px solid rgba(168,85,247,0.4)",
+              }}
             >
-              <div className="text-[11px] font-bold uppercase tracking-[0.18em]" style={{ color: "var(--volt)" }}>
+              <div
+                className="text-[11px] font-bold uppercase tracking-[0.18em]"
+                style={{ color: "var(--volt)" }}
+              >
                 PREDICTED SAT SCORE
               </div>
               <div className="mt-3 flex justify-center">
@@ -318,7 +331,8 @@ function CompleteContent({ prev, next, session, onExit }: ContentProps) {
                     className="text-[11px] leading-snug max-w-xs"
                     style={{ color: "rgba(246,240,250,0.6)" }}
                   >
-                    Your score won't budge until all 8 domains are calibrated. Keep going to unlock live point changes!
+                    Your score won't budge until all 8 domains are calibrated. Keep going to unlock
+                    live point changes!
                   </div>
                 )}
               </div>
@@ -331,14 +345,21 @@ function CompleteContent({ prev, next, session, onExit }: ContentProps) {
           {missedCount > 0 ? (
             <div
               className="rounded-2xl p-4 flex items-center justify-between gap-3"
-              style={{ background: "rgba(255,77,109,0.08)", border: "1px solid rgba(255,77,109,0.35)" }}
+              style={{
+                background: "rgba(255,77,109,0.08)",
+                border: "1px solid rgba(255,77,109,0.35)",
+              }}
             >
               <div className="text-sm font-bold text-[var(--lavender)]">
                 {missedCount} question{missedCount === 1 ? "" : "s"} incorrect
               </div>
               <button
                 className="rounded-xl px-4 py-2 text-sm font-bold"
-                style={{ background: "rgba(74,6,136,0.5)", color: "var(--lavender)", border: "1px solid rgba(168,85,247,0.5)" }}
+                style={{
+                  background: "rgba(74,6,136,0.5)",
+                  color: "var(--lavender)",
+                  border: "1px solid rgba(168,85,247,0.5)",
+                }}
                 onClick={() => setReviewOpen(true)}
               >
                 Review →
@@ -347,7 +368,10 @@ function CompleteContent({ prev, next, session, onExit }: ContentProps) {
           ) : (
             <div
               className="rounded-2xl p-4 text-center"
-              style={{ background: "rgba(184,255,0,0.08)", border: "1px solid rgba(184,255,0,0.35)" }}
+              style={{
+                background: "rgba(184,255,0,0.08)",
+                border: "1px solid rgba(184,255,0,0.35)",
+              }}
             >
               <div className="text-sm font-bold" style={{ color: "var(--volt)" }}>
                 {noMissLine}
@@ -389,21 +413,25 @@ function CompleteContent({ prev, next, session, onExit }: ContentProps) {
           })}
         </section>
 
-
-
-
         {/* 4. Momentum (conditional) */}
         {session.momentumIncreased && (
           <SectionFade show={showMomentum}>
             <div
               className="rounded-3xl p-5 flex flex-col items-center"
-              style={{ background: "var(--violet-deep)", border: "1.5px solid rgba(168,85,247,0.4)" }}
+              style={{
+                background: "var(--violet-deep)",
+                border: "1.5px solid rgba(168,85,247,0.4)",
+              }}
             >
               <MomentumGauge needle={session.momentumAfter} size={200} />
               <div className="mt-2 text-sm font-bold" style={{ color: "var(--lavender)" }}>
                 Momentum increased{" "}
                 <span style={{ color: "var(--volt)" }}>
-                  +{((session.momentumAfter - session.momentumBefore) * SCORING.MOMENTUM_STEP).toFixed(2)}
+                  +
+                  {(
+                    (session.momentumAfter - session.momentumBefore) *
+                    SCORING.MOMENTUM_STEP
+                  ).toFixed(2)}
                 </span>{" "}
                 → {(1 + session.momentumAfter * SCORING.MOMENTUM_STEP).toFixed(2)}x
               </div>
@@ -480,13 +508,21 @@ function CalibrationMilestone({ prevScore, newScore }: { prevScore: number; newS
         }}
       />
       <div className="relative">
-        <div className="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-[0.18em]" style={{ color: "var(--volt)" }}>
+        <div
+          className="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-[0.18em]"
+          style={{ color: "var(--volt)" }}
+        >
           <Sparkles className="size-4" /> Calibration Milestone <Sparkles className="size-4" />
         </div>
-        <h2 className="mt-3 display text-3xl text-[var(--lavender)]">Your score is now calibrated</h2>
+        <h2 className="mt-3 display text-3xl text-[var(--lavender)]">
+          Your score is now calibrated
+        </h2>
         <div className="mt-5 grid grid-cols-2 gap-4">
           <div>
-            <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: "rgba(246,240,250,0.55)" }}>
+            <div
+              className="text-[10px] font-bold uppercase tracking-wider"
+              style={{ color: "rgba(246,240,250,0.55)" }}
+            >
               Diagnostic
             </div>
             <div className="score-num text-4xl mt-1" style={{ color: "rgba(246,240,250,0.65)" }}>
@@ -494,7 +530,10 @@ function CalibrationMilestone({ prevScore, newScore }: { prevScore: number; newS
             </div>
           </div>
           <div>
-            <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: "var(--volt)" }}>
+            <div
+              className="text-[10px] font-bold uppercase tracking-wider"
+              style={{ color: "var(--volt)" }}
+            >
               Calibrated
             </div>
             <PredictedScore
@@ -565,7 +604,8 @@ function DomainRow({
   }, []);
 
   const deltaSign = diff.newMastery >= diff.prevMastery ? "+" : "";
-  const deltaPct = nowInit && wasInit ? `${deltaSign}${(diff.newMastery - diff.prevMastery).toFixed(1)}%` : "";
+  const deltaPct =
+    nowInit && wasInit ? `${deltaSign}${(diff.newMastery - diff.prevMastery).toFixed(1)}%` : "";
   const tipOpen = isOpen;
   const momentumMult = diff.baseGain !== 0 ? diff.actualGain / diff.baseGain : 1;
   const positiveDelta = diff.newMastery - diff.prevMastery >= 0;
@@ -599,9 +639,7 @@ function DomainRow({
         background: "#1a1230",
         border: justUnlocked ? "1.5px solid var(--volt)" : "1px solid rgba(246,240,250,0.1)",
         boxShadow: justUnlocked ? "0 0 40px -10px rgba(184,255,0,0.55)" : undefined,
-        minHeight: tipOpen
-          ? (showCeilingNote ? 210 : 155) + domainResults.length * 22
-          : undefined,
+        minHeight: tipOpen ? (showCeilingNote ? 210 : 155) + domainResults.length * 22 : undefined,
         zIndex: tipOpen ? 100 : undefined,
       }}
     >
@@ -625,19 +663,18 @@ function DomainRow({
                 {Math.round(pct)}%
               </span>
               {deltaPct && (
-                <DeltaBadge
-                  delta={diff.newMastery - diff.prevMastery}
-                  onToggle={onToggle}
-                />
+                <DeltaBadge delta={diff.newMastery - diff.prevMastery} onToggle={onToggle} />
               )}
             </>
           ) : null}
         </div>
-
       </div>
 
       {nowInit ? (
-        <div className="mt-3 h-2 rounded-full overflow-hidden" style={{ background: "rgba(0,0,0,0.3)" }}>
+        <div
+          className="mt-3 h-2 rounded-full overflow-hidden"
+          style={{ background: "rgba(0,0,0,0.3)" }}
+        >
           <div className="h-full" style={{ width: `${pct}%`, background: "var(--volt)" }} />
         </div>
       ) : (
@@ -656,7 +693,8 @@ function DomainRow({
                         ? "var(--spark)"
                         : "var(--volt)"
                       : "rgba(246,240,250,0.12)",
-                    transition: "background-color 300ms ease, transform 400ms cubic-bezier(0.34, 1.56, 0.64, 1)",
+                    transition:
+                      "background-color 300ms ease, transform 400ms cubic-bezier(0.34, 1.56, 0.64, 1)",
                     transform: isNewThisSession ? "scaleY(1.15)" : "scaleY(1)",
                     boxShadow: isNewThisSession ? "0 0 12px rgba(255,140,60,0.55)" : undefined,
                   }}
@@ -668,12 +706,13 @@ function DomainRow({
             className="mt-2 text-[11px] font-bold uppercase tracking-wider"
             style={{ color: "rgba(246,240,250,0.6)" }}
           >
-            <span style={{ color: "var(--lavender)" }}>{Math.min(maskShown, SCORING.THRESHOLD_QUESTIONS)}</span>
+            <span style={{ color: "var(--lavender)" }}>
+              {Math.min(maskShown, SCORING.THRESHOLD_QUESTIONS)}
+            </span>
             <span>/{SCORING.THRESHOLD_QUESTIONS} questions to calibration</span>
           </div>
         </div>
       )}
-
 
       {justUnlocked && (
         <div
@@ -695,10 +734,7 @@ function DomainRow({
 
       {tipOpen && (
         <>
-          <div
-            className="fixed inset-0 z-[90]"
-            onClick={onToggle}
-          />
+          <div className="fixed inset-0 z-[90]" onClick={onToggle} />
           <div
             className="absolute top-0 left-0 right-0 z-[100] rounded-2xl p-4 text-[12px] leading-relaxed"
             onClick={(e) => {
@@ -714,13 +750,22 @@ function DomainRow({
               boxShadow: "0 8px 24px rgba(0,0,0,0.5)",
             }}
           >
-            <div className="font-bold uppercase tracking-wider mb-2 text-[10px]" style={{ color: "var(--volt)" }}>
+            <div
+              className="font-bold uppercase tracking-wider mb-2 text-[10px]"
+              style={{ color: "var(--volt)" }}
+            >
               Score change breakdown
             </div>
             {domainResults.length > 0 && (
-              <div className="space-y-1 mb-2 pb-2 border-b" style={{ borderColor: "rgba(246,240,250,0.15)" }}>
+              <div
+                className="space-y-1 mb-2 pb-2 border-b"
+                style={{ borderColor: "rgba(246,240,250,0.15)" }}
+              >
                 {domainResults.map((r, i) => (
-                  <div key={`${r.questionId ?? r.n}-${i}`} className="flex items-center justify-between gap-2">
+                  <div
+                    key={`${r.questionId ?? r.n}-${i}`}
+                    className="flex items-center justify-between gap-2"
+                  >
                     <span className="flex items-center gap-1.5">
                       <span
                         className="inline-block rounded-full"
@@ -746,8 +791,13 @@ function DomainRow({
             )}
             <div className="space-y-1">
               <div>
-                <span style={{ color: "rgba(246,240,250,0.6)" }}>Base {positiveDelta ? "gain" : "loss"}:</span>{" "}
-                <span className="tabular-nums font-bold">{diff.baseGain >= 0 ? "+" : ""}{diff.baseGain.toFixed(1)}%</span>
+                <span style={{ color: "rgba(246,240,250,0.6)" }}>
+                  Base {positiveDelta ? "gain" : "loss"}:
+                </span>{" "}
+                <span className="tabular-nums font-bold">
+                  {diff.baseGain >= 0 ? "+" : ""}
+                  {diff.baseGain.toFixed(1)}%
+                </span>
               </div>
               {positiveDelta && (
                 <div>
@@ -757,15 +807,24 @@ function DomainRow({
               )}
               <div className="pt-1 border-t" style={{ borderColor: "rgba(246,240,250,0.15)" }}>
                 <span style={{ color: "rgba(246,240,250,0.6)" }}>Total:</span>{" "}
-                <span className="tabular-nums font-bold" style={{ color: positiveDelta ? "var(--volt)" : "var(--destructive)" }}>
-                  {diff.actualGain >= 0 ? "+" : ""}{diff.actualGain.toFixed(1)}%
+                <span
+                  className="tabular-nums font-bold"
+                  style={{ color: positiveDelta ? "var(--volt)" : "var(--destructive)" }}
+                >
+                  {diff.actualGain >= 0 ? "+" : ""}
+                  {diff.actualGain.toFixed(1)}%
                 </span>
               </div>
             </div>
             {showCeilingNote && (
               <div className="mt-3 pt-3 border-t" style={{ borderColor: "rgba(246,240,250,0.15)" }}>
-                <div className="text-[11px] leading-relaxed" style={{ color: "rgba(246,240,250,0.75)" }}>
-                  You answered correctly, but the higher your mastery, the harder the questions need to be to improve your score further. Correct answers at any difficulty still help maintain your current level.
+                <div
+                  className="text-[11px] leading-relaxed"
+                  style={{ color: "rgba(246,240,250,0.75)" }}
+                >
+                  You answered correctly, but the higher your mastery, the harder the questions need
+                  to be to improve your score further. Correct answers at any difficulty still help
+                  maintain your current level.
                 </div>
               </div>
             )}
@@ -776,13 +835,7 @@ function DomainRow({
   );
 }
 
-function DeltaBadge({
-  delta,
-  onToggle,
-}: {
-  delta: number;
-  onToggle: () => void;
-}) {
+function DeltaBadge({ delta, onToggle }: { delta: number; onToggle: () => void }) {
   const positive = delta >= 0;
   const bg = positive ? "var(--volt)" : "var(--destructive)";
   const fg = positive ? "var(--ink)" : "var(--lavender)";

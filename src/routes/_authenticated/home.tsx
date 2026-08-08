@@ -22,7 +22,6 @@ import { useBattleStatus, usePrefetchBattleBundle } from "@/lib/useBattle";
 import { STATIC_GHOST, staticGhostProgress } from "@/lib/staticGhostProfile";
 import { Swords } from "lucide-react";
 
-
 // Recharts is ~100 KB gzipped — more than half of Home's JS. Split it out so
 // the screen paints without it; the placeholder reserves the chart's height so
 // swapping it in doesn't shift layout.
@@ -43,7 +42,7 @@ function HomePage() {
   const prefetchBattle = usePrefetchBattleBundle();
   const avatar = useStore((s) => s.avatar);
   const overall = state?.overall ?? 800;
-  
+
   const done = state ? hasCompletedToday(state) : false;
   const lastSession = state?.lastSession ?? null;
   const [animatedScore, setAnimatedScore] = useState(overall);
@@ -91,7 +90,6 @@ function HomePage() {
     };
   }, [momentumOpen]);
 
-  
   const [bonusDomainId, setBonusDomainId] = useState<string | null>(null);
 
   const bonusReadyDomains = useMemo(() => {
@@ -105,13 +103,15 @@ function HomePage() {
     });
   }, [state]);
 
-
   return (
     <FreeShell>
       <div className="topo-bg">
         <header
           className="sticky top-0 z-30 backdrop-blur"
-          style={{ background: "rgba(29,41,0,0.85)", borderBottom: "1px solid rgba(246,240,250,0.08)" }}
+          style={{
+            background: "rgba(29,41,0,0.85)",
+            borderBottom: "1px solid rgba(246,240,250,0.08)",
+          }}
         >
           <div className="mx-auto max-w-2xl px-5 py-3 flex items-center">
             <div className="flex items-center gap-2">
@@ -139,9 +139,7 @@ function HomePage() {
                 <div className="display text-lg sm:text-2xl text-[var(--lavender)]">
                   {`Hey ${name}!`}
                 </div>
-                <div className="display text-2xl text-[var(--lavender)]">
-                  Your predicted score:
-                </div>
+                <div className="display text-2xl text-[var(--lavender)]">Your predicted score:</div>
                 <div className="mt-2 sm:mt-3">
                   <PredictedScore
                     score={state?.overall ?? 800}
@@ -154,7 +152,8 @@ function HomePage() {
                   <div
                     className="mt-2 sm:mt-3 inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-extrabold"
                     style={{
-                      background: monthDelta >= 0 ? "rgba(184,255,0,0.15)" : "rgba(255,77,109,0.15)",
+                      background:
+                        monthDelta >= 0 ? "rgba(184,255,0,0.15)" : "rgba(255,77,109,0.15)",
                       color: monthDelta >= 0 ? "var(--volt)" : "var(--destructive)",
                       border: `1px solid ${monthDelta >= 0 ? "var(--volt)" : "var(--destructive)"}`,
                     }}
@@ -163,7 +162,6 @@ function HomePage() {
                     {monthDelta} pts last session
                   </div>
                 )}
-
               </div>
               <div
                 className="shrink-0 size-16 sm:size-20 rounded-full flex items-center justify-center"
@@ -183,7 +181,9 @@ function HomePage() {
                 >
                   R&W
                 </div>
-                <div className="score-num text-2xl sm:text-3xl text-[var(--lavender)]">{rwScore}</div>
+                <div className="score-num text-2xl sm:text-3xl text-[var(--lavender)]">
+                  {rwScore}
+                </div>
               </div>
               <div
                 className="rounded-2xl p-2.5 sm:p-3"
@@ -195,7 +195,9 @@ function HomePage() {
                 >
                   Math
                 </div>
-                <div className="score-num text-2xl sm:text-3xl text-[var(--lavender)]">{mathScore}</div>
+                <div className="score-num text-2xl sm:text-3xl text-[var(--lavender)]">
+                  {mathScore}
+                </div>
               </div>
             </div>
             {state && (
@@ -229,7 +231,11 @@ function HomePage() {
             <div className="flex items-center gap-3">
               <div
                 className="shrink-0 size-11 rounded-2xl flex items-center justify-center"
-                style={{ background: "rgba(184,255,0,0.15)", border: "1.5px solid var(--volt)", color: "var(--volt)" }}
+                style={{
+                  background: "rgba(184,255,0,0.15)",
+                  border: "1.5px solid var(--volt)",
+                  color: "var(--volt)",
+                }}
               >
                 <BoltMark size={22} />
               </div>
@@ -239,7 +245,9 @@ function HomePage() {
               className="text-sm font-semibold mt-1 text-left"
               style={{ color: "rgba(246,240,250,0.7)" }}
             >
-              {done ? "Daily 5 complete. Nice work!" : "Complete 5 questions every day to build momentum"}
+              {done
+                ? "Daily 5 complete. Nice work!"
+                : "Complete 5 questions every day to build momentum"}
             </div>
 
             {/* Five circle indicators */}
@@ -293,7 +301,9 @@ function HomePage() {
 
             {!done ? (
               <button
-                onClick={() => navigate({ to: "/daily/question/$n" as any, params: { n: "1" } as any })}
+                onClick={() =>
+                  navigate({ to: "/daily/question/$n" as any, params: { n: "1" } as any })
+                }
                 className="btn-volt mt-6 w-full py-4 text-base rounded-2xl"
               >
                 Start Daily 5 →
@@ -333,7 +343,8 @@ function HomePage() {
               className="text-sm font-semibold mt-1 text-left"
               style={{ color: "rgba(246,240,250,0.7)" }}
             >
-              Go head-to-head with a random opponent to see who can answer more questions correctly in 2 minutes
+              Go head-to-head with a random opponent to see who can answer more questions correctly
+              in 2 minutes
             </div>
             <div className="flex items-center justify-center gap-4 mt-4">
               <Avatar config={avatar} size={56} animate />
@@ -350,9 +361,7 @@ function HomePage() {
                 onClick={() => {
                   const my = battleStatus.myRun;
                   const opp = battleStatus.opponent;
-                  const ghost = !opp
-                    ? staticGhostProgress(my?.total_time_ms ?? 120000)
-                    : null;
+                  const ghost = !opp ? staticGhostProgress(my?.total_time_ms ?? 120000) : null;
                   navigate({
                     to: "/battle/results" as any,
                     search: {
@@ -371,9 +380,7 @@ function HomePage() {
                       opponentAccessory: opp ? "" : STATIC_GHOST.accessory,
                     } as any,
                   });
-
                 }}
-
                 className="block text-center mt-5 w-full py-3.5 text-base font-bold rounded-2xl"
                 style={{
                   border: "1.5px solid rgba(246,240,250,0.25)",
@@ -423,13 +430,18 @@ function HomePage() {
                     boxShadow: "0 8px 24px rgba(0,0,0,0.5)",
                   }}
                 >
-                  <div className="text-[11px] font-bold uppercase tracking-wider mb-2" style={{ color: "var(--volt)" }}>
+                  <div
+                    className="text-[11px] font-bold uppercase tracking-wider mb-2"
+                    style={{ color: "var(--volt)" }}
+                  >
                     Momentum
                   </div>
-                  Momentum rewards consistency. Complete the Daily 5 to raise it by 1. Miss a day and it decays by 1.
+                  Momentum rewards consistency. Complete the Daily 5 to raise it by 1. Miss a day
+                  and it decays by 1.
                   <br />
                   <br />
-                  Higher momentum means higher gains for correct answers. Each level adds +0.05 to your mastery multiplier.
+                  Higher momentum means higher gains for correct answers. Each level adds +0.05 to
+                  your mastery multiplier.
                 </div>
               )}
             </div>
@@ -437,21 +449,26 @@ function HomePage() {
             <div className="flex items-center gap-3">
               <div
                 className="shrink-0 size-11 rounded-2xl flex items-center justify-center"
-                style={{ background: "rgba(184,255,0,0.15)", border: "1.5px solid var(--volt)", color: "var(--volt)" }}
+                style={{
+                  background: "rgba(184,255,0,0.15)",
+                  border: "1.5px solid var(--volt)",
+                  color: "var(--volt)",
+                }}
               >
                 <Flame className="size-5" />
               </div>
               <div className="display text-2xl text-[var(--lavender)]">Momentum Multiplier</div>
             </div>
-            <div className="text-sm font-semibold mt-1 text-left" style={{ color: "rgba(246,240,250,0.7)" }}>
+            <div
+              className="text-sm font-semibold mt-1 text-left"
+              style={{ color: "rgba(246,240,250,0.7)" }}
+            >
               Practice daily and multiply gains from correct answers
             </div>
             <div className="flex justify-center w-full">
               <MomentumGauge needle={state?.momentumNeedle ?? 0} size={180} />
             </div>
           </section>
-
-
         </main>
       </div>
 

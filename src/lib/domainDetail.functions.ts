@@ -8,7 +8,6 @@ import { buildReviewMap, type DomainReviewItem } from "./domainReview.server";
 
 export type { DomainReviewItem };
 
-
 export interface DomainActivityRow {
   id: string;
   correct: boolean;
@@ -80,7 +79,6 @@ export const getDomainActivity = createServerFn({ method: "POST" })
       missedCount: missed.count ?? 0,
     };
   });
-
 
 /**
  * Missed questions for one domain, hydrated from the question bank with the

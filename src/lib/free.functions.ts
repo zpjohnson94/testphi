@@ -15,13 +15,7 @@ import {
   type DomainStat,
   type SessionResult,
 } from "./freeUser";
-import {
-  QUESTIONS,
-  scoreFor,
-  timeFactor,
-  type DiagState,
-  type Difficulty,
-} from "./diagnostic";
+import { QUESTIONS, scoreFor, timeFactor, type DiagState, type Difficulty } from "./diagnostic";
 
 // ---------- shared helpers ----------
 
@@ -179,15 +173,14 @@ function rowsToState(
   return s;
 }
 
-async function loadState(ctx: {
-  supabase: any;
-  userId: string;
-}): Promise<FreeState> {
+async function loadState(ctx: { supabase: any; userId: string }): Promise<FreeState> {
   const [profileRes, scoringRes, masteryRes] = await Promise.all([
     ctx.supabase.from("profiles").select("name, email, plan").eq("id", ctx.userId).maybeSingle(),
     ctx.supabase
       .from("user_scoring_state")
-      .select("momentum_needle, last_momentum_date, qualifying_days, streak, last_daily_date, diagnostic_score, seeded")
+      .select(
+        "momentum_needle, last_momentum_date, qualifying_days, streak, last_daily_date, diagnostic_score, seeded",
+      )
       .eq("user_id", ctx.userId)
       .maybeSingle(),
     ctx.supabase
@@ -202,10 +195,7 @@ async function loadState(ctx: {
   return state;
 }
 
-async function persistState(
-  ctx: { supabase: any; userId: string },
-  state: FreeState,
-) {
+async function persistState(ctx: { supabase: any; userId: string }, state: FreeState) {
   const scoringPayload = {
     user_id: ctx.userId,
     momentum_needle: state.momentumNeedle,
@@ -231,7 +221,9 @@ async function persistState(
   });
   await Promise.all([
     ctx.supabase.from("user_scoring_state").upsert(scoringPayload, { onConflict: "user_id" }),
-    ctx.supabase.from("user_domain_mastery").upsert(masteryRows, { onConflict: "user_id,domain_id" }),
+    ctx.supabase
+      .from("user_domain_mastery")
+      .upsert(masteryRows, { onConflict: "user_id,domain_id" }),
   ]);
 }
 
@@ -370,10 +362,12 @@ export const migrateAnonymousDiagnostic = createServerFn({ method: "POST" })
 export const updateProfile = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((raw: unknown) =>
-    z.object({
-      name: z.string().max(120).optional(),
-      email: z.string().email().optional(),
-    }).parse(raw),
+    z
+      .object({
+        name: z.string().max(120).optional(),
+        email: z.string().email().optional(),
+      })
+      .parse(raw),
   )
   .handler(async ({ data, context }) => {
     const patch: { name?: string; email?: string } = {};
@@ -419,10 +413,7 @@ export const devPatchState = createServerFn({ method: "POST" })
 
     if (data.plan) {
       state.plan = data.plan;
-      await context.supabase
-        .from("profiles")
-        .update({ plan: data.plan })
-        .eq("id", context.userId);
+      await context.supabase.from("profiles").update({ plan: data.plan }).eq("id", context.userId);
     }
 
     if (data.momentumNeedle !== undefined) {
@@ -453,7 +444,8 @@ export const devPatchState = createServerFn({ method: "POST" })
           stat.batch = [];
           stat.bonusStep = 0;
           const cap = SCORING.THRESHOLD_QUESTIONS;
-          const target = l.answered !== undefined ? Math.min(l.answered, cap) : Math.min(stat.answered, cap);
+          const target =
+            l.answered !== undefined ? Math.min(l.answered, cap) : Math.min(stat.answered, cap);
           stat.answered = Math.max(0, target);
         } else {
           stat.initialized = true;

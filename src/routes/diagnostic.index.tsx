@@ -9,7 +9,10 @@ export const Route = createFileRoute("/diagnostic/")({
   head: () => ({
     meta: [
       { title: "Predict your SAT score in 10 minutes — TestPhi" },
-      { name: "description", content: "15 adaptive questions. Real-time score prediction. No account needed to start." },
+      {
+        name: "description",
+        content: "15 adaptive questions. Real-time score prediction. No account needed to start.",
+      },
     ],
   }),
   component: DiagnosticStart,
@@ -36,18 +39,31 @@ function DiagnosticStart() {
 
       <main className="min-h-screen flex items-center justify-center p-5">
         <div className="w-full max-w-md">
-          <div className="rounded-3xl p-6 sm:p-8 animate-pop" style={{ background: "var(--lavender)", boxShadow: "0 20px 60px -10px rgba(0,0,0,0.5)" }}>
+          <div
+            className="rounded-3xl p-6 sm:p-8 animate-pop"
+            style={{
+              background: "var(--lavender)",
+              boxShadow: "0 20px 60px -10px rgba(0,0,0,0.5)",
+            }}
+          >
             <div className="flex justify-center">
               <Avatar config={defaultAvatar()} size={120} animate />
             </div>
-            <h1 className="mt-4 display text-3xl sm:text-4xl text-center" style={{ color: "var(--ink)" }}>
+            <h1
+              className="mt-4 display text-3xl sm:text-4xl text-center"
+              style={{ color: "var(--ink)" }}
+            >
               Welcome to <span style={{ color: "var(--neon)" }}>TestPhi</span>
             </h1>
             <p className="mt-2 text-center text-sm font-medium" style={{ color: "#5a4a72" }}>
-              A 10-minute diagnostic and you'll have your predicted SAT score. No account needed to start.
+              A 10-minute diagnostic and you'll have your predicted SAT score. No account needed to
+              start.
             </p>
 
-            <div className="mt-5 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-xs font-bold" style={{ color: "#5a4a72" }}>
+            <div
+              className="mt-5 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-xs font-bold"
+              style={{ color: "#5a4a72" }}
+            >
               {["~10 minutes", "15 questions", "Instant results"].map((t) => (
                 <span key={t} className="inline-flex items-center gap-1.5">
                   <span className="size-1.5 rounded-full" style={{ background: "var(--neon)" }} />

@@ -34,7 +34,9 @@ export const Route = createFileRoute("/api/public/hooks/generate-battle-sets")({
             .eq("domain_id", d.id)
             .eq("is_active", true)
             .limit(200);
-          const pool = ((data ?? []) as Array<{ id: string }>).map((r) => r.id).filter((id) => !seen.has(id));
+          const pool = ((data ?? []) as Array<{ id: string }>)
+            .map((r) => r.id)
+            .filter((id) => !seen.has(id));
           for (let i = pool.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
             [pool[i], pool[j]] = [pool[j], pool[i]];

@@ -8,20 +8,14 @@ import {
   ResponsiveContainer,
   ReferenceDot,
 } from "recharts";
-import {
-  DOMAINS,
-  SCORING,
-  isCalibrated,
-  todayISO,
-  type FreeState,
-} from "@/lib/freeUser";
+import { DOMAINS, SCORING, isCalibrated, todayISO, type FreeState } from "@/lib/freeUser";
 
 type Pt = {
-  date: string;      // ISO YYYY-MM-DD
-  ts: number;        // epoch for X axis
+  date: string; // ISO YYYY-MM-DD
+  ts: number; // epoch for X axis
   score: number;
-  pre: number | null;   // pre-calibration line value
-  post: number | null;  // post-calibration line value
+  pre: number | null; // pre-calibration line value
+  post: number | null; // post-calibration line value
 };
 
 function isoAddDays(iso: string, n: number): string {
@@ -72,12 +66,12 @@ function niceFloor(n: number, step: number) {
 export function PredictedScoreHistory({ state }: { state: FreeState }) {
   const points = useMemo<Pt[]>(() => {
     // Find diagnostic date: earliest lastAnsweredISO across domain stats.
-    const stamps = DOMAINS
-      .map((d) => state.domainStats[d.id]?.lastAnsweredISO)
-      .filter((s): s is string => !!s);
+    const stamps = DOMAINS.map((d) => state.domainStats[d.id]?.lastAnsweredISO).filter(
+      (s): s is string => !!s,
+    );
     const diagDate = stamps.length
       ? stamps.slice().sort()[0]
-      : state.qualifyingDays[0] ?? todayISO();
+      : (state.qualifyingDays[0] ?? todayISO());
 
     const today = todayISO();
     const sessionDays = Array.from(new Set(state.qualifyingDays)).sort();
@@ -232,10 +226,7 @@ export function PredictedScoreHistory({ state }: { state: FreeState }) {
       </div>
 
       {!hasHistory && (
-        <div
-          className="mt-2 text-xs text-center"
-          style={{ color: "rgba(246,240,250,0.65)" }}
-        >
+        <div className="mt-2 text-xs text-center" style={{ color: "rgba(246,240,250,0.65)" }}>
           Keep practicing to see your score grow over time.
         </div>
       )}

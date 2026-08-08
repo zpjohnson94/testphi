@@ -16,7 +16,6 @@ import { DOMAINS, SCORING, domainById, tierColor, tierOf } from "@/lib/freeUser"
 import { DOMAIN_CONTENT } from "@/lib/domainContent";
 import { getDomainActivity } from "@/lib/domainDetail.functions";
 
-
 export const Route = createFileRoute("/_authenticated/domains/$domainId")({
   head: () => ({
     meta: [
@@ -88,11 +87,7 @@ function DomainDetail() {
     () => (activity?.rows ?? []).filter((r) => !!r.review),
     [activity],
   );
-  const reviewItems = useMemo(
-    () => reviewableRows.map((r) => r.review!),
-    [reviewableRows],
-  );
-
+  const reviewItems = useMemo(() => reviewableRows.map((r) => r.review!), [reviewableRows]);
 
   const domain = useMemo(() => DOMAINS.find((d) => d.id === domainId), [domainId]);
   const stat = state?.domainStats[domainId];
@@ -112,7 +107,10 @@ function DomainDetail() {
       <div className="topo-bg min-h-screen">
         <header
           className="sticky top-0 z-30 backdrop-blur"
-          style={{ background: "rgba(29,41,0,0.85)", borderBottom: "1px solid rgba(246,240,250,0.08)" }}
+          style={{
+            background: "rgba(29,41,0,0.85)",
+            borderBottom: "1px solid rgba(246,240,250,0.08)",
+          }}
         >
           <div className="mx-auto max-w-2xl px-5 py-3 flex items-center gap-2">
             <Link
@@ -171,7 +169,10 @@ function DomainDetail() {
                     />
                   ))}
                 </div>
-                <div className="mt-2 text-sm font-medium" style={{ color: "rgba(246,240,250,0.7)" }}>
+                <div
+                  className="mt-2 text-sm font-medium"
+                  style={{ color: "rgba(246,240,250,0.7)" }}
+                >
                   Answer 5 questions in this domain to unlock your Bonus Round.
                 </div>
               </div>
@@ -307,7 +308,6 @@ function DomainDetail() {
             )}
           </section>
 
-
           {/* Personalized recommendations (locked) */}
           <PersonalizedRecommendationsCard
             tierColor={color}
@@ -335,7 +335,6 @@ function DomainDetail() {
         startIndex={reviewStart}
         onClose={() => setReviewOpen(false)}
       />
-
     </FreeShell>
   );
 }

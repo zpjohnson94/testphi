@@ -21,14 +21,16 @@ function AnimatedPct({ target }: { target: number }) {
   return <>{n}</>;
 }
 
-
-
-
-
 interface Props {
   domainName: string;
   masteryPct: number;
-  bonusSummary?: { correct: number; total: number; domainAnswered: number; domainCorrect?: number; results?: boolean[] } | null;
+  bonusSummary?: {
+    correct: number;
+    total: number;
+    domainAnswered: number;
+    domainCorrect?: number;
+    results?: boolean[];
+  } | null;
   onDone: () => void;
 }
 
@@ -86,7 +88,6 @@ export function ChestReveal({ domainName, masteryPct, bonusSummary, onDone }: Pr
     return () => window.clearInterval(iv);
   }, [opened]);
 
-
   const doTap = () => {
     if (opened) return;
     sfx.tap();
@@ -125,7 +126,9 @@ export function ChestReveal({ domainName, masteryPct, bonusSummary, onDone }: Pr
     // block body scroll while open
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-    return () => { document.body.style.overflow = prev; };
+    return () => {
+      document.body.style.overflow = prev;
+    };
   }, []);
 
   return (
@@ -238,7 +241,6 @@ export function ChestReveal({ domainName, masteryPct, bonusSummary, onDone }: Pr
               Tap to unlock!
             </div>
           </div>
-
         </div>
       )}
 
@@ -268,7 +270,10 @@ export function ChestReveal({ domainName, masteryPct, bonusSummary, onDone }: Pr
             }}
           />
           <div className="relative">
-            <div className="text-[11px] font-bold uppercase tracking-[0.18em]" style={{ color: "var(--volt)" }}>
+            <div
+              className="text-[11px] font-bold uppercase tracking-[0.18em]"
+              style={{ color: "var(--volt)" }}
+            >
               Your mastery score is calibrated.
             </div>
             <h2 className="mt-3 display text-2xl text-[var(--lavender)]">{domainName}</h2>
@@ -279,13 +284,22 @@ export function ChestReveal({ domainName, masteryPct, bonusSummary, onDone }: Pr
               >
                 <AnimatedPct target={Math.round(masteryPct)} />%
               </div>
-              <div className="mt-4 h-4 rounded-full overflow-hidden" style={{ background: "rgba(246,240,250,0.1)", border: "1px solid rgba(184,255,0,0.25)" }}>
+              <div
+                className="mt-4 h-4 rounded-full overflow-hidden"
+                style={{
+                  background: "rgba(246,240,250,0.1)",
+                  border: "1px solid rgba(184,255,0,0.25)",
+                }}
+              >
                 <div
                   className="mastery-swirl-fill h-full rounded-full transition-all duration-[1400ms] ease-out"
                   style={{ width: `${Math.max(0, Math.min(100, Math.round(masteryPct)))}%` }}
                 />
               </div>
-              <div className="mt-2 text-xs font-bold uppercase tracking-widest" style={{ color: "rgba(246,240,250,0.6)" }}>
+              <div
+                className="mt-2 text-xs font-bold uppercase tracking-widest"
+                style={{ color: "rgba(246,240,250,0.6)" }}
+              >
                 Mastery
               </div>
             </div>
@@ -297,8 +311,16 @@ export function ChestReveal({ domainName, masteryPct, bonusSummary, onDone }: Pr
                     const r = bonusSummary.results?.[i];
                     const correct = r === true;
                     const incorrect = r === false;
-                    const bg = correct ? "var(--volt)" : incorrect ? "var(--destructive)" : "transparent";
-                    const border = correct ? "var(--volt)" : incorrect ? "var(--destructive)" : "rgba(246,240,250,0.25)";
+                    const bg = correct
+                      ? "var(--volt)"
+                      : incorrect
+                        ? "var(--destructive)"
+                        : "transparent";
+                    const border = correct
+                      ? "var(--volt)"
+                      : incorrect
+                        ? "var(--destructive)"
+                        : "rgba(246,240,250,0.25)";
                     const glow = correct
                       ? "0 0 14px rgba(184,255,0,0.45)"
                       : incorrect
@@ -311,10 +333,17 @@ export function ChestReveal({ domainName, masteryPct, bonusSummary, onDone }: Pr
                         style={{ background: bg, border: `2.5px solid ${border}`, boxShadow: glow }}
                       >
                         {correct && (
-                          <span className="font-extrabold text-sm" style={{ color: "var(--ink)" }}>✓</span>
+                          <span className="font-extrabold text-sm" style={{ color: "var(--ink)" }}>
+                            ✓
+                          </span>
                         )}
                         {incorrect && (
-                          <span className="font-extrabold text-sm" style={{ color: "var(--lavender)" }}>✕</span>
+                          <span
+                            className="font-extrabold text-sm"
+                            style={{ color: "var(--lavender)" }}
+                          >
+                            ✕
+                          </span>
                         )}
                       </div>
                     );
@@ -324,26 +353,34 @@ export function ChestReveal({ domainName, masteryPct, bonusSummary, onDone }: Pr
                   className="mt-3 text-xs font-bold uppercase tracking-widest text-center"
                   style={{ color: "rgba(246,240,250,0.75)" }}
                 >
-                  {(bonusSummary.domainCorrect ?? bonusSummary.correct)}/{bonusSummary.domainAnswered} total questions correct for this domain
+                  {bonusSummary.domainCorrect ?? bonusSummary.correct}/{bonusSummary.domainAnswered}{" "}
+                  total questions correct for this domain
                 </div>
               </div>
             )}
 
-            <div className="mt-6 text-sm leading-relaxed text-left space-y-4" style={{ color: "rgba(246,240,250,0.85)" }}>
+            <div
+              className="mt-6 text-sm leading-relaxed text-left space-y-4"
+              style={{ color: "rgba(246,240,250,0.85)" }}
+            >
               <div>
                 <p className="font-bold text-volt">What is mastery?</p>
-                <p>Mastery is how to track your strength within a domain. When mastery increases, so does your overall predicted score.</p>
+                <p>
+                  Mastery is how to track your strength within a domain. When mastery increases, so
+                  does your overall predicted score.
+                </p>
               </div>
               <div>
                 <p className="font-bold text-volt">How is mastery calculated?</p>
-                <p>Your mastery score is calculated based on correctness, speed, and question difficulty,</p>
+                <p>
+                  Your mastery score is calculated based on correctness, speed, and question
+                  difficulty,
+                </p>
               </div>
               <div>
                 <p className="font-bold text-volt">Keep practicing!</p>
                 <p>Your score will improve over time, and consistency is the key to mastery.</p>
-                <div className="mt-2 text-xs italic opacity-80">
-                  {"\n"}
-                </div>
+                <div className="mt-2 text-xs italic opacity-80">{"\n"}</div>
               </div>
             </div>
 

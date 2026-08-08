@@ -23,9 +23,11 @@ function seedAvatar(
   explicit?: { animalId?: string; color?: string; accessoryId?: string },
 ): AvatarConfig {
   return {
-    animal: (explicit?.animalId as AvatarConfig["animal"]) ??
-      (ANIMALS[animalSeed % ANIMALS.length]?.id ?? "bear"),
-    color: explicit?.color ?? (COLOR_SWATCHES[colorSeed % COLOR_SWATCHES.length] ?? "#A855F7"),
+    animal:
+      (explicit?.animalId as AvatarConfig["animal"]) ??
+      ANIMALS[animalSeed % ANIMALS.length]?.id ??
+      "bear",
+    color: explicit?.color ?? COLOR_SWATCHES[colorSeed % COLOR_SWATCHES.length] ?? "#A855F7",
     accessory: (explicit?.accessoryId as AvatarConfig["accessory"]) ?? "none",
   };
 }
@@ -87,9 +89,7 @@ function BattleLeaderboard() {
                     border: e.isMe
                       ? "2px solid var(--volt)"
                       : "1.5px solid color-mix(in oklab, var(--neon) 45%, transparent)",
-                    boxShadow: e.isMe
-                      ? "0 0 24px -4px rgba(184,255,0,0.5)"
-                      : undefined,
+                    boxShadow: e.isMe ? "0 0 24px -4px rgba(184,255,0,0.5)" : undefined,
                   }}
                 >
                   <div

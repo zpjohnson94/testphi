@@ -18,13 +18,26 @@ export function WorldMap({ world }: { world: World }) {
 
   return (
     <div className="topo-bg topo-dim min-h-screen pb-24">
-      <header className="sticky top-0 z-20 backdrop-blur" style={{ background: "rgba(29,41,0,0.85)", borderBottom: "1px solid rgba(246,240,250,0.1)" }}>
+      <header
+        className="sticky top-0 z-20 backdrop-blur"
+        style={{
+          background: "rgba(29,41,0,0.85)",
+          borderBottom: "1px solid rgba(246,240,250,0.1)",
+        }}
+      >
         <div className="mx-auto max-w-2xl flex items-center gap-3 px-5 py-4">
-          <Link to={"/home" as any} className="size-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(246,240,250,0.08)", color: "var(--lavender)" }}>
+          <Link
+            to={"/home" as any}
+            className="size-10 rounded-xl flex items-center justify-center"
+            style={{ background: "rgba(246,240,250,0.08)", color: "var(--lavender)" }}
+          >
             <ArrowLeft className="size-5" />
           </Link>
           <div className="flex-1">
-            <div className="text-[10px] font-bold uppercase tracking-[0.2em]" style={{ color: accent }}>
+            <div
+              className="text-[10px] font-bold uppercase tracking-[0.2em]"
+              style={{ color: accent }}
+            >
               {world.section === "rw" ? "Reading & Writing" : "Math"}
             </div>
             <div className="display text-lg text-[var(--lavender)]">{world.name}</div>
@@ -53,26 +66,42 @@ export function WorldMap({ world }: { world: World }) {
                   )}
                   <button
                     disabled={locked}
-                    onClick={() => navigate({ to: "/lesson/$nodeId" as any, params: { nodeId: n.id } as any })}
+                    onClick={() =>
+                      navigate({ to: "/lesson/$nodeId" as any, params: { nodeId: n.id } as any })
+                    }
                     className="relative size-20 rounded-full font-extrabold transition-all hover:scale-110 disabled:cursor-not-allowed disabled:hover:scale-100"
                     style={{
-                      background: locked ? "rgba(246,240,250,0.08)" : completed ? "var(--volt)" : "var(--lavender)",
+                      background: locked
+                        ? "rgba(246,240,250,0.08)"
+                        : completed
+                          ? "var(--volt)"
+                          : "var(--lavender)",
                       color: locked ? "rgba(246,240,250,0.4)" : "var(--ink)",
                       border: `3px solid ${locked ? "rgba(246,240,250,0.15)" : accent}`,
                       boxShadow: locked ? "none" : "0 6px 0 0 rgba(0,0,0,0.5)",
                     }}
                   >
-                    {locked ? <Lock className="size-7 mx-auto" /> :
-                      completed ? <Check className="size-8 mx-auto" /> :
-                      <span className="display text-3xl">{i + 1}</span>}
+                    {locked ? (
+                      <Lock className="size-7 mx-auto" />
+                    ) : completed ? (
+                      <Check className="size-8 mx-auto" />
+                    ) : (
+                      <span className="display text-3xl">{i + 1}</span>
+                    )}
                     {isCurrent && (
                       <span className="absolute inset-0 rounded-full animate-pulse-ring pointer-events-none" />
                     )}
                     {partial && !completed && (
-                      <Star className="absolute -top-1 -right-1 size-5 fill-current" style={{ color: "var(--spark)" }} />
+                      <Star
+                        className="absolute -top-1 -right-1 size-5 fill-current"
+                        style={{ color: "var(--spark)" }}
+                      />
                     )}
                   </button>
-                  <div className="mt-2 text-center text-xs font-bold max-w-[140px] mx-auto" style={{ color: "var(--lavender)" }}>
+                  <div
+                    className="mt-2 text-center text-xs font-bold max-w-[140px] mx-auto"
+                    style={{ color: "var(--lavender)" }}
+                  >
                     {n.title}
                   </div>
                 </div>
@@ -83,13 +112,19 @@ export function WorldMap({ world }: { world: World }) {
           <div className="flex justify-center pt-6">
             <button
               disabled={firstIncomplete < world.nodes.length}
-              onClick={() => navigate({ to: "/lesson/$nodeId" as any, params: { nodeId: world.bossId } as any })}
+              onClick={() =>
+                navigate({ to: "/lesson/$nodeId" as any, params: { nodeId: world.bossId } as any })
+              }
               className="relative size-28 rounded-3xl transition-all hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
               style={{
-                background: firstIncomplete < world.nodes.length ? "rgba(246,240,250,0.08)" : "var(--gradient-spark)",
+                background:
+                  firstIncomplete < world.nodes.length
+                    ? "rgba(246,240,250,0.08)"
+                    : "var(--gradient-spark)",
                 color: "var(--ink)",
                 border: `3px solid ${firstIncomplete < world.nodes.length ? "rgba(246,240,250,0.15)" : "var(--spark)"}`,
-                boxShadow: firstIncomplete < world.nodes.length ? "none" : "0 8px 0 0 rgba(0,0,0,0.5)",
+                boxShadow:
+                  firstIncomplete < world.nodes.length ? "none" : "0 8px 0 0 rgba(0,0,0,0.5)",
               }}
             >
               <Crown className="size-10 mx-auto" />

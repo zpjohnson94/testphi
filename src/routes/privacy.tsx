@@ -5,7 +5,10 @@ export const Route = createFileRoute("/privacy")({
   head: () => ({
     meta: [
       { title: "Privacy Policy — TestPhi" },
-      { name: "description", content: "How TestPhi collects, uses, and protects your information." },
+      {
+        name: "description",
+        content: "How TestPhi collects, uses, and protects your information.",
+      },
     ],
   }),
   component: Privacy,
@@ -27,20 +30,31 @@ function Privacy() {
           Effective: May 6, 2026
         </p>
 
-        <div className="mt-8 space-y-6 text-sm leading-relaxed" style={{ color: "rgba(246,240,250,0.85)" }}>
+        <div
+          className="mt-8 space-y-6 text-sm leading-relaxed"
+          style={{ color: "rgba(246,240,250,0.85)" }}
+        >
           <p>
-            TestPhi ("we", "us") is an early-stage SAT prep product. This page explains, in
-            plain language, what we collect from you and what we do with it.
+            TestPhi ("we", "us") is an early-stage SAT prep product. This page explains, in plain
+            language, what we collect from you and what we do with it.
           </p>
 
           <section>
             <h2 className="display text-lg text-[var(--lavender)]">What we collect</h2>
             <ul className="mt-2 list-disc pl-5 space-y-1">
               <li>Your email address and first name when you sign up.</li>
-              <li>Which plan you indicated interest in (Free or Power Up) and billing preference.</li>
+              <li>
+                Which plan you indicated interest in (Free or Power Up) and billing preference.
+              </li>
               <li>Whether you opted in to be notified when we launch.</li>
-              <li>Your diagnostic results (target score, predicted score, weak skills) so we can personalize follow-ups.</li>
-              <li>Basic technical information your browser sends with any web request (referrer, user agent, IP address).</li>
+              <li>
+                Your diagnostic results (target score, predicted score, weak skills) so we can
+                personalize follow-ups.
+              </li>
+              <li>
+                Basic technical information your browser sends with any web request (referrer, user
+                agent, IP address).
+              </li>
             </ul>
           </section>
 
@@ -67,26 +81,22 @@ function Privacy() {
           <section>
             <h2 className="display text-lg text-[var(--lavender)]">How long we keep it</h2>
             <p className="mt-2">
-              We keep your information until you ask us to delete it, or until TestPhi is shut
-              down — whichever comes first.
+              We keep your information until you ask us to delete it, or until TestPhi is shut down
+              — whichever comes first.
             </p>
           </section>
 
           <section>
             <h2 className="display text-lg text-[var(--lavender)]">Changes</h2>
             <p className="mt-2">
-              If we change this policy in a meaningful way, we'll update the effective date at
-              the top and, if you opted in to launch emails, let you know by email.
+              If we change this policy in a meaningful way, we'll update the effective date at the
+              top and, if you opted in to launch emails, let you know by email.
             </p>
           </section>
         </div>
 
         <div className="mt-10">
-          <Link
-            to="/"
-            className="text-sm font-bold"
-            style={{ color: "rgba(246,240,250,0.6)" }}
-          >
+          <Link to="/" className="text-sm font-bold" style={{ color: "rgba(246,240,250,0.6)" }}>
             ← Back to home
           </Link>
         </div>

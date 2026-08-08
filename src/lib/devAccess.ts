@@ -1,8 +1,6 @@
 // Accounts allowed to open the Developer mode screen.
 // Add emails (or domains) here to grant access.
-const DEV_EMAILS = [
-  "demo@testphi.app",
-];
+const DEV_EMAILS = ["demo@testphi.app"];
 
 const DEV_DOMAINS = ["testphi.com", "testphi.app"];
 

@@ -27,10 +27,7 @@ export function BoltMark({ size = 22 }: { size?: number }) {
         fill="none"
       />
       {/* bolt */}
-      <path
-        d="M36 4 L18 34 L30 34 L26 60 L46 28 L34 28 L38 4 Z"
-        fill="currentColor"
-      />
+      <path d="M36 4 L18 34 L30 34 L26 60 L46 28 L34 28 L38 4 Z" fill="currentColor" />
     </svg>
   );
 }
@@ -64,21 +61,74 @@ export function UnlockReadyCard({ domainName, onOpen, compact = false }: Props) 
             </feMerge>
           </filter>
         </defs>
-        <g stroke="#FFE600" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" fill="none" filter="url(#glow-bolt)">
-          <polyline points="10,18 24,10 32,22 46,14 58,26" style={{ animation: "electric-flicker 0.9s steps(1,end) infinite", animationDelay: "0s" }} />
-          <polyline points="80,72 92,60 102,78 118,66 130,82" style={{ animation: "electric-flicker 1.1s steps(1,end) infinite", animationDelay: "0.15s" }} />
-          <polyline points="150,20 162,32 176,14 188,30 204,18" style={{ animation: "electric-flicker 0.7s steps(1,end) infinite", animationDelay: "0.3s" }} />
-          <polyline points="210,78 224,64 238,84 252,68 268,82" style={{ animation: "electric-flicker 1.3s steps(1,end) infinite", animationDelay: "0.45s" }} />
-          <polyline points="260,20 274,10 286,26 298,14" style={{ animation: "electric-flicker 0.85s steps(1,end) infinite", animationDelay: "0.6s" }} />
-          <polyline points="40,50 56,42 70,58 88,46" style={{ animation: "electric-flicker 1.05s steps(1,end) infinite", animationDelay: "0.2s" }} />
-          <polyline points="180,54 196,46 210,60 224,48" style={{ animation: "electric-flicker 0.95s steps(1,end) infinite", animationDelay: "0.5s" }} />
+        <g
+          stroke="#FFE600"
+          strokeWidth="1.6"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          fill="none"
+          filter="url(#glow-bolt)"
+        >
+          <polyline
+            points="10,18 24,10 32,22 46,14 58,26"
+            style={{
+              animation: "electric-flicker 0.9s steps(1,end) infinite",
+              animationDelay: "0s",
+            }}
+          />
+          <polyline
+            points="80,72 92,60 102,78 118,66 130,82"
+            style={{
+              animation: "electric-flicker 1.1s steps(1,end) infinite",
+              animationDelay: "0.15s",
+            }}
+          />
+          <polyline
+            points="150,20 162,32 176,14 188,30 204,18"
+            style={{
+              animation: "electric-flicker 0.7s steps(1,end) infinite",
+              animationDelay: "0.3s",
+            }}
+          />
+          <polyline
+            points="210,78 224,64 238,84 252,68 268,82"
+            style={{
+              animation: "electric-flicker 1.3s steps(1,end) infinite",
+              animationDelay: "0.45s",
+            }}
+          />
+          <polyline
+            points="260,20 274,10 286,26 298,14"
+            style={{
+              animation: "electric-flicker 0.85s steps(1,end) infinite",
+              animationDelay: "0.6s",
+            }}
+          />
+          <polyline
+            points="40,50 56,42 70,58 88,46"
+            style={{
+              animation: "electric-flicker 1.05s steps(1,end) infinite",
+              animationDelay: "0.2s",
+            }}
+          />
+          <polyline
+            points="180,54 196,46 210,60 224,48"
+            style={{
+              animation: "electric-flicker 0.95s steps(1,end) infinite",
+              animationDelay: "0.5s",
+            }}
+          />
         </g>
       </svg>
 
       <div className="relative flex items-center gap-3">
         <div
           className="shrink-0 size-10 rounded-full flex items-center justify-center"
-          style={{ background: "rgba(29,41,0,0.15)", border: "1.5px solid rgba(29,41,0,0.35)", color: "var(--ink)" }}
+          style={{
+            background: "rgba(29,41,0,0.15)",
+            border: "1.5px solid rgba(29,41,0,0.35)",
+            color: "var(--ink)",
+          }}
         >
           <BoltMark size={22} />
         </div>

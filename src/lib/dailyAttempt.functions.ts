@@ -69,7 +69,9 @@ async function loadFreeState(ctx: { supabase: any; userId: string }): Promise<Fr
     ctx.supabase.from("profiles").select("name, email, plan").eq("id", ctx.userId).maybeSingle(),
     ctx.supabase
       .from("user_scoring_state")
-      .select("momentum_needle, last_momentum_date, qualifying_days, streak, last_daily_date, diagnostic_score, seeded")
+      .select(
+        "momentum_needle, last_momentum_date, qualifying_days, streak, last_daily_date, diagnostic_score, seeded",
+      )
       .eq("user_id", ctx.userId)
       .maybeSingle(),
     ctx.supabase
@@ -88,7 +90,9 @@ async function loadFreeState(ctx: { supabase: any; userId: string }): Promise<Fr
   if (scoring) {
     s.momentumNeedle = Number(scoring.momentum_needle) || 0;
     s.lastMomentumDateISO = scoring.last_momentum_date ?? "";
-    s.qualifyingDays = Array.isArray(scoring.qualifying_days) ? (scoring.qualifying_days as string[]) : [];
+    s.qualifyingDays = Array.isArray(scoring.qualifying_days)
+      ? (scoring.qualifying_days as string[])
+      : [];
     s.streak = scoring.streak || 0;
     s.lastDailyDate = scoring.last_daily_date ?? "";
     s.diagnosticScore = Number(scoring.diagnostic_score) || 800;
@@ -150,7 +154,9 @@ async function persistFreeState(ctx: { supabase: any; userId: string }, state: F
   });
   await Promise.all([
     ctx.supabase.from("user_scoring_state").upsert(scoringPayload, { onConflict: "user_id" }),
-    ctx.supabase.from("user_domain_mastery").upsert(masteryRows, { onConflict: "user_id,domain_id" }),
+    ctx.supabase
+      .from("user_domain_mastery")
+      .upsert(masteryRows, { onConflict: "user_id,domain_id" }),
   ]);
 }
 
@@ -208,7 +214,9 @@ export const serveDailyQuestion = createServerFn({ method: "POST" })
     // Existing attempt? Return its shuffle (idempotent).
     const { data: existing } = await context.supabase
       .from("daily_attempts")
-      .select("id, question_id, shuffled_order, correct_position, selected_position, is_correct, answered_at")
+      .select(
+        "id, question_id, shuffled_order, correct_position, selected_position, is_correct, answered_at",
+      )
       .eq("user_id", context.userId)
       .eq("set_date", today)
       .eq("slot", slot)
@@ -273,7 +281,9 @@ export const serveDailyQuestion = createServerFn({ method: "POST" })
     if (!inserted) {
       const { data: winner, error: readErr } = await context.supabase
         .from("daily_attempts")
-        .select("id, question_id, shuffled_order, correct_position, selected_position, is_correct, answered_at")
+        .select(
+          "id, question_id, shuffled_order, correct_position, selected_position, is_correct, answered_at",
+        )
         .eq("user_id", context.userId)
         .eq("set_date", today)
         .eq("slot", slot)
@@ -317,7 +327,6 @@ export const serveDailyQuestion = createServerFn({ method: "POST" })
     };
   });
 
-
 // ---------- serveDailySetBatch ----------
 // Returns all 5 ServedQuestion for today in a single round-trip. Idempotent:
 // reuses existing shuffles when present, inserts fresh attempts otherwise.
@@ -330,7 +339,9 @@ export const serveDailySetBatch = createServerFn({ method: "POST" })
 
     const { data: existingRows } = await context.supabase
       .from("daily_attempts")
-      .select("id, slot, question_id, shuffled_order, correct_position, selected_position, is_correct, answered_at")
+      .select(
+        "id, slot, question_id, shuffled_order, correct_position, selected_position, is_correct, answered_at",
+      )
       .eq("user_id", context.userId)
       .eq("set_date", today);
     const bySlot = new Map<number, any>();
@@ -400,7 +411,9 @@ export const serveDailySetBatch = createServerFn({ method: "POST" })
         // the client renders the same choice order the DB will grade against.
         const { data: winner, error: readErr } = await context.supabase
           .from("daily_attempts")
-          .select("id, shuffled_order, correct_position, selected_position, is_correct, answered_at")
+          .select(
+            "id, shuffled_order, correct_position, selected_position, is_correct, answered_at",
+          )
           .eq("user_id", context.userId)
           .eq("set_date", today)
           .eq("slot", slot)
@@ -443,7 +456,6 @@ export const serveDailySetBatch = createServerFn({ method: "POST" })
         passage: question.passage,
         choices: shuffledChoices,
       });
-
     }
     return out;
   });
@@ -536,9 +548,8 @@ export const finalizeDailySession = createServerFn({ method: "POST" })
       const q: DailyQuestion | undefined = set.questions[r.slot - 1];
       const domainId = q?.domainId ?? "math-algebra";
       const isBonus = q ? isBonusQuestionFor(workingState, domainId) : false;
-      const difficulty: Difficulty = isBonus && q
-        ? nextBonusDifficulty(workingState, domainId)
-        : (q?.difficulty ?? 2);
+      const difficulty: Difficulty =
+        isBonus && q ? nextBonusDifficulty(workingState, domainId) : (q?.difficulty ?? 2);
       // Advance the working copy so bonus flags stay consistent slot-to-slot.
       if (isBonus) {
         const st = workingState.domainStats[domainId];
@@ -650,11 +661,7 @@ export const resetDailyToday = createServerFn({ method: "POST" })
     const startOfDay = `${today}T00:00:00.000Z`;
     const endOfDay = `${today}T23:59:59.999Z`;
 
-    await context.supabase
-      .from("daily_attempts")
-      .delete()
-      .eq("user_id", uid)
-      .eq("set_date", today);
+    await context.supabase.from("daily_attempts").delete().eq("user_id", uid).eq("set_date", today);
 
     const { data: todaysSessions } = await context.supabase
       .from("sessions")
@@ -683,4 +690,3 @@ export const resetDailyToday = createServerFn({ method: "POST" })
 
     return loadFreeState(context);
   });
-

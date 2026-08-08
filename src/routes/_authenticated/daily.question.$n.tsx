@@ -2,7 +2,14 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Timer, ArrowRight, HelpCircle, Flag } from "lucide-react";
-import { useFreeState, useServeDailyQuestion, useGradeDailyAnswer, usePrefetchDailySet, servedQuestionKey, usePrewarmDailyFinalize } from "@/lib/useFree";
+import {
+  useFreeState,
+  useServeDailyQuestion,
+  useGradeDailyAnswer,
+  usePrefetchDailySet,
+  servedQuestionKey,
+  usePrewarmDailyFinalize,
+} from "@/lib/useFree";
 import { type ServedQuestion } from "@/lib/dailyAttempt.functions";
 import { PowerUpModal } from "@/components/PowerUpModal";
 import { QuestionReportModal } from "@/components/QuestionReportModal";
@@ -41,7 +48,16 @@ function DailyQuestion() {
   const choiceRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const progressRef = useRef<HTMLDivElement | null>(null);
   const [bolts, setBolts] = useState<
-    Array<{ id: number; sx: number; sy: number; ex: number; ey: number; angle: number; delay: number; rot: number }>
+    Array<{
+      id: number;
+      sx: number;
+      sy: number;
+      ex: number;
+      ey: number;
+      angle: number;
+      delay: number;
+      rot: number;
+    }>
   >([]);
   const boltSeq = useRef(0);
 
@@ -189,7 +205,10 @@ function DailyQuestion() {
     <div className="topo-bg topo-dim min-h-screen">
       <header
         className="sticky top-0 z-30 backdrop-blur"
-        style={{ background: "rgba(29,41,0,0.9)", borderBottom: "1px solid rgba(246,240,250,0.08)" }}
+        style={{
+          background: "rgba(29,41,0,0.9)",
+          borderBottom: "1px solid rgba(246,240,250,0.08)",
+        }}
       >
         <div className="mx-auto max-w-3xl px-5 py-3 flex items-center gap-3">
           <div className="flex-1">
@@ -377,8 +396,7 @@ function DailyQuestion() {
                 d="M8 0 L0 10 L5 10 L4 18 L14 7 L8 7 Z"
                 fill="#B8FF00"
                 style={{
-                  filter:
-                    "drop-shadow(0 0 4px #B8FF00) drop-shadow(0 0 8px rgba(184,255,0,0.7))",
+                  filter: "drop-shadow(0 0 4px #B8FF00) drop-shadow(0 0 8px rgba(184,255,0,0.7))",
                 }}
               />
             </svg>

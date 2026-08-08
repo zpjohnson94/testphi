@@ -1,6 +1,13 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { QUESTIONS, TOTAL_QUESTIONS, formatTime, loadDiag, saveDiag, type AnswerRecord } from "@/lib/diagnostic";
+import {
+  QUESTIONS,
+  TOTAL_QUESTIONS,
+  formatTime,
+  loadDiag,
+  saveDiag,
+  type AnswerRecord,
+} from "@/lib/diagnostic";
 import { Logo } from "@/components/Logo";
 import { sfx } from "@/lib/sfx";
 import { DiagAvatar, AVATAR_IMAGES, type AvatarId } from "@/components/DiagAvatar";
@@ -24,7 +31,18 @@ function DiagQuestion() {
   const choiceRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const progressRef = useRef<HTMLDivElement | null>(null);
   const progressFillRef = useRef<HTMLDivElement | null>(null);
-  const [bolts, setBolts] = useState<Array<{ id: number; sx: number; sy: number; ex: number; ey: number; angle: number; delay: number; rot: number }>>([]);
+  const [bolts, setBolts] = useState<
+    Array<{
+      id: number;
+      sx: number;
+      sy: number;
+      ex: number;
+      ey: number;
+      angle: number;
+      delay: number;
+      rot: number;
+    }>
+  >([]);
   const boltSeq = useRef(0);
 
   const fireBolts = (choiceIdx: number) => {
@@ -36,7 +54,7 @@ function DiagQuestion() {
     const sx = b.left + b.width / 2;
     const sy = b.top + b.height / 2;
     // aim for the leading edge of the next progress fill
-    const nextPct = ((idx) / TOTAL_QUESTIONS);
+    const nextPct = idx / TOTAL_QUESTIONS;
     const ex = t.left + t.width * Math.min(1, nextPct);
     const ey = t.top + t.height / 2;
     const count = 14;
@@ -44,15 +62,19 @@ function DiagQuestion() {
       const angle = (Math.PI * 2 * i) / count + Math.random() * 0.5;
       return {
         id: ++boltSeq.current,
-        sx, sy, ex, ey, angle,
+        sx,
+        sy,
+        ex,
+        ey,
+        angle,
         delay: Math.random() * 60,
         rot: Math.random() * 360,
       };
     });
-    setBolts(prev => [...prev, ...newBolts]);
+    setBolts((prev) => [...prev, ...newBolts]);
     // cleanup
     window.setTimeout(() => {
-      setBolts(prev => prev.filter(x => !newBolts.find(n => n.id === x.id)));
+      setBolts((prev) => prev.filter((x) => !newBolts.find((n) => n.id === x.id)));
     }, 900);
   };
 
@@ -88,7 +110,12 @@ function DiagQuestion() {
     const elapsedSeconds = (Date.now() - startRef.current) / 1000;
     const correct = choiceIdx === question.correctIndex;
     const record: AnswerRecord = { n: question.n, choice: choiceIdx, correct, elapsedSeconds };
-    const next = { ...diag, answers: [...diag.answers.filter(a => a.n !== question.n), record].sort((a, b) => a.n - b.n) };
+    const next = {
+      ...diag,
+      answers: [...diag.answers.filter((a) => a.n !== question.n), record].sort(
+        (a, b) => a.n - b.n,
+      ),
+    };
     saveDiag(next);
     setDiag(next);
 
@@ -107,7 +134,13 @@ function DiagQuestion() {
   return (
     <div className="topo-bg topo-dim min-h-screen">
       {/* Top bar */}
-      <header className="sticky top-0 z-30 backdrop-blur" style={{ background: "rgba(29,41,0,0.9)", borderBottom: "1px solid rgba(246,240,250,0.08)" }}>
+      <header
+        className="sticky top-0 z-30 backdrop-blur"
+        style={{
+          background: "rgba(29,41,0,0.9)",
+          borderBottom: "1px solid rgba(246,240,250,0.08)",
+        }}
+      >
         <div className="mx-auto max-w-3xl px-5 py-3 flex items-center gap-3">
           {/* Avatar */}
           <div className="flex items-center gap-2 min-w-0">
@@ -117,17 +150,35 @@ function DiagQuestion() {
               size={36}
               ringWidth={2}
             />
-            <span className="text-sm font-bold text-[var(--lavender)] truncate">{diag.name || "You"}</span>
+            <span className="text-sm font-bold text-[var(--lavender)] truncate">
+              {diag.name || "You"}
+            </span>
           </div>
 
           {/* Progress center */}
           <div className="flex-1">
-            <div className="text-center text-[11px] font-bold uppercase tracking-widest"
-              style={{ color: "rgba(246,240,250,0.7)" }}>
+            <div
+              className="text-center text-[11px] font-bold uppercase tracking-widest"
+              style={{ color: "rgba(246,240,250,0.7)" }}
+            >
               Question {idx} of {TOTAL_QUESTIONS}
             </div>
-            <div ref={progressRef} className="mt-1 h-1.5 rounded-full overflow-hidden relative" style={{ background: "rgba(246,240,250,0.1)" }}>
-              <div ref={progressFillRef} className="h-full transition-all duration-500 relative" style={{ width: `${progressPct}%`, background: "var(--volt)", boxShadow: bolts.length ? "0 0 14px #B8FF00, 0 0 28px rgba(184,255,0,0.6)" : undefined }} />
+            <div
+              ref={progressRef}
+              className="mt-1 h-1.5 rounded-full overflow-hidden relative"
+              style={{ background: "rgba(246,240,250,0.1)" }}
+            >
+              <div
+                ref={progressFillRef}
+                className="h-full transition-all duration-500 relative"
+                style={{
+                  width: `${progressPct}%`,
+                  background: "var(--volt)",
+                  boxShadow: bolts.length
+                    ? "0 0 14px #B8FF00, 0 0 28px rgba(184,255,0,0.6)"
+                    : undefined,
+                }}
+              />
             </div>
           </div>
 
@@ -143,9 +194,14 @@ function DiagQuestion() {
 
       <main className="mx-auto max-w-2xl px-5 pt-8 pb-12">
         {/* Question card */}
-        <div className="rounded-2xl p-6 sm:p-8 animate-fade-up"
-          style={{ background: "var(--lavender)", color: "var(--ink)" }}>
-          <div className="text-[11px] font-bold uppercase tracking-[0.18em]" style={{ color: "#5a4a72" }}>
+        <div
+          className="rounded-2xl p-6 sm:p-8 animate-fade-up"
+          style={{ background: "var(--lavender)", color: "var(--ink)" }}
+        >
+          <div
+            className="text-[11px] font-bold uppercase tracking-[0.18em]"
+            style={{ color: "#5a4a72" }}
+          >
             {question.domainLabel}
           </div>
 
@@ -172,7 +228,9 @@ function DiagQuestion() {
               return (
                 <button
                   key={i}
-                  ref={(el) => { choiceRefs.current[i] = el; }}
+                  ref={(el) => {
+                    choiceRefs.current[i] = el;
+                  }}
                   disabled={submitted}
                   onClick={() => submit(i)}
                   className="text-left px-4 py-3 rounded-xl transition-all flex items-start gap-3"
@@ -218,7 +276,13 @@ function DiagQuestion() {
           };
           return (
             <svg key={b.id} width="14" height="18" viewBox="0 0 14 18" style={style}>
-              <path d="M8 0 L0 10 L5 10 L4 18 L14 7 L8 7 Z" fill="#B8FF00" style={{ filter: "drop-shadow(0 0 4px #B8FF00) drop-shadow(0 0 8px rgba(184,255,0,0.7))" }} />
+              <path
+                d="M8 0 L0 10 L5 10 L4 18 L14 7 L8 7 Z"
+                fill="#B8FF00"
+                style={{
+                  filter: "drop-shadow(0 0 4px #B8FF00) drop-shadow(0 0 8px rgba(184,255,0,0.7))",
+                }}
+              />
             </svg>
           );
         })}

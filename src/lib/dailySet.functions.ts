@@ -48,9 +48,7 @@ function sectionPattern(iso: string): ("math" | "rw")[] {
   const day = daysSinceEpoch(iso);
   const mathHeavy = day % 2 === 0;
   // Interleaved so no two adjacent slots are the same section.
-  return mathHeavy
-    ? ["math", "rw", "math", "rw", "math"]
-    : ["rw", "math", "rw", "math", "rw"];
+  return mathHeavy ? ["math", "rw", "math", "rw", "math"] : ["rw", "math", "rw", "math", "rw"];
 }
 
 // Deterministic 2-week domain rotation. Yields the 5 domain IDs used for a
@@ -110,13 +108,12 @@ export const getTodayDailySet = createServerFn({ method: "GET" })
 
 // ---- helpers ---------------------------------------------------------------
 
-async function hydrateByIds(
-  supabase: any,
-  ids: string[],
-): Promise<DailyQuestion[]> {
+async function hydrateByIds(supabase: any, ids: string[]): Promise<DailyQuestion[]> {
   const { data } = await supabase
     .from("questions")
-    .select("id, domain_id, difficulty, expected_seconds, payload, passage_group_id, diagram_group_id")
+    .select(
+      "id, domain_id, difficulty, expected_seconds, payload, passage_group_id, diagram_group_id",
+    )
     .in("id", ids);
   if (!data) return [];
   const byId = new Map<string, any>(data.map((r: any) => [r.id, r]));
@@ -165,7 +162,8 @@ function rowToDaily(row: any): DailyQuestion | null {
     domainId: row.domain_id,
     domainLabel: domain.label,
     difficulty: (row.difficulty as Difficulty) ?? 2,
-    expectedSeconds: row.expected_seconds ?? expectedSecondsFor((row.difficulty as Difficulty) ?? 2),
+    expectedSeconds:
+      row.expected_seconds ?? expectedSecondsFor((row.difficulty as Difficulty) ?? 2),
     prompt,
     passage: typeof p.passage === "string" ? p.passage : undefined,
     choices,
@@ -176,10 +174,7 @@ function rowToDaily(row: any): DailyQuestion | null {
   };
 }
 
-export async function generateForDate(
-  supabase: any,
-  isoDate: string,
-): Promise<DailyQuestion[]> {
+export async function generateForDate(supabase: any, isoDate: string): Promise<DailyQuestion[]> {
   const sections = sectionPattern(isoDate);
   const targetDomains = domainRotation(isoDate, sections);
   const targetDifficulties = DIFFICULTY_PATTERN;
@@ -225,7 +220,9 @@ async function pickOne(
   for (const t of tries) {
     let query = supabase
       .from("questions")
-      .select("id, domain_id, difficulty, expected_seconds, payload, passage_group_id, diagram_group_id")
+      .select(
+        "id, domain_id, difficulty, expected_seconds, payload, passage_group_id, diagram_group_id",
+      )
       .eq("domain_id", domainId)
       .eq("is_active", true)
       .limit(50);

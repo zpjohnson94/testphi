@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
 interface MomentumGaugeProps {
-  needle: number;        // 0..10
+  needle: number; // 0..10
   size?: number;
   animate?: boolean;
   delayMs?: number;
@@ -10,18 +10,51 @@ interface MomentumGaugeProps {
 // Returns colors/glow for a given needle stage (per spec table)
 function visualStage(n: number) {
   if (n <= 2) {
-    return { face: "#1b1d28", arc: "#3b4a66", needle: "#7d8aa6", glow: "transparent", pulse: false, vibrate: false };
+    return {
+      face: "#1b1d28",
+      arc: "#3b4a66",
+      needle: "#7d8aa6",
+      glow: "transparent",
+      pulse: false,
+      vibrate: false,
+    };
   }
   if (n <= 5) {
-    return { face: "#241e16", arc: "#a76a1a", needle: "#ffb74d", glow: "rgba(255,167,38,0.35)", pulse: false, vibrate: false };
+    return {
+      face: "#241e16",
+      arc: "#a76a1a",
+      needle: "#ffb74d",
+      glow: "rgba(255,167,38,0.35)",
+      pulse: false,
+      vibrate: false,
+    };
   }
   if (n <= 9) {
-    return { face: "#2a210b", arc: "#e0a020", needle: "#ffd54f", glow: "rgba(255,213,79,0.55)", pulse: true, vibrate: false };
+    return {
+      face: "#2a210b",
+      arc: "#e0a020",
+      needle: "#ffd54f",
+      glow: "rgba(255,213,79,0.55)",
+      pulse: true,
+      vibrate: false,
+    };
   }
-  return { face: "#1c2a2e", arc: "#80f0ff", needle: "#e8fbff", glow: "rgba(184,255,255,0.7)", pulse: true, vibrate: true };
+  return {
+    face: "#1c2a2e",
+    arc: "#80f0ff",
+    needle: "#e8fbff",
+    glow: "rgba(184,255,255,0.7)",
+    pulse: true,
+    vibrate: true,
+  };
 }
 
-export function MomentumGauge({ needle, size = 180, animate = true, delayMs = 0 }: MomentumGaugeProps) {
+export function MomentumGauge({
+  needle,
+  size = 180,
+  animate = true,
+  delayMs = 0,
+}: MomentumGaugeProps) {
   const [shown, setShown] = useState(animate ? 0 : needle);
   useEffect(() => {
     if (!animate) {
@@ -96,7 +129,10 @@ export function MomentumGauge({ needle, size = 180, animate = true, delayMs = 0 
         height={h + 6}
         viewBox={`0 0 ${w} ${h + 6}`}
         style={{
-          filter: stage.glow !== "transparent" ? `drop-shadow(0 0 ${10 + intensity * 18}px ${stage.glow})` : undefined,
+          filter:
+            stage.glow !== "transparent"
+              ? `drop-shadow(0 0 ${10 + intensity * 18}px ${stage.glow})`
+              : undefined,
           animation: stage.pulse ? "momentumPulse 2.4s ease-in-out infinite" : undefined,
         }}
       >
@@ -142,7 +178,7 @@ export function MomentumGauge({ needle, size = 180, animate = true, delayMs = 0 
         {superElectric && (
           <g style={{ animation: "boltFlash 0.4s steps(2) infinite" }}>
             {[0, 1, 2].map((i) => {
-              const a = -80 + (i * 80);
+              const a = -80 + i * 80;
               const ra = (a * Math.PI) / 180;
               const x1 = cx + Math.sin(ra) * (r - 20);
               const y1 = cy - Math.cos(ra) * (r - 20);

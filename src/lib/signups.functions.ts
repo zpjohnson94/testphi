@@ -63,9 +63,7 @@ export const updateSignup = createServerFn({ method: "POST" })
     if (data.notify_opt_in !== undefined) patch.notify_opt_in = data.notify_opt_in;
 
     // Upsert so direct landings on /plans or /coming-soon (no prior /signup) still capture data.
-    const { error } = await supabaseAdmin
-      .from("signups")
-      .upsert(patch, { onConflict: "email" });
+    const { error } = await supabaseAdmin.from("signups").upsert(patch, { onConflict: "email" });
 
     if (error) {
       console.error("updateSignup error", error);
